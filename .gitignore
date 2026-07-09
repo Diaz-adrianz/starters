@@ -4,3 +4,7 @@
 /nginx/certs/default.*
 /nginx/conf.d/*
 !/nginx/conf.d/default.conf
+
+# n8n
+/n8n/local-files
+!/n8n/local-files/README.MD
