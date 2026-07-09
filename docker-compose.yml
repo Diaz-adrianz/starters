@@ -1,6 +1,27 @@
 name: starters
 
 services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=${N8N_SUBDOMAIN}.${N8N_DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PATH=${N8N_PATH}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - NODE_ENV=production
+      - WEBHOOK_URL=${N8N_PROTOCOL}://${N8N_SUBDOMAIN}.${N8N_DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${N8N_GENERIC_TIMEZONE}
+      - TZ=${N8N_GENERIC_TIMEZONE}
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./n8n/local-files:/files
+    expose:
+      - '5678'
+
   nginx:
     image: nginx:1.27-alpine
     container_name: nginx
@@ -39,6 +60,7 @@ services:
       - '3306:3306'
 
 volumes:
+  n8n-data:
   certbot-etc:
   certbot-www:
   mysql-data:
