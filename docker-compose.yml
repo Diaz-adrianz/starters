@@ -33,7 +33,7 @@ services:
       MYSQL_ADMIN_PASSWORD: ${MYSQL_ADMIN_PASSWORD}
       MYSQL_ADMIN_ALLOWED_HOSTS: ${MYSQL_ADMIN_ALLOWED_HOSTS}
     volumes:
-      - ./mysql/scripts/init/:/docker-entrypoint-initdb.d:ro
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
       - mysql-data:/var/lib/mysql
     ports:
       - '3306:3306'
