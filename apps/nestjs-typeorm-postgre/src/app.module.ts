@@ -7,6 +7,7 @@ import { defaultDataSourceFactory } from './database/default/datasource';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { ValidationFilter } from './common/filters/validation.filter';
+import { TypeormFilter } from './common/filters/typeorm.filter';
 
 @Module({
   imports: [
@@ -36,6 +37,12 @@ import { ValidationFilter } from './common/filters/validation.filter';
     {
       provide: APP_FILTER,
       useClass: ValidationFilter,
+    },
+
+    // typeorm error handler
+    {
+      provide: APP_FILTER,
+      useClass: TypeormFilter,
     },
   ],
 })
