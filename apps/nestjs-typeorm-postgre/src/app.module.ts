@@ -4,6 +4,9 @@ import { EnvConfig, envConfig, envConfigSchema } from './config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsModule } from './modules/posts/posts.module';
 import { defaultDataSourceFactory } from './database/default/datasource';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { ValidationPipe } from './common/pipes/validation.pipe';
+import { ValidationFilter } from './common/filters/validation.filter';
 
 @Module({
   imports: [
@@ -23,6 +26,17 @@ import { defaultDataSourceFactory } from './database/default/datasource';
     }),
 
     PostsModule,
+  ],
+  providers: [
+    // validation
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ValidationFilter,
+    },
   ],
 })
 export class AppModule {}
