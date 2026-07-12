@@ -4,11 +4,12 @@ import { EnvConfig, envConfig, envConfigSchema } from './config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsModule } from './modules/posts/posts.module';
 import { defaultDataSourceFactory } from './database/default/datasource';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { ValidationFilter } from './common/filters/validation.filter';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -52,6 +53,12 @@ import { ExceptionFilter } from './common/filters/exception.filter';
     {
       provide: APP_FILTER,
       useClass: TypeormFilter,
+    },
+
+    // response format
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
     },
   ],
 })
