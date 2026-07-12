@@ -4,6 +4,7 @@ import { type PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgr
 import { SnakeNamingStrategy } from '../../shared/utils/typeorm-naming-strategy.util';
 import { EnvConfig, Mode } from '../../config/env.config';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 const buildDataSource = (
   mode: Mode,
@@ -15,14 +16,8 @@ const buildDataSource = (
   username: options.username,
   password: options.password,
   database: options.database,
-  entities: [
-    mode == 'production' ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts',
-  ],
-  migrations: [
-    mode == 'production'
-      ? 'dist/database/default/migrations/*.js'
-      : 'src/database/default/migrations/*.ts',
-  ],
+  entities: [join(__dirname, '../../modules/**/*.entity.{js,ts}')],
+  migrations: [join(__dirname, './migrations/*.{js,ts}')],
   migrationsRun: false,
   logging: mode !== 'production',
   synchronize: false,
