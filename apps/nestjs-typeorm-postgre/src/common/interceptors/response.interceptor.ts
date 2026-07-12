@@ -11,12 +11,19 @@ import { instanceToPlain } from 'class-transformer';
 import { ResponseDto } from '../../shared/dto/response.dto';
 import { DeleteResult, InsertResult, UpdateResult } from 'typeorm';
 import { PaginationDto } from '../../shared/dto/pagination.dto';
+import { Reflector } from '@nestjs/core';
+import {
+  RESPONSE_SUCCESS_METADATA,
+  ResponseSuccessMetadata,
+} from '../decorators/response-success.decorator';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor<
   any,
   ResponseDto<any>
 > {
+  constructor(private reflector: Reflector) {}
+
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -29,7 +36,11 @@ export class ResponseInterceptor implements NestInterceptor<
   responseHandler(res: unknown, context: ExecutionContext): ResponseDto<any> {
     const response = context.switchToHttp().getResponse<Response>();
     const statusCode = response.statusCode;
-    const message = 'success';
+    const message =
+      this.reflector.get<ResponseSuccessMetadata>(
+        RESPONSE_SUCCESS_METADATA,
+        context.getHandler(),
+      )?.message || 'success';
 
     return {
       statusCode,
