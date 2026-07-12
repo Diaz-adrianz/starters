@@ -8,6 +8,7 @@ import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { ValidationFilter } from './common/filters/validation.filter';
 import { TypeormFilter } from './common/filters/typeorm.filter';
+import { ExceptionFilter } from './common/filters/exception.filter';
 
 @Module({
   imports: [
@@ -29,11 +30,19 @@ import { TypeormFilter } from './common/filters/typeorm.filter';
     PostsModule,
   ],
   providers: [
-    // validation
+    // request validation
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
+
+    // any error handler
+    {
+      provide: APP_FILTER,
+      useClass: ExceptionFilter,
+    },
+
+    // validation error handler
     {
       provide: APP_FILTER,
       useClass: ValidationFilter,
