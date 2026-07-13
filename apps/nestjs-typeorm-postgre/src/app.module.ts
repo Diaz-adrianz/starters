@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvConfig, envConfig, envConfigSchema } from './config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostsModule } from './modules/posts/posts.module';
 import { defaultDataSourceFactory } from './database/default/datasource';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
@@ -28,7 +27,6 @@ import { UsersModule } from './modules/users/users.module';
         defaultDataSourceFactory(configService),
     }),
 
-    PostsModule,
     UsersModule,
   ],
   providers: [
