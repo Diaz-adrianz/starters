@@ -30,7 +30,7 @@ export class FindAllQuery {
 
   constructor(
     private dto: FindAllQueryDto,
-    private allowedInputs: string[] = [],
+    private blockedKeys: string[] = [],
   ) {
     // pagination control
     this.take = this.dto.limit;
@@ -51,8 +51,8 @@ export class FindAllQuery {
     };
   }
 
-  public allowInputs(...inputs: string[]) {
-    this.allowedInputs = [...this.allowedInputs, ...inputs];
+  public blockKeys(...keys: string[]) {
+    this.blockedKeys = [...this.blockedKeys, ...keys];
   }
 
   public addWhere(key: string, value: FindOperator<any> | string) {
@@ -144,7 +144,7 @@ export class FindAllQuery {
     key: string,
     value: FindOperator<any> | string,
   ) {
-    if (!this.allowedInputs.includes(key)) return;
+    if (this.blockedKeys.includes(key)) return;
     const path = key.split('.');
     this.setNestedQuery(target, path, value);
   }
