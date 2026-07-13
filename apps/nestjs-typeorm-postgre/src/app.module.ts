@@ -9,6 +9,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     }),
 
     PostsModule,
+    UsersModule,
   ],
   providers: [
     // request validation
