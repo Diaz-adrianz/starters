@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
+import { FindAllQuery } from '../../common/classes/findall-query';
 
 @Controller('posts')
 export class PostsController {
@@ -21,8 +24,9 @@ export class PostsController {
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query() query: FindAllQueryDto) {
+    const q = new FindAllQuery(query);
+    return this.postsService.findAll(q);
   }
 
   @Get(':id')

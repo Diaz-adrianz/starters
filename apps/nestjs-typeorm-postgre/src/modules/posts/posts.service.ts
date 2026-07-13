@@ -4,6 +4,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Repository } from 'typeorm';
+import { FindAllQuery } from '../../common/classes/findall-query';
 
 @Injectable()
 export class PostsService {
@@ -13,8 +14,8 @@ export class PostsService {
     return this.postRepo.insert(createPostDto);
   }
 
-  findAll() {
-    return this.postRepo.findAndCount();
+  findAll(query: FindAllQuery['query']) {
+    return this.postRepo.findAndCount(query);
   }
 
   findOne(id: string) {
