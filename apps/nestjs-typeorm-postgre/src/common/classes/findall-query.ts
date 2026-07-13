@@ -18,11 +18,13 @@ export type FindAllOptions = {
   take: number;
   where: Record<string, any>;
   order: Record<string, any>;
+  withDeleted: boolean;
 };
 
 export class FindAllQuery {
   where: FindAllOptions['where'] = {};
   order: FindAllOptions['order'] = {};
+  withDeleted: FindAllOptions['withDeleted'] = false;
   skip: number;
   take: number;
 
@@ -30,8 +32,13 @@ export class FindAllQuery {
     private dto: FindAllQueryDto,
     private allowedInputs: string[] = [],
   ) {
+    // pagination control
     this.take = this.dto.limit;
     this.skip = (this.dto.page - 1) * (this.take || 0);
+
+    // trash view
+    this.withDeleted = this.dto.trash;
+    this.addQuery(this.where, 'deletedAt', Not(IsNull()));
   }
 
   public toOptions(): FindAllOptions {
@@ -40,6 +47,7 @@ export class FindAllQuery {
       take: this.take,
       where: this.buildWhere(),
       order: this.buildOrder(),
+      withDeleted: this.withDeleted,
     };
   }
 

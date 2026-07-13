@@ -25,7 +25,12 @@ export class PostsController {
 
   @Get()
   findAll(@Query() query: FindAllQueryDto) {
-    const q = new FindAllQuery(query, ['content', 'createdAt', 'updatedAt']);
+    const q = new FindAllQuery(query, [
+      'content',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ]);
     return this.postsService.findAll(q.toOptions());
   }
 
