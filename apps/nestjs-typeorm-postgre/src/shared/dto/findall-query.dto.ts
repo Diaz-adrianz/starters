@@ -1,7 +1,44 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { QueryPattern } from '../../common/decorators/query-pattern.decorator';
+import { OrderPattern } from '../../common/decorators/order-pattern.decorator';
 
 export class FindAllQueryDto {
+  @IsOptional()
+  @QueryPattern()
+  search?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  starts?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  where?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  in?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  nin?: string;
+
+  @IsOptional()
+  isnull?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  gte?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  lte?: string;
+
+  @IsOptional()
+  @QueryPattern()
+  between?: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -14,4 +51,8 @@ export class FindAllQueryDto {
   @IsInt()
   @Min(1)
   page: number = 1;
+
+  @IsOptional()
+  @OrderPattern()
+  order?: string;
 }
