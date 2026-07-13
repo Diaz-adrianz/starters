@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -19,4 +20,7 @@ export class Post {
 
   @UpdateDateColumn()
   updatedAt: string;
+
+  @DeleteDateColumn()
+  deletedAt: string;
 }

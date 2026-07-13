@@ -39,8 +39,18 @@ export class PostsController {
     return this.postsService.update(id, updatePostDto);
   }
 
+  @Delete(':id/soft')
+  softDelete(@Param('id') id: string) {
+    return this.postsService.softDelete(id);
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.postsService.restore(id);
+  }
+
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.postsService.delete(id);
   }
 }

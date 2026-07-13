@@ -26,7 +26,15 @@ export class PostsService {
     return this.postRepo.update({ id }, updatePostDto);
   }
 
-  remove(id: string) {
+  softDelete(id: string) {
+    return this.postRepo.softDelete({ id });
+  }
+
+  restore(id: string) {
+    return this.postRepo.restore({ id });
+  }
+
+  delete(id: string) {
     return this.postRepo.delete({ id });
   }
 }
