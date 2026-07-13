@@ -38,7 +38,7 @@ export class FindAllQuery {
 
     // trash view
     this.withDeleted = this.dto.trash;
-    this.addQuery(this.where, 'deletedAt', Not(IsNull()));
+    if (this.withDeleted) this.addQuery(this.where, 'deletedAt', Not(IsNull()));
   }
 
   public toOptions(): FindAllOptions {
