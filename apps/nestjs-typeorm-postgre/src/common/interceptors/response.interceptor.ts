@@ -49,7 +49,7 @@ export class ResponseInterceptor implements NestInterceptor<
     };
   }
 
-  private resolveData(res: unknown): any {
+  private resolveData(res: unknown) {
     if (
       res instanceof InsertResult ||
       res instanceof UpdateResult ||
@@ -77,10 +77,17 @@ export class ResponseInterceptor implements NestInterceptor<
         limit: 10,
         totalItems: total,
         totalPages: 1,
-        items: instanceToPlain(items),
+        items: this.toPlain(items),
       } as PaginationDto;
     }
 
-    return instanceToPlain(res);
+    return this.toPlain(res);
+  }
+
+  private toPlain(data: unknown): unknown {
+    if (data === null || data === undefined) return data;
+    if (typeof data !== 'object') return data;
+    if (Array.isArray(data)) return data.map((item) => this.toPlain(item));
+    return instanceToPlain(data);
   }
 }
