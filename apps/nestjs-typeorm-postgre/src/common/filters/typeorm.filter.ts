@@ -4,7 +4,7 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
-import { EntityNotFoundError, TypeORMError } from 'typeorm';
+import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -37,6 +37,33 @@ export class TypeormFilter implements ExceptionFilter {
       } catch {
         // silent
       }
+    } else if (exception instanceof QueryFailedError) {
+      if (
+        exception.message.includes(
+          'duplicate key value violates unique constraint',
+        )
+      ) {
+        body.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
+        body.message = 'Duplicate entry detected';
+
+        if ('detail' in exception) {
+          try {
+            const match = (exception?.detail as string).match(
+              /Key \((\w+)\)=\((.*?)\) already exist/i,
+            );
+            if (match) {
+              const [_, field, value] = match;
+              body.message = `${field.charAt(0).toUpperCase() + field.slice(1)} ${value} already exists.`;
+            }
+          } catch {
+            // silent
+          }
+        }
+      }
+    }
+
+    if (!isProd) {
+      body.stack = exception.stack?.split('\n');
     }
 
     res.status(body.statusCode).json(body);
