@@ -6,7 +6,6 @@ import { PostsModule } from './modules/posts/posts.module';
 import { defaultDataSourceFactory } from './database/default/datasource';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
-import { ValidationFilter } from './common/filters/validation.filter';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -41,12 +40,6 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     {
       provide: APP_FILTER,
       useClass: ExceptionFilter,
-    },
-
-    // validation error handler
-    {
-      provide: APP_FILTER,
-      useClass: ValidationFilter,
     },
 
     // typeorm error handler

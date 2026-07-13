@@ -9,6 +9,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
+import { ValidationException } from '../classes/exceptions/validation.exception';
 
 @Catch()
 export class ExceptionFilter implements NestExceptionFilter {
@@ -35,8 +36,13 @@ export class ExceptionFilter implements NestExceptionFilter {
       message: 'Internal server error',
     };
 
+    if (exception instanceof ValidationException) {
+      body.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
+      body.message = 'Validation error';
+      body.errors = exception.formatErrors();
+    }
+
     if (!isProd) {
-      body.message = exception.message;
       body.stack = exception.stack?.split('\n');
     }
 

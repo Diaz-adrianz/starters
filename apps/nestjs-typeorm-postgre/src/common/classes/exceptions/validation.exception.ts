@@ -1,9 +1,10 @@
-import { ValidationError } from '@nestjs/common';
+import { HttpException, HttpStatus, ValidationError } from '@nestjs/common';
 
-export class ValidationException {
+export class ValidationException extends HttpException {
   errors: ValidationError[];
 
   constructor(errors: ValidationError[]) {
+    super('Validation Error', HttpStatus.UNPROCESSABLE_ENTITY);
     this.errors = errors;
   }
 
