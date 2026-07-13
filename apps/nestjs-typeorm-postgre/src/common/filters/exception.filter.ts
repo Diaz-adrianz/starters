@@ -18,7 +18,7 @@ export class ExceptionFilter implements NestExceptionFilter {
     private configService: ConfigService<EnvConfig>,
   ) {}
 
-  catch(exception: Error, host: ArgumentsHost): void {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const isProd =
       this.configService.getOrThrow('mode', { infer: true }) == 'production';
 
@@ -26,15 +26,15 @@ export class ExceptionFilter implements NestExceptionFilter {
 
     const ctx = host.switchToHttp();
 
-    const httpStatus =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
     const body: ExceptionResponseDto = {
-      statusCode: httpStatus,
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal server error',
     };
+
+    if (exception instanceof HttpException) {
+      body.statusCode = exception.getStatus();
+      body.message = exception.message;
+    }
 
     if (exception instanceof ValidationException) {
       body.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
@@ -42,10 +42,10 @@ export class ExceptionFilter implements NestExceptionFilter {
       body.errors = exception.formatErrors();
     }
 
-    if (!isProd) {
+    if (!isProd && exception instanceof Error) {
       body.stack = exception.stack?.split('\n');
     }
 
-    httpAdapter.reply(ctx.getResponse(), body, httpStatus);
+    httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
   }
 }
