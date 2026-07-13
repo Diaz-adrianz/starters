@@ -5,7 +5,7 @@ export class FindAllQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(2)
+  @Min(5)
   @Max(50)
   limit: number = 20;
 

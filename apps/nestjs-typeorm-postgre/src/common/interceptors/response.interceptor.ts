@@ -6,16 +6,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { Response } from 'express';
-import { instanceToPlain } from 'class-transformer';
+import { Request, Response } from 'express';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResponseDto } from '../../shared/dto/response.dto';
 import { DeleteResult, InsertResult, UpdateResult } from 'typeorm';
-import { PaginationDto } from '../../shared/dto/pagination.dto';
 import { Reflector } from '@nestjs/core';
 import {
   RESPONSE_SUCCESS_METADATA,
   ResponseSuccessMetadata,
 } from '../decorators/response-success.decorator';
+import { PaginationResponseDto } from '../../shared/dto/pagination-response.dto';
+import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor<
@@ -33,8 +34,9 @@ export class ResponseInterceptor implements NestInterceptor<
       .pipe(map((data) => this.responseHandler(data, context)));
   }
 
-  responseHandler(res: unknown, context: ExecutionContext): ResponseDto<any> {
+  responseHandler(data: unknown, context: ExecutionContext): ResponseDto<any> {
     const response = context.switchToHttp().getResponse<Response>();
+    const request = context.switchToHttp().getRequest<Request>();
     const statusCode = response.statusCode;
     const message =
       this.reflector.get<ResponseSuccessMetadata>(
@@ -45,19 +47,19 @@ export class ResponseInterceptor implements NestInterceptor<
     return {
       statusCode,
       message,
-      data: this.resolveData(res),
+      data: this.resolveData(data, request),
     };
   }
 
-  private resolveData(res: unknown) {
+  private resolveData(data: unknown, request: Request) {
     if (
-      res instanceof InsertResult ||
-      res instanceof UpdateResult ||
-      res instanceof DeleteResult
+      data instanceof InsertResult ||
+      data instanceof UpdateResult ||
+      data instanceof DeleteResult
     ) {
       if (
-        (res instanceof DeleteResult || res instanceof UpdateResult) &&
-        !res.affected
+        (data instanceof DeleteResult || data instanceof UpdateResult) &&
+        !data.affected
       ) {
         throw new NotFoundException('Entry not found');
       }
@@ -65,23 +67,23 @@ export class ResponseInterceptor implements NestInterceptor<
     }
 
     if (
-      Array.isArray(res) &&
-      res.length === 2 &&
-      Array.isArray(res[0]) &&
-      typeof res[1] === 'number'
+      Array.isArray(data) &&
+      data.length === 2 &&
+      Array.isArray(data[0]) &&
+      typeof data[1] === 'number'
     ) {
-      const [items, total] = res as [unknown[], number];
+      const [items, total] = data as [unknown[], number];
+      const query = plainToInstance(FindAllQueryDto, request.query || {});
 
-      return {
-        page: 1,
-        limit: 10,
-        totalItems: total,
-        totalPages: 1,
-        items: this.toPlain(items),
-      } as PaginationDto;
+      return new PaginationResponseDto(
+        this.toPlain(items) as unknown[],
+        total,
+        query.page,
+        query.limit,
+      );
     }
 
-    return this.toPlain(res);
+    return this.toPlain(data);
   }
 
   private toPlain(data: unknown): unknown {
