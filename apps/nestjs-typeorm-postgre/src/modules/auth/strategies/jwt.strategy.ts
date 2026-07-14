@@ -4,11 +4,15 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { AccessTokenPayload } from '../interfaces/jwt-payload.interface';
-import { Session } from '../../../common/interfaces/session.interface';
+import { User } from '../../users/entities/user.entity';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private configService: ConfigService<EnvConfig>) {
+  constructor(
+    private configService: ConfigService<EnvConfig>,
+    private authService: AuthService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -18,10 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  validate(payload: AccessTokenPayload): Session {
-    return {
-      id: payload.sub,
-      username: payload.usn,
-    };
+  async validate(payload: AccessTokenPayload): Promise<User> {
+    const user = await this.authService.getUserCached(payload.sub);
+    return user;
   }
 }

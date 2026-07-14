@@ -10,6 +10,8 @@ import { AccessTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
+import { DefaultCacheService } from '../../cache/default/default-cache.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -17,11 +19,14 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService<EnvConfig>,
+    private cacheService: DefaultCacheService,
   ) {}
 
   async signIn(user: User) {
     const payload: AccessTokenPayload = { sub: user.id, usn: user.username };
     const accessToken = await this.signAccessToken(payload);
+
+    await this.setUserCache(user);
 
     return {
       user: user,
@@ -43,6 +48,32 @@ export class AuthService {
 
     this.checkUserActive(user);
     return user;
+  }
+
+  // caching
+  async setUserCache(user: User) {
+    await this.cacheService.set(`user:${user.id}`, user);
+  }
+
+  async getUserCached(userId: string) {
+    let user = await this.cacheService.get<User>(`user:${userId}`);
+
+    if (!user) {
+      // TODO: replace with logger
+      console.log(`Cache miss for user ${userId}`);
+      user = await this.usersService.findOne(userId);
+      await this.setUserCache(user);
+    } else {
+      console.log(`Cache hit for user ${userId}`);
+      user = plainToInstance(User, user);
+    }
+
+    this.checkUserActive(user);
+    return user;
+  }
+
+  async delUserCached(userId: string) {
+    await this.cacheService.del(`user:${userId}`);
   }
 
   // utils

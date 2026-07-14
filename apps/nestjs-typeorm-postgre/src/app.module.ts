@@ -11,6 +11,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
+import { DefaultCacheModule } from './cache/default/default-cache.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { JwtGuard } from './common/guards/jwt.guard';
 
     UsersModule,
     AuthModule,
+    DefaultCacheModule,
   ],
   providers: [
     // auth guard

@@ -22,6 +22,12 @@ export const envConfig = () => ({
     },
     issuer: process.env.JWT_ISSUER,
   },
+  cache: {
+    default: {
+      host: process.env.CACHE_HOST,
+      port: parseInt(process.env.CACHE_PORT ?? ''),
+    },
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -40,4 +46,6 @@ export const envConfigSchema = joi.object({
   JWT_ACCESS_SECRET: joi.string().required(),
   JWT_ACCESS_EXPIRE: joi.string().required(),
   JWT_ISSUER: joi.string().required(),
+  CACHE_HOST: joi.string().required(),
+  CACHE_PORT: joi.number().required(),
 });

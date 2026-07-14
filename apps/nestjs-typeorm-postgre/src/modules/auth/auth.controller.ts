@@ -3,7 +3,6 @@ import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
 import { User } from '../users/entities/user.entity';
 import { RequestUser } from '../../common/decorators/request-user.decorator';
-import { type Session } from '../../common/interfaces/session.interface';
 import { Public } from '../../common/decorators/public.decorator';
 
 @Controller('auth')
@@ -19,7 +18,7 @@ export class AuthController {
   }
 
   @Get('/me')
-  me(@RequestUser() user: Session) {
+  me(@RequestUser() user: User) {
     return { user };
   }
 }
