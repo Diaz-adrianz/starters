@@ -44,6 +44,7 @@ export class AuthService {
       lastUsedAt: new Date().toISOString(),
     };
 
+    await this.setSessions(user.id, 'add', sessionId);
     await this.saveSession(sessionId, session);
 
     return {
@@ -69,7 +70,24 @@ export class AuthService {
   }
 
   // session management
-  async saveSession(sessionId: string, payload: Session) {
+  private async setSessions(
+    userId: string,
+    op: 'add' | 'remove',
+    sessionId: string,
+  ) {
+    let sessions =
+      (await this.cacheService.get<string[]>((k) => k.userSessions(userId))) ??
+      [];
+
+    // TODO: track same deviceId, userAgent, and IP as suspicious activity
+    if (op === 'add' && !sessions.includes(sessionId)) sessions.push(sessionId);
+    else if (op === 'remove')
+      sessions = sessions.filter((id) => id !== sessionId);
+
+    await this.cacheService.set((k) => k.userSessions(userId), sessions);
+  }
+
+  private async saveSession(sessionId: string, payload: Session) {
     await this.cacheService.set(
       (k) => k.session(sessionId),
       payload,
@@ -129,7 +147,7 @@ export class AuthService {
       throw new ForbiddenException('Account suspended or not verified.');
   }
 
-  signAccessToken(payload: JwtTokenPayload) {
+  private signAccessToken(payload: JwtTokenPayload) {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
