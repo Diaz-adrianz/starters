@@ -13,7 +13,7 @@ import { RequestUser } from '../../common/decorators/request-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { RequestClientInfo } from '../../common/decorators/request-client-info.decorator';
 import type { ClientInfo } from '../../common/interfaces/client-info.interface';
-import type { Session } from '../../common/interfaces/session.interface';
+import type { Session } from '../../common/classes/session.class';
 import { RefreshSessionDto } from './dto/refresh-session.dto';
 import { SignOutDto } from './dto/sign-out.dto';
 

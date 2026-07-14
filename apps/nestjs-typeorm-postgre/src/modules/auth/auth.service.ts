@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
 import { DefaultCacheService } from '../../cache/default/default-cache.service';
 import { getRandomString, sha256 } from '../../shared/utils/string.util';
-import { Session } from '../../common/interfaces/session.interface';
+import { Session } from '../../common/classes/session.class';
 import { ClientInfo } from '../../common/interfaces/client-info.interface';
 import { RefreshSessionDto } from './dto/refresh-session.dto';
 import { SignOutDto } from './dto/sign-out.dto';
