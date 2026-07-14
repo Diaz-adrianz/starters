@@ -6,6 +6,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { type Session } from '../interfaces/session.interface';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -14,6 +15,12 @@ export class JwtGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     return super.canActivate(context);
   }
 
