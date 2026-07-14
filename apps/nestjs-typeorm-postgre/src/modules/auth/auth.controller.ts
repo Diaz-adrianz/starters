@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
 import { User } from '../users/entities/user.entity';
@@ -7,6 +14,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { RequestClientInfo } from '../../common/decorators/request-client-info.decorator';
 import type { ClientInfo } from '../../common/interfaces/client-info.interface';
 import type { Session } from '../../common/interfaces/session.interface';
+import { RefreshSessionDto } from './dto/refresh-session.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +29,12 @@ export class AuthController {
     @RequestUser() user: User,
   ) {
     return this.authService.signIn(user, clientInfo);
+  }
+
+  @Public()
+  @Post('/refresh')
+  refreshSession(@Body() refreshSessionDto: RefreshSessionDto) {
+    return this.authService.refreshSession(refreshSessionDto);
   }
 
   @Get('/me')

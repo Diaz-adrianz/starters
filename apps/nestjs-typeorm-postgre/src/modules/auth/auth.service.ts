@@ -17,6 +17,7 @@ import { DefaultCacheService } from '../../cache/default/default-cache.service';
 import { getRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/interfaces/session.interface';
 import { ClientInfo } from '../../common/interfaces/client-info.interface';
+import { RefreshSessionDto } from './dto/refresh-session.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,13 +48,7 @@ export class AuthService {
       lastUsedAt: new Date().toISOString(),
     };
 
-    await this.cacheService.set(
-      (k) => k.session(sessionId),
-      session,
-      this.configService.getOrThrow('jwt.refresh.expire', {
-        infer: true,
-      }),
-    );
+    await this.saveSession(sessionId, session);
 
     return {
       user: user,
@@ -77,11 +72,63 @@ export class AuthService {
     return user;
   }
 
+  // session management
+  async saveSession(sessionId: string, payload: Session) {
+    await this.cacheService.set(
+      (k) => k.session(sessionId),
+      payload,
+      this.configService.getOrThrow('jwt.refresh.expire', {
+        infer: true,
+      }),
+    );
+  }
+
   async findSession(sessionId: string) {
     const session = await this.cacheService.get<Session>((k) =>
       k.session(sessionId),
     );
     return session;
+  }
+
+  async refreshSession(dto: RefreshSessionDto) {
+    let rtPayload: RefreshTokenPayload;
+    try {
+      rtPayload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+        dto.refreshToken,
+        {
+          secret: this.configService.getOrThrow('jwt.refresh.secret', {
+            infer: true,
+          }),
+        },
+      );
+    } catch {
+      throw new UnauthorizedException('Expired session');
+    }
+
+    const session = await this.findSession(rtPayload.sid);
+    if (!session) throw new UnauthorizedException('Expired session');
+
+    // TODO: track missmatch RT, userAgent, and IP as suspicious activity
+    const rtHash = sha256(dto.refreshToken);
+    if (rtHash != session.rtHash)
+      throw new UnauthorizedException('Expired session');
+
+    const atPayload: AccessTokenPayload = {
+      sub: rtPayload.sub,
+      sid: rtPayload.sid,
+    };
+    const [at, newRt] = await Promise.all([
+      this.signAccessToken(atPayload),
+      this.signRefreshToken(rtPayload),
+    ]);
+
+    const newRtHash = sha256(newRt);
+    const newSession: Session = { ...session, rtHash: newRtHash };
+
+    await this.saveSession(rtPayload.sid, newSession);
+    return {
+      tokens: { access: at, refresh: newRt },
+    };
   }
 
   // utils
