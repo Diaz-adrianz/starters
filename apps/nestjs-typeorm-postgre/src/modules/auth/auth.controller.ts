@@ -15,6 +15,7 @@ import { RequestClientInfo } from '../../common/decorators/request-client-info.d
 import type { ClientInfo } from '../../common/interfaces/client-info.interface';
 import type { Session } from '../../common/interfaces/session.interface';
 import { RefreshSessionDto } from './dto/refresh-session.dto';
+import { SignOutDto } from './dto/sign-out.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,12 @@ export class AuthController {
   @Post('/refresh')
   refreshSession(@Body() refreshSessionDto: RefreshSessionDto) {
     return this.authService.refreshSession(refreshSessionDto);
+  }
+
+  @Public()
+  @Post('/sign-out')
+  signOut(@Body() signOutDto: SignOutDto) {
+    return this.authService.signOut(signOutDto);
   }
 
   @Get('/me')

@@ -15,6 +15,7 @@ import { getRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/interfaces/session.interface';
 import { ClientInfo } from '../../common/interfaces/client-info.interface';
 import { RefreshSessionDto } from './dto/refresh-session.dto';
+import { SignOutDto } from './dto/sign-out.dto';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +52,13 @@ export class AuthService {
       user: user,
       tokens: { access: at, refresh: rt },
     };
+  }
+
+  async signOut(dto: SignOutDto) {
+    const rtPayload = await this.verifyRefreshToken(dto.refreshToken, true);
+
+    await this.cacheService.del((k) => k.session(rtPayload.sid));
+    await this.setSessions(rtPayload.sub, 'remove', rtPayload.sid);
   }
 
   // auth validations
@@ -93,7 +101,7 @@ export class AuthService {
       payload,
       this.configService.getOrThrow('jwt.refresh.expire', {
         infer: true,
-      }),
+      }) * 1000,
     );
   }
 
@@ -105,19 +113,7 @@ export class AuthService {
   }
 
   async refreshSession(dto: RefreshSessionDto) {
-    let tokenPayload: JwtTokenPayload;
-    try {
-      tokenPayload = await this.jwtService.verifyAsync<JwtTokenPayload>(
-        dto.refreshToken,
-        {
-          secret: this.configService.getOrThrow('jwt.refresh.secret', {
-            infer: true,
-          }),
-        },
-      );
-    } catch {
-      throw new UnauthorizedException('Expired session');
-    }
+    const tokenPayload = await this.verifyRefreshToken(dto.refreshToken);
 
     const session = await this.findSession(tokenPayload.sid);
     if (!session) throw new UnauthorizedException('Expired session');
@@ -162,7 +158,7 @@ export class AuthService {
     );
   }
 
-  signRefreshToken(payload: JwtTokenPayload) {
+  private signRefreshToken(payload: JwtTokenPayload) {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
@@ -175,5 +171,21 @@ export class AuthService {
         issuer: this.configService.getOrThrow('jwt.issuer', { infer: true }),
       },
     );
+  }
+
+  private async verifyRefreshToken(
+    token: string,
+    ignoreExpiration: boolean = false,
+  ) {
+    try {
+      return await this.jwtService.verifyAsync<JwtTokenPayload>(token, {
+        secret: this.configService.getOrThrow('jwt.refresh.secret', {
+          infer: true,
+        }),
+        ignoreExpiration,
+      });
+    } catch {
+      throw new UnauthorizedException('Expired session');
+    }
   }
 }
