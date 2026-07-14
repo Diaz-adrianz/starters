@@ -4,8 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { AccessTokenPayload } from '../interfaces/jwt-payload.interface';
-import { User } from '../../users/entities/user.entity';
 import { AuthService } from '../auth.service';
+import { Session } from '../../../common/interfaces/session.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -22,8 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: AccessTokenPayload): Promise<User> {
-    const user = await this.authService.getUserCached(payload.sub);
-    return user;
+  async validate(payload: AccessTokenPayload): Promise<Session | undefined> {
+    const session = await this.authService.findSession(payload.sid);
+    return session;
   }
 }

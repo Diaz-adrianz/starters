@@ -6,7 +6,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { User } from '../../modules/users/entities/user.entity';
+import { Session } from '../interfaces/session.interface';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -24,9 +24,9 @@ export class JwtGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = User>(
+  handleRequest<TUser = Session>(
     err: any,
-    user: TUser | false | null,
+    user: TUser | false | null | undefined,
     _info: any,
   ): TUser {
     if (err || !user)

@@ -18,7 +18,11 @@ export const envConfig = () => ({
   jwt: {
     access: {
       secret: process.env.JWT_ACCESS_SECRET,
-      expire: process.env.JWT_ACCESS_EXPIRE,
+      expire: parseInt(process.env.JWT_ACCESS_EXPIRE ?? ''),
+    },
+    refresh: {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expire: parseInt(process.env.JWT_REFRESH_EXPIRE ?? ''),
     },
     issuer: process.env.JWT_ISSUER,
   },
@@ -44,7 +48,9 @@ export const envConfigSchema = joi.object({
   DATABASE_DEFAULT_PASSWORD: joi.string().required(),
   DATABASE_DEFAULT_NAME: joi.string().required(),
   JWT_ACCESS_SECRET: joi.string().required(),
-  JWT_ACCESS_EXPIRE: joi.string().required(),
+  JWT_ACCESS_EXPIRE: joi.number().required(),
+  JWT_REFRESH_SECRET: joi.string().required(),
+  JWT_REFRESH_EXPIRE: joi.number().required(),
   JWT_ISSUER: joi.string().required(),
   CACHE_HOST: joi.string().required(),
   CACHE_PORT: joi.number().required(),

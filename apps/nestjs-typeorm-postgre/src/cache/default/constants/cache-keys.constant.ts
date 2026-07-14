@@ -1,3 +1,3 @@
 export const CacheKeys = {
-  user: (userId: string) => `user:${userId}`,
+  session: (sessionId: string) => `session:${sessionId}`,
 };
