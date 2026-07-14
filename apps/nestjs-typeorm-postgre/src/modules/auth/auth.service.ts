@@ -6,10 +6,7 @@ import {
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
-import {
-  AccessTokenPayload,
-  RefreshTokenPayload,
-} from './interfaces/jwt-payload.interface';
+import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
@@ -31,11 +28,10 @@ export class AuthService {
   async signIn(user: User, clientInfo?: ClientInfo) {
     const sessionId = getRandomString(12);
 
-    const atPayload: AccessTokenPayload = { sub: user.id, sid: sessionId };
-    const rtPayload: RefreshTokenPayload = { sub: user.id, sid: sessionId };
+    const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
     const [at, rt] = await Promise.all([
-      this.signAccessToken(atPayload),
-      this.signRefreshToken(rtPayload),
+      this.signAccessToken(tokenPayload),
+      this.signRefreshToken(tokenPayload),
     ]);
 
     const session: Session = {
@@ -91,9 +87,9 @@ export class AuthService {
   }
 
   async refreshSession(dto: RefreshSessionDto) {
-    let rtPayload: RefreshTokenPayload;
+    let tokenPayload: JwtTokenPayload;
     try {
-      rtPayload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+      tokenPayload = await this.jwtService.verifyAsync<JwtTokenPayload>(
         dto.refreshToken,
         {
           secret: this.configService.getOrThrow('jwt.refresh.secret', {
@@ -105,7 +101,7 @@ export class AuthService {
       throw new UnauthorizedException('Expired session');
     }
 
-    const session = await this.findSession(rtPayload.sid);
+    const session = await this.findSession(tokenPayload.sid);
     if (!session) throw new UnauthorizedException('Expired session');
 
     // TODO: track missmatch RT, userAgent, and IP as suspicious activity
@@ -113,19 +109,15 @@ export class AuthService {
     if (rtHash != session.rtHash)
       throw new UnauthorizedException('Expired session');
 
-    const atPayload: AccessTokenPayload = {
-      sub: rtPayload.sub,
-      sid: rtPayload.sid,
-    };
     const [at, newRt] = await Promise.all([
-      this.signAccessToken(atPayload),
-      this.signRefreshToken(rtPayload),
+      this.signAccessToken(tokenPayload),
+      this.signRefreshToken(tokenPayload),
     ]);
 
     const newRtHash = sha256(newRt);
     const newSession: Session = { ...session, rtHash: newRtHash };
 
-    await this.saveSession(rtPayload.sid, newSession);
+    await this.saveSession(tokenPayload.sid, newSession);
     return {
       tokens: { access: at, refresh: newRt },
     };
@@ -137,7 +129,7 @@ export class AuthService {
       throw new ForbiddenException('Account suspended or not verified.');
   }
 
-  signAccessToken(payload: AccessTokenPayload) {
+  signAccessToken(payload: JwtTokenPayload) {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
@@ -152,7 +144,7 @@ export class AuthService {
     );
   }
 
-  signRefreshToken(payload: RefreshTokenPayload) {
+  signRefreshToken(payload: JwtTokenPayload) {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
