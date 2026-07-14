@@ -26,7 +26,7 @@ export class AuthService {
     const payload: AccessTokenPayload = { sub: user.id, usn: user.username };
     const accessToken = await this.signAccessToken(payload);
 
-    await this.setUserCache(user);
+    await this.cacheService.set((keys) => keys.user(user.id), user);
 
     return {
       user: user,
@@ -51,29 +51,20 @@ export class AuthService {
   }
 
   // caching
-  async setUserCache(user: User) {
-    await this.cacheService.set(`user:${user.id}`, user);
-  }
-
   async getUserCached(userId: string) {
-    let user = await this.cacheService.get<User>(`user:${userId}`);
+    let user = await this.cacheService.get<User>((k) => k.user(userId));
 
     if (!user) {
       // TODO: replace with logger
       console.log(`Cache miss for user ${userId}`);
       user = await this.usersService.findOne(userId);
-      await this.setUserCache(user);
+      await this.cacheService.set((k) => k.user(userId), user);
     } else {
-      console.log(`Cache hit for user ${userId}`);
       user = plainToInstance(User, user);
     }
 
     this.checkUserActive(user);
     return user;
-  }
-
-  async delUserCached(userId: string) {
-    await this.cacheService.del(`user:${userId}`);
   }
 
   // utils
