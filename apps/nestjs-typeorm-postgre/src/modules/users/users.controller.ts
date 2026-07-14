@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
-import { FindAllQuery } from '../../common/classes/findall-query';
+import { FindAllQuery } from '../../shared/classes/findall-query.class';
 
 @Controller('users')
 export class UsersController {

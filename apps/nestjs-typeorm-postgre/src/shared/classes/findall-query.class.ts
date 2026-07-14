@@ -10,7 +10,7 @@ import {
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
-import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
+import { FindAllQueryDto } from '../dto/findall-query.dto';
 import { isBooleanString, isDateString, isNumberString } from 'class-validator';
 
 export type FindAllOptions = {
