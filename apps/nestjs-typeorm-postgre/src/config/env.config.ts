@@ -15,6 +15,13 @@ export const envConfig = () => ({
       name: process.env.DATABASE_DEFAULT_NAME,
     },
   },
+  jwt: {
+    access: {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expire: process.env.JWT_ACCESS_EXPIRE,
+    },
+    issuer: process.env.JWT_ISSUER,
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -30,4 +37,7 @@ export const envConfigSchema = joi.object({
   DATABASE_DEFAULT_USERNAME: joi.string().required(),
   DATABASE_DEFAULT_PASSWORD: joi.string().required(),
   DATABASE_DEFAULT_NAME: joi.string().required(),
+  JWT_ACCESS_SECRET: joi.string().required(),
+  JWT_ACCESS_EXPIRE: joi.string().required(),
+  JWT_ISSUER: joi.string().required(),
 });
