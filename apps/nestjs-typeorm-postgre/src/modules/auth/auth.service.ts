@@ -53,7 +53,7 @@ export class AuthService {
 
   signAccessToken(payload: AccessTokenPayload) {
     return this.jwtService.signAsync(
-      { sub: payload.sub },
+      { sub: payload.sub, usn: payload.usn },
       {
         secret: this.configService.getOrThrow('jwt.access.secret', {
           infer: true,
