@@ -9,6 +9,7 @@ import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
 
     UsersModule,
+    AuthModule,
   ],
   providers: [
     // request validation

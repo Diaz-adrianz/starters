@@ -33,6 +33,12 @@ export class UsersService {
     return this.userRepo.findOneOrFail({ where: { id } });
   }
 
+  findByUsernameOrEmail(value: string) {
+    return this.userRepo.findOneOrFail({
+      where: [{ username: value }, { email: value }],
+    });
+  }
+
   update(id: string, updateUserDto: UpdateUserDto) {
     return this.userRepo.update({ id }, updateUserDto);
   }
