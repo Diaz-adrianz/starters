@@ -45,7 +45,6 @@ export class AuthService {
       lastUsedAt: new Date().toISOString(),
     };
 
-    await this.setSessions(user.id, 'add', sessionId);
     await this.saveSession(sessionId, session);
 
     return {
@@ -58,7 +57,6 @@ export class AuthService {
     const rtPayload = await this.verifyRefreshToken(dto.refreshToken, true);
 
     await this.cacheService.del((k) => k.session(rtPayload.sid));
-    await this.setSessions(rtPayload.sub, 'remove', rtPayload.sid);
   }
 
   // auth validations
@@ -78,23 +76,6 @@ export class AuthService {
   }
 
   // session management
-  private async setSessions(
-    userId: string,
-    op: 'add' | 'remove',
-    sessionId: string,
-  ) {
-    let sessions =
-      (await this.cacheService.get<string[]>((k) => k.userSessions(userId))) ??
-      [];
-
-    // TODO: track same deviceId, userAgent, and IP as suspicious activity
-    if (op === 'add' && !sessions.includes(sessionId)) sessions.push(sessionId);
-    else if (op === 'remove')
-      sessions = sessions.filter((id) => id !== sessionId);
-
-    await this.cacheService.set((k) => k.userSessions(userId), sessions);
-  }
-
   private async saveSession(sessionId: string, payload: Session) {
     await this.cacheService.set(
       (k) => k.session(sessionId),
