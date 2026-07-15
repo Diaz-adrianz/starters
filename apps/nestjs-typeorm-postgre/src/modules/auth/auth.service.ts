@@ -15,6 +15,7 @@ import { DefaultCacheService } from '../../cache/default/default-cache.service';
 import { sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
 import { Client } from '../../common/classes/client.class';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -90,6 +91,13 @@ export class AuthService {
       k.session(userId, sessionId),
     );
     return session;
+  }
+
+  async findSessions(userId: string) {
+    const sessions = await this.cacheService.findByPattern<Session>((k) =>
+      k.session(userId),
+    );
+    return plainToInstance(Session, sessions);
   }
 
   async refreshSession(rt: string) {

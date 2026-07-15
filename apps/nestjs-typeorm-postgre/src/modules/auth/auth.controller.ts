@@ -24,11 +24,13 @@ import type { Response } from 'express';
 import { CookieKeys, CookiePath } from '../../constants/cookie-keys';
 import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
 import { Client } from '../../common/classes/client.class';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private userService: UsersService,
     private configService: ConfigService<EnvConfig>,
   ) {}
 
@@ -103,8 +105,10 @@ export class AuthController {
   }
 
   @Get('/me')
-  me(@ReqUser() session: Session) {
-    return { session };
+  async me(@ReqUser() session: Session) {
+    const user = await this.userService.findOne(session.id);
+    const sessions = await this.authService.findSessions(session.id);
+    return { user, session, sessions };
   }
 
   // utils

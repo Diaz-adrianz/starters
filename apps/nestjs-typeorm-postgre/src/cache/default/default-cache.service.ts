@@ -51,11 +51,12 @@ export class DefaultCacheService {
     }
   }
 
-  async scanKeys(pattern: string): Promise<string[]> {
+  async scanKeys(pattern: CacheKeyInput): Promise<string[]> {
+    const resolvedPattern = this.resolveKey(pattern);
     const foundKeys: string[] = [];
     try {
       for await (const keys of this.redisClient.scanIterator({
-        MATCH: pattern,
+        MATCH: resolvedPattern + '*',
         COUNT: 100,
       }))
         foundKeys.push(...keys);
@@ -65,13 +66,45 @@ export class DefaultCacheService {
     return foundKeys;
   }
 
-  async delByPattern(pattern: string): Promise<number> {
+  async delByPattern(pattern: CacheKeyInput): Promise<number> {
     const keys = await this.scanKeys(pattern);
     if (keys.length === 0) return 0;
     try {
       return await this.redisClient.del(keys);
     } catch {
       return 0;
+    }
+  }
+
+  async findByPattern<T>(
+    pattern: CacheKeyInput,
+    withKey: true,
+  ): Promise<{ key: string; value: T }[]>;
+  async findByPattern<T>(pattern: CacheKeyInput, withKey?: false): Promise<T[]>;
+  async findByPattern<T>(
+    pattern: CacheKeyInput,
+    withKey: boolean = false,
+  ): Promise<{ key: string; value: T }[] | T[]> {
+    const keys = await this.scanKeys(pattern);
+    if (keys.length === 0) return [];
+
+    try {
+      const values = await this.redisClient.mGet(keys);
+      const parsed = keys
+        .map((key, i) => {
+          const raw = values[i];
+          if (raw === null || raw === undefined) return null;
+          try {
+            return { key, value: JSON.parse(raw) as T };
+          } catch {
+            return null;
+          }
+        })
+        .filter((entry): entry is { key: string; value: T } => entry !== null);
+
+      return withKey ? parsed : parsed.map((entry) => entry.value);
+    } catch {
+      return [];
     }
   }
 }
