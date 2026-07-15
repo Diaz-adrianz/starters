@@ -6,6 +6,10 @@ export type Mode = (typeof Modes)[number];
 export const envConfig = () => ({
   mode: process.env.MODE as Mode,
   port: parseInt(process.env.PORT ?? ''),
+  deviceId: {
+    secret: process.env.DEVICE_ID_SECRET,
+    expire: parseInt(process.env.DEVICE_ID_EXPIRE ?? ''),
+  },
   database: {
     default: {
       host: process.env.DATABASE_DEFAULT_HOST,
@@ -42,6 +46,8 @@ export const envConfigSchema = joi.object({
     .valid(...Modes)
     .required(),
   PORT: joi.number().required(),
+  DEVICE_ID_SECRET: joi.string().required(),
+  DEVICE_ID_EXPIRE: joi.number().required(),
   DATABASE_DEFAULT_HOST: joi.string().required(),
   DATABASE_DEFAULT_PORT: joi.number().required(),
   DATABASE_DEFAULT_USERNAME: joi.string().required(),

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
@@ -11,11 +12,9 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
 import { DefaultCacheService } from '../../cache/default/default-cache.service';
-import { getRandomString, sha256 } from '../../shared/utils/string.util';
+import { sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
 import { ClientInfo } from '../../common/interfaces/client-info.interface';
-import { RefreshSessionDto } from './dto/refresh-session.dto';
-import { SignOutDto } from './dto/sign-out.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,8 +25,11 @@ export class AuthService {
     private cacheService: DefaultCacheService,
   ) {}
 
-  async signIn(user: User, clientInfo?: ClientInfo) {
-    const sessionId = getRandomString(12);
+  async signIn(user: User, clientInfo: ClientInfo) {
+    if (!clientInfo.deviceId)
+      throw new BadRequestException('Device ID required');
+
+    const sessionId = sha256(`${user.id}:${clientInfo.deviceId}`);
 
     const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
     const [at, rt] = await Promise.all([
@@ -38,25 +40,22 @@ export class AuthService {
     const session: Session = {
       id: user.id,
       username: user.username,
+      deviceId: clientInfo.deviceId,
       rtHash: sha256(rt),
-      ip: clientInfo?.ip,
-      userAgent: clientInfo?.userAgent,
+      ip: clientInfo.ip,
+      userAgent: clientInfo.userAgent,
       createdAt: new Date().toISOString(),
       lastUsedAt: new Date().toISOString(),
     };
 
     await this.saveSession(sessionId, session);
 
-    return {
-      user: user,
-      tokens: { access: at, refresh: rt },
-    };
+    return { user, at, rt };
   }
 
-  async signOut(dto: SignOutDto) {
-    const rtPayload = await this.verifyRefreshToken(dto.refreshToken, true);
-
-    await this.cacheService.del((k) => k.session(rtPayload.sid));
+  async signOut(rt: string) {
+    const rtPayload = await this.verifyRefreshToken(rt, true);
+    await this.cacheService.del((k) => k.session(rtPayload.sub, rtPayload.sid));
   }
 
   // auth validations
@@ -77,6 +76,7 @@ export class AuthService {
 
   // session management
   private async saveSession(sessionId: string, payload: Session) {
+    // TODO: track user sessions count. If exceed limit, send warning
     await this.cacheService.set(
       (k) => k.session(payload.id, sessionId),
       payload,
@@ -93,14 +93,14 @@ export class AuthService {
     return session;
   }
 
-  async refreshSession(dto: RefreshSessionDto) {
-    const tokenPayload = await this.verifyRefreshToken(dto.refreshToken);
+  async refreshSession(rt: string) {
+    const tokenPayload = await this.verifyRefreshToken(rt);
 
     const session = await this.findSession(tokenPayload.sub, tokenPayload.sid);
     if (!session) throw new UnauthorizedException('Expired session');
 
-    // TODO: track missmatch RT, userAgent, and IP as suspicious activity
-    const rtHash = sha256(dto.refreshToken);
+    // TODO: track missmatch RT hash, deviceId, userAgent, and IP as suspicious activity
+    const rtHash = sha256(rt);
     if (rtHash != session.rtHash)
       throw new UnauthorizedException('Expired session');
 
@@ -117,9 +117,7 @@ export class AuthService {
     };
 
     await this.saveSession(tokenPayload.sid, newSession);
-    return {
-      tokens: { access: at, refresh: newRt },
-    };
+    return { at, newRt };
   }
 
   // utils
