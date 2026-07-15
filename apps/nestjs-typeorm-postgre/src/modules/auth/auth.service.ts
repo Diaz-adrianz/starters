@@ -38,7 +38,8 @@ export class AuthService {
     ]);
 
     const session: Session = {
-      id: user.id,
+      id: sessionId,
+      userId: user.id,
       username: user.username,
       deviceId: client.deviceId,
       rtHash: sha256(rt),
@@ -82,7 +83,7 @@ export class AuthService {
   private async saveSession(sessionId: string, payload: Session) {
     // TODO: track user sessions count. If exceed limit, send warning
     await this.cacheService.set(
-      (k) => k.session(payload.id, sessionId),
+      (k) => k.session(payload.userId, sessionId),
       payload,
       this.configService.getOrThrow('jwt.refresh.expire', {
         infer: true,

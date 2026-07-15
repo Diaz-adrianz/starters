@@ -107,10 +107,10 @@ export class AuthController {
   @ResponseSuccess({ message: 'Signed out all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
-    @ReqUser() user: Session,
+    @ReqUser() session: Session,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.signOutAll(user.id);
+    await this.authService.signOutAll(session.userId);
     res.clearCookie(CookieKeys.REFRESH_TOKEN, {
       path: CookiePath.REFRESH_TOKEN,
     });
@@ -119,9 +119,9 @@ export class AuthController {
 
   @Get('/me')
   async me(@ReqUser() session: Session) {
-    const user = await this.userService.findOne(session.id);
-    const sessions = await this.authService.findSessions(session.id);
-    return { user, session, sessions };
+    const user = await this.userService.findOne(session.userId);
+    const sessions = await this.authService.findSessions(session.userId);
+    return { user, sessions };
   }
 
   // utils
