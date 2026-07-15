@@ -23,7 +23,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtTokenPayload): Promise<Session | undefined> {
-    const session = await this.authService.findSession(payload.sid);
+    const session = await this.authService.findSession(
+      payload.sub,
+      payload.sid,
+    );
     return session;
   }
 }

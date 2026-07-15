@@ -78,7 +78,7 @@ export class AuthService {
   // session management
   private async saveSession(sessionId: string, payload: Session) {
     await this.cacheService.set(
-      (k) => k.session(sessionId),
+      (k) => k.session(payload.id, sessionId),
       payload,
       this.configService.getOrThrow('jwt.refresh.expire', {
         infer: true,
@@ -86,9 +86,9 @@ export class AuthService {
     );
   }
 
-  async findSession(sessionId: string) {
+  async findSession(userId: string, sessionId: string) {
     const session = await this.cacheService.get<Session>((k) =>
-      k.session(sessionId),
+      k.session(userId, sessionId),
     );
     return session;
   }
@@ -96,7 +96,7 @@ export class AuthService {
   async refreshSession(dto: RefreshSessionDto) {
     const tokenPayload = await this.verifyRefreshToken(dto.refreshToken);
 
-    const session = await this.findSession(tokenPayload.sid);
+    const session = await this.findSession(tokenPayload.sub, tokenPayload.sid);
     if (!session) throw new UnauthorizedException('Expired session');
 
     // TODO: track missmatch RT, userAgent, and IP as suspicious activity
@@ -110,7 +110,11 @@ export class AuthService {
     ]);
 
     const newRtHash = sha256(newRt);
-    const newSession: Session = { ...session, rtHash: newRtHash };
+    const newSession: Session = {
+      ...session,
+      rtHash: newRtHash,
+      lastUsedAt: new Date().toISOString(),
+    };
 
     await this.saveSession(tokenPayload.sid, newSession);
     return {
