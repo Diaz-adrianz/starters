@@ -51,6 +51,14 @@ export class DefaultCacheService {
     }
   }
 
+  async delMany(keys: string[]): Promise<number> {
+    try {
+      return this.redisClient.del(keys);
+    } catch {
+      return 0;
+    }
+  }
+
   async scanKeys(pattern: CacheKeyInput): Promise<string[]> {
     const resolvedPattern = this.resolveKey(pattern);
     const foundKeys: string[] = [];

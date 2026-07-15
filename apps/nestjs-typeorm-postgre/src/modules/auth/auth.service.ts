@@ -59,8 +59,17 @@ export class AuthService {
     await this.cacheService.del((k) => k.session(rtPayload.sub, rtPayload.sid));
   }
 
-  async signOutAll(userId: string) {
-    await this.cacheService.delByPattern((k) => k.session(userId));
+  async signOutAll(userId: string, excepts: string[] = []) {
+    if (excepts.length) {
+      const sessions = await this.cacheService.findByPattern<Session>(
+        (k) => k.session(userId),
+        true,
+      );
+      const keys = sessions
+        .map((s) => s.key)
+        .filter((key) => !excepts.some((except) => key.endsWith(except)));
+      if (keys.length) await this.cacheService.delMany(keys);
+    } else await this.cacheService.delByPattern((k) => k.session(userId));
   }
 
   // auth validations

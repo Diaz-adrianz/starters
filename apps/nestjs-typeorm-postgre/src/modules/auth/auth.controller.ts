@@ -1,7 +1,10 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
+  ParseBoolPipe,
   Post,
+  Query,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -109,11 +112,17 @@ export class AuthController {
   async signOutAll(
     @ReqUser() session: Session,
     @Res({ passthrough: true }) res: Response,
+    @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
+    keepCurrent: boolean,
   ) {
-    await this.authService.signOutAll(session.userId);
-    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-      path: CookiePath.REFRESH_TOKEN,
-    });
+    await this.authService.signOutAll(
+      session.userId,
+      keepCurrent ? [session.id] : [],
+    );
+    if (!keepCurrent)
+      res.clearCookie(CookieKeys.REFRESH_TOKEN, {
+        path: CookiePath.REFRESH_TOKEN,
+      });
     return;
   }
 
