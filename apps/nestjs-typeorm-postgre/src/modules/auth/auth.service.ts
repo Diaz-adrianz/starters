@@ -14,7 +14,7 @@ import { EnvConfig } from '../../config/env.config';
 import { DefaultCacheService } from '../../cache/default/default-cache.service';
 import { sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
-import { ClientInfo } from '../../common/interfaces/client-info.interface';
+import { Client } from '../../common/classes/client.class';
 
 @Injectable()
 export class AuthService {
@@ -25,11 +25,10 @@ export class AuthService {
     private cacheService: DefaultCacheService,
   ) {}
 
-  async signIn(user: User, clientInfo: ClientInfo) {
-    if (!clientInfo.deviceId)
-      throw new BadRequestException('Device ID required');
+  async signIn(user: User, client: Client) {
+    if (!client.deviceId) throw new BadRequestException('Device ID required');
 
-    const sessionId = sha256(`${user.id}:${clientInfo.deviceId}`);
+    const sessionId = sha256(`${user.id}:${client.deviceId}`);
 
     const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
     const [at, rt] = await Promise.all([
@@ -40,10 +39,10 @@ export class AuthService {
     const session: Session = {
       id: user.id,
       username: user.username,
-      deviceId: clientInfo.deviceId,
+      deviceId: client.deviceId,
       rtHash: sha256(rt),
-      ip: clientInfo.ip,
-      userAgent: clientInfo.userAgent,
+      ip: client.ip,
+      userAgent: client.userAgent,
       createdAt: new Date().toISOString(),
       lastUsedAt: new Date().toISOString(),
     };

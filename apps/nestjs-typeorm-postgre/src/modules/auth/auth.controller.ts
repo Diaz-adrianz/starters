@@ -9,10 +9,9 @@ import {
 import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
 import { User } from '../users/entities/user.entity';
-import { RequestUser } from '../../common/decorators/request-user.decorator';
+import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
-import { RequestClientInfo } from '../../common/decorators/request-client-info.decorator';
-import type { ClientInfo } from '../../common/interfaces/client-info.interface';
+import { ReqClient } from '../../common/decorators/req-client.decorator';
 import type { Session } from '../../common/classes/session.class';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
@@ -24,6 +23,7 @@ import {
 import type { Response } from 'express';
 import { CookieKeys, CookiePath } from '../../constants/cookie-keys';
 import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
+import { Client } from '../../common/classes/client.class';
 
 @Controller('auth')
 export class AuthController {
@@ -37,27 +37,27 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @Post('sign-in')
   async signInLocal(
-    @RequestClientInfo() clientInfo: ClientInfo,
-    @RequestUser() user: User,
+    @ReqClient() client: Client,
+    @ReqUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ) {
     const deviceIdSecret = this.configService.getOrThrow('deviceId.secret', {
       infer: true,
     });
-    clientInfo.deviceId =
-      clientInfo.deviceId && clientInfo.deviceIdSignature
+    client.deviceId =
+      client.deviceId && client.deviceIdSignature
         ? verifyDeviceId(
             deviceIdSecret,
-            clientInfo.deviceId,
-            clientInfo.deviceIdSignature,
+            client.deviceId,
+            client.deviceIdSignature,
           )
         : null;
 
-    if (!clientInfo.deviceId) {
-      clientInfo.deviceId = generateDeviceId();
+    if (!client.deviceId) {
+      client.deviceId = generateDeviceId();
       res.cookie(
         CookieKeys.DEVICE_ID,
-        signDeviceId(deviceIdSecret, clientInfo.deviceId),
+        signDeviceId(deviceIdSecret, client.deviceId),
         {
           httpOnly: true,
           secure: true,
@@ -70,7 +70,7 @@ export class AuthController {
       );
     }
 
-    const result = await this.authService.signIn(user, clientInfo);
+    const result = await this.authService.signIn(user, client);
     this.saveRefreshToken(res, result.rt);
     return { user: result.user, tokens: { access: result.at } };
   }
@@ -78,14 +78,11 @@ export class AuthController {
   @Public()
   @Post('/refresh')
   async refreshSession(
-    @RequestClientInfo() clientInfo: ClientInfo,
+    @ReqClient() client: Client,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!clientInfo.refreshToken)
-      throw new UnauthorizedException('Missing token');
-    const result = await this.authService.refreshSession(
-      clientInfo.refreshToken,
-    );
+    if (!client.refreshToken) throw new UnauthorizedException('Missing token');
+    const result = await this.authService.refreshSession(client.refreshToken);
     this.saveRefreshToken(res, result.newRt);
     return { tokens: { access: result.at } };
   }
@@ -94,11 +91,11 @@ export class AuthController {
   @ResponseSuccess({ message: 'Signed out' })
   @Post('/sign-out')
   async signOut(
-    @RequestClientInfo() clientInfo: ClientInfo,
+    @ReqClient() client: Client,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (clientInfo.refreshToken)
-      await this.authService.signOut(clientInfo.refreshToken);
+    if (client.refreshToken)
+      await this.authService.signOut(client.refreshToken);
     res.clearCookie(CookieKeys.REFRESH_TOKEN, {
       path: CookiePath.REFRESH_TOKEN,
     });
@@ -106,7 +103,7 @@ export class AuthController {
   }
 
   @Get('/me')
-  me(@RequestUser() session: Session) {
+  me(@ReqUser() session: Session) {
     return { session };
   }
 

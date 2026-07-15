@@ -1,4 +1,4 @@
-export interface ClientInfo {
+export class Client {
   ip?: string;
   userAgent?: string;
   deviceId?: string | null;
