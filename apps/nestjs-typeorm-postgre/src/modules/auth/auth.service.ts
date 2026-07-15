@@ -58,6 +58,10 @@ export class AuthService {
     await this.cacheService.del((k) => k.session(rtPayload.sub, rtPayload.sid));
   }
 
+  async signOutAll(userId: string) {
+    await this.cacheService.delByPattern((k) => k.session(userId));
+  }
+
   // auth validations
   async validateLocalStrategy(username: string, password: string) {
     const user = await this.usersService.findByUsernameOrEmail(username);

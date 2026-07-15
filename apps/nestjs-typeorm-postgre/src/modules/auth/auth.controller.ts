@@ -104,6 +104,19 @@ export class AuthController {
     return;
   }
 
+  @ResponseSuccess({ message: 'Signed out all sessions' })
+  @Post('/sign-out-all')
+  async signOutAll(
+    @ReqUser() user: Session,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.signOutAll(user.id);
+    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
+      path: CookiePath.REFRESH_TOKEN,
+    });
+    return;
+  }
+
   @Get('/me')
   async me(@ReqUser() session: Session) {
     const user = await this.userService.findOne(session.id);
