@@ -9,10 +9,14 @@ import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
+import { LoggerService } from '../logger/logger.service';
 
 @Catch(TypeORMError)
 export class TypeormFilter implements ExceptionFilter {
-  constructor(private configService: ConfigService<EnvConfig>) {}
+  constructor(
+    private configService: ConfigService<EnvConfig>,
+    private logger: LoggerService,
+  ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {
     const isProd =
@@ -65,6 +69,9 @@ export class TypeormFilter implements ExceptionFilter {
     if (!isProd) {
       body.stack = exception.stack?.split('\n');
     }
+
+    if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
+      this.logger.error(exception, 'Database');
 
     res.status(body.statusCode).json(body);
   }

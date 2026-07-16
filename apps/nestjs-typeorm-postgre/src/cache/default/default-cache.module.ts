@@ -23,7 +23,6 @@ import { LoggerService } from '../../common/logger/logger.service';
           },
         });
 
-        // TODO: replace with logger
         client.on('error', (err) => logger.error(err, 'Cache'));
         client.on('connect', () => logger.info('Redis connected', 'Cache'));
         client.on('ready', () => logger.info('Redis ready', 'Cache'));

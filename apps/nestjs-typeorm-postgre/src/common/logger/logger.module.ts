@@ -28,7 +28,7 @@ const { combine, timestamp, printf, colorize, errors } = format;
             filename:
               configService.getOrThrow('logger.path', { infer: true }) +
               '%DATE%.log',
-            level: 'error',
+            level: 'warn',
             datePattern: 'YYYY-MM-DD',
             zippedArchive: false,
             maxFiles: '30d',
