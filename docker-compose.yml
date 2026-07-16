@@ -44,6 +44,19 @@ services:
     entrypoint: >
       sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   postgres:
     image: postgres:16
     container_name: postgres
@@ -78,6 +91,7 @@ volumes:
   n8n-data:
   certbot-etc:
   certbot-www:
+  redis-data:
   postgres-data:
   mysql-data:
 
