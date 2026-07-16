@@ -18,10 +18,8 @@ const { combine, timestamp, printf, colorize, errors } = format;
           timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
           errors({ stack: true }),
           colorize(),
-          printf(({ level, message, timestamp, stack }) => {
-            return stack
-              ? `${timestamp} ${level}: ${message} - ${stack}`
-              : `${timestamp} ${level}: ${message}`;
+          printf(({ level, message, timestamp, context, stack }) => {
+            return `${timestamp} ${context ?? 'App'} ${level}: ${message} - ${stack ?? ''}`;
           }),
         ),
         transports: [
