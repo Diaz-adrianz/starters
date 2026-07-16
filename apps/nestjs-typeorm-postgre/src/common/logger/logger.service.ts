@@ -8,23 +8,23 @@ export class LoggerService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  info(message: any) {
-    this.logger.info(message);
+  info(message: any, context?: string) {
+    this.logger.info(message, { context });
   }
 
-  error(message: any) {
-    this.logger.error(message);
+  error(message: any, context?: string) {
+    this.logger.error(message, { context });
   }
 
-  warn(message: any) {
-    this.logger.warn(message);
+  warn(message: any, context?: string) {
+    this.logger.warn(message, { context });
   }
 
-  debug(message: any) {
-    this.logger.debug(message);
+  debug(message: any, context?: string) {
+    this.logger.debug(message, { context });
   }
 
-  verbose(message: any) {
-    this.logger.verbose(message);
+  verbose(message: any, context?: string) {
+    this.logger.verbose(message, { context });
   }
 }
