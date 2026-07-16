@@ -18,11 +18,11 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /usr/src/app/dist ./dist
+COPY scripts/docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 RUN mkdir -p logs
 
-ENV NODE_ENV=production
-
 EXPOSE 5001
 
-CMD ["node", "dist/main"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
