@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Get,
@@ -28,6 +29,7 @@ import { CookieKeys, CookiePath } from '../../common/constants/cookie-keys';
 import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
 import { Client } from '../../common/classes/client.class';
 import { UsersService } from '../users/users.service';
+import { SignUpLocalDto } from './dto/sign-up-local.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +38,13 @@ export class AuthController {
     private userService: UsersService,
     private configService: ConfigService<EnvConfig>,
   ) {}
+
+  @Public()
+  @ResponseSuccess({ message: 'Check your inbox to verify your account' })
+  @Post('sign-up')
+  async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
+    return this.authService.signUpLocal(signUpLocalDto);
+  }
 
   // sign in methods
   @Public()

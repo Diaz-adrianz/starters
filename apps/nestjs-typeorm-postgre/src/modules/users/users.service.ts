@@ -11,18 +11,20 @@ export class UsersService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { email, username, password } = createUserDto;
     const sameEmail = await this.userRepo.count({
-      where: { email: createUserDto.email },
+      where: { email: email },
     });
     if (sameEmail) throw new BadRequestException('Email has been registered');
 
     const sameUsername = await this.userRepo.count({
-      where: { username: createUserDto.username },
+      where: { username: username },
     });
     if (sameUsername) throw new BadRequestException('Username already exist');
 
-    const user = this.userRepo.create(createUserDto);
-    return this.userRepo.insert(user);
+    const user = this.userRepo.create({ email, username, password });
+    await this.userRepo.save(user);
+    return user;
   }
 
   findAll(queryOptions: FindAllOptions) {

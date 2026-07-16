@@ -16,6 +16,7 @@ import { sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
 import { Client } from '../../common/classes/client.class';
 import { plainToInstance } from 'class-transformer';
+import { SignUpLocalDto } from './dto/sign-up-local.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,18 @@ export class AuthService {
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
   ) {}
+
+  async signUpLocal(signUpLocalDto: SignUpLocalDto) {
+    const user = await this.usersService.create({
+      username: signUpLocalDto.username,
+      email: signUpLocalDto.email,
+      password: signUpLocalDto.password,
+      matchPassword: signUpLocalDto.matchPassword,
+    });
+
+    // TODO: send email verification
+    return user;
+  }
 
   async signIn(user: User, client: Client) {
     if (!client.deviceId) throw new BadRequestException('Device ID required');
@@ -144,7 +157,7 @@ export class AuthService {
   // utils
   private checkUserActive(user: User) {
     if (!user.isActive())
-      throw new ForbiddenException('Account suspended or not verified.');
+      throw new ForbiddenException('Account suspended or not verified yet');
   }
 
   private signAccessToken(payload: JwtTokenPayload) {
