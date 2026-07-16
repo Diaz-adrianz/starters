@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { CookieKeys } from '../../constants/cookie-keys';
+import { CookieKeys } from '../constants/cookie-keys';
 import { extractSignedDeviceId } from '../utils/device-id.util';
 import { Client } from '../classes/client.class';
 

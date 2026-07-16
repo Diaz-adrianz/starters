@@ -24,7 +24,7 @@ import {
   verifyDeviceId,
 } from '../../common/utils/device-id.util';
 import type { Response } from 'express';
-import { CookieKeys, CookiePath } from '../../constants/cookie-keys';
+import { CookieKeys, CookiePath } from '../../common/constants/cookie-keys';
 import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
 import { Client } from '../../common/classes/client.class';
 import { UsersService } from '../users/users.service';
