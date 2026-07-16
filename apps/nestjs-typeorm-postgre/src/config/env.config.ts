@@ -36,6 +36,9 @@ export const envConfig = () => ({
       port: parseInt(process.env.CACHE_PORT ?? ''),
     },
   },
+  logger: {
+    path: process.env.LOGGER_PATH,
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -60,4 +63,5 @@ export const envConfigSchema = joi.object({
   JWT_ISSUER: joi.string().required(),
   CACHE_HOST: joi.string().required(),
   CACHE_PORT: joi.number().required(),
+  LOGGER_PATH: joi.string().pattern(/\/$/).required(),
 });
