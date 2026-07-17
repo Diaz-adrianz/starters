@@ -52,6 +52,6 @@ export class User {
   }
 
   isActive(): boolean {
-    return this.enabled;
+    return this.enabled && !this.verifiedAt;
   }
 }

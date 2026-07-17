@@ -30,6 +30,7 @@ import { ResponseSuccess } from '../../common/decorators/response-success.decora
 import { Client } from '../../common/classes/client.class';
 import { UsersService } from '../users/users.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -140,6 +141,13 @@ export class AuthController {
     const user = await this.userService.findOne(session.userId);
     const sessions = await this.authService.findSessions(session.userId);
     return { user, sessions };
+  }
+
+  @Public()
+  @ResponseSuccess({ message: 'Verification success' })
+  @Get('/verify-email')
+  verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyEmailDto);
   }
 
   // utils

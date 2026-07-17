@@ -18,6 +18,7 @@ import { Client } from '../../common/classes/client.class';
 import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { MailService } from '../../common/mail/mail.service';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +36,7 @@ export class AuthService {
       .catch(() => null);
 
     if (existUser && existUser.verifiedAt === null) {
+      // TODO: publish to jobs queue
       if (
         !existUser.verificationSentAt ||
         Date.now() >=
@@ -43,9 +45,8 @@ export class AuthService {
               infer: true,
             }) *
               1000
-      ) {
+      )
         await this.sendEmailVerification(existUser);
-      }
 
       return existUser;
     }
@@ -107,6 +108,25 @@ export class AuthService {
         .filter((key) => !excepts.some((except) => key.endsWith(except)));
       if (keys.length) await this.cacheService.delMany(keys);
     } else await this.cacheService.delByPattern((k) => k.session(userId));
+  }
+
+  // verification
+  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
+    const tokenHash = sha256(verifyEmailDto.token);
+
+    const userId = await this.cacheService.get<string>((k) =>
+      k.verifyToken(tokenHash),
+    );
+    if (!userId) throw new BadRequestException('Token invalid or expired');
+
+    await this.cacheService.del((k) => k.verifyToken(tokenHash));
+
+    const user = await this.usersService.findOne(userId);
+    await this.usersService.update(user.id, {
+      enabled: true,
+      verifiedAt: new Date(),
+      verificationSentAt: null,
+    });
   }
 
   // auth validations

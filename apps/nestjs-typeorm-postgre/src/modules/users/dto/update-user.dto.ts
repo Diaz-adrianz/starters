@@ -1,5 +1,11 @@
 import { Exclude } from 'class-transformer';
-import { IsOptional, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -11,6 +17,13 @@ export class UpdateUserDto {
   })
   username?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  enabled?: boolean;
+
   @Exclude()
-  verificationSentAt: Date;
+  verificationSentAt?: Date | null;
+
+  @Exclude()
+  verifiedAt?: Date | null;
 }
