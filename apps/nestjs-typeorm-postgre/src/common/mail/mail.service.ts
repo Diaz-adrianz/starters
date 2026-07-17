@@ -1,0 +1,55 @@
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as Handlebars from 'handlebars';
+import { EnvConfig } from '../../config/env.config';
+
+@Injectable()
+export class MailService {
+  constructor(
+    private configService: ConfigService<EnvConfig>,
+    private mailerService: MailerService,
+  ) {}
+
+  async renderTemplate(
+    fileName: string,
+    payload: Record<string, any>,
+  ): Promise<string> {
+    const templatesDir = this.configService.getOrThrow('mail.templatesPath', {
+        infer: true,
+      }),
+      file = await fs.readFile(join(templatesDir, fileName), {
+        encoding: 'utf-8',
+      }),
+      template = Handlebars.compile(file);
+    return template(payload);
+  }
+
+  async send(params: {
+    from?: string;
+    to: string;
+    subject: string;
+    content: string | { fileName: string; payload: Record<string, any> };
+  }): Promise<void> {
+    const from =
+      params.from ??
+      `${this.configService.getOrThrow('mail.sender', { infer: true })} <${this.configService.getOrThrow('mail.user', { infer: true })}>`;
+
+    const content =
+      typeof params.content == 'string'
+        ? params.content
+        : await this.renderTemplate(
+            params.content.fileName,
+            params.content.payload,
+          );
+
+    await this.mailerService.sendMail({
+      from,
+      to: params.to,
+      subject: params.subject,
+      html: content,
+    });
+  }
+}

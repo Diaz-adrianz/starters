@@ -39,6 +39,15 @@ export const envConfig = () => ({
   logger: {
     path: process.env.LOGGER_PATH,
   },
+  mail: {
+    templatesPath: process.env.MAIL_TEMPLATES_PATH,
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT ?? ''),
+    sender: process.env.MAIL_SENDER,
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+    secure: process.env.MAIL_SECURE === 'true',
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -64,4 +73,11 @@ export const envConfigSchema = joi.object({
   CACHE_HOST: joi.string().required(),
   CACHE_PORT: joi.number().required(),
   LOGGER_PATH: joi.string().pattern(/\/$/).required(),
+  MAIL_TEMPLATES_PATH: joi.string().required(),
+  MAIL_HOST: joi.string().required(),
+  MAIL_PORT: joi.number().required(),
+  MAIL_SENDER: joi.string().required(),
+  MAIL_USER: joi.string().required(),
+  MAIL_PASS: joi.string().required(),
+  MAIL_SECURE: joi.bool().required(),
 });
