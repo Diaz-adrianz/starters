@@ -22,7 +22,9 @@
     "typeorm:migration:create": "typeorm-ts-node-commonjs migration:create ./src/database/$DB/migrations/$NAME",
     "typeorm:migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/database/$DB/datasource.ts",
     "typeorm:migration:generate": "typeorm-ts-node-commonjs migration:generate -d ./src/database/$DB/datasource.ts ./src/database/$DB/migrations/$NAME",
-    "typeorm:migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/database/$DB/datasource.ts"
+    "typeorm:migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/database/$DB/datasource.ts",
+    "typeorm:seed:create": "ts-node ./node_modules/typeorm-extension/bin/cli.mjs seed:create -n ./src/database/$DB/seeds/$NAME",
+    "typeorm:seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.mjs seed:run -d ./src/database/$DB/datasource.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.7",
@@ -51,6 +53,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^1.0.0",
+    "typeorm-extension": "^4.0.0-beta.0",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },

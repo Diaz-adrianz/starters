@@ -5,11 +5,12 @@ import { SnakeNamingStrategy } from '../../shared/utils/typeorm-naming-strategy.
 import { EnvConfig, Mode } from '../../config/env.config';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import { SeederOptions } from 'typeorm-extension';
 
 const buildDataSource = (
   mode: Mode,
   options: PostgresConnectionCredentialsOptions,
-): DataSourceOptions => ({
+): DataSourceOptions & SeederOptions => ({
   type: 'postgres',
   host: options.host,
   port: options.port,
@@ -22,6 +23,8 @@ const buildDataSource = (
   logging: mode !== 'production',
   synchronize: false,
   namingStrategy: new SnakeNamingStrategy(),
+  seeds: [join(__dirname, './seeds/*.{js,ts}')],
+  seedTracking: false,
 });
 
 const defaultDataSourceFactory = (configService: ConfigService<EnvConfig>) =>
