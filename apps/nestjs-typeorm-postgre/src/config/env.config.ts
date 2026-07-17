@@ -6,6 +6,14 @@ export type Mode = (typeof Modes)[number];
 export const envConfig = () => ({
   mode: process.env.MODE as Mode,
   port: parseInt(process.env.PORT ?? ''),
+  server: {
+    url: process.env.SERVER_URL,
+  },
+  token: {
+    verification: {
+      expire: parseInt(process.env.TOKEN_VERIFICATION_EXPIRE ?? ''),
+    },
+  },
   deviceId: {
     secret: process.env.DEVICE_ID_SECRET,
     expire: parseInt(process.env.DEVICE_ID_EXPIRE ?? ''),
@@ -58,6 +66,8 @@ export const envConfigSchema = joi.object({
     .valid(...Modes)
     .required(),
   PORT: joi.number().required(),
+  SERVER_URL: joi.string().uri().required(),
+  TOKEN_VERIFICATION_EXPIRE: joi.number().required(),
   DEVICE_ID_SECRET: joi.string().required(),
   DEVICE_ID_EXPIRE: joi.number().required(),
   DATABASE_DEFAULT_HOST: joi.string().required(),

@@ -12,11 +12,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
 import { DefaultCacheService } from '../../cache/default/default-cache.service';
-import { sha256 } from '../../shared/utils/string.util';
+import { generateRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
 import { Client } from '../../common/classes/client.class';
 import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
+    private mailService: MailService,
   ) {}
 
   async signUpLocal(signUpLocalDto: SignUpLocalDto) {
@@ -35,7 +37,9 @@ export class AuthService {
       matchPassword: signUpLocalDto.matchPassword,
     });
 
-    // TODO: send email verification
+    // TODO: publish to jobs queue
+    await this.sendEmailVerification(user);
+
     return user;
   }
 
@@ -155,6 +159,38 @@ export class AuthService {
   }
 
   // utils
+  private async sendEmailVerification(user: User) {
+    if (user.verifiedAt !== null)
+      throw new BadRequestException('Account already verified');
+
+    const token = generateRandomString(12);
+    const tokenHash = sha256(token);
+    const link = `${this.configService.getOrThrow('server.url', { infer: true })}/auth/verify-email?token=${token}`;
+    const expire = this.configService.getOrThrow('token.verification.expire', {
+      infer: true,
+    });
+
+    await this.cacheService.set(
+      (k) => k.verifyToken(tokenHash),
+      user.id,
+      expire * 1000,
+    );
+    await this.mailService.send({
+      to: user.email,
+      subject: 'Email Verification',
+      content: {
+        fileName: 'email-verification.html',
+        payload: {
+          link,
+          expiresIn: expire / 60 / 60 + ' hours',
+        },
+      },
+    });
+    await this.usersService.update(user.id, {
+      verificationSentAt: new Date(),
+    });
+  }
+
   private checkUserActive(user: User) {
     if (!user.isActive())
       throw new ForbiddenException('Account suspended or not verified yet');
@@ -190,12 +226,9 @@ export class AuthService {
     );
   }
 
-  private async verifyRefreshToken(
-    token: string,
-    ignoreExpiration: boolean = false,
-  ) {
+  private verifyRefreshToken(token: string, ignoreExpiration: boolean = false) {
     try {
-      return await this.jwtService.verifyAsync<JwtTokenPayload>(token, {
+      return this.jwtService.verifyAsync<JwtTokenPayload>(token, {
         secret: this.configService.getOrThrow('jwt.refresh.secret', {
           infer: true,
         }),

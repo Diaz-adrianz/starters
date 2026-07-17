@@ -33,17 +33,20 @@ export class MailService {
     subject: string;
     content: string | { fileName: string; payload: Record<string, any> };
   }): Promise<void> {
+    const sender = this.configService.getOrThrow('mail.sender', {
+      infer: true,
+    });
     const from =
       params.from ??
-      `${this.configService.getOrThrow('mail.sender', { infer: true })} <${this.configService.getOrThrow('mail.user', { infer: true })}>`;
+      `${sender} <${this.configService.getOrThrow('mail.user', { infer: true })}>`;
 
     const content =
       typeof params.content == 'string'
         ? params.content
-        : await this.renderTemplate(
-            params.content.fileName,
-            params.content.payload,
-          );
+        : await this.renderTemplate(params.content.fileName, {
+            sender,
+            ...params.content.payload,
+          });
 
     await this.mailerService.sendMail({
       from,
