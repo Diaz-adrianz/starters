@@ -22,17 +22,17 @@ export class User {
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ nullable: true })
-  password?: string;
+  @Column({ type: 'varchar', nullable: true })
+  password?: string | null;
 
   @Column({ default: false })
   enabled: boolean;
 
-  @Column({ nullable: true })
-  verifiedAt?: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  verifiedAt?: Date | null;
 
-  @Column({ nullable: true })
-  verificationSentAt?: Date;
+  @Column({ type: 'timestamptz', nullable: true })
+  verificationSentAt?: Date | null;
 
   @CreateDateColumn()
   createdAt: string;
