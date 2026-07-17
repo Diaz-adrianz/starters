@@ -30,6 +30,26 @@ export class AuthService {
   ) {}
 
   async signUpLocal(signUpLocalDto: SignUpLocalDto) {
+    const existUser = await this.usersService
+      .findByUsernameOrEmail(signUpLocalDto.email)
+      .catch(() => null);
+
+    if (existUser && existUser.verifiedAt === null) {
+      if (
+        !existUser.verificationSentAt ||
+        Date.now() >=
+          existUser.verificationSentAt.getTime() +
+            this.configService.getOrThrow('token.verification.expire', {
+              infer: true,
+            }) *
+              1000
+      ) {
+        await this.sendEmailVerification(existUser);
+      }
+
+      return existUser;
+    }
+
     const user = await this.usersService.create({
       username: signUpLocalDto.username,
       email: signUpLocalDto.email,
