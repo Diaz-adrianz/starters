@@ -28,6 +28,12 @@ export class User {
   @Column({ default: false })
   enabled: boolean;
 
+  @Column({ nullable: true })
+  verifiedAt?: Date;
+
+  @Column({ nullable: true })
+  verificationSentAt?: Date;
+
   @CreateDateColumn()
   createdAt: string;
 
