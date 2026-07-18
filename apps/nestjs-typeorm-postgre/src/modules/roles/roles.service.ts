@@ -3,12 +3,21 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { FindAllOptions } from '../../shared/classes/findall-query.class';
+import {
+  UpdateRolePermissionsAction,
+  UpdateRolePermissionsDto,
+} from './dto/update-role-permission.dto';
+import { RolePermission } from './entities/role-permission.entity';
 
 @Injectable()
 export class RolesService {
-  constructor(@InjectRepository(Role) private roleRepo: Repository<Role>) {}
+  constructor(
+    @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(RolePermission)
+    private rolePermissionRepo: Repository<RolePermission>,
+  ) {}
 
   create(createRoleDto: CreateRoleDto) {
     return this.roleRepo.insert(createRoleDto);
@@ -19,11 +28,38 @@ export class RolesService {
   }
 
   findOne(id: string) {
-    return this.roleRepo.findOneOrFail({ where: { id } });
+    return this.roleRepo.findOneOrFail({
+      where: { id },
+      relations: { permissions: { permission: true } },
+    });
   }
 
   update(id: string, updateRoleDto: UpdateRoleDto) {
     return this.roleRepo.update({ id }, updateRoleDto);
+  }
+
+  async updatePermissions(
+    id: string,
+    { action, permissions }: UpdateRolePermissionsDto,
+  ) {
+    const rolePermissions = this.rolePermissionRepo.create(
+      permissions.map((rp) => ({
+        roleId: id,
+        permissionId: rp.permissionId,
+      })),
+    );
+
+    if (action == UpdateRolePermissionsAction.ADD) {
+      return this.rolePermissionRepo.insert(rolePermissions);
+    } else if (action == UpdateRolePermissionsAction.REMOVE) {
+      return this.rolePermissionRepo.delete({
+        roleId: id,
+        permissionId: In(permissions.map((p) => p.permissionId)),
+      });
+    } else if (action == UpdateRolePermissionsAction.SET) {
+      await this.rolePermissionRepo.delete({ roleId: id });
+      return this.rolePermissionRepo.insert(rolePermissions);
+    }
   }
 
   softDelete(id: string) {
