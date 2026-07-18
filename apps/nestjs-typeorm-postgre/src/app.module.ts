@@ -15,6 +15,7 @@ import { DefaultCacheModule } from './cache/default/default-cache.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { MailModule } from './common/mail/mail.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { RolesModule } from './modules/roles/roles.module';
     LoggerModule,
     MailModule,
     RolesModule,
+    PermissionsModule,
   ],
   providers: [
     // auth guard
