@@ -14,6 +14,7 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './cache/default/default-cache.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { MailModule } from './common/mail/mail.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MailModule } from './common/mail/mail.module';
     DefaultCacheModule,
     LoggerModule,
     MailModule,
+    RolesModule,
   ],
   providers: [
     // auth guard
