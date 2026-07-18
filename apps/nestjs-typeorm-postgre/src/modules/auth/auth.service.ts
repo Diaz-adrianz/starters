@@ -20,6 +20,7 @@ import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { MailService } from '../../common/mail/mail.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordCheckDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -142,6 +143,15 @@ export class AuthService {
       // TODO: publish to jobs queue
       await this.sendResetPassword(user);
     }
+  }
+
+  async resetPasswordCheck(resetPasswordCheck: ResetPasswordCheckDto) {
+    const tokenHash = sha256(resetPasswordCheck.token);
+
+    const userId = await this.cacheService.get<string>((k) =>
+      k.resetPasswordToken(tokenHash),
+    );
+    if (!userId) throw new BadRequestException('Token invalid or expired');
   }
 
   // auth validations
