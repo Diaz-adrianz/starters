@@ -22,8 +22,11 @@ export class UpdateUserDto {
   enabled?: boolean;
 
   @Exclude()
+  verifiedAt?: Date | null;
+
+  @Exclude()
   verificationSentAt?: Date | null;
 
   @Exclude()
-  verifiedAt?: Date | null;
+  resetPasswordSentAt?: Date | null;
 }

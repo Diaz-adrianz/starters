@@ -28,11 +28,14 @@ export class User {
   @Column({ default: false })
   enabled: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   verifiedAt?: Date | null;
 
   @Column({ type: 'timestamptz', nullable: true })
   verificationSentAt?: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  resetPasswordSentAt?: Date | null;
 
   @CreateDateColumn()
   createdAt: string;

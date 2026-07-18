@@ -141,7 +141,17 @@ export class AuthService {
       .catch(() => null);
 
     // TODO: publish to jobs queue
-    if (user) await this.sendResetPassword(user).catch(() => {});
+    if (
+      user &&
+      (!user.resetPasswordSentAt ||
+        Date.now() >=
+          user.resetPasswordSentAt.getTime() +
+            this.configService.getOrThrow('token.resetPassword.expire', {
+              infer: true,
+            }) *
+              1000)
+    )
+      await this.sendResetPassword(user).catch(() => {});
   }
 
   async resetPasswordCheck(resetPasswordCheck: ResetPasswordCheckDto) {
@@ -162,6 +172,9 @@ export class AuthService {
     );
     await this.signOutAll(cache.userId);
     await this.cacheService.del((k) => k.resetPasswordToken(cache.tokenHash));
+    await this.usersService.update(cache.userId, {
+      resetPasswordSentAt: null,
+    });
   }
 
   // auth validations
@@ -257,6 +270,9 @@ export class AuthService {
           expiresIn: expire / 60 + ' minutes',
         },
       },
+    });
+    await this.usersService.update(user.id, {
+      resetPasswordSentAt: new Date(),
     });
   }
 
