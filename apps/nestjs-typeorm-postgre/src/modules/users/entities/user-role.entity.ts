@@ -1,0 +1,32 @@
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+  CreateDateColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Role } from '../../roles/entities/role.entity';
+
+@Entity({ schema: 'auth', name: 'user_roles' })
+@Unique(['userId', 'roleId'])
+export class UserRole {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  roleId: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  user: User;
+
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
+  role: Role;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}

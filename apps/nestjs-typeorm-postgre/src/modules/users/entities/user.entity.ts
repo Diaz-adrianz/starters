@@ -6,9 +6,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRole } from './user-role.entity';
 
 @Entity({ schema: 'auth', name: 'users' })
 export class User {
@@ -36,6 +38,9 @@ export class User {
 
   @Column({ type: 'timestamptz', nullable: true })
   resetPasswordSentAt?: Date | null;
+
+  @OneToMany(() => UserRole, (ur) => ur.user)
+  roles: UserRole[];
 
   @CreateDateColumn()
   createdAt: string;
