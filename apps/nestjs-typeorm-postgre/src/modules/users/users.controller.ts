@@ -13,6 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
 import { FindAllQuery } from '../../shared/classes/findall-query.class';
+import { SetUserRolesDto } from './dto/set-user-role.dto';
 
 @Controller('users')
 export class UsersController {
@@ -37,6 +38,11 @@ export class UsersController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Patch(':id/set-roles')
+  setRoles(@Param('id') id: string, @Body() setUserRolesDto: SetUserRolesDto) {
+    return this.usersService.setUserRoles(id, setUserRolesDto);
   }
 
   @Delete(':id/soft')
