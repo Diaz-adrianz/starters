@@ -3,4 +3,5 @@ export class AuthContext {
   username: string;
   sessionId: string;
   roles: string[];
+  hasPermission?: boolean;
 }
