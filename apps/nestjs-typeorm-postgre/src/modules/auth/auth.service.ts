@@ -20,7 +20,10 @@ import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { MailService } from '../../common/mail/mail.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordCheckDto } from './dto/reset-password.dto';
+import {
+  ResetPasswordCheckDto,
+  ResetPasswordDto,
+} from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -137,12 +140,8 @@ export class AuthService {
       .findByUsernameOrEmail(forgotPasswordDto.email)
       .catch(() => null);
 
-    if (user) {
-      this.checkUserActive(user);
-      await this.signOutAll(user.id);
-      // TODO: publish to jobs queue
-      await this.sendResetPassword(user);
-    }
+    // TODO: publish to jobs queue
+    if (user) await this.sendResetPassword(user).catch(() => {});
   }
 
   async resetPasswordCheck(resetPasswordCheck: ResetPasswordCheckDto) {
@@ -152,6 +151,17 @@ export class AuthService {
       k.resetPasswordToken(tokenHash),
     );
     if (!userId) throw new BadRequestException('Token invalid or expired');
+    return { userId, tokenHash };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const cache = await this.resetPasswordCheck(resetPasswordDto);
+    await this.usersService.updatePassword(
+      cache.userId,
+      resetPasswordDto.password,
+    );
+    await this.signOutAll(cache.userId);
+    await this.cacheService.del((k) => k.resetPasswordToken(cache.tokenHash));
   }
 
   // auth validations

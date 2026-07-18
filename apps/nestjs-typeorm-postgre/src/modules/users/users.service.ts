@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { FindAllOptions } from '../../shared/classes/findall-query.class';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -43,6 +44,12 @@ export class UsersService {
 
   update(id: string, updateUserDto: UpdateUserDto) {
     return this.userRepo.update({ id }, updateUserDto);
+  }
+
+  async updatePassword(id: string, password: string) {
+    const salt = await bcrypt.genSalt(10),
+      hashed = await bcrypt.hash(password, salt);
+    return this.userRepo.update(id, { password: hashed });
   }
 
   softDelete(id: string) {

@@ -32,7 +32,10 @@ import { UsersService } from '../users/users.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordCheckDto } from './dto/reset-password.dto';
+import {
+  ResetPasswordCheckDto,
+  ResetPasswordDto,
+} from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -145,11 +148,11 @@ export class AuthController {
     return { user, sessions };
   }
 
-  // TODO: redirect to client url
   @Public()
   @ResponseSuccess({ message: 'Verification success' })
   @Get('/verify-email')
   verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
+    // TODO: redirect to client url
     return this.authService.verifyEmail(verifyEmailDto);
   }
 
@@ -160,11 +163,18 @@ export class AuthController {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
-  // TODO: redirect to client url
   @Public()
   @Get('/reset-password-check')
-  resetPasswordCheck(@Query() resetPasswordCheck: ResetPasswordCheckDto) {
-    return this.authService.resetPasswordCheck(resetPasswordCheck);
+  async resetPasswordCheck(@Query() resetPasswordCheck: ResetPasswordCheckDto) {
+    // TODO: redirect to client url
+    await this.authService.resetPasswordCheck(resetPasswordCheck);
+    return;
+  }
+
+  @Public()
+  @Post('/reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   // utils
