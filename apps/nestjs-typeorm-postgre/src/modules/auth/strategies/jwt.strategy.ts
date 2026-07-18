@@ -35,29 +35,23 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtTokenPayload): Promise<AuthContext | undefined> {
-    const session = await this.authService.findSession(
-      payload.sub,
-      payload.sid,
-    );
-    if (!session) return undefined;
-
     const authContext = new AuthContext();
-    authContext.sessionId = session.id;
+    authContext.sessionId = payload.sid;
 
     try {
       let userCache = await this.cacheService.get<UserCache>((k) =>
-        k.user(session.userId),
+        k.user(payload.sub),
       );
 
       if (!userCache) {
-        const user = await this.usersService.findOne(session.userId);
+        const user = await this.usersService.findOne(payload.sub);
         userCache = {
           id: user.id,
           username: user.username,
           roles: user.roles.map((r) => r.role.name) ?? [],
         };
 
-        await this.cacheService.set((k) => k.user(session.userId), userCache);
+        await this.cacheService.set((k) => k.user(payload.sub), userCache);
       }
 
       authContext.userId = userCache.id;
