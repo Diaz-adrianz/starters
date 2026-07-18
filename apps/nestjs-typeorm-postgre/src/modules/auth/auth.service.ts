@@ -51,7 +51,7 @@ export class AuthService {
             }) *
               1000
       )
-        await this.sendEmailVerification(existUser);
+        await this.sendEmailVerification(existUser).catch(() => {});
 
       return existUser;
     }
@@ -64,7 +64,7 @@ export class AuthService {
     });
 
     // TODO: publish to jobs queue
-    await this.sendEmailVerification(user);
+    await this.sendEmailVerification(user).catch(() => {});
 
     return user;
   }
