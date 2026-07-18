@@ -16,7 +16,6 @@ import { User } from '../users/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { ReqClient } from '../../common/decorators/req-client.decorator';
-import type { Session } from '../../common/classes/session.class';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
 import {
@@ -36,6 +35,7 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
+import { AuthContext } from '../../common/classes/auth-context.class';
 
 @Controller('auth')
 export class AuthController {
@@ -125,15 +125,12 @@ export class AuthController {
   @ResponseSuccess({ message: 'Signed out all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
-    @ReqUser() session: Session,
+    @ReqUser() { userId, sessionId }: AuthContext,
     @Res({ passthrough: true }) res: Response,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
   ) {
-    await this.authService.signOutAll(
-      session.userId,
-      keepCurrent ? [session.id] : [],
-    );
+    await this.authService.signOutAll(userId, keepCurrent ? [sessionId] : []);
     if (!keepCurrent)
       res.clearCookie(CookieKeys.REFRESH_TOKEN, {
         path: CookiePath.REFRESH_TOKEN,
@@ -142,9 +139,9 @@ export class AuthController {
   }
 
   @Get('/me')
-  async me(@ReqUser() session: Session) {
-    const user = await this.userService.findOne(session.userId);
-    const sessions = await this.authService.findSessions(session.userId);
+  async me(@ReqUser() { userId }: AuthContext) {
+    const user = await this.userService.findOne(userId);
+    const sessions = await this.authService.findSessions(userId);
     return { user, sessions };
   }
 

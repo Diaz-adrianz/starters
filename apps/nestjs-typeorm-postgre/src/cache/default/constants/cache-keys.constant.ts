@@ -3,4 +3,5 @@ export const CacheKeys = {
     `session:${userId}:${sessionId ?? ''}`,
   verifyToken: (tokenHash: string) => `verifyToken:${tokenHash}`,
   resetPasswordToken: (tokenHash: string) => `resetPassword:${tokenHash}`,
+  user: (userId: string) => `user:${userId}`,
 };

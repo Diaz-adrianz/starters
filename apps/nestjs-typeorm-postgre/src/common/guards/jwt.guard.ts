@@ -6,8 +6,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { Session } from '../classes/session.class';
-import { plainToInstance } from 'class-transformer';
+import { AuthContext } from '../classes/auth-context.class';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -25,13 +24,13 @@ export class JwtGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = Session>(
+  handleRequest<TUser = AuthContext>(
     err: any,
     user: TUser | false | null | undefined,
     _info: any,
   ): TUser {
     if (err || !user)
       throw err || new UnauthorizedException('Session expired.');
-    return plainToInstance(Session, user) as TUser;
+    return user;
   }
 }

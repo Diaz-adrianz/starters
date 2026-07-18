@@ -209,7 +209,7 @@ export class AuthService {
     const session = await this.cacheService.get<Session>((k) =>
       k.session(userId, sessionId),
     );
-    return session;
+    if (session) return plainToInstance(Session, session);
   }
 
   async findSessions(userId: string) {
