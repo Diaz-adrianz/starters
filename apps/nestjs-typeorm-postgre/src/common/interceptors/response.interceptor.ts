@@ -52,18 +52,13 @@ export class ResponseInterceptor implements NestInterceptor<
   }
 
   private resolveData(data: unknown, request: Request) {
-    if (
-      data instanceof InsertResult ||
-      data instanceof UpdateResult ||
-      data instanceof DeleteResult
-    ) {
-      if (
-        (data instanceof DeleteResult || data instanceof UpdateResult) &&
-        !data.affected
-      ) {
-        throw new NotFoundException('Entry not found');
-      }
-      return undefined;
+    if (data instanceof DeleteResult || data instanceof UpdateResult) {
+      if (!data.affected) throw new NotFoundException('Entry not found');
+      return { affected: data.affected };
+    }
+
+    if (data instanceof InsertResult) {
+      return { inserted: data.identifiers.length };
     }
 
     if (
