@@ -31,6 +31,7 @@ import { Client } from '../../common/classes/client.class';
 import { UsersService } from '../users/users.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -148,6 +149,13 @@ export class AuthController {
   @Get('/verify-email')
   verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
     return this.authService.verifyEmail(verifyEmailDto);
+  }
+
+  @Public()
+  @ResponseSuccess({ message: 'Reset link has been sent to your email' })
+  @Post('/forgot-password')
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
   }
 
   // utils

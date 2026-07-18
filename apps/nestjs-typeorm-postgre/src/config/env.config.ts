@@ -13,6 +13,9 @@ export const envConfig = () => ({
     verification: {
       expire: parseInt(process.env.TOKEN_VERIFICATION_EXPIRE ?? ''),
     },
+    resetPassword: {
+      expire: parseInt(process.env.TOKEN_RESETPASSWORD_EXPIRE ?? ''),
+    },
   },
   deviceId: {
     secret: process.env.DEVICE_ID_SECRET,
@@ -68,6 +71,7 @@ export const envConfigSchema = joi.object({
   PORT: joi.number().required(),
   SERVER_URL: joi.string().uri().required(),
   TOKEN_VERIFICATION_EXPIRE: joi.number().required(),
+  TOKEN_RESETPASSWORD_EXPIRE: joi.number().required(),
   DEVICE_ID_SECRET: joi.string().required(),
   DEVICE_ID_EXPIRE: joi.number().required(),
   DATABASE_DEFAULT_HOST: joi.string().required(),

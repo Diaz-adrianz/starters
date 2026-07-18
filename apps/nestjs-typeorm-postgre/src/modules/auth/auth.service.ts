@@ -19,6 +19,7 @@ import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { MailService } from '../../common/mail/mail.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -129,6 +130,20 @@ export class AuthService {
     });
   }
 
+  // password settings
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.usersService
+      .findByUsernameOrEmail(forgotPasswordDto.email)
+      .catch(() => null);
+
+    if (user) {
+      this.checkUserActive(user);
+      await this.signOutAll(user.id);
+      // TODO: publish to jobs queue
+      await this.sendResetPassword(user);
+    }
+  }
+
   // auth validations
   async validateLocalStrategy(username: string, password: string) {
     const user = await this.usersService.findByUsernameOrEmail(username);
@@ -199,6 +214,32 @@ export class AuthService {
   }
 
   // utils
+  private async sendResetPassword(user: User) {
+    const token = generateRandomString(12);
+    const tokenHash = sha256(token);
+    const link = `${this.configService.getOrThrow('server.url', { infer: true })}/auth/reset-password-check?token=${token}`;
+    const expire = this.configService.getOrThrow('token.resetPassword.expire', {
+      infer: true,
+    });
+
+    await this.cacheService.set(
+      (k) => k.resetPasswordToken(tokenHash),
+      user.id,
+      expire * 1000,
+    );
+    await this.mailService.send({
+      to: user.email,
+      subject: 'Reset Password',
+      content: {
+        fileName: 'reset-password.html',
+        payload: {
+          link,
+          expiresIn: expire / 60 + ' minutes',
+        },
+      },
+    });
+  }
+
   private async sendEmailVerification(user: User) {
     if (user.verifiedAt !== null)
       throw new BadRequestException('Account already verified');
