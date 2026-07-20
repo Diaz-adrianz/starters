@@ -15,6 +15,7 @@ import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
 import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateUserRolesDto } from './dto/update-user-role.dto';
 import { Permissions } from '../../common/decorators/permissions.decorator';
+import { ResSuccess } from '../../common/decorators/res-success.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -46,6 +47,7 @@ export class UsersController {
   }
 
   @Permissions(['users:update-roles'])
+  @ResSuccess({ allowNoAffected: true })
   @Patch(':id/roles')
   updateRoles(
     @Param('id') id: string,

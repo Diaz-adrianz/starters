@@ -25,7 +25,7 @@ import {
 } from '../../common/utils/device-id.util';
 import type { Response } from 'express';
 import { CookieKeys, CookiePath } from '../../common/constants/cookie-keys';
-import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
+import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { Client } from '../../common/classes/client.class';
 import { UsersService } from '../users/users.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
@@ -46,7 +46,7 @@ export class AuthController {
   ) {}
 
   @Public()
-  @ResponseSuccess({ message: 'Check your inbox to verify your account' })
+  @ResSuccess({ message: 'Check your inbox to verify your account' })
   @Post('sign-up')
   async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
     return this.authService.signUpLocal(signUpLocalDto);
@@ -108,7 +108,7 @@ export class AuthController {
   }
 
   @Public()
-  @ResponseSuccess({ message: 'Signed out' })
+  @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
   async signOut(
     @ReqClient() client: Client,
@@ -122,7 +122,7 @@ export class AuthController {
     return;
   }
 
-  @ResponseSuccess({ message: 'Signed out all sessions' })
+  @ResSuccess({ message: 'Signed out all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
     @ReqUser() { userId, sessionId }: AuthContext,
@@ -146,7 +146,7 @@ export class AuthController {
   }
 
   @Public()
-  @ResponseSuccess({ message: 'Verification success' })
+  @ResSuccess({ message: 'Verification success' })
   @Get('/verify-email')
   verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
     // TODO: redirect to client url
@@ -154,7 +154,7 @@ export class AuthController {
   }
 
   @Public()
-  @ResponseSuccess({ message: 'Reset link has been sent to your email' })
+  @ResSuccess({ message: 'Reset link has been sent to your email' })
   @Post('/forgot-password')
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
