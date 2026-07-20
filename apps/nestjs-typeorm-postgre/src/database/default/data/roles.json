@@ -1,0 +1,5 @@
+[
+    { "name": "Superadmin", "users": ["superadmin"] },
+    { "name": "Admin", "users": ["admin"] },
+    { "name": "User", "users": ["user"] }
+]

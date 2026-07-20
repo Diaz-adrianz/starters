@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Permission } from '../../../modules/permissions/entities/permission.entity';
-import rbacData from '../data/rbac.json';
+import permissionsData from '../data/permissions.json';
 
 export class SeedPermissions1784542135178 implements Seeder {
   track = false;
@@ -12,7 +12,7 @@ export class SeedPermissions1784542135178 implements Seeder {
   ): Promise<any> {
     const permissionRepo = dataSource.getRepository(Permission);
 
-    const values = rbacData.map(({ resource, action }) => ({
+    const values = permissionsData.map(({ resource, action }) => ({
       resource,
       action,
       description: `${action} ${resource}`,

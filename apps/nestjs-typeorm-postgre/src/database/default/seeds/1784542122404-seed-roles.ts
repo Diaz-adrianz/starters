@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import rbacData from '../data/rbac.json';
+import rolesData from '../data/roles.json';
 import { Role } from '../../../modules/roles/entities/role.entity';
 
 export class SeedRoles1784542342404 implements Seeder {
@@ -12,11 +12,9 @@ export class SeedRoles1784542342404 implements Seeder {
   ): Promise<any> {
     const roleRepo = dataSource.getRepository(Role);
 
-    const values = [...new Set(rbacData.flatMap((entry) => entry.roles))].map(
-      (roleName) => ({
-        name: roleName,
-      }),
-    );
+    const values = rolesData.map((role) => ({
+      name: role.name,
+    }));
 
     const result = await roleRepo
       .createQueryBuilder()

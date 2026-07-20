@@ -2,8 +2,8 @@ import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Role } from '../../../modules/roles/entities/role.entity';
 import { RolePermission } from '../../../modules/roles/entities/role-permission.entity';
-import rbacData from '../data/rbac.json';
 import { Permission } from '../../../modules/permissions/entities/permission.entity';
+import permissionsData from '../data/permissions.json';
 
 export class SeedRolePermissions1784542556618 implements Seeder {
   track = false;
@@ -24,7 +24,7 @@ export class SeedRolePermissions1784542556618 implements Seeder {
       permissions.map((p) => [`${p.resource}:${p.action}`, p]),
     );
 
-    const values = rbacData.flatMap((entry) => {
+    const values = permissionsData.flatMap((entry) => {
       const permission = permissionMap.get(`${entry.resource}:${entry.action}`);
       if (!permission) return [];
 
