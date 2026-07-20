@@ -11,13 +11,24 @@ import {
   UpdateUserRolesDto,
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
+import { DefaultCacheService } from '../../cache/default/default-cache.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
+    private cacheService: DefaultCacheService,
   ) {}
+
+  async clearCache(userIds: string[]) {
+    if (!userIds.length) return;
+
+    const keys = userIds.map((userId) =>
+      this.cacheService.resolveKey((k) => k.user(userId)),
+    );
+    await this.cacheService.delMany(keys);
+  }
 
   async create(createUserDto: CreateUserDto) {
     const { email, username, password } = createUserDto;
@@ -53,8 +64,10 @@ export class UsersService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepo.update({ id }, updateUserDto);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const result = await this.userRepo.update({ id }, updateUserDto);
+    await this.clearCache([id]);
+    return result;
   }
 
   async updatePassword(id: string, password: string) {
@@ -71,6 +84,8 @@ export class UsersService {
       })),
     );
 
+    await this.clearCache([id]);
+
     if (action == UpdateUserRolesAction.ADD) {
       return this.userRoleRepo.insert(userRoles);
     } else if (action == UpdateUserRolesAction.REMOVE) {
@@ -84,15 +99,21 @@ export class UsersService {
     }
   }
 
-  softDelete(id: string) {
-    return this.userRepo.softDelete({ id });
+  async softDelete(id: string) {
+    const result = this.userRepo.softDelete({ id });
+    await this.clearCache([id]);
+    return result;
   }
 
-  restore(id: string) {
-    return this.userRepo.restore({ id });
+  async restore(id: string) {
+    const result = this.userRepo.restore({ id });
+    await this.clearCache([id]);
+    return result;
   }
 
-  delete(id: string) {
-    return this.userRepo.delete({ id });
+  async delete(id: string) {
+    const result = this.userRepo.delete({ id });
+    await this.clearCache([id]);
+    return result;
   }
 }

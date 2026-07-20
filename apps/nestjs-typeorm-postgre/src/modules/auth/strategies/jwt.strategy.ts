@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { AuthService } from '../auth.service';
 import { AuthContext } from '../../../common/classes/auth-context.class';
 import { UsersService } from '../../users/users.service';
 import { DefaultCacheService } from '../../../cache/default/default-cache.service';
@@ -22,7 +21,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
     private logger: LoggerService,
-    private authService: AuthService,
     private usersService: UsersService,
   ) {
     super({

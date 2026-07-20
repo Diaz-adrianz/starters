@@ -10,7 +10,7 @@ export class DefaultCacheService {
     @Inject('DEFAULT_CACHE_CLIENT') private redisClient: RedisClientType,
   ) {}
 
-  private resolveKey(key: CacheKeyInput): string {
+  public resolveKey(key: CacheKeyInput): string {
     return typeof key === 'string' ? key : key(CacheKeys);
   }
 
