@@ -1,0 +1,27 @@
+[
+  { "resource": "permissions", "action": "create", "roles": ["Superadmin"] },
+  { "resource": "permissions", "action": "find-all", "roles": ["Superadmin", "Admin"] },
+  { "resource": "permissions", "action": "find-one", "roles": ["Superadmin", "Admin"] },
+  { "resource": "permissions", "action": "update", "roles": ["Superadmin"] },
+  { "resource": "permissions", "action": "soft-delete", "roles": ["Superadmin"] },
+  { "resource": "permissions", "action": "restore", "roles": ["Superadmin"] },
+  { "resource": "permissions", "action": "delete", "roles": ["Superadmin"] },
+
+  { "resource": "roles", "action": "create", "roles": ["Superadmin"] },
+  { "resource": "roles", "action": "find-all", "roles": ["Superadmin", "Admin"] },
+  { "resource": "roles", "action": "find-one", "roles": ["Superadmin", "Admin"] },
+  { "resource": "roles", "action": "update", "roles": ["Superadmin"] },
+  { "resource": "roles", "action": "update-permissions", "roles": ["Superadmin"] },
+  { "resource": "roles", "action": "soft-delete", "roles": ["Superadmin"] },
+  { "resource": "roles", "action": "restore", "roles": ["Superadmin"] },
+  { "resource": "roles", "action": "delete", "roles": ["Superadmin"] },
+
+  { "resource": "users", "action": "create", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "find-all", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "find-one", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "update", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "update-roles", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "soft-delete", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "restore", "roles": ["Superadmin", "Admin"] },
+  { "resource": "users", "action": "delete", "roles": ["Superadmin", "Admin"] }
+]

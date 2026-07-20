@@ -20,7 +20,7 @@ const buildDataSource = (
   entities: [join(__dirname, '../../modules/**/*.entity.{js,ts}')],
   migrations: [join(__dirname, './migrations/*.{js,ts}')],
   migrationsRun: false,
-  logging: mode !== 'production',
+  logging: false,
   synchronize: false,
   namingStrategy: new SnakeNamingStrategy(),
   seeds: [join(__dirname, './seeds/*.{js,ts}')],
