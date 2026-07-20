@@ -14,6 +14,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
 import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateRolePermissionsDto } from './dto/update-role-permission.dto';
+import { ResSuccess } from '../../common/decorators/res-success.decorator';
 
 @Controller('roles')
 export class RolesController {
@@ -40,6 +41,7 @@ export class RolesController {
     return this.rolesService.update(id, updateRoleDto);
   }
 
+  @ResSuccess({ allowNoAffected: true })
   @Patch(':id/permissions')
   updatePermissions(
     @Param('id') id: string,

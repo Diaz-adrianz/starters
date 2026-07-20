@@ -39,20 +39,20 @@ export class PermissionsGuard implements CanActivate {
     const authContext = req.user as AuthContext;
     const rolePermissions = new Set<string>();
 
-    for (const role of authContext.roles) {
+    for (const roleId of authContext.roles) {
       try {
         let cached = await this.cacheService.get<string[]>((k) =>
-          k.rolePermissions(role),
+          k.rolePermissions(roleId),
         );
 
         if (!cached || !cached.length) {
           const permissionRepo = this.dataSource.getRepository(Permission);
           const permissions = await permissionRepo.find({
-            where: { roles: { role: { name: role } } },
+            where: { roles: { role: { id: roleId } } },
           });
 
           cached = permissions.map((p) => `${p.resource}:${p.action}`);
-          await this.cacheService.set((k) => k.rolePermissions(role), cached);
+          await this.cacheService.set((k) => k.rolePermissions(roleId), cached);
         }
 
         cached.forEach((p) => rolePermissions.add(p));

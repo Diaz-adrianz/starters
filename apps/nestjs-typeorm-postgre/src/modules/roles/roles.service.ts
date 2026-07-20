@@ -10,6 +10,7 @@ import {
   UpdateRolePermissionsDto,
 } from './dto/update-role-permission.dto';
 import { RolePermission } from './entities/role-permission.entity';
+import { DefaultCacheService } from '../../cache/default/default-cache.service';
 
 @Injectable()
 export class RolesService {
@@ -17,7 +18,17 @@ export class RolesService {
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     @InjectRepository(RolePermission)
     private rolePermissionRepo: Repository<RolePermission>,
+    private cacheService: DefaultCacheService,
   ) {}
+
+  async clearPermissionsCache(roleIds: string[]) {
+    if (!roleIds.length) return;
+
+    const keys = roleIds.map((roleId) =>
+      this.cacheService.resolveKey((k) => k.rolePermissions(roleId)),
+    );
+    await this.cacheService.delMany(keys);
+  }
 
   create(createRoleDto: CreateRoleDto) {
     return this.roleRepo.insert(createRoleDto);
@@ -48,6 +59,8 @@ export class RolesService {
         permissionId: rp.permissionId,
       })),
     );
+
+    await this.clearPermissionsCache([id]);
 
     if (action == UpdateRolePermissionsAction.ADD) {
       return this.rolePermissionRepo.insert(rolePermissions);
