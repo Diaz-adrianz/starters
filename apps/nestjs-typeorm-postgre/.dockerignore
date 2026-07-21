@@ -1,0 +1,9 @@
+node_modules
+dist
+logs
+.env
+.env.production
+.git
+*.md
+npm-debug.log
+test

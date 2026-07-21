@@ -1,6 +1,23 @@
 name: starters
 
 services:
+  app-nestjs-typeorm-postgre:
+    build:
+      context: ./apps/nestjs-typeorm-postgre
+      dockerfile: Dockerfile
+    ports:
+      - '5001:5001'
+    env_file:
+      - ./apps/nestjs-typeorm-postgre/.env.production
+    volumes:
+      - ./apps/nestjs-typeorm-postgre/logs:/usr/src/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   seaweedfs-master:
     image: chrislusf/seaweedfs:latest
     container_name: seaweedfs-master
@@ -97,6 +114,19 @@ services:
     entrypoint: >
       sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   postgres:
     image: postgres:16
     container_name: postgres
@@ -111,6 +141,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - '5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U root']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   mysql:
     image: mysql:8.4
@@ -135,6 +170,7 @@ volumes:
   n8n-data:
   certbot-etc:
   certbot-www:
+  redis-data:
   postgres-data:
   mysql-data:
 
