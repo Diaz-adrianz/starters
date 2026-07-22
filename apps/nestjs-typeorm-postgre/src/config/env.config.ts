@@ -66,29 +66,44 @@ export const envConfig = () => ({
 export type EnvConfig = ReturnType<typeof envConfig>;
 
 export const envConfigSchema = joi.object({
+  // server
   MODE: joi
     .string()
     .valid(...Modes)
     .required(),
   PORT: joi.number().required(),
   SERVER_URL: joi.string().uri().required(),
+
+  // tokens
   TOKEN_VERIFICATION_EXPIRE: joi.number().required(),
   TOKEN_RESETPASSWORD_EXPIRE: joi.number().required(),
+
+  // device id
   DEVICE_ID_SECRET: joi.string().required(),
   DEVICE_ID_EXPIRE: joi.number().required(),
+
+  // databases
   DATABASE_DEFAULT_HOST: joi.string().required(),
   DATABASE_DEFAULT_PORT: joi.number().required(),
   DATABASE_DEFAULT_USERNAME: joi.string().required(),
   DATABASE_DEFAULT_PASSWORD: joi.string().required(),
   DATABASE_DEFAULT_NAME: joi.string().required(),
+
+  // jwt auth
   JWT_ACCESS_SECRET: joi.string().required(),
   JWT_ACCESS_EXPIRE: joi.number().required(),
   JWT_REFRESH_SECRET: joi.string().required(),
   JWT_REFRESH_EXPIRE: joi.number().required(),
   JWT_ISSUER: joi.string().required(),
+
+  // caches
   CACHE_DEFAULT_HOST: joi.string().required(),
   CACHE_DEFAULT_PORT: joi.number().required(),
+
+  // loggers
   LOGGER_DEFAULT_PATH: joi.string().pattern(/\/$/).required(),
+
+  // mailers
   MAIL_TEMPLATES_PATH: joi.string().required(),
   MAIL_HOST: joi.string().required(),
   MAIL_PORT: joi.number().required(),
