@@ -12,7 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './cache/default/default-cache.module';
-import { LoggerModule } from './common/logger/logger.module';
+import { DefaultLoggerModule } from './lib/logger/default/default-logger.module';
 import { MailModule } from './common/mail/mail.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
@@ -37,7 +37,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     UsersModule,
     AuthModule,
     DefaultCacheModule,
-    LoggerModule,
+    DefaultLoggerModule,
     MailModule,
     RolesModule,
     PermissionsModule,

@@ -1,10 +1,10 @@
 import { Global, Module } from '@nestjs/common';
-import { LoggerService } from './logger.service';
+import { DefaultLoggerService } from './default-logger.service';
 import { WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
+import { EnvConfig } from '../../../config/env.config';
 
 const { combine, timestamp, printf, colorize, errors } = format;
 
@@ -26,7 +26,7 @@ const { combine, timestamp, printf, colorize, errors } = format;
           new transports.Console(),
           new DailyRotateFile({
             filename:
-              configService.getOrThrow('logger.path', { infer: true }) +
+              configService.getOrThrow('logger.default.path', { infer: true }) +
               '%DATE%.log',
             level: 'warn',
             datePattern: 'YYYY-MM-DD',
@@ -38,7 +38,7 @@ const { combine, timestamp, printf, colorize, errors } = format;
       }),
     }),
   ],
-  providers: [LoggerService],
-  exports: [LoggerService],
+  providers: [DefaultLoggerService],
+  exports: [DefaultLoggerService],
 })
-export class LoggerModule {}
+export class DefaultLoggerModule {}

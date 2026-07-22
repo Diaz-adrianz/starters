@@ -48,7 +48,9 @@ export const envConfig = () => ({
     },
   },
   logger: {
-    path: process.env.LOGGER_PATH,
+    default: {
+      path: process.env.LOGGER_DEFAULT_PATH,
+    },
   },
   mail: {
     templatesPath: process.env.MAIL_TEMPLATES_PATH,
@@ -86,7 +88,7 @@ export const envConfigSchema = joi.object({
   JWT_ISSUER: joi.string().required(),
   CACHE_HOST: joi.string().required(),
   CACHE_PORT: joi.number().required(),
-  LOGGER_PATH: joi.string().pattern(/\/$/).required(),
+  LOGGER_DEFAULT_PATH: joi.string().pattern(/\/$/).required(),
   MAIL_TEMPLATES_PATH: joi.string().required(),
   MAIL_HOST: joi.string().required(),
   MAIL_PORT: joi.number().required(),

@@ -3,7 +3,7 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
-export class LoggerService {
+export class DefaultLoggerService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}

@@ -13,7 +13,7 @@ import {
 } from '../decorators/permissions.decorator';
 import { AuthContext } from '../classes/auth-context.class';
 import { DefaultCacheService } from '../../cache/default/default-cache.service';
-import { LoggerService } from '../logger/logger.service';
+import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { Permission } from '../../modules/permissions/entities/permission.entity';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
-    private logger: LoggerService,
+    private logger: DefaultLoggerService,
     private dataSource: DataSource,
   ) {}
 

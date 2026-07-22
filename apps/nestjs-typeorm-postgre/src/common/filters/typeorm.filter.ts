@@ -9,13 +9,13 @@ import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
-import { LoggerService } from '../logger/logger.service';
+import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 
 @Catch(TypeORMError)
 export class TypeormFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<EnvConfig>,
-    private logger: LoggerService,
+    private logger: DefaultLoggerService,
   ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {

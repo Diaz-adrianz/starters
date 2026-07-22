@@ -7,7 +7,7 @@ import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
 import { AuthContext } from '../../../common/classes/auth-context.class';
 import { UsersService } from '../../users/users.service';
 import { DefaultCacheService } from '../../../cache/default/default-cache.service';
-import { LoggerService } from '../../../common/logger/logger.service';
+import { DefaultLoggerService } from '../../../lib/logger/default/default-logger.service';
 
 type UserCache = {
   id: string;
@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
-    private logger: LoggerService,
+    private logger: DefaultLoggerService,
     private usersService: UsersService,
   ) {
     super({
