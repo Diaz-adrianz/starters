@@ -14,7 +14,7 @@ import { DefaultLoggerService } from '../../logger/default/default-logger.servic
       inject: [ConfigService, DefaultLoggerService],
       useFactory: async (
         configService: ConfigService<EnvConfig>,
-        logger: DefaultLoggerService,
+        loggerService: DefaultLoggerService,
       ) => {
         const client: RedisClientType = createClient({
           url: `redis://${configService.getOrThrow('cache.default.host', { infer: true })}:${configService.getOrThrow('cache.default.port', { infer: true })}`,
@@ -23,15 +23,19 @@ import { DefaultLoggerService } from '../../logger/default/default-logger.servic
           },
         });
 
-        client.on('error', (err) => logger.error(err, 'Cache'));
-        client.on('connect', () => logger.info('Redis connected', 'Cache'));
-        client.on('ready', () => logger.info('Redis ready', 'Cache'));
-        client.on('end', () => logger.info('Redis disconnected', 'Cache'));
+        client.on('error', (err) => loggerService.error(err, 'Cache'));
+        client.on('connect', () =>
+          loggerService.info('Redis connected', 'Cache'),
+        );
+        client.on('ready', () => loggerService.info('Redis ready', 'Cache'));
+        client.on('end', () =>
+          loggerService.info('Redis disconnected', 'Cache'),
+        );
 
         try {
           await client.connect();
         } catch (err) {
-          logger.error(err, 'Cache');
+          loggerService.error(err, 'Cache');
         }
 
         return client;

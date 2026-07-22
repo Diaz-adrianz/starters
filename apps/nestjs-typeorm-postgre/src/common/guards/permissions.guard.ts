@@ -21,7 +21,7 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
-    private logger: DefaultLoggerService,
+    private loggerService: DefaultLoggerService,
     private dataSource: DataSource,
   ) {}
 
@@ -57,7 +57,7 @@ export class PermissionsGuard implements CanActivate {
 
         cached.forEach((p) => rolePermissions.add(p));
       } catch (error) {
-        this.logger.error(error, 'PermissionGuard');
+        this.loggerService.error(error, 'PermissionGuard');
       }
     }
 

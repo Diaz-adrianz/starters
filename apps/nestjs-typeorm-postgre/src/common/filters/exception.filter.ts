@@ -17,7 +17,7 @@ export class ExceptionFilter implements NestExceptionFilter {
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
     private configService: ConfigService<EnvConfig>,
-    private logger: DefaultLoggerService,
+    private loggerService: DefaultLoggerService,
   ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
@@ -49,7 +49,7 @@ export class ExceptionFilter implements NestExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception);
+      this.loggerService.error(exception);
 
     httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
   }

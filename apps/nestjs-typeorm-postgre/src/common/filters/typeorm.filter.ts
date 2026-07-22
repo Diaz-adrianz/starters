@@ -15,7 +15,7 @@ import { DefaultLoggerService } from '../../lib/logger/default/default-logger.se
 export class TypeormFilter implements ExceptionFilter {
   constructor(
     private configService: ConfigService<EnvConfig>,
-    private logger: DefaultLoggerService,
+    private loggerService: DefaultLoggerService,
   ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {
@@ -71,7 +71,7 @@ export class TypeormFilter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception, 'Database');
+      this.loggerService.error(exception, 'Database');
 
     res.status(body.statusCode).json(body);
   }

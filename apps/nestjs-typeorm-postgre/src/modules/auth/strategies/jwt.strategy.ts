@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
-    private logger: DefaultLoggerService,
+    private loggerService: DefaultLoggerService,
     private usersService: UsersService,
   ) {
     super({
@@ -56,7 +56,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       authContext.username = userCache.username;
       authContext.roles = userCache.roles;
     } catch (error) {
-      this.logger.error(error, 'Auth');
+      this.loggerService.error(error, 'Auth');
     }
 
     return authContext;
