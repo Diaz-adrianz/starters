@@ -18,6 +18,59 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  seaweedfs-master:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-master
+    command: master -ip.bind=0.0.0.0 -port=${SEAWEEDFS_MASTER_PORT}
+    volumes:
+      - seaweedfs-master-data:/data
+    restart: unless-stopped
+
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-volume
+    command: volume -mserver=seaweedfs-master:${SEAWEEDFS_MASTER_PORT} -port=${SEAWEEDFS_VOLUME_PORT} -ip.bind=0.0.0.0
+    volumes:
+      - seaweedfs-volume-data:/data
+    depends_on:
+      - seaweedfs-master
+    restart: unless-stopped
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-filer
+    command: filer -master=seaweedfs-master:${SEAWEEDFS_MASTER_PORT} -port=${SEAWEEDFS_FILER_PORT} -ip.bind=0.0.0.0
+    volumes:
+      - seaweedfs-filer-data:/data
+    depends_on:
+      - seaweedfs-master
+      - seaweedfs-volume
+    restart: unless-stopped
+
+  seaweedfs-s3:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-s3
+    command: s3 -filer=seaweedfs-filer:${SEAWEEDFS_FILER_PORT} -port=${SEAWEEDFS_S3_PORT} -ip.bind=0.0.0.0 -config=/etc/seaweedfs/s3-config.json
+    volumes:
+      - ./seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json
+    depends_on:
+      - seaweedfs-filer
+    restart: unless-stopped
+    expose:
+      - ${SEAWEEDFS_S3_PORT}
+
+  seaweedfs-admin:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-admin
+    command: 'admin -masters="seaweedfs-master:${SEAWEEDFS_MASTER_PORT}" -port=${SEAWEEDFS_ADMIN_PORT} -adminUser=${SEAWEEDFS_ADMIN_USER} -adminPassword=${SEAWEEDFS_ADMIN_PASSWORD} -dataDir=/data'
+    volumes:
+      - seaweedfs-admin-data:/data
+    depends_on:
+      - seaweedfs-master
+    restart: unless-stopped
+    expose:
+      - :${SEAWEEDFS_ADMIN_PORT}
+
   n8n:
     image: docker.n8n.io/n8nio/n8n
     container_name: n8n
@@ -110,6 +163,10 @@ services:
       - '3306:3306'
 
 volumes:
+  seaweedfs-master-data:
+  seaweedfs-volume-data:
+  seaweedfs-filer-data:
+  seaweedfs-admin-data:
   n8n-data:
   certbot-etc:
   certbot-www:
