@@ -56,8 +56,8 @@ services:
     depends_on:
       - seaweedfs-filer
     restart: unless-stopped
-    expose:
-      - ${SEAWEEDFS_S3_PORT}
+    ports:
+      - ${SEAWEEDFS_S3_PORT}:${SEAWEEDFS_S3_PORT}
 
   seaweedfs-admin:
     image: chrislusf/seaweedfs:latest
@@ -68,8 +68,8 @@ services:
     depends_on:
       - seaweedfs-master
     restart: unless-stopped
-    expose:
-      - :${SEAWEEDFS_ADMIN_PORT}
+    ports:
+      - ${SEAWEEDFS_ADMIN_PORT}:${SEAWEEDFS_ADMIN_PORT}
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
