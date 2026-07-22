@@ -9,6 +9,17 @@
 				}
 			],
 			"actions": ["Admin", "Read", "Write", "List", "Tagging"]
+		},
+		{
+			"name": "app-nestjs-typeorm-postgre",
+			"credentials": [
+				{
+					"accessKey": "e4a1584c24b77c2ab33eac7f1a757f4f",
+					"secretKey": "6824c0a09de5bfd1afaac4777fe17ca9"
+				}
+			],
+			"actions": ["Read", "Write", "List", "Tagging"],
+			"resources": ["arn:aws:s3:::app-nestjs-typeorm-postgre", "arn:aws:s3:::app-nestjs-typeorm-postgre/*"]
 		}
 	]
 }

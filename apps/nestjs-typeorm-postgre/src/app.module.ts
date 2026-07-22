@@ -16,6 +16,8 @@ import { DefaultLoggerModule } from './lib/logger/default/default-logger.module'
 import { DefaultMailerModule } from './lib/mailer/default/default-mailer.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
+import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
+import { S3Filter } from './common/filters/s3.filter';
 
 @Module({
   imports: [
@@ -43,6 +45,9 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     // mailers
     DefaultMailerModule,
 
+    // storages
+    DefaultStorageModule,
+
     // app modules
     UsersModule,
     AuthModule,
@@ -50,31 +55,33 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     PermissionsModule,
   ],
   providers: [
-    // auth guard
+    // guards
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
     },
 
-    // request validation
+    // pipes
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
 
-    // any error handler
+    // filters
     {
       provide: APP_FILTER,
       useClass: ExceptionFilter,
     },
-
-    // typeorm error handler
     {
       provide: APP_FILTER,
       useClass: TypeormFilter,
     },
+    {
+      provide: APP_FILTER,
+      useClass: S3Filter,
+    },
 
-    // response format
+    // interceptors
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,

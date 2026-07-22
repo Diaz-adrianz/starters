@@ -63,6 +63,16 @@ export const envConfig = () => ({
       secure: process.env.MAILER_DEFAULT_SECURE === 'true',
     },
   },
+  storage: {
+    default: {
+      endpoint: process.env.STORAGE_DEFAULT_ENDPOINT,
+      region: process.env.STORAGE_DEFAULT_REGION,
+      accessKeyId: process.env.STORAGE_DEFAULT_ACCESS_KEY_ID,
+      secretAccessKey: process.env.STORAGE_DEFAULT_SECRET_ACCESS_KEY,
+      forcePathStyle: process.env.STORAGE_DEFAULT_FORCE_PATH_STYLE === 'true',
+      bucket: process.env.STORAGE_DEFAULT_BUCKET,
+    },
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -113,4 +123,12 @@ export const envConfigSchema = joi.object({
   MAILER_DEFAULT_USER: joi.string().required(),
   MAILER_DEFAULT_PASS: joi.string().required(),
   MAILER_DEFAULT_SECURE: joi.bool().required(),
+
+  // storages
+  STORAGE_DEFAULT_ENDPOINT: joi.string().required(),
+  STORAGE_DEFAULT_REGION: joi.string().required(),
+  STORAGE_DEFAULT_ACCESS_KEY_ID: joi.string().required(),
+  STORAGE_DEFAULT_SECRET_ACCESS_KEY: joi.string().required(),
+  STORAGE_DEFAULT_FORCE_PATH_STYLE: joi.bool().required(),
+  STORAGE_DEFAULT_BUCKET: joi.string().required(),
 });
