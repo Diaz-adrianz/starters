@@ -11,7 +11,7 @@ import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
-import { DefaultCacheService } from '../../cache/default/default-cache.service';
+import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { generateRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../common/classes/session.class';
 import { Client } from '../../common/classes/client.class';

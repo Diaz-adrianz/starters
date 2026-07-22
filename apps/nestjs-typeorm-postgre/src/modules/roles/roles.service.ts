@@ -10,7 +10,7 @@ import {
   UpdateRolePermissionsDto,
 } from './dto/update-role-permission.dto';
 import { RolePermission } from './entities/role-permission.entity';
-import { DefaultCacheService } from '../../cache/default/default-cache.service';
+import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 
 @Injectable()
 export class RolesService {

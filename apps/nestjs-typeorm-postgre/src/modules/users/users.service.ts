@@ -11,7 +11,7 @@ import {
   UpdateUserRolesDto,
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
-import { DefaultCacheService } from '../../cache/default/default-cache.service';
+import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 
 @Injectable()
 export class UsersService {

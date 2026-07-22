@@ -12,7 +12,7 @@ import {
   PermissionsMetadata,
 } from '../decorators/permissions.decorator';
 import { AuthContext } from '../classes/auth-context.class';
-import { DefaultCacheService } from '../../cache/default/default-cache.service';
+import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { Permission } from '../../modules/permissions/entities/permission.entity';
 

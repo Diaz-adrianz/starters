@@ -43,8 +43,8 @@ export const envConfig = () => ({
   },
   cache: {
     default: {
-      host: process.env.CACHE_HOST,
-      port: parseInt(process.env.CACHE_PORT ?? ''),
+      host: process.env.CACHE_DEFAULT_HOST,
+      port: parseInt(process.env.CACHE_DEFAULT_PORT ?? ''),
     },
   },
   logger: {
@@ -86,8 +86,8 @@ export const envConfigSchema = joi.object({
   JWT_REFRESH_SECRET: joi.string().required(),
   JWT_REFRESH_EXPIRE: joi.number().required(),
   JWT_ISSUER: joi.string().required(),
-  CACHE_HOST: joi.string().required(),
-  CACHE_PORT: joi.number().required(),
+  CACHE_DEFAULT_HOST: joi.string().required(),
+  CACHE_DEFAULT_PORT: joi.number().required(),
   LOGGER_DEFAULT_PATH: joi.string().pattern(/\/$/).required(),
   MAIL_TEMPLATES_PATH: joi.string().required(),
   MAIL_HOST: joi.string().required(),

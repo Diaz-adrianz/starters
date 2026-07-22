@@ -2,8 +2,8 @@ import { Global, Module } from '@nestjs/common';
 import { DefaultCacheService } from './default-cache.service';
 import { createClient, RedisClientType } from 'redis';
 import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
-import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
+import { EnvConfig } from '../../../config/env.config';
+import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 
 @Global()
 @Module({
