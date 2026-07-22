@@ -17,7 +17,7 @@ import { Session } from '../../common/classes/session.class';
 import { Client } from '../../common/classes/client.class';
 import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
-import { MailService } from '../../common/mail/mail.service';
+import { DefaultMailerService } from '../../lib/mailer/default/default-mailer.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import {
@@ -32,7 +32,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
-    private mailService: MailService,
+    private mailerService: DefaultMailerService,
   ) {}
 
   async signUpLocal(signUpLocalDto: SignUpLocalDto) {
@@ -260,7 +260,7 @@ export class AuthService {
       user.id,
       expire * 1000,
     );
-    await this.mailService.send({
+    await this.mailerService.send({
       to: user.email,
       subject: 'Reset Password',
       content: {
@@ -292,7 +292,7 @@ export class AuthService {
       user.id,
       expire * 1000,
     );
-    await this.mailService.send({
+    await this.mailerService.send({
       to: user.email,
       subject: 'Email Verification',
       content: {

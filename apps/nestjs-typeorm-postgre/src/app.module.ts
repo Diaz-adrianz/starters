@@ -13,7 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './lib/cache/default/default-cache.module';
 import { DefaultLoggerModule } from './lib/logger/default/default-logger.module';
-import { MailModule } from './common/mail/mail.module';
+import { DefaultMailerModule } from './lib/mailer/default/default-mailer.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 
@@ -34,11 +34,18 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
         defaultDataSourceFactory(configService),
     }),
 
+    // caches
+    DefaultCacheModule,
+
+    // loggers
+    DefaultLoggerModule,
+
+    // mailers
+    DefaultMailerModule,
+
+    // app modules
     UsersModule,
     AuthModule,
-    DefaultCacheModule,
-    DefaultLoggerModule,
-    MailModule,
     RolesModule,
     PermissionsModule,
   ],

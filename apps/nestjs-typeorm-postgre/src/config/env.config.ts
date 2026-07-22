@@ -52,14 +52,16 @@ export const envConfig = () => ({
       path: process.env.LOGGER_DEFAULT_PATH,
     },
   },
-  mail: {
-    templatesPath: process.env.MAIL_TEMPLATES_PATH,
-    host: process.env.MAIL_HOST,
-    port: parseInt(process.env.MAIL_PORT ?? ''),
-    sender: process.env.MAIL_SENDER,
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-    secure: process.env.MAIL_SECURE === 'true',
+  mailer: {
+    default: {
+      templatesPath: process.env.MAILER_DEFAULT_TEMPLATES_PATH,
+      host: process.env.MAILER_DEFAULT_HOST,
+      port: parseInt(process.env.MAILER_DEFAULT_PORT ?? ''),
+      sender: process.env.MAILER_DEFAULT_SENDER,
+      user: process.env.MAILER_DEFAULT_USER,
+      pass: process.env.MAILER_DEFAULT_PASS,
+      secure: process.env.MAILER_DEFAULT_SECURE === 'true',
+    },
   },
 });
 
@@ -104,11 +106,11 @@ export const envConfigSchema = joi.object({
   LOGGER_DEFAULT_PATH: joi.string().pattern(/\/$/).required(),
 
   // mailers
-  MAIL_TEMPLATES_PATH: joi.string().required(),
-  MAIL_HOST: joi.string().required(),
-  MAIL_PORT: joi.number().required(),
-  MAIL_SENDER: joi.string().required(),
-  MAIL_USER: joi.string().required(),
-  MAIL_PASS: joi.string().required(),
-  MAIL_SECURE: joi.bool().required(),
+  MAILER_DEFAULT_TEMPLATES_PATH: joi.string().required(),
+  MAILER_DEFAULT_HOST: joi.string().required(),
+  MAILER_DEFAULT_PORT: joi.number().required(),
+  MAILER_DEFAULT_SENDER: joi.string().required(),
+  MAILER_DEFAULT_USER: joi.string().required(),
+  MAILER_DEFAULT_PASS: joi.string().required(),
+  MAILER_DEFAULT_SECURE: joi.bool().required(),
 });
