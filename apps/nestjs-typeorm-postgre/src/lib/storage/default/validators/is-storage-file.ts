@@ -8,7 +8,11 @@ import {
 import { Injectable } from '@nestjs/common';
 import { DefaultStorageService } from '../default-storage.service';
 import { stringifyBytes } from '../../../../shared/utils/string.util';
-import { MediaMimeType } from '../../../../shared/constants/media-types.constant';
+import {
+  MediaExtensions,
+  MediaMimeType,
+} from '../../../../shared/constants/media-types.constant';
+import { fileTypeFromStream } from 'file-type';
 
 interface IsStorageFileOptions {
   mimeTypes?: MediaMimeType[];
@@ -35,17 +39,30 @@ export class IsStorageFileConstraint implements ValidatorConstraintInterface {
     try {
       const head = await this.storageService.headObject(value);
 
-      if (options?.mimeTypes?.length) {
-        const contentType = head.ContentType ?? '';
-        if (!options.mimeTypes.includes(contentType as MediaMimeType)) {
-          this.lastError = `${prop} type "${contentType}" is not allowed`;
-          return false;
-        }
-      }
-
       if (options?.maxBytes && (head.ContentLength ?? 0) > options.maxBytes) {
         this.lastError = `${prop} size exceeds maximum of ${stringifyBytes(options.maxBytes)}`;
         return false;
+      }
+
+      if (options?.mimeTypes?.length) {
+        const stream = await this.storageService.getObject(
+          value,
+          'bytes=0-4095',
+        );
+        if (!stream) {
+          this.lastError = `${prop} is not readable`;
+          return false;
+        }
+
+        const fileType = await fileTypeFromStream(
+          stream.transformToWebStream(),
+        );
+        const contentType = fileType?.mime ?? '';
+
+        if (!options.mimeTypes.includes(contentType as MediaMimeType)) {
+          this.lastError = `${prop} type ${MediaExtensions[contentType] ?? 'unknown'} is not allowed`;
+          return false;
+        }
       }
 
       return true;

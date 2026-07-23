@@ -50,10 +50,14 @@ export class DefaultStorageService {
     return { key };
   }
 
-  async getObject(key: StorageKeyInput) {
+  async getObject(key: StorageKeyInput, range?: string) {
     const resolvedKey = this.resolveKey(key);
     const result = await this.s3.send(
-      new GetObjectCommand({ Bucket: this.bucket, Key: resolvedKey }),
+      new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: resolvedKey,
+        Range: range,
+      }),
     );
     return result.Body;
   }
