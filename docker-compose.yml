@@ -71,6 +71,18 @@ services:
     ports:
       - ${SEAWEEDFS_ADMIN_PORT}:${SEAWEEDFS_ADMIN_PORT}
 
+  seaweedfs-init:
+    image: amazon/aws-cli
+    entrypoint: ['/bin/sh', '-c', 'for f in /init-scripts/*.sh; do sh "$$f"; done']
+    depends_on:
+      seaweedfs-s3:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - ./seaweedfs/init:/init-scripts:ro
+    restart: 'no'
+
   n8n:
     image: docker.n8n.io/n8nio/n8n
     container_name: n8n
