@@ -11,6 +11,9 @@ import { ConfigService } from '@nestjs/config';
 import { InjectS3, type S3 } from 'nestjs-s3';
 import { EnvConfig } from '../../../config/env.config';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
+import { StorageKeys } from './constants/storage-keys';
+
+type StorageKeyInput = ((keys: typeof StorageKeys) => string) | string;
 
 @Injectable()
 export class DefaultStorageService {
@@ -25,15 +28,20 @@ export class DefaultStorageService {
     });
   }
 
+  resolveKey(key: StorageKeyInput): string {
+    return typeof key === 'string' ? key : key(StorageKeys);
+  }
+
   async uploadObject(
-    key: string,
+    key: StorageKeyInput,
     body: Buffer | Uint8Array | string,
     contentType?: string,
   ) {
+    const resolvedKey = this.resolveKey(key);
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.bucket,
-        Key: key,
+        Key: resolvedKey,
         Body: body,
         ContentType: contentType,
       }),
@@ -41,47 +49,56 @@ export class DefaultStorageService {
     return { key };
   }
 
-  async getObject(key: string) {
+  async getObject(key: StorageKeyInput) {
+    const resolvedKey = this.resolveKey(key);
     const result = await this.s3.send(
-      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+      new GetObjectCommand({ Bucket: this.bucket, Key: resolvedKey }),
     );
     return result.Body;
   }
 
-  async headObject(key: string) {
+  async headObject(key: StorageKeyInput) {
+    const resolvedKey = this.resolveKey(key);
     return this.s3.send(
-      new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+      new HeadObjectCommand({ Bucket: this.bucket, Key: resolvedKey }),
     );
   }
 
-  async deleteObject(key: string) {
+  async deleteObject(key: StorageKeyInput) {
+    const resolvedKey = this.resolveKey(key);
     await this.s3.send(
-      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: resolvedKey }),
     );
   }
 
-  async listObjects(prefix?: string) {
+  async listObjects(prefix: StorageKeyInput) {
+    const resolvedPrefix = this.resolveKey(prefix);
     const result = await this.s3.send(
-      new ListObjectsV2Command({ Bucket: this.bucket, Prefix: prefix }),
+      new ListObjectsV2Command({ Bucket: this.bucket, Prefix: resolvedPrefix }),
     );
     return result.Contents ?? [];
   }
 
-  async getSignedDownloadUrl(key: string, expiresInSeconds = 3600) {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
+  async getSignedDownloadUrl(key: StorageKeyInput, expiresInSeconds = 3600) {
+    const resolvedKey = this.resolveKey(key);
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: resolvedKey,
+    });
     return getSignedUrl(this.s3, command, {
       expiresIn: expiresInSeconds,
     });
   }
 
   async getSignedUploadUrl(
-    key: string,
+    key: StorageKeyInput,
     contentType: string,
     maxSizeBytes = 5 * 1024 * 1024,
   ) {
+    const resolvedKey = this.resolveKey(key);
     const { url, fields } = await createPresignedPost(this.s3, {
       Bucket: this.bucket,
-      Key: key,
+      Key: resolvedKey,
       Conditions: [
         ['content-length-range', 0, maxSizeBytes],
         ['eq', '$Content-Type', contentType],
