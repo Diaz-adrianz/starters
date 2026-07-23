@@ -30,6 +30,9 @@ export class User {
   @Column({ default: false })
   enabled: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  avatar?: string | null;
+
   @Column({ type: 'timestamptz', nullable: true })
   verifiedAt?: Date | null;
 
