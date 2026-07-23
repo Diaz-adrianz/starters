@@ -1,13 +1,23 @@
 #!/bin/sh
 set -e
 
-ENDPOINT="http://seaweedfs-s3:${SEAWEEDFS_S3_PORT}"
-BUCKETS="${SEAWEEDFS_BUCKETS}"
-TEMP_EXPIRES_DAYS=$(( ${SEAWEEDFS_TMP_EXPIRES:-86400} / 86400 ))
+if [[ -z "${S3_ENDPOINT}" || \
+      -z "${S3_BUCKETS}" || \
+      -z "${S3_TMP_EXPIRES}" || \
+      -z "${AWS_ACCESS_KEY_ID}" || \
+      -z "${AWS_SECRET_ACCESS_KEY}" ]]; then
+    echo "Skipping create lifecycle setup."
+    echo "Error: some environment variables are not set."
+    exit 1
+fi
+
+ENDPOINT="${S3_ENDPOINT}"
+BUCKETS="${S3_BUCKETS}"
+TEMP_EXPIRES_DAYS=$(( ${S3_TMP_EXPIRES:-86400} / 86400 ))
 [ "$TEMP_EXPIRES_DAYS" -lt 1 ] && TEMP_EXPIRES_DAYS=1
 
-export AWS_ACCESS_KEY_ID="${SEAWEEDFS_ADMIN_USER}"
-export AWS_SECRET_ACCESS_KEY="${SEAWEEDFS_ADMIN_PASSWORD}"
+export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
+export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
 export AWS_DEFAULT_REGION="us-east-1"
 
 IFS=','

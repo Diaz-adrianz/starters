@@ -77,8 +77,12 @@ services:
     depends_on:
       seaweedfs-s3:
         condition: service_started
-    env_file:
-      - .env
+    environment:
+      - S3_ENDPOINT=http://seaweedfs-s3:${SEAWEEDFS_S3_PORT}
+      - S3_BUCKETS=${SEAWEEDFS_BUCKETS}
+      - S3_TMP_EXPIRES=${SEAWEEDFS_TMP_EXPIRES}
+      - AWS_ACCESS_KEY_ID=${SEAWEEDFS_ADMIN_USER}
+      - AWS_SECRET_ACCESS_KEY=${SEAWEEDFS_ADMIN_PASSWORD}
     volumes:
       - ./seaweedfs/init:/init-scripts:ro
     restart: 'no'
