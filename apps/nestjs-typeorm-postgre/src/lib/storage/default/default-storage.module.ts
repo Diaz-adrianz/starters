@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 import { DefaultStorageController } from './default-storage.controller';
+import { IsStorageFileConstraint } from './validators/is-storage-file';
 
 @Module({
   imports: [
@@ -54,7 +55,8 @@ import { DefaultStorageController } from './default-storage.controller';
       }),
     }),
   ],
-  providers: [DefaultStorageService],
+  providers: [DefaultStorageService, IsStorageFileConstraint],
   controllers: [DefaultStorageController],
+  exports: [DefaultStorageService],
 })
 export class DefaultStorageModule {}

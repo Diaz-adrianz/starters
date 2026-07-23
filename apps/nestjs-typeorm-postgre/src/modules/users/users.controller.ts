@@ -16,15 +16,38 @@ import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateUserRolesDto } from './dto/update-user-role.dto';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
+import {
+  CreateUserAvatarUploadUrlDto,
+  UpdateUserAvatarDto,
+  UserAvatarMaxBytes,
+} from './dto/update-user-avatar.dto';
+import { ReqUser } from '../../common/decorators/req-user.decorator';
+import { AuthContext } from '../../common/classes/auth-context.class';
+import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private storageService: DefaultStorageService,
+  ) {}
 
   @Permissions(['users:create'])
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('me/avatar/upload-url')
+  createAvatarUploadUrl(
+    @ReqUser() { userId }: AuthContext,
+    @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
+  ) {
+    return this.storageService.getSignedUploadUrl(
+      (k) => k.tmp(k.avatar(userId)),
+      mimeType,
+      UserAvatarMaxBytes,
+    );
   }
 
   @Permissions(['users:find-all'])
@@ -54,6 +77,20 @@ export class UsersController {
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
     return this.usersService.updateUserRoles(id, updateUserRolesDto);
+  }
+
+  @Patch('me/avatar')
+  async updateAvatar(
+    @ReqUser() { userId }: AuthContext,
+    @Body() updateUserAvatarDto: UpdateUserAvatarDto,
+  ) {
+    const avatar = await this.storageService.moveObject(
+      updateUserAvatarDto.avatar,
+      (k) => k.avatar(userId),
+    );
+    return this.usersService.update(userId, {
+      avatar: avatar.key,
+    });
   }
 
   @Permissions(['users:soft-delete'])

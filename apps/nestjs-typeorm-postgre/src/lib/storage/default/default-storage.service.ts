@@ -4,6 +4,7 @@ import {
   HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
+  CopyObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
@@ -69,6 +70,37 @@ export class DefaultStorageService {
     await this.s3.send(
       new DeleteObjectCommand({ Bucket: this.bucket, Key: resolvedKey }),
     );
+  }
+
+  async copyObject(
+    sourceKey: StorageKeyInput,
+    destinationKey: StorageKeyInput,
+  ) {
+    const resolvedSourceKey = this.resolveKey(sourceKey);
+    const resolvedDestinationKey = this.resolveKey(destinationKey);
+
+    await this.s3.send(
+      new CopyObjectCommand({
+        Bucket: this.bucket,
+        CopySource: `${this.bucket}/${resolvedSourceKey}`,
+        Key: resolvedDestinationKey,
+      }),
+    );
+
+    return { key: resolvedDestinationKey };
+  }
+
+  async moveObject(
+    sourceKey: StorageKeyInput,
+    destinationKey: StorageKeyInput,
+  ) {
+    const resolvedSourceKey = this.resolveKey(sourceKey);
+    const resolvedDestinationKey = this.resolveKey(destinationKey);
+
+    await this.copyObject(resolvedSourceKey, resolvedDestinationKey);
+    await this.deleteObject(resolvedSourceKey);
+
+    return { key: resolvedDestinationKey };
   }
 
   async listObjects(prefix: StorageKeyInput) {

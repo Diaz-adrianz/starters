@@ -22,6 +22,9 @@ export class UpdateUserDto {
   enabled?: boolean;
 
   @Exclude()
+  avatar?: string | null;
+
+  @Exclude()
   verifiedAt?: Date | null;
 
   @Exclude()

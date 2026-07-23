@@ -1,4 +1,10 @@
+export const StoragePrefixes = {
+  tmp: 'tmp/',
+  public: 'public/',
+};
+
 export const StorageKeys = {
-  tmp: (key?: string) => `tmp/${key ?? ''}`,
-  avatar: (userId?: string) => `public/user-avatars/${userId ?? ''}`,
+  tmp: (key?: string) => `${StoragePrefixes.tmp}${key ?? ''}`,
+  avatar: (userId?: string, ext?: string) =>
+    `${StoragePrefixes.public}user-avatars/${userId ?? ''}${ext ?? ''}`,
 };
