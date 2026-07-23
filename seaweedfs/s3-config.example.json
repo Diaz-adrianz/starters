@@ -1,0 +1,16 @@
+{
+	"identities": [
+		{
+			"name": "service-name",
+			"credentials": [
+				{
+					"accessKey": "",
+					"secretKey": ""
+				}
+			],
+			"actions": ["Read", "Write", "List", "Tagging"],
+			"resources": ["arn:aws:s3:::bucket-name", "arn:aws:s3:::bucket-name/*"]
+		}
+	]
+}
+

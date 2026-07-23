@@ -8,3 +8,6 @@
 # n8n
 /n8n/local-files
 !/n8n/local-files/README.MD
+
+# seaweedfs
+/seaweedfs/s3-config.json
