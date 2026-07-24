@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+GREEN='\033[0;32m'
+NC='\033[0m'
+echo -e "\n${GREEN}Create Lifecycle for 'tmp/' Prefix${NC}"
+
 if [[ -z "${S3_ENDPOINT}" || \
       -z "${S3_BUCKETS}" || \
       -z "${S3_TMP_EXPIRES}" || \
@@ -37,11 +41,12 @@ for bucket in $BUCKETS; do
 }
 EOF
 
-  aws --endpoint-url "$ENDPOINT" s3api put-bucket-lifecycle-configuration \
+  if aws --endpoint-url "$ENDPOINT" s3api put-bucket-lifecycle-configuration \
     --bucket "${bucket}" \
-    --lifecycle-configuration file:///tmp/lifecycle-${bucket}.json
-
-  echo "✓ Lifecycle set for '${bucket}'"
+    --lifecycle-configuration file:///tmp/lifecycle-${bucket}.json; then
+    echo "✓ Lifecycle set for '${bucket}'"
+  else
+    echo "  (failed to apply lifecycle on ${bucket})"
+  fi
 done
 
-echo "Lifecycle configuration complete."

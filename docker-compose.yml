@@ -81,8 +81,8 @@ services:
       - S3_ENDPOINT=http://seaweedfs-s3:${SEAWEEDFS_S3_PORT}
       - S3_BUCKETS=${SEAWEEDFS_BUCKETS}
       - S3_TMP_EXPIRES=${SEAWEEDFS_TMP_EXPIRES}
-      - AWS_ACCESS_KEY_ID=${SEAWEEDFS_ADMIN_USER}
-      - AWS_SECRET_ACCESS_KEY=${SEAWEEDFS_ADMIN_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${SEAWEEDFS_CLI_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${SEAWEEDFS_CLI_SECRET_ACCESS_KEY}
     volumes:
       - ./seaweedfs/init:/init-scripts:ro
     restart: 'no'

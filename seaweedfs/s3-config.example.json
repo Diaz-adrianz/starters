@@ -1,6 +1,16 @@
 {
 	"identities": [
 		{
+			"name": "cli",
+			"credentials": [
+				{
+					"accessKey": "${SEAWEEDFS_CLI_ACCESS_KEY_ID}",
+					"secretKey": "${SEAWEEDFS_CLI_SECRET_ACCESS_KEY}"
+				}
+			],
+			"actions": ["Admin", "Read", "Write", "List", "Tagging"]
+		},
+		{
 			"name": "service-name",
 			"credentials": [
 				{

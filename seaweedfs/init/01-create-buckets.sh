@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+GREEN='\033[0;32m'
+NC='\033[0m'
+echo -e "\n${GREEN}Create Buckets${NC}"
+
 if [[ -z "${S3_ENDPOINT}" || \
       -z "${S3_BUCKETS}" || \
       -z "${AWS_ACCESS_KEY_ID}" || \
@@ -25,8 +29,10 @@ done
 IFS=','
 for bucket in $BUCKETS; do
   echo "→ Creating bucket: ${bucket}"
-  aws --endpoint-url "$ENDPOINT" s3api create-bucket --bucket "${bucket}" \
-    || echo "  (bucket may already exist, continuing)"
+  
+  if aws --endpoint-url "$ENDPOINT" s3api create-bucket --bucket "${bucket}"; then
+    echo "✓ Bucket '${bucket}' created"
+  else
+    echo "  (bucket ${bucket} may already exist, continuing)"
+  fi
 done
-
-echo "Bucket creation complete."
