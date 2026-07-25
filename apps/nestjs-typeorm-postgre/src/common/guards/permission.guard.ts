@@ -8,16 +8,16 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
 import {
-  PERMISSIONS_METADATA,
-  PermissionsMetadata,
-} from '../decorators/permissions.decorator';
+  PERMISSION_METADATA,
+  PermissionMetadata,
+} from '../decorators/permission.decorator';
 import { AuthContext } from '../classes/auth-context.class';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { Permission } from '../../modules/permissions/entities/permission.entity';
 
 @Injectable()
-export class PermissionsGuard implements CanActivate {
+export class PermissionGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
@@ -28,13 +28,13 @@ export class PermissionsGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request>();
 
-    const metadata = this.reflector.getAllAndOverride<PermissionsMetadata>(
-        PERMISSIONS_METADATA,
+    const metadata = this.reflector.getAllAndOverride<PermissionMetadata>(
+        PERMISSION_METADATA,
         [context.getHandler(), context.getClass()],
       ),
-      message = metadata.message || 'Access denied';
+      message = metadata.forbiddenMessage || 'Access denied';
 
-    if (!metadata?.permissions?.length) throw new ForbiddenException(message);
+    if (!metadata?.permission) throw new ForbiddenException(message);
 
     const authContext = req.user as AuthContext;
     const rolePermissions = new Set<string>();
@@ -61,12 +61,9 @@ export class PermissionsGuard implements CanActivate {
       }
     }
 
-    authContext.hasPermission = metadata.permissions.some((p) =>
-      rolePermissions.has(p),
-    );
+    authContext.hasPermission = rolePermissions.has(metadata.permission);
 
-    if (metadata.strict && !authContext.hasPermission)
-      throw new ForbiddenException(message);
+    if (!authContext.hasPermission) throw new ForbiddenException(message);
 
     return true;
   }

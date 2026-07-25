@@ -15,38 +15,38 @@ import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
 import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateRolePermissionsDto } from './dto/update-role-permission.dto';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
-import { Permissions } from '../../common/decorators/permissions.decorator';
+import { Permission } from '../../common/decorators/permission.decorator';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
-  @Permissions(['roles:create'])
+  @Permission('roles:create')
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
   }
 
-  @Permissions(['roles:find-all'])
+  @Permission('roles:find-all')
   @Get()
   findAll(@Query() query: FindAllQueryDto) {
     const q = new FindAllQuery(query);
     return this.rolesService.findAll(q.toOptions());
   }
 
-  @Permissions(['roles:find-one'])
+  @Permission('roles:find-one')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
-  @Permissions(['roles:update'])
+  @Permission('roles:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(id, updateRoleDto);
   }
 
-  @Permissions(['roles:update-permissions'])
+  @Permission('roles:update-permissions')
   @ResSuccess({ allowNoAffected: true })
   @Patch(':id/permissions')
   updatePermissions(
@@ -56,19 +56,19 @@ export class RolesController {
     return this.rolesService.updatePermissions(id, updateRolePermissionsDto);
   }
 
-  @Permissions(['roles:soft-delete'])
+  @Permission('roles:soft-delete')
   @Delete(':id/soft')
   softDelete(@Param('id') id: string) {
     return this.rolesService.softDelete(id);
   }
 
-  @Permissions(['roles:restore'])
+  @Permission('roles:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
     return this.rolesService.restore(id);
   }
 
-  @Permissions(['roles:delete'])
+  @Permission('roles:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.rolesService.delete(id);
