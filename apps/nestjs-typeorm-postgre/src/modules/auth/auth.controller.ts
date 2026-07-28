@@ -38,7 +38,7 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
-import { AuthContext } from '../../shared/classes/auth-context.class';
+import { Principal } from '../../shared/classes/principal.class';
 
 @Controller('auth')
 export class AuthController {
@@ -128,12 +128,12 @@ export class AuthController {
   @ResSuccess({ message: 'Signed out all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
-    @ReqUser() { userId, sessionId }: AuthContext,
+    @ReqUser() { user, session }: Principal,
     @Res({ passthrough: true }) res: Response,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
   ) {
-    await this.authService.signOutAll(userId, keepCurrent ? [sessionId] : []);
+    await this.authService.signOutAll(user.id, keepCurrent ? [session.id] : []);
     if (!keepCurrent)
       res.clearCookie(CookieKeys.REFRESH_TOKEN, {
         path: CookiePath.REFRESH_TOKEN,
@@ -142,9 +142,9 @@ export class AuthController {
   }
 
   @Get('/me')
-  async me(@ReqUser() { userId }: AuthContext) {
-    const user = await this.userService.findOne(userId);
-    const sessions = await this.authService.findSessions(userId);
+  async me(@ReqUser() principal: Principal) {
+    const user = await this.userService.findOne(principal.user.id);
+    const sessions = await this.authService.findSessions(principal.user.id);
     return { user, sessions };
   }
 

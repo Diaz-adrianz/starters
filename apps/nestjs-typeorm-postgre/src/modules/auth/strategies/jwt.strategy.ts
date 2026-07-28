@@ -4,10 +4,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { AuthContext } from '../../../shared/classes/auth-context.class';
 import { UsersService } from '../../users/users.service';
 import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../../lib/logger/default/default-logger.service';
+import { Principal } from '../../../shared/classes/principal.class';
 
 type UserCache = {
   id: string;
@@ -32,10 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: JwtTokenPayload): Promise<AuthContext | undefined> {
-    const authContext = new AuthContext();
-    authContext.sessionId = payload.sid;
-
+  async validate(payload: JwtTokenPayload): Promise<Principal | undefined> {
     try {
       let userCache = await this.cacheService.get<UserCache>((k) =>
         k.user(payload.sub),
@@ -52,13 +49,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         await this.cacheService.set((k) => k.user(payload.sub), userCache);
       }
 
-      authContext.userId = userCache.id;
-      authContext.username = userCache.username;
-      authContext.roles = userCache.roles;
+      const principal = new Principal(
+        { id: userCache.id, username: userCache.username },
+        { id: payload.sid },
+        userCache.roles.map((rId) => ({ id: rId })),
+      );
+
+      return principal;
     } catch (error) {
       this.loggerService.error(error, 'Auth');
     }
-
-    return authContext;
   }
 }

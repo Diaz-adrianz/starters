@@ -11,10 +11,10 @@ import {
   PERMISSION_METADATA,
   PermissionMetadata,
 } from '../decorators/permission.decorator';
-import { AuthContext } from '../../shared/classes/auth-context.class';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { Permission } from '../../modules/permissions/entities/permission.entity';
+import { Principal } from '../../shared/classes/principal.class';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -34,25 +34,29 @@ export class PermissionGuard implements CanActivate {
       ),
       message = metadata.forbiddenMessage || 'Access denied';
 
-    if (!metadata?.permission) throw new ForbiddenException(message);
+    if (!metadata?.permission || !req.user)
+      throw new ForbiddenException(message);
 
-    const authContext = req.user as AuthContext;
+    const principal = req.user as Principal;
     const rolePermissions = new Set<string>();
 
-    for (const roleId of authContext.roles) {
+    for (const role of principal.roles) {
       try {
         let cached = await this.cacheService.get<string[]>((k) =>
-          k.rolePermissions(roleId),
+          k.rolePermissions(role.id),
         );
 
         if (!cached || !cached.length) {
           const permissionRepo = this.dataSource.getRepository(Permission);
           const permissions = await permissionRepo.find({
-            where: { roles: { role: { id: roleId } } },
+            where: { roles: { role: { id: role.id } } },
           });
 
           cached = permissions.map((p) => `${p.resource}:${p.action}`);
-          await this.cacheService.set((k) => k.rolePermissions(roleId), cached);
+          await this.cacheService.set(
+            (k) => k.rolePermissions(role.id),
+            cached,
+          );
         }
 
         cached.forEach((p) => rolePermissions.add(p));
@@ -61,9 +65,8 @@ export class PermissionGuard implements CanActivate {
       }
     }
 
-    authContext.hasPermission = rolePermissions.has(metadata.permission);
-
-    if (!authContext.hasPermission) throw new ForbiddenException(message);
+    const hasPermission = rolePermissions.has(metadata.permission);
+    if (!hasPermission) throw new ForbiddenException(message);
 
     return true;
   }

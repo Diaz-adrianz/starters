@@ -6,7 +6,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { AuthContext } from '../../shared/classes/auth-context.class';
+import { Principal } from '../../shared/classes/principal.class';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -24,7 +24,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = AuthContext>(
+  handleRequest<TUser = Principal>(
     err: any,
     user: TUser | false | null | undefined,
     _info: any,

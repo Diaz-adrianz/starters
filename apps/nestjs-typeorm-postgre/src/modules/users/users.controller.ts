@@ -22,8 +22,8 @@ import {
   UserAvatarMaxBytes,
 } from './dto/update-user-avatar.dto';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
-import { AuthContext } from '../../shared/classes/auth-context.class';
 import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
+import { Principal } from '../../shared/classes/principal.class';
 
 @Controller('users')
 export class UsersController {
@@ -40,11 +40,11 @@ export class UsersController {
 
   @Post('me/avatar/upload-url')
   createAvatarUploadUrl(
-    @ReqUser() { userId }: AuthContext,
+    @ReqUser() { user }: Principal,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
     return this.storageService.getSignedUploadUrl(
-      (k) => k.tmp(k.avatar(userId)),
+      (k) => k.tmp(k.avatar(user.id)),
       mimeType,
       UserAvatarMaxBytes,
     );
@@ -81,14 +81,14 @@ export class UsersController {
 
   @Patch('me/avatar')
   async updateAvatar(
-    @ReqUser() { userId }: AuthContext,
+    @ReqUser() { user }: Principal,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
-      (k) => k.avatar(userId),
+      (k) => k.avatar(user.id),
     );
-    return this.usersService.update(userId, {
+    return this.usersService.update(user.id, {
       avatar: avatar.key,
     });
   }
