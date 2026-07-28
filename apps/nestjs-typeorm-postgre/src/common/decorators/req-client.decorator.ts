@@ -1,8 +1,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { CookieKeys } from '../constants/cookie-keys';
-import { extractSignedDeviceId } from '../utils/device-id.util';
-import { Client } from '../classes/client.class';
+import { CookieKeys } from '../../shared/constants/cookie-keys.constant';
+import { extractSignedDeviceId } from '../../shared/utils/device-id.util';
+import { Client } from '../../shared/classes/client.class';
 
 export const ReqClient = createParamDecorator((_, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest<Request>();

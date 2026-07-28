@@ -22,11 +22,14 @@ import {
   generateDeviceId,
   signDeviceId,
   verifyDeviceId,
-} from '../../common/utils/device-id.util';
+} from '../../shared/utils/device-id.util';
 import type { Response } from 'express';
-import { CookieKeys, CookiePath } from '../../common/constants/cookie-keys';
+import {
+  CookieKeys,
+  CookiePath,
+} from '../../shared/constants/cookie-keys.constant';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
-import { Client } from '../../common/classes/client.class';
+import { Client } from '../../shared/classes/client.class';
 import { UsersService } from '../users/users.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -35,7 +38,7 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
-import { AuthContext } from '../../common/classes/auth-context.class';
+import { AuthContext } from '../../shared/classes/auth-context.class';
 
 @Controller('auth')
 export class AuthController {

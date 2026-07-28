@@ -22,7 +22,7 @@ import {
   UserAvatarMaxBytes,
 } from './dto/update-user-avatar.dto';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
-import { AuthContext } from '../../common/classes/auth-context.class';
+import { AuthContext } from '../../shared/classes/auth-context.class';
 import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 
 @Controller('users')

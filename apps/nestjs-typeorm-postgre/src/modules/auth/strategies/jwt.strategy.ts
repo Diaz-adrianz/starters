@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { AuthContext } from '../../../common/classes/auth-context.class';
+import { AuthContext } from '../../../shared/classes/auth-context.class';
 import { UsersService } from '../../users/users.service';
 import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../../lib/logger/default/default-logger.service';
