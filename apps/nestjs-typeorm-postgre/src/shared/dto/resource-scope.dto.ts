@@ -8,6 +8,10 @@ import {
   Min,
   ValidationOptions,
 } from 'class-validator';
+import {
+  ResourceScopeIntf,
+  ResourceScopeQueryIntf,
+} from '../interfaces/resource-scope.interface';
 
 const CLAUSE_PATTERN_REGEX =
   /^[\w]+(?:\.[\w]+)*:[\w]+(?:[.,][\w]+)*(?:;[\w]+(?:\.[\w]+)*:[\w]+(?:[.,][\w]+)*)*$/;
@@ -29,7 +33,7 @@ const OrderPattern = (validationOptions?: ValidationOptions) =>
     ...validationOptions,
   });
 
-export class ResourceScopeDto {
+export class ResourceScopeDto implements ResourceScopeIntf {
   @IsOptional()
   @ClausePattern()
   search?: string;
@@ -69,7 +73,10 @@ export class ResourceScopeDto {
   between?: string;
 }
 
-export class ResourceScopeQueryDto extends ResourceScopeDto {
+export class ResourceScopeQueryDto
+  extends ResourceScopeDto
+  implements ResourceScopeQueryIntf
+{
   @IsOptional()
   @Type(() => Number)
   @IsInt()
