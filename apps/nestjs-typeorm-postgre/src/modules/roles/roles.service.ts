@@ -4,13 +4,13 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { In, Repository } from 'typeorm';
-import { FindAllOptions } from '../../shared/classes/findall-query.class';
 import {
   UpdateRolePermissionsAction,
   UpdateRolePermissionsDto,
 } from './dto/update-role-permission.dto';
 import { RolePermission } from './entities/role-permission.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
+import { ResourceScopeOptions } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class RolesService {
@@ -34,7 +34,7 @@ export class RolesService {
     return this.roleRepo.insert(createRoleDto);
   }
 
-  findAll(queryOptions: FindAllOptions) {
+  findAll(queryOptions: ResourceScopeOptions) {
     return this.roleRepo.findAndCount(queryOptions);
   }
 

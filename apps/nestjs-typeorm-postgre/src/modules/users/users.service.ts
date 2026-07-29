@@ -4,7 +4,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { FindAllOptions } from '../../shared/classes/findall-query.class';
 import * as bcrypt from 'bcrypt';
 import {
   UpdateUserRolesAction,
@@ -12,6 +11,7 @@ import {
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
+import { ResourceScopeOptions } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class UsersService {
@@ -47,7 +47,7 @@ export class UsersService {
     return user;
   }
 
-  findAll(queryOptions: FindAllOptions) {
+  findAll(queryOptions: ResourceScopeOptions) {
     return this.userRepo.findAndCount(queryOptions);
   }
 

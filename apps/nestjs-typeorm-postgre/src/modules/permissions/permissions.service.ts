@@ -4,7 +4,7 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import { Repository } from 'typeorm';
-import { FindAllOptions } from '../../shared/classes/findall-query.class';
+import { ResourceScopeOptions } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class PermissionsService {
@@ -17,7 +17,7 @@ export class PermissionsService {
     return this.permissionRepo.insert(createPermissionDto);
   }
 
-  findAll(queryOptions: FindAllOptions) {
+  findAll(queryOptions: ResourceScopeOptions) {
     return this.permissionRepo.findAndCount(queryOptions);
   }
 

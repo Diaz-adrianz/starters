@@ -11,11 +11,11 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
-import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateRolePermissionsDto } from './dto/update-role-permission.dto';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { Permission } from '../../common/decorators/permission.decorator';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -29,8 +29,8 @@ export class RolesController {
 
   @Permission('roles:find-all')
   @Get()
-  findAll(@Query() query: FindAllQueryDto) {
-    const q = new FindAllQuery(query);
+  findAll(@Query() query: ResourceScopeQueryDto) {
+    const q = new ResourceScope(query, 'AND');
     return this.rolesService.findAll(q.toOptions());
   }
 

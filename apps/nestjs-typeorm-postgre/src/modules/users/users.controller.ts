@@ -11,8 +11,6 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
-import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { UpdateUserRolesDto } from './dto/update-user-role.dto';
 import { Permission } from '../../common/decorators/permission.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
@@ -24,6 +22,8 @@ import {
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 import { Principal } from '../../shared/classes/principal.class';
+import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
 
 @Controller('users')
 export class UsersController {
@@ -52,8 +52,8 @@ export class UsersController {
 
   @Permission('users:find-all')
   @Get()
-  findAll(@Query() query: FindAllQueryDto) {
-    const q = new FindAllQuery(query);
+  findAll(@Query() query: ResourceScopeQueryDto) {
+    const q = new ResourceScope(query, 'AND');
     return this.usersService.findAll(q.toOptions());
   }
 

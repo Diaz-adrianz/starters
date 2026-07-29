@@ -11,9 +11,9 @@ import {
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
-import { FindAllQuery } from '../../shared/classes/findall-query.class';
 import { Permission } from '../../common/decorators/permission.decorator';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
 
 @Controller('permissions')
 export class PermissionsController {
@@ -27,8 +27,8 @@ export class PermissionsController {
 
   @Permission('permissions:find-all')
   @Get()
-  findAll(@Query() query: FindAllQueryDto) {
-    const q = new FindAllQuery(query);
+  findAll(@Query() query: ResourceScopeQueryDto) {
+    const q = new ResourceScope(query, 'AND');
     return this.permissionsService.findAll(q.toOptions());
   }
 
