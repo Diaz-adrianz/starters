@@ -57,6 +57,7 @@ export class RolesService {
       permissions.map((rp) => ({
         roleId: id,
         permissionId: rp.permissionId,
+        scope: rp.scope,
       })),
     );
 

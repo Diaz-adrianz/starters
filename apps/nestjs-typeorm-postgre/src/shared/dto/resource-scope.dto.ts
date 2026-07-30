@@ -14,7 +14,7 @@ import {
 } from '../interfaces/resource-scope.interface';
 
 const CLAUSE_PATTERN_REGEX =
-  /^[\w]+(?:\.[\w]+)*:[\w]+(?:[.,][\w]+)*(?:;[\w]+(?:\.[\w]+)*:[\w]+(?:[.,][\w]+)*)*$/;
+  /^[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*(?:;[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*)*$/;
 
 const ClausePattern = (validationOptions?: ValidationOptions) =>
   Matches(CLAUSE_PATTERN_REGEX, {
