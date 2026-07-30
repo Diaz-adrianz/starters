@@ -23,7 +23,6 @@ import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
 
 @Controller('users')
 export class UsersController {
@@ -57,28 +56,38 @@ export class UsersController {
     @Query() query: ResourceScopeQueryDto,
   ) {
     permission.scope.push(query, 'AND');
-    return this.usersService.findAll(permission.scope.toOptions());
+    return this.usersService.findAll(permission.scope.toPageOptions());
   }
 
   @Permission('users:find-one')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    return this.usersService.findOne(permission.scope.toOptions());
   }
 
   @Permission('users:update')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @ReqUser() { permission }: Principal,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.findOneByScope(permission.scope);
     return this.usersService.update(id, updateUserDto);
   }
 
   @Permission('users:update-roles')
   @ResSuccess({ allowNoAffected: true })
   @Patch(':id/roles')
-  updateRoles(
+  async updateRoles(
+    @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.findOneByScope(permission.scope);
     return this.usersService.updateUserRoles(id, updateUserRolesDto);
   }
 
@@ -98,19 +107,28 @@ export class UsersController {
 
   @Permission('users:soft-delete')
   @Delete(':id/soft')
-  softDelete(@Param('id') id: string) {
+  async softDelete(
+    @ReqUser() { permission }: Principal,
+    @Param('id') id: string,
+  ) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.findOneByScope(permission.scope);
     return this.usersService.softDelete(id);
   }
 
   @Permission('users:restore')
   @Patch(':id/restore')
-  restore(@Param('id') id: string) {
+  async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.findOneByScope(permission.scope);
     return this.usersService.restore(id);
   }
 
   @Permission('users:delete')
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.findOneByScope(permission.scope);
     return this.usersService.delete(id);
   }
 }

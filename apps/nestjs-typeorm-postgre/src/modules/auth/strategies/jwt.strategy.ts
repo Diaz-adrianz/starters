@@ -39,7 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       );
 
       if (!userCache) {
-        const user = await this.usersService.findOne(payload.sub);
+        const user = await this.usersService.findOneById(payload.sub);
         userCache = {
           id: user.id,
           username: user.username,

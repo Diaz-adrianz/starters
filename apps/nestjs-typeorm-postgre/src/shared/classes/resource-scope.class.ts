@@ -25,9 +25,12 @@ export interface ResourceScopeOptions {
   where: Record<string, any>[];
   relations: Record<string, any>;
   order: Record<string, any>;
+  withDeleted: boolean;
+}
+
+export interface ResourceScopePageOptions extends ResourceScopeOptions {
   skip: number;
   take: number;
-  withDeleted: boolean;
 }
 
 const ResourceScopeClauseOperator: Record<
@@ -55,8 +58,8 @@ export class ResourceScope {
 
   // view
   private order: ResourceScopeOptions['order'] = {};
-  private skip: ResourceScopeOptions['skip'] = 0;
-  private take: ResourceScopeOptions['take'] = 0;
+  private skip: ResourceScopePageOptions['skip'] = 0;
+  private take: ResourceScopePageOptions['take'] = 0;
   private withDeleted: ResourceScopeOptions['withDeleted'] = false;
 
   constructor(
@@ -100,6 +103,15 @@ export class ResourceScope {
   }
 
   public toOptions(): ResourceScopeOptions {
+    return {
+      where: this.where,
+      relations: this.relations,
+      order: this.order,
+      withDeleted: this.withDeleted,
+    };
+  }
+
+  public toPageOptions(): ResourceScopePageOptions {
     return {
       where: this.where,
       relations: this.relations,

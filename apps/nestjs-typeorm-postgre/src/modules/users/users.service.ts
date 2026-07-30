@@ -11,15 +11,21 @@ import {
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
-import { ResourceScopeOptions } from '../../shared/classes/resource-scope.class';
+import {
+  ResourceScopeOptions,
+  ResourceScopePageOptions,
+} from '../../shared/classes/resource-scope.class';
+import { BaseService } from '../../common/classes/base/service.base';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService<User> {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
     private cacheService: DefaultCacheService,
-  ) {}
+  ) {
+    super(userRepo);
+  }
 
   async clearCache(userIds: string[]) {
     if (!userIds.length) return;
@@ -47,11 +53,18 @@ export class UsersService {
     return user;
   }
 
-  findAll(queryOptions: ResourceScopeOptions) {
-    return this.userRepo.findAndCount(queryOptions);
+  findAll(options: ResourceScopePageOptions) {
+    return this.userRepo.findAndCount(options);
   }
 
-  findOne(id: string) {
+  findOne(options: ResourceScopeOptions) {
+    return this.userRepo.findOneOrFail({
+      ...options,
+      relations: { ...options.relations, roles: { role: true } },
+    });
+  }
+
+  findOneById(id: string) {
     return this.userRepo.findOneOrFail({
       where: { id },
       relations: { roles: { role: true } },
