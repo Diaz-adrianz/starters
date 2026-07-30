@@ -52,9 +52,12 @@ export class UsersController {
 
   @Permission('users:find-all')
   @Get()
-  findAll(@Query() query: ResourceScopeQueryDto) {
-    const q = new ResourceScope(query, 'AND');
-    return this.usersService.findAll(q.toOptions());
+  findAll(
+    @ReqUser() { permission }: Principal,
+    @Query() query: ResourceScopeQueryDto,
+  ) {
+    permission.scope.push(query, 'AND');
+    return this.usersService.findAll(permission.scope.toOptions());
   }
 
   @Permission('users:find-one')

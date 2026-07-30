@@ -60,17 +60,18 @@ export class ResourceScope {
   private withDeleted: ResourceScopeOptions['withDeleted'] = false;
 
   constructor(
-    scope: ResourceScopeDto | ResourceScopeQueryDto,
-    strategy: 'OR' | 'AND',
-    relations: string[] | 'auto' = [],
+    scope?: ResourceScopeDto | ResourceScopeQueryDto,
+    strategy?: 'OR' | 'AND',
+    relations?: string[] | 'auto',
   ) {
-    this.push(scope, strategy, relations);
+    if (scope && strategy) this.push(scope, strategy, relations);
   }
 
   public push(
     scope: ResourceScopeDto | ResourceScopeQueryDto,
     strategy: 'OR' | 'AND',
     relations: string[] | 'auto' = [],
+    context: Record<string, any> = {},
   ) {
     if (scope instanceof ResourceScopeQueryDto) {
       this.take = scope.limit;
@@ -88,7 +89,7 @@ export class ResourceScope {
       }
     }
 
-    const where = this.buildWhere(scope, relations);
+    const where = this.buildWhere(scope, relations, context);
 
     if (strategy == 'OR') this.where = [...this.where, where];
     else if (strategy == 'AND') {
@@ -112,6 +113,7 @@ export class ResourceScope {
   private buildWhere(
     scope: ResourceScopeDto,
     relations: string[] | 'auto' = [],
+    context: Record<string, any> = {},
   ) {
     const where: ResourceScopeOptions['where'][number] = {};
 
@@ -135,7 +137,13 @@ export class ResourceScope {
 
           this.pushRelation(relationKeys);
         }
-        this.pushWhere(where, keys, ResourceScopeClauseOperator[clause](value));
+
+        const resolvedValue = this.resolveContext(value, context);
+        this.pushWhere(
+          where,
+          keys,
+          ResourceScopeClauseOperator[clause](resolvedValue),
+        );
       });
     }
 
@@ -236,5 +244,22 @@ export class ResourceScope {
         current = current[key];
       }
     }
+  }
+
+  private resolveContext(str: string, context: Record<string, any>): string {
+    return str
+      .split(VALUES_SEPARATOR)
+      .map((value) =>
+        value.replace(
+          /^\$([a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)*)$/,
+          (_, path: string) =>
+            String(
+              path
+                .split('.')
+                .reduce<any>((value, key) => value?.[key], context) ?? '',
+            ),
+        ),
+      )
+      .join(',');
   }
 }

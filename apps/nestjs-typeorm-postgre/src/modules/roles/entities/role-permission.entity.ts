@@ -23,7 +23,7 @@ export class RolePermission {
   permissionId: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  scope?: ResourceScopeIntf | null;
+  scope: ResourceScopeIntf | null;
 
   @ManyToOne(() => Role, (role) => role.permissions, { onDelete: 'CASCADE' })
   role: Role;

@@ -13,8 +13,12 @@ import {
 } from '../decorators/permission.decorator';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
-import { Permission } from '../../modules/permissions/entities/permission.entity';
 import { Principal } from '../../shared/classes/principal.class';
+import { ResourceScopeIntf } from '../../shared/interfaces/resource-scope.interface';
+import { RolePermission } from '../../modules/roles/entities/role-permission.entity';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
+
+type RolePermissionsCache = [string, ResourceScopeIntf | null];
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -37,36 +41,62 @@ export class PermissionGuard implements CanActivate {
     if (!metadata?.permission || !req.user)
       throw new ForbiddenException(message);
 
+    const rolePermissionRepo = this.dataSource.getRepository(RolePermission);
+
     const principal = req.user as Principal;
-    const rolePermissions = new Set<string>();
+    const permissions = new Map<
+      RolePermissionsCache[0],
+      RolePermissionsCache[1][]
+    >();
 
     for (const role of principal.roles) {
       try {
-        let cached = await this.cacheService.get<string[]>((k) =>
+        let cached = await this.cacheService.get<RolePermissionsCache[]>((k) =>
           k.rolePermissions(role.id),
         );
 
         if (!cached || !cached.length) {
-          const permissionRepo = this.dataSource.getRepository(Permission);
-          const permissions = await permissionRepo.find({
-            where: { roles: { role: { id: role.id } } },
+          const rolePermissions = await rolePermissionRepo.find({
+            where: { roleId: role.id },
+            relations: { permission: true },
+            select: {
+              roleId: true,
+              scope: true,
+              permission: { resource: true, action: true },
+            },
           });
 
-          cached = permissions.map((p) => `${p.resource}:${p.action}`);
+          cached = rolePermissions.map((rp) => [
+            `${rp.permission.resource}:${rp.permission.action}`,
+            rp.scope,
+          ]);
           await this.cacheService.set(
             (k) => k.rolePermissions(role.id),
             cached,
           );
         }
 
-        cached.forEach((p) => rolePermissions.add(p));
+        cached.forEach((p) => {
+          const existing = permissions.get(p[0]) ?? [];
+          permissions.set(p[0], [...existing, p[1]]);
+        });
       } catch (error) {
         this.loggerService.error(error, 'PermissionGuard');
       }
     }
 
-    const hasPermission = rolePermissions.has(metadata.permission);
-    if (!hasPermission) throw new ForbiddenException(message);
+    const scopes = permissions.get(metadata.permission);
+    if (!scopes?.length) throw new ForbiddenException(message);
+
+    const resourceScope = new ResourceScope();
+    scopes.forEach((scope) => {
+      if (scope)
+        resourceScope.push(scope, 'OR', 'auto', {
+          subject: principal.toSubject(),
+        });
+    });
+
+    principal.permission = { name: metadata.permission, scope: resourceScope };
 
     return true;
   }
