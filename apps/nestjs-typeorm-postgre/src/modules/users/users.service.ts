@@ -11,10 +11,7 @@ import {
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
-import {
-  ResourceScopeOptions,
-  ResourceScopePageOptions,
-} from '../../shared/classes/resource-scope.class';
+import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.class';
 import { BaseService } from '../../common/classes/base/service.base';
 
 @Injectable()
@@ -57,14 +54,7 @@ export class UsersService extends BaseService<User> {
     return this.userRepo.findAndCount(options);
   }
 
-  findOne(options: ResourceScopeOptions) {
-    return this.userRepo.findOneOrFail({
-      ...options,
-      relations: { ...options.relations, roles: { role: true } },
-    });
-  }
-
-  findOneById(id: string) {
+  findOne(id: string) {
     return this.userRepo.findOneOrFail({
       where: { id },
       relations: { roles: { role: true } },

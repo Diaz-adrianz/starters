@@ -126,7 +126,7 @@ export class AuthService {
 
     await this.cacheService.del((k) => k.verifyToken(tokenHash));
 
-    const user = await this.usersService.findOneById(userId);
+    const user = await this.usersService.findOne(userId);
     await this.usersService.update(user.id, {
       enabled: true,
       verifiedAt: new Date(),

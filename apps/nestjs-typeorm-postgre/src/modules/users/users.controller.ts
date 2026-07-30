@@ -61,9 +61,10 @@ export class UsersController {
 
   @Permission('users:find-one')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    return this.usersService.findOne(permission.scope.toOptions());
+    await this.usersService.existByScope(permission.scope);
+    return this.usersService.findOne(id);
   }
 
   @Permission('users:update')
@@ -74,7 +75,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    await this.usersService.findOneByScope(permission.scope);
+    await this.usersService.existByScope(permission.scope);
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -87,7 +88,7 @@ export class UsersController {
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    await this.usersService.findOneByScope(permission.scope);
+    await this.usersService.existByScope(permission.scope);
     return this.usersService.updateUserRoles(id, updateUserRolesDto);
   }
 
@@ -112,7 +113,7 @@ export class UsersController {
     @Param('id') id: string,
   ) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    await this.usersService.findOneByScope(permission.scope);
+    await this.usersService.existByScope(permission.scope);
     return this.usersService.softDelete(id);
   }
 
@@ -120,7 +121,7 @@ export class UsersController {
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    await this.usersService.findOneByScope(permission.scope);
+    await this.usersService.existByScope(permission.scope);
     return this.usersService.restore(id);
   }
 
@@ -128,7 +129,7 @@ export class UsersController {
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.push({ where: `id:${id}` }, 'AND');
-    await this.usersService.findOneByScope(permission.scope);
+    await this.usersService.existByScope(permission.scope);
     return this.usersService.delete(id);
   }
 }
