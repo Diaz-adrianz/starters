@@ -37,13 +37,17 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Post('me/avatar/upload-url')
-  createAvatarUploadUrl(
-    @ReqUser() { user }: Principal,
+  @Permission('users:update-avatar')
+  @Post(':id/avatar/upload-url')
+  async createAvatarUploadUrl(
+    @ReqUser() { permission }: Principal,
+    @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.existByScope(permission.scope);
     return this.storageService.getSignedUploadUrl(
-      (k) => k.tmp(k.avatar(user.id)),
+      (k) => k.tmp(k.avatar(id)),
       mimeType,
       UserAvatarMaxBytes,
     );
@@ -92,16 +96,19 @@ export class UsersController {
     return this.usersService.updateUserRoles(id, updateUserRolesDto);
   }
 
-  @Patch('me/avatar')
+  @Patch(':id/avatar')
   async updateAvatar(
-    @ReqUser() { user }: Principal,
+    @ReqUser() { permission }: Principal,
+    @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
+    permission.scope.push({ where: `id:${id}` }, 'AND');
+    await this.usersService.existByScope(permission.scope);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
-      (k) => k.avatar(user.id),
+      (k) => k.avatar(id),
     );
-    return this.usersService.update(user.id, {
+    return this.usersService.update(id, {
       avatar: avatar.key,
     });
   }
