@@ -24,7 +24,7 @@ export class SeedUsers1784544001014 implements Seeder {
     const password = await hash(process.env.SEED_USERS_PASSWORD, 10);
 
     const userValues = rolesData.flatMap((role) =>
-      (role.users as string[]).map((username: string) => ({
+      role.users.map((username: string) => ({
         username: username,
         email: `${username}@example.com`,
         password,
@@ -54,7 +54,7 @@ export class SeedUsers1784544001014 implements Seeder {
       const role = roleMap.get(roleEntry.name);
       if (!role) return [];
 
-      return (roleEntry.users as string[])
+      return roleEntry.users
         .map((username) => userMap.get(username))
         .filter((user): user is User => !!user)
         .map((user) => ({ userId: user.id, roleId: role.id }));

@@ -4,6 +4,10 @@ import { Role } from '../../../modules/roles/entities/role.entity';
 import { RolePermission } from '../../../modules/roles/entities/role-permission.entity';
 import { Permission } from '../../../modules/permissions/entities/permission.entity';
 import permissionsData from '../data/permissions.json';
+import { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
+
+type RoleEntry = [string] | [string, ResourceScopeIntf];
+type PermissionEntry = [string, string, RoleEntry[]];
 
 export class SeedRolePermissions1784542556618 implements Seeder {
   track = false;
@@ -24,15 +28,25 @@ export class SeedRolePermissions1784542556618 implements Seeder {
       permissions.map((p) => [`${p.resource}:${p.action}`, p]),
     );
 
-    const values = permissionsData.flatMap((entry) => {
-      const permission = permissionMap.get(`${entry.resource}:${entry.action}`);
-      if (!permission) return [];
+    const values = (permissionsData as PermissionEntry[]).flatMap(
+      ([resource, action, roleEntries]) => {
+        const permission = permissionMap.get(`${resource}:${action}`);
+        if (!permission) return [];
 
-      return entry.roles
-        .map((roleName) => roleMap.get(roleName))
-        .filter((role): role is Role => !!role)
-        .map((role) => ({ roleId: role.id, permissionId: permission.id }));
-    });
+        return roleEntries.flatMap(([roleName, scope]) => {
+          const role = roleMap.get(roleName);
+          if (!role) return [];
+
+          return [
+            {
+              roleId: role.id,
+              permissionId: permission.id,
+              scope: scope ?? null,
+            },
+          ];
+        });
+      },
+    );
 
     const result = await rolePermissionRepo
       .createQueryBuilder()
