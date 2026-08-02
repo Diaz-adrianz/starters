@@ -44,7 +44,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(id)),
@@ -59,14 +59,14 @@ export class UsersController {
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeQueryDto,
   ) {
-    permission.scope.push(query, 'AND');
+    permission.scope.add(query);
     return this.usersService.findAll(permission.scope.toPageOptions());
   }
 
   @Permission('users:find-one')
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.findOne(id);
   }
@@ -78,7 +78,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.update(id, updateUserDto);
   }
@@ -91,7 +91,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.updateUserRoles(id, updateUserRolesDto);
   }
@@ -102,7 +102,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
@@ -119,7 +119,7 @@ export class UsersController {
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.softDelete(id);
   }
@@ -127,7 +127,7 @@ export class UsersController {
   @Permission('users:restore')
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.restore(id);
   }
@@ -135,7 +135,7 @@ export class UsersController {
   @Permission('users:delete')
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.usersService.existByScope(permission.scope);
     return this.usersService.delete(id);
   }

@@ -67,12 +67,12 @@ export class ResourceScope {
     strategy?: 'OR' | 'AND',
     relations?: string[] | 'auto',
   ) {
-    if (scope && strategy) this.push(scope, strategy, relations);
+    if (scope && strategy) this.add(scope, strategy, relations);
   }
 
-  public push(
+  public add(
     scope: ResourceScopeDto | ResourceScopeQueryDto,
-    strategy: 'OR' | 'AND',
+    strategy: 'OR' | 'AND' = 'AND',
     relations: string[] | 'auto' = [],
     context: Record<string, any> = {},
   ) {
@@ -88,7 +88,7 @@ export class ResourceScope {
 
       if (scope.order) {
         const [key, value] = scope.order.split(PAIR_SEPARATOR);
-        this.pushOrder(key.split(KEYS_SEPARATOR), value.toUpperCase());
+        this.addOrder(key.split(KEYS_SEPARATOR), value.toUpperCase());
       }
     }
 
@@ -147,11 +147,11 @@ export class ResourceScope {
           )
             return;
 
-          this.pushRelation(relationKeys);
+          this.addRelations(relationKeys);
         }
 
         const resolvedValue = this.resolveContext(value, context);
-        this.pushWhere(
+        this.addWhere(
           where,
           keys,
           ResourceScopeClauseOperator[clause](resolvedValue),
@@ -162,7 +162,7 @@ export class ResourceScope {
     return where;
   }
 
-  private pushWhere(
+  private addWhere(
     target: ResourceScopeOptions['where'][number],
     path: string[],
     value: FindOperator<any> | string,
@@ -181,7 +181,7 @@ export class ResourceScope {
     if (!target[head] || target[head] instanceof FindOperator) {
       target[head] = {};
     }
-    this.pushWhere(target[head], rest, value);
+    this.addWhere(target[head], rest, value);
   }
 
   private mergeWhere(
@@ -222,7 +222,7 @@ export class ResourceScope {
     return result;
   }
 
-  private pushRelation(keys: string[]) {
+  private addRelations(keys: string[]) {
     let current = this.relations;
 
     for (let i = 0; i < keys.length; i++) {
@@ -240,7 +240,7 @@ export class ResourceScope {
     }
   }
 
-  private pushOrder(keys: string[], value: string) {
+  private addOrder(keys: string[], value: string) {
     let current = this.order;
 
     for (let i = 0; i < keys.length; i++) {

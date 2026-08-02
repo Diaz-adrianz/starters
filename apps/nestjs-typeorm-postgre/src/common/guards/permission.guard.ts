@@ -91,7 +91,7 @@ export class PermissionGuard implements CanActivate {
     const resourceScope = new ResourceScope();
     scopes.forEach((scope) => {
       if (scope)
-        resourceScope.push(scope, 'OR', 'auto', {
+        resourceScope.add(scope, 'OR', 'auto', {
           subject: principal.toSubject(),
         });
     });

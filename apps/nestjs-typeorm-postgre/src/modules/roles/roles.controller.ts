@@ -34,14 +34,14 @@ export class RolesController {
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeQueryDto,
   ) {
-    permission.scope.push(query, 'AND');
+    permission.scope.add(query);
     return this.rolesService.findAll(permission.scope.toPageOptions());
   }
 
   @Permission('roles:find-one')
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.findOne(id);
   }
@@ -53,7 +53,7 @@ export class RolesController {
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.update(id, updateRoleDto);
   }
@@ -66,7 +66,7 @@ export class RolesController {
     @Param('id') id: string,
     @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.updatePermissions(id, updateRolePermissionsDto);
   }
@@ -77,7 +77,7 @@ export class RolesController {
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.softDelete(id);
   }
@@ -85,7 +85,7 @@ export class RolesController {
   @Permission('roles:restore')
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.restore(id);
   }
@@ -93,7 +93,7 @@ export class RolesController {
   @Permission('roles:delete')
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.rolesService.existByScope(permission.scope);
     return this.rolesService.delete(id);
   }

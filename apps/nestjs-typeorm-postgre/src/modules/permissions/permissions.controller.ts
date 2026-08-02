@@ -32,14 +32,14 @@ export class PermissionsController {
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeQueryDto,
   ) {
-    permission.scope.push(query, 'AND');
+    permission.scope.add(query);
     return this.permissionsService.findAll(permission.scope.toPageOptions());
   }
 
   @Permission('permissions:find-one')
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.permissionsService.existByScope(permission.scope);
     return this.permissionsService.findOne(id);
   }
@@ -51,7 +51,7 @@ export class PermissionsController {
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.permissionsService.existByScope(permission.scope);
     return this.permissionsService.update(id, updatePermissionDto);
   }
@@ -62,7 +62,7 @@ export class PermissionsController {
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
   ) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.permissionsService.existByScope(permission.scope);
     return this.permissionsService.softDelete(id);
   }
@@ -70,7 +70,7 @@ export class PermissionsController {
   @Permission('permissions:restore')
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.permissionsService.existByScope(permission.scope);
     return this.permissionsService.restore(id);
   }
@@ -78,7 +78,7 @@ export class PermissionsController {
   @Permission('permissions:delete')
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.push({ where: `id:${id}` }, 'AND');
+    permission.scope.add({ where: `id:${id}` });
     await this.permissionsService.existByScope(permission.scope);
     return this.permissionsService.delete(id);
   }
