@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeviceToken } from './entities/device-token.entity';
-import { RegisterDeviceDto } from './dto/register-device.dto';
+import { CreateDeviceTokenDto } from './dto/create-device-token.dto';
+import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 
 @Injectable()
 export class NotificationService {
@@ -11,14 +12,29 @@ export class NotificationService {
     private deviceTokenRepo: Repository<DeviceToken>,
   ) {}
 
-  registerDevice(userId: string, { channel, token }: RegisterDeviceDto) {
+  createDeviceToken(
+    deviceId: string,
+    createDeviceTokenDto: CreateDeviceTokenDto,
+    userId?: string | null,
+  ) {
     return this.deviceTokenRepo.upsert(
-      { channel, token, userId, isActive: true },
-      { conflictPaths: ['channel', 'token', 'userId'] },
+      { deviceId, ...createDeviceTokenDto, userId },
+      { conflictPaths: ['deviceId', 'channel'] },
     );
   }
 
-  unregisterDevice(userId: string, token: string) {
-    return this.deviceTokenRepo.update({ userId, token }, { isActive: false });
+  updateDeviceToken(
+    deviceId: string,
+    token: string,
+    updateDeviceTokenDto: UpdateDeviceTokenDto,
+  ) {
+    return this.deviceTokenRepo.update(
+      { deviceId, token },
+      updateDeviceTokenDto,
+    );
+  }
+
+  deleteDeviceToken(deviceId: string, token: string) {
+    return this.deviceTokenRepo.delete({ deviceId, token });
   }
 }
