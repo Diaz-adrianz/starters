@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Principal } from '../../shared/classes/principal.class';
+import { IS_OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -28,9 +29,16 @@ export class JwtGuard extends AuthGuard('jwt') {
     err: any,
     user: TUser | false | null | undefined,
     _info: any,
-  ): TUser {
-    if (err || !user)
+    context: ExecutionContext,
+  ): TUser | undefined {
+    const isOptional = this.reflector.getAllAndOverride<boolean>(
+      IS_OPTIONAL_AUTH_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if ((err || !user) && !isOptional)
       throw err || new UnauthorizedException('Session expired.');
-    return user;
+
+    return user || undefined;
   }
 }

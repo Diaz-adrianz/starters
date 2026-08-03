@@ -15,6 +15,7 @@ import { CreateDeviceTokenDto } from './dto/create-device-token.dto';
 import { ReqClient } from '../../common/decorators/req-client.decorator';
 import { Client } from '../../shared/classes/client.class';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
+import { OptionalAuth } from '../../common/decorators/optional-auth.decorator';
 
 @Controller('notification')
 export class NotificationController {
@@ -23,12 +24,12 @@ export class NotificationController {
   // ================================================================
   // Device handlers
   // ----------------------------------------------------------------
-  @Public()
+  @OptionalAuth()
   @Post('/device-token')
   registerDevice(
     @ReqClient() client: Client,
     @Body() createDeviceTokenDto: CreateDeviceTokenDto,
-    @ReqUser() principal: Principal | null | undefined,
+    @ReqUser() principal: Principal | undefined,
   ) {
     this.requireClientDeviceId(client);
 
