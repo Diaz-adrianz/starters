@@ -48,6 +48,19 @@ export class AuthController {
     private configService: ConfigService<EnvConfig>,
   ) {}
 
+  // ================================================================
+  // Init
+  // ----------------------------------------------------------------
+  @Public()
+  @Post('init')
+  init(@ReqClient() client: Client, @Res({ passthrough: true }) res: Response) {
+    this.saveDeviceId(res, client);
+    return 'ok';
+  }
+
+  // ================================================================
+  // Sign up handlers per strategy
+  // ----------------------------------------------------------------
   @Public()
   @ResSuccess({ message: 'Check your inbox to verify your account' })
   @Post('sign-up')
@@ -55,7 +68,9 @@ export class AuthController {
     return this.authService.signUpLocal(signUpLocalDto);
   }
 
-  // sign in methods
+  // ================================================================
+  // Sign in
+  // ----------------------------------------------------------------
   @Public()
   @UseGuards(LocalGuard)
   @Post('sign-in')
@@ -64,40 +79,16 @@ export class AuthController {
     @ReqUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const deviceIdSecret = this.configService.getOrThrow('deviceId.secret', {
-      infer: true,
-    });
-    client.deviceId =
-      client.deviceId && client.deviceIdSignature
-        ? verifyDeviceId(
-            deviceIdSecret,
-            client.deviceId,
-            client.deviceIdSignature,
-          )
-        : null;
-
-    if (!client.deviceId) {
-      client.deviceId = generateDeviceId();
-      res.cookie(
-        CookieKeys.DEVICE_ID,
-        signDeviceId(deviceIdSecret, client.deviceId),
-        {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge:
-            this.configService.getOrThrow('deviceId.expire', { infer: true }) *
-            1000,
-          path: '/',
-        },
-      );
-    }
+    this.saveDeviceId(res, client);
 
     const result = await this.authService.signIn(user, client);
     this.saveRefreshToken(res, result.rt);
     return { user: result.user, tokens: { access: result.at } };
   }
 
+  // ================================================================
+  // Access and refresh tokens rotation
+  // ----------------------------------------------------------------
   @Public()
   @Post('/refresh')
   async refreshSession(
@@ -110,6 +101,9 @@ export class AuthController {
     return { tokens: { access: result.at } };
   }
 
+  // ================================================================
+  // Sign out handlers
+  // ----------------------------------------------------------------
   @Public()
   @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
@@ -141,6 +135,9 @@ export class AuthController {
     return;
   }
 
+  // ================================================================
+  // Principal info
+  // ----------------------------------------------------------------
   @Get('/me')
   async me(@ReqUser() principal: Principal) {
     const user = await this.userService.findOne(principal.user.id);
@@ -148,6 +145,9 @@ export class AuthController {
     return { user, sessions };
   }
 
+  // ================================================================
+  // User verification
+  // ----------------------------------------------------------------
   @Public()
   @ResSuccess({ message: 'Verification success' })
   @Get('/verify-email')
@@ -156,6 +156,9 @@ export class AuthController {
     return this.authService.verifyEmail(verifyEmailDto);
   }
 
+  // ================================================================
+  // Reset password
+  // ----------------------------------------------------------------
   @Public()
   @ResSuccess({ message: 'Reset link has been sent to your email' })
   @Post('/forgot-password')
@@ -177,7 +180,9 @@ export class AuthController {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
-  // utils
+  // ================================================================
+  // Local utils
+  // ----------------------------------------------------------------
   private saveRefreshToken(res: Response, token: string) {
     res.cookie(CookieKeys.REFRESH_TOKEN, token, {
       httpOnly: true,
@@ -188,5 +193,37 @@ export class AuthController {
         1000,
       path: CookiePath.REFRESH_TOKEN,
     });
+  }
+
+  private saveDeviceId(res: Response, client: Client) {
+    const deviceIdSecret = this.configService.getOrThrow('deviceId.secret', {
+      infer: true,
+    });
+    client.deviceId =
+      client.deviceId && client.deviceIdSignature
+        ? verifyDeviceId(
+            deviceIdSecret,
+            client.deviceId,
+            client.deviceIdSignature,
+          )
+        : null;
+
+    if (!client.deviceId) {
+      client.deviceId = generateDeviceId();
+      res.cookie(
+        CookieKeys.DEVICE_ID,
+        signDeviceId(deviceIdSecret, client.deviceId),
+        {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge:
+            this.configService.getOrThrow('deviceId.expire', {
+              infer: true,
+            }) * 1000,
+          path: '/',
+        },
+      );
+    }
   }
 }

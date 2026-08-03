@@ -70,7 +70,8 @@ export class AuthService {
   }
 
   async signIn(user: User, client: Client) {
-    if (!client.deviceId) throw new BadRequestException('Device ID required');
+    if (!client.deviceId)
+      throw new BadRequestException('Device initialization required');
 
     const sessionId = sha256(`${user.id}:${client.deviceId}`);
 
