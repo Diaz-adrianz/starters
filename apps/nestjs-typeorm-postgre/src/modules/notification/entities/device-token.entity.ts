@@ -14,16 +14,19 @@ export enum DeviceTokenChannel {
 }
 
 @Entity({ schema: 'notification', name: 'device_tokens' })
-@Unique(['userId', 'channel', 'token'])
+@Unique(['deviceId', 'channel'])
 export class DeviceToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  userId: string;
+  deviceId: string;
 
   @Column({ type: 'enum', enum: DeviceTokenChannel })
   channel: DeviceTokenChannel;
+
+  @Column({ nullable: true })
+  userId: string | null;
 
   @Column()
   token: string;
@@ -33,8 +36,9 @@ export class DeviceToken {
 
   @ManyToOne(() => User, (u) => u.notificationPreferences, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
-  user: User;
+  user: User | null;
 
   @CreateDateColumn()
   createdAt: Date;

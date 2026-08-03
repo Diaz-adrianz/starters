@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateNotificationsRecipientsDeliveriesUserpreferencesDevicetokens1785754465032 implements MigrationInterface {
+export class CreateNotificationsRecipientsDeliveriesUserpreferencesDevicetokens1785765280944 implements MigrationInterface {
   name =
-    'CreateNotificationsRecipientsDeliveriesUserpreferencesDevicetokens1785754465032';
+    'CreateNotificationsRecipientsDeliveriesUserpreferencesDevicetokens1785765280944';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -15,7 +15,7 @@ export class CreateNotificationsRecipientsDeliveriesUserpreferencesDevicetokens1
       `CREATE TYPE "notification"."device_tokens_channel_enum" AS ENUM('fcm')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "notification"."device_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "channel" "notification"."device_tokens_channel_enum" NOT NULL, "token" character varying NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_2dec4dafe80bd9c20418a786bfe" UNIQUE ("user_id", "channel", "token"), CONSTRAINT "PK_84700be257607cfb1f9dc2e52c3" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "notification"."device_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "device_id" character varying NOT NULL, "channel" "notification"."device_tokens_channel_enum" NOT NULL, "user_id" uuid, "token" character varying NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_958e1434ecf0c0a086ebc2d9a80" UNIQUE ("device_id", "channel"), CONSTRAINT "PK_84700be257607cfb1f9dc2e52c3" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "notification"."recipients" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "notification_id" uuid NOT NULL, "user_id" uuid NOT NULL, "read_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_dd946b661b3a402ece8ed1fef0d" UNIQUE ("notification_id", "user_id"), CONSTRAINT "PK_de8fc5a9c364568f294798fe1e9" PRIMARY KEY ("id"))`,
