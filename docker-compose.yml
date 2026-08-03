@@ -11,6 +11,7 @@ services:
       - ./apps/nestjs-typeorm-postgre/.env.production
     volumes:
       - ./apps/nestjs-typeorm-postgre/logs:/usr/src/app/logs
+      - ./apps/nestjs-typeorm-postgre/secrets:/usr/src/app/secrets
     depends_on:
       postgres:
         condition: service_healthy

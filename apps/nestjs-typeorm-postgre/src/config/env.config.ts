@@ -73,6 +73,11 @@ export const envConfig = () => ({
       bucket: process.env.STORAGE_DEFAULT_BUCKET,
     },
   },
+  firebase: {
+    default: {
+      serviceAccountPath: process.env.FIREBASE_DEFAULT_SERVICEACCOUNT_PATH,
+    },
+  },
 });
 
 export type EnvConfig = ReturnType<typeof envConfig>;
@@ -131,4 +136,7 @@ export const envConfigSchema = joi.object({
   STORAGE_DEFAULT_SECRET_ACCESS_KEY: joi.string().required(),
   STORAGE_DEFAULT_FORCE_PATH_STYLE: joi.bool().required(),
   STORAGE_DEFAULT_BUCKET: joi.string().required(),
+
+  // firebase
+  FIREBASE_DEFAULT_SERVICEACCOUNT_PATH: joi.string().required(),
 });

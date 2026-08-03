@@ -18,6 +18,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
 import { S3Filter } from './common/filters/s3.filter';
+import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.module';
 
 @Module({
   imports: [
@@ -47,6 +48,9 @@ import { S3Filter } from './common/filters/s3.filter';
 
     // storages
     DefaultStorageModule,
+
+    // fcm
+    DefaultFirebaseModule,
 
     // app modules
     UsersModule,
