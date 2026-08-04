@@ -22,12 +22,14 @@ import { Permission } from '../../common/decorators/permission.decorator';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { DeviceTokenService } from './services/device-token.service';
 import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { RecipientService } from './services/recipient.service';
 
 @Controller('notifications')
 export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly deviceTokenService: DeviceTokenService,
+    private readonly recipientService: RecipientService,
   ) {}
 
   @Permission('notifications:create')
@@ -43,7 +45,7 @@ export class NotificationController {
     @Query() query: ResourceScopeQueryDto,
   ) {
     permission.scope.add(query);
-    return this.notificationService.findAll(permission.scope.toPageOptions());
+    return this.recipientService.findAll(permission.scope.toPageOptions());
   }
 
   // ================================================================
