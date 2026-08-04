@@ -48,6 +48,14 @@ export class NotificationController {
     return this.recipientService.findAll(permission.scope.toPageOptions());
   }
 
+  @Permission('notifications:find-one')
+  @Get(':id')
+  async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+    permission.scope.add({ where: `id:${id}` });
+    await this.notificationService.existByScope(permission.scope);
+    return this.notificationService.findOne(id);
+  }
+
   // ================================================================
   // Device token
   // ----------------------------------------------------------------

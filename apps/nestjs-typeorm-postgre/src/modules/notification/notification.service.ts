@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { Recipient } from './entities/recipient.entity';
+import { BaseService } from '../../common/classes/base/service.base';
 
 @Injectable()
-export class NotificationService {
-  constructor(@InjectDataSource('default') private datasource: DataSource) {}
+export class NotificationService extends BaseService<Notification> {
+  constructor(
+    @InjectDataSource('default') private datasource: DataSource,
+    @InjectRepository(Notification)
+    private notificationRepo: Repository<Notification>,
+  ) {
+    super(notificationRepo);
+  }
 
   async create(createNotificationDto: CreateNotificationDto) {
     const { recipients, ...payload } = createNotificationDto;
@@ -25,5 +32,9 @@ export class NotificationService {
     });
 
     return data;
+  }
+
+  findOne(id: string) {
+    return this.notificationRepo.findOneOrFail({ where: { id } });
   }
 }

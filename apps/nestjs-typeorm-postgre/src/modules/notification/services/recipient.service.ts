@@ -12,7 +12,6 @@ export class RecipientService {
   ) {}
 
   findAll(options: ResourceScopePageOptions) {
-    console.log(JSON.stringify(options));
     return this.recipientRepo.findAndCount({
       ...options,
       relations: { ...options.relations, notification: true },
