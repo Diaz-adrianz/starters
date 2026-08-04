@@ -16,10 +16,18 @@ import { ReqClient } from '../../common/decorators/req-client.decorator';
 import { Client } from '../../shared/classes/client.class';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { OptionalAuth } from '../../common/decorators/optional-auth.decorator';
+import { Permission } from '../../common/decorators/permission.decorator';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Controller('notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
+
+  @Permission('notifications:create')
+  @Post()
+  create(@Body() createNotificationDto: CreateNotificationDto) {
+    return this.notificationService.create(createNotificationDto);
+  }
 
   // ================================================================
   // Device handlers

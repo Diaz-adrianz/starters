@@ -37,7 +37,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     );
 
     if ((err || !user) && !isOptional)
-      throw err || new UnauthorizedException('Session expired.');
+      throw err || new UnauthorizedException('Session expired');
 
     return user || undefined;
   }

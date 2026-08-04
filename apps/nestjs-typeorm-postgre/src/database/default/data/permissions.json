@@ -24,5 +24,7 @@
   [ "users", "update-avatar", [["Superadmin", {"where":"id:$subject.user.id"}], ["Admin", {"where":"id:$subject.user.id"}], ["User", {"where":"id:$subject.user.id"}]] ],
   [ "users", "soft-delete", [["Superadmin"], ["Admin"]] ],
   [ "users", "restore", [["Superadmin"], ["Admin"]] ],
-  [ "users", "delete", [["Superadmin"], ["Admin"]] ]
+  [ "users", "delete", [["Superadmin"], ["Admin"]] ],
+
+  [ "notifications", "create", [["Superadmin"]] ]
 ]

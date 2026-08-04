@@ -7,6 +7,8 @@ import {
 } from 'typeorm';
 import { Recipient } from './recipient.entity';
 
+export type NotificationData = Record<string, string>;
+
 @Entity({ schema: 'notification', name: 'notifications' })
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
@@ -22,7 +24,7 @@ export class Notification {
   body: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  data: string | null;
+  data: NotificationData | null;
 
   @OneToMany(() => Recipient, (r) => r.notification)
   recipients: Recipient[];
