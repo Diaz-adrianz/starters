@@ -44,7 +44,7 @@ export class NotificationController {
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeQueryDto,
   ) {
-    permission.scope.add(query);
+    permission.scope.add(query, 'AND', ['notification']);
     return this.recipientService.findAll(permission.scope.toPageOptions());
   }
 

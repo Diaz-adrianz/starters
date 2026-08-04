@@ -150,7 +150,7 @@ export class ResourceScope {
           this.addRelations(relationKeys);
         }
 
-        const resolvedValue = this.resolveContext(value, context);
+        const resolvedValue = value ? this.resolveContext(value, context) : '';
         this.addWhere(
           where,
           keys,

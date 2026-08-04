@@ -12,9 +12,22 @@ export class RecipientService {
   ) {}
 
   findAll(options: ResourceScopePageOptions) {
+    console.log(JSON.stringify(options));
     return this.recipientRepo.findAndCount({
       ...options,
       relations: { ...options.relations, notification: true },
+      select: {
+        id: true,
+        userId: true,
+        readAt: true,
+        notification: {
+          id: true,
+          category: true,
+          title: true,
+          body: true,
+          data: true,
+        },
+      },
     });
   }
 }
