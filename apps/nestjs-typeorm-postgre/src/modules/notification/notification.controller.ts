@@ -3,9 +3,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
@@ -19,6 +21,7 @@ import { OptionalAuth } from '../../common/decorators/optional-auth.decorator';
 import { Permission } from '../../common/decorators/permission.decorator';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { DeviceTokenService } from './services/device-token.service';
+import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
 
 @Controller('notifications')
 export class NotificationController {
@@ -31,6 +34,16 @@ export class NotificationController {
   @Post()
   create(@Body() createNotificationDto: CreateNotificationDto) {
     return this.notificationService.create(createNotificationDto);
+  }
+
+  @Permission('notifications:find-all')
+  @Get()
+  findAll(
+    @ReqUser() { permission }: Principal,
+    @Query() query: ResourceScopeQueryDto,
+  ) {
+    permission.scope.add(query);
+    return this.notificationService.findAll(permission.scope.toPageOptions());
   }
 
   // ================================================================

@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { Recipient } from './entities/recipient.entity';
+import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class NotificationService {
-  constructor(@InjectDataSource('default') private datasource: DataSource) {}
+  constructor(
+    @InjectDataSource('default') private datasource: DataSource,
+    @InjectRepository(Recipient) private recipientRepo: Repository<Recipient>,
+  ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
     const { recipients, ...payload } = createNotificationDto;
@@ -25,5 +29,12 @@ export class NotificationService {
     });
 
     return data;
+  }
+
+  findAll(options: ResourceScopePageOptions) {
+    return this.recipientRepo.findAndCount({
+      ...options,
+      relations: { ...options.relations, notification: true },
+    });
   }
 }
