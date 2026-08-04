@@ -18,10 +18,14 @@ import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { OptionalAuth } from '../../common/decorators/optional-auth.decorator';
 import { Permission } from '../../common/decorators/permission.decorator';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { DeviceTokenService } from './services/device-token.service';
 
-@Controller('notification')
+@Controller('notifications')
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly deviceTokenService: DeviceTokenService,
+  ) {}
 
   @Permission('notifications:create')
   @Post()
@@ -30,10 +34,10 @@ export class NotificationController {
   }
 
   // ================================================================
-  // Device handlers
+  // Device token
   // ----------------------------------------------------------------
   @OptionalAuth()
-  @Post('/device-token')
+  @Post('/device-tokens')
   registerDevice(
     @ReqClient() client: Client,
     @Body() createDeviceTokenDto: CreateDeviceTokenDto,
@@ -41,7 +45,7 @@ export class NotificationController {
   ) {
     this.requireClientDeviceId(client);
 
-    return this.notificationService.createDeviceToken(
+    return this.deviceTokenService.createDeviceToken(
       client.deviceId!,
       createDeviceTokenDto,
       principal?.user.id,
@@ -49,14 +53,14 @@ export class NotificationController {
   }
 
   @Public()
-  @Patch('/device-token/:token')
+  @Patch('/device-tokens/:token')
   updateDeviceToken(
     @ReqClient() client: Client,
     @Param('token') token: string,
     @Body() updateDeviceTokenDto: UpdateDeviceTokenDto,
   ) {
     this.requireClientDeviceId(client);
-    return this.notificationService.updateDeviceToken(
+    return this.deviceTokenService.updateDeviceToken(
       client.deviceId!,
       token,
       updateDeviceTokenDto,
@@ -64,10 +68,10 @@ export class NotificationController {
   }
 
   @Public()
-  @Delete('/device-token/:token')
+  @Delete('/device-tokens/:token')
   unregisterDevice(@ReqClient() client: Client, @Param('token') token: string) {
     this.requireClientDeviceId(client);
-    return this.notificationService.deleteDeviceToken(client.deviceId!, token);
+    return this.deviceTokenService.deleteDeviceToken(client.deviceId!, token);
   }
 
   // ================================================================
