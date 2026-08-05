@@ -8,14 +8,17 @@ import {
   ResourceScopeOptions,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
+import { ServiceBase } from '../../common/classes/base/service.base';
 
 @Injectable()
-export class NotificationService {
+export class NotificationService extends ServiceBase<Notification> {
   constructor(
     @InjectDataSource('default') private datasource: DataSource,
     @InjectRepository(Notification)
     private notificationRepo: Repository<Notification>,
-  ) {}
+  ) {
+    super(notificationRepo);
+  }
 
   async create(createNotificationDto: CreateNotificationDto) {
     const { recipients, ...payload } = createNotificationDto;
@@ -36,10 +39,20 @@ export class NotificationService {
   }
 
   findAll(options: ResourceScopePageOptions) {
-    return this.notificationRepo.findAndCount(options);
+    return this.notificationRepo.findAndCount({
+      ...options,
+      select: this.select([
+        'id',
+        'category',
+        'title',
+        'body',
+        'data',
+        'createdAt',
+      ]),
+    });
   }
 
   findOne(options: ResourceScopeOptions) {
-    return this.notificationRepo.findOne(options);
+    return this.notificationRepo.findOneOrFail(options);
   }
 }
