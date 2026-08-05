@@ -14,13 +14,12 @@ export class RecipientService extends ServiceBase<Recipient> {
     super(recipientRepo);
   }
 
-  findAll(options: ResourceScopePageOptions) {
+  findMany(options: ResourceScopePageOptions) {
     return this.recipientRepo.findAndCount({
       ...options,
-      relations: { user: true, notification: true },
+      relations: { user: true },
       select: {
-        ...this.select(['id', 'readAt', 'createdAt']),
-        notification: { id: true, category: true, title: true, body: true },
+        ...this.select(['id', 'readAt', 'createdAt', 'notificationId']),
         user: { id: true, username: true, avatar: true },
       },
     });

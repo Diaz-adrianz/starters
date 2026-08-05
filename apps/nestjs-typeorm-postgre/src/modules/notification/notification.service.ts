@@ -38,7 +38,7 @@ export class NotificationService extends ServiceBase<Notification> {
     return data;
   }
 
-  findAll(options: ResourceScopePageOptions) {
+  findMany(options: ResourceScopePageOptions) {
     return this.notificationRepo.findAndCount({
       ...options,
       select: this.select([

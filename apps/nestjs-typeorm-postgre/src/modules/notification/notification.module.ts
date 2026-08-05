@@ -10,7 +10,6 @@ import { DeviceToken } from './entities/device-token.entity';
 import { DeviceTokenService } from './services/device-token.service';
 import { RecipientService } from './services/recipient.service';
 import { DeviceTokenController } from './controllers/device-token.controller';
-import { RecipientController } from './controllers/recipient.controller';
 
 @Module({
   imports: [
@@ -22,7 +21,7 @@ import { RecipientController } from './controllers/recipient.controller';
       DeviceToken,
     ]),
   ],
-  controllers: [NotificationController, DeviceTokenController, RecipientController],
+  controllers: [NotificationController, DeviceTokenController],
   providers: [NotificationService, DeviceTokenService, RecipientService],
   exports: [NotificationService],
 })
