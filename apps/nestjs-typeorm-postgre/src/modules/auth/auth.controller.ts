@@ -39,6 +39,7 @@ import {
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { Principal } from '../../shared/classes/principal.class';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
 
 @Controller('auth')
 export class AuthController {
@@ -140,7 +141,8 @@ export class AuthController {
   // ----------------------------------------------------------------
   @Get('/me')
   async me(@ReqUser() principal: Principal) {
-    const user = await this.userService.findById(principal.user.id);
+    const scope = new ResourceScope({ where: `id:${principal.user.id}` });
+    const user = await this.userService.findOne(scope.toOptions());
     const sessions = await this.authService.findSessions(principal.user.id);
     return { user, sessions };
   }

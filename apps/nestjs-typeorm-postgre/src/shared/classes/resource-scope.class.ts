@@ -67,12 +67,8 @@ export class ResourceScope {
   private take: ResourceScopePageOptions['take'] = 0;
   private withDeleted: ResourceScopeOptions['withDeleted'] = false;
 
-  constructor(
-    scope?: ResourceScopeDto,
-    strategy?: 'OR' | 'AND',
-    relations?: string[] | 'auto',
-  ) {
-    if (scope && strategy) this.add(scope, strategy, relations);
+  constructor(scope?: ResourceScopeDto, relations?: string[] | 'auto') {
+    if (scope) this.add(scope, 'AND', relations);
   }
 
   public add(
