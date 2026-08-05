@@ -12,7 +12,7 @@ export class DeviceTokenService {
     private deviceTokenRepo: Repository<DeviceToken>,
   ) {}
 
-  createDeviceToken(
+  create(
     deviceId: string,
     createDeviceTokenDto: CreateDeviceTokenDto,
     userId?: string | null,
@@ -23,7 +23,7 @@ export class DeviceTokenService {
     );
   }
 
-  updateDeviceToken(
+  update(
     deviceId: string,
     token: string,
     updateDeviceTokenDto: UpdateDeviceTokenDto,
@@ -34,7 +34,7 @@ export class DeviceTokenService {
     );
   }
 
-  deleteDeviceToken(deviceId: string, token: string) {
+  delete(deviceId: string, token: string) {
     return this.deviceTokenRepo.delete({ deviceId, token });
   }
 }
