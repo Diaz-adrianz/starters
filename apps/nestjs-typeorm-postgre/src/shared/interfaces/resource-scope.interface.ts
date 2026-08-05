@@ -9,11 +9,8 @@ export interface ResourceScopeIntf {
   gte?: string;
   lte?: string;
   between?: string;
-}
-
-export interface ResourceScopeQueryIntf {
-  limit: number;
-  page: number;
+  limit?: number;
+  page?: number;
   order?: string;
-  trash: boolean;
+  trash?: boolean;
 }

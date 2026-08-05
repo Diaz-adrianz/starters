@@ -11,10 +11,12 @@ import {
   Not,
 } from 'typeorm';
 import {
+  DEFAULT_LIMIT,
+  DEFAULT_PAGE,
   ResourceScopeDto,
-  ResourceScopeQueryDto,
 } from '../dto/resource-scope.dto';
 import { castValue } from '../utils/transformer.util';
+import { plainToInstance } from 'class-transformer';
 
 const PAIR_SEPARATOR = ':';
 const PAIRS_SEPARATOR = ';';
@@ -32,8 +34,13 @@ export interface ResourceScopePageOptions extends ResourceScopeOptions {
   take: number;
 }
 
+export type ClauseOperator = keyof Omit<
+  ResourceScopeDto,
+  'limit' | 'page' | 'order' | 'trash'
+>;
+
 const ResourceScopeClauseOperator: Record<
-  keyof ResourceScopeDto,
+  ClauseOperator,
   (value: string) => FindOperator<any>
 > = {
   search: (v) => ILike(`%${v}%`),
@@ -61,7 +68,7 @@ export class ResourceScope {
   private withDeleted: ResourceScopeOptions['withDeleted'] = false;
 
   constructor(
-    scope?: ResourceScopeDto | ResourceScopeQueryDto,
+    scope?: ResourceScopeDto,
     strategy?: 'OR' | 'AND',
     relations?: string[] | 'auto',
   ) {
@@ -69,25 +76,28 @@ export class ResourceScope {
   }
 
   public add(
-    scope: ResourceScopeDto | ResourceScopeQueryDto,
+    scope: ResourceScopeDto,
     strategy: 'OR' | 'AND' = 'AND',
     relations: string[] | 'auto' = [],
     context: Record<string, any> = {},
   ) {
-    if (scope instanceof ResourceScopeQueryDto) {
-      this.take = scope.limit;
-      this.skip = (scope.page - 1) * (this.take || 0);
-      this.withDeleted = scope.trash;
+    scope =
+      scope instanceof ResourceScopeDto
+        ? scope
+        : (plainToInstance(ResourceScopeDto, scope) as ResourceScopeDto);
 
-      if (this.withDeleted)
-        scope.notnull = scope.notnull
-          ? `${scope.notnull}${PAIRS_SEPARATOR}deletedAt`
-          : 'deletedAt';
+    this.take = scope.limit ?? DEFAULT_LIMIT;
+    this.skip = ((scope.page ?? DEFAULT_PAGE) - 1) * (this.take || 0);
+    this.withDeleted = !!scope.trash;
 
-      if (scope.order) {
-        const [key, value] = scope.order.split(PAIR_SEPARATOR);
-        this.addOrder(key.split(KEYS_SEPARATOR), value.toUpperCase());
-      }
+    if (this.withDeleted)
+      scope.notnull = scope.notnull
+        ? `${scope.notnull}${PAIRS_SEPARATOR}deletedAt`
+        : 'deletedAt';
+
+    if (scope.order) {
+      const [key, value] = scope.order.split(PAIR_SEPARATOR);
+      this.addOrder(key.split(KEYS_SEPARATOR), value.toUpperCase());
     }
 
     const where = this.buildWhere(scope, relations, context);
@@ -127,7 +137,7 @@ export class ResourceScope {
 
     for (const clause of Object.keys(
       ResourceScopeClauseOperator,
-    ) as (keyof ResourceScopeDto)[]) {
+    ) as ClauseOperator[]) {
       const pairs = scope[clause];
       if (pairs === undefined || typeof pairs !== 'string') continue;
 

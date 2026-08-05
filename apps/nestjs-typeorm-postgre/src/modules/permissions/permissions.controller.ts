@@ -12,7 +12,7 @@ import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from '../../common/decorators/permission.decorator';
-import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Principal } from '../../shared/classes/principal.class';
 
@@ -30,7 +30,7 @@ export class PermissionsController {
   @Get()
   findAll(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeQueryDto,
+    @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query);
     return this.permissionsService.findAll(permission.scope.toPageOptions());

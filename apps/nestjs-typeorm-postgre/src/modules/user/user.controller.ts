@@ -22,7 +22,7 @@ import {
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 import { Principal } from '../../shared/classes/principal.class';
-import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
 
 @Controller('users')
 export class UserController {
@@ -57,7 +57,7 @@ export class UserController {
   @Get()
   findAll(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeQueryDto,
+    @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query);
     return this.userService.findAll(permission.scope.toPageOptions());
@@ -126,7 +126,7 @@ export class UserController {
   @Permission('users:restore')
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add({ where: `id:${id}`, trash: true });
     await this.userService.findOne(permission.scope.toOptions());
     return this.userService.restore(id);
   }

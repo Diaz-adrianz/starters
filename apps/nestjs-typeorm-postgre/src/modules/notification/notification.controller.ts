@@ -21,7 +21,7 @@ import { OptionalAuth } from '../../common/decorators/optional-auth.decorator';
 import { Permission } from '../../common/decorators/permission.decorator';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { DeviceTokenService } from './services/device-token.service';
-import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
 import { RecipientService } from './services/recipient.service';
 
 @Controller('notifications')
@@ -42,7 +42,7 @@ export class NotificationController {
   @Get()
   findAll(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeQueryDto,
+    @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query, 'AND', ['recipients']);
     return this.notificationService.findAll(permission.scope.toPageOptions());

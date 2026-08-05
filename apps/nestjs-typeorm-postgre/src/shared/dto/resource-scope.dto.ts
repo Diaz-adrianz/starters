@@ -8,10 +8,10 @@ import {
   Min,
   ValidationOptions,
 } from 'class-validator';
-import {
-  ResourceScopeIntf,
-  ResourceScopeQueryIntf,
-} from '../interfaces/resource-scope.interface';
+import { ResourceScopeIntf } from '../interfaces/resource-scope.interface';
+
+export const DEFAULT_PAGE = 1;
+export const DEFAULT_LIMIT = 20;
 
 const CLAUSE_PATTERN_REGEX =
   /^[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*(?:;[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*)*$/;
@@ -33,7 +33,7 @@ const OrderPattern = (validationOptions?: ValidationOptions) =>
     ...validationOptions,
   });
 
-export class ResourceScopeDto implements ResourceScopeIntf {
+export class ResourceScopeBaseDto implements ResourceScopeIntf {
   @IsOptional()
   @ClausePattern()
   search?: string;
@@ -72,23 +72,22 @@ export class ResourceScopeDto implements ResourceScopeIntf {
   @ClausePattern()
   between?: string;
 }
-
-export class ResourceScopeQueryDto
-  extends ResourceScopeDto
-  implements ResourceScopeQueryIntf
+export class ResourceScopeDto
+  extends ResourceScopeBaseDto
+  implements ResourceScopeIntf
 {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(5)
   @Max(50)
-  limit: number = 20;
+  limit?: number = DEFAULT_LIMIT;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page: number = 1;
+  page?: number = DEFAULT_PAGE;
 
   @IsOptional()
   @OrderPattern()
@@ -97,5 +96,5 @@ export class ResourceScopeQueryDto
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
-  trash: boolean = false;
+  trash?: boolean;
 }

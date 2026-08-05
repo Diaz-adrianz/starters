@@ -14,7 +14,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { UpdateRolePermissionsDto } from './dto/update-role-permission.dto';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { Permission } from '../../common/decorators/permission.decorator';
-import { ResourceScopeQueryDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Principal } from '../../shared/classes/principal.class';
 
@@ -32,7 +32,7 @@ export class RolesController {
   @Get()
   findAll(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeQueryDto,
+    @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query);
     return this.rolesService.findAll(permission.scope.toPageOptions());
