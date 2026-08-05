@@ -5,6 +5,10 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { Recipient } from './entities/recipient.entity';
 import { BaseService } from '../../common/classes/base/service.base';
+import {
+  ResourceScopeOptions,
+  ResourceScopePageOptions,
+} from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class NotificationService extends BaseService<Notification> {
@@ -34,7 +38,11 @@ export class NotificationService extends BaseService<Notification> {
     return data;
   }
 
-  findOne(id: string) {
-    return this.notificationRepo.findOneOrFail({ where: { id } });
+  findAll(options: ResourceScopePageOptions) {
+    return this.notificationRepo.findAndCount(options);
+  }
+
+  findOne(options: ResourceScopeOptions) {
+    return this.notificationRepo.findOneOrFail(options);
   }
 }

@@ -44,16 +44,15 @@ export class NotificationController {
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeQueryDto,
   ) {
-    permission.scope.add(query, 'AND', ['notification']);
-    return this.recipientService.findAll(permission.scope.toPageOptions());
+    permission.scope.add(query, 'AND', ['recipients']);
+    return this.notificationService.findAll(permission.scope.toPageOptions());
   }
 
   @Permission('notifications:find-one')
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.notificationService.existByScope(permission.scope);
-    return this.notificationService.findOne(id);
+    return this.notificationService.findOneByScope(permission.scope);
   }
 
   // ================================================================

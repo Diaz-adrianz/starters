@@ -27,6 +27,8 @@
   [ "users", "delete", [["Superadmin"], ["Admin"]] ],
 
   [ "notifications", "create", [["Superadmin"]] ],
-  [ "notifications", "find-all", [["Superadmin"], ["Admin", {"where":"userId:$subject.user.id"}], ["User", {"where":"userId:$subject.user.id"}]] ],
-  [ "notifications", "find-one", [["Superadmin"], ["Admin", {"where":"recipients.userId:$subject.user.id"}], ["User", {"where":"recipients.userId:$subject.user.id"}]] ]
+  [ "notifications", "find-all", [["Superadmin"], ["Admin", {"where":"recipients.userId:$subject.user.id"}], ["User", {"where":"recipients.userId:$subject.user.id"}]] ],
+  [ "notifications", "find-one", [["Superadmin"], ["Admin", {"where":"recipients.userId:$subject.user.id"}], ["User", {"where":"recipients.userId:$subject.user.id"}]] ],
+
+  [ "notification-recipients", "find-one", [["Superadmin"], ["Admin", {"where":"userId:$subject.user.id"}], ["User", {"where":"userId:$subject.user.id"}]] ]
 ]
