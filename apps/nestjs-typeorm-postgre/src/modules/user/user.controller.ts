@@ -45,9 +45,9 @@ export class UserController {
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
+    const data = await this.userService.findOne(permission.scope.toOptions());
     return this.storageService.getSignedUploadUrl(
-      (k) => k.tmp(k.avatar(id)),
+      (k) => k.tmp(k.avatar(data.id)),
       mimeType,
       UserAvatarMaxBytes,
     );

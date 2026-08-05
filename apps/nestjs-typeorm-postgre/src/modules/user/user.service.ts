@@ -15,14 +15,17 @@ import {
   ResourceScopeOptions,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
+import { ServiceBase } from '../../common/classes/base/service.base';
 
 @Injectable()
-export class UserService {
+export class UserService extends ServiceBase<User> {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
     private cacheService: DefaultCacheService,
-  ) {}
+  ) {
+    super(userRepo);
+  }
 
   async clearCache(userIds: string[]) {
     if (!userIds.length) return;
@@ -51,13 +54,24 @@ export class UserService {
   }
 
   findAll(options: ResourceScopePageOptions) {
-    return this.userRepo.findAndCount(options);
+    return this.userRepo.findAndCount({
+      ...options,
+      relations: { roles: { role: true } },
+      select: {
+        ...this.select(['id', 'username', 'email', 'enabled', 'avatar']),
+        roles: { id: true, role: { id: true, name: true } },
+      },
+    });
   }
 
   findOne(options: ResourceScopeOptions) {
     return this.userRepo.findOneOrFail({
       ...options,
       relations: { roles: { role: true } },
+      select: {
+        ...this.select('*'),
+        roles: { id: true, role: { id: true, name: true } },
+      },
     });
   }
 
