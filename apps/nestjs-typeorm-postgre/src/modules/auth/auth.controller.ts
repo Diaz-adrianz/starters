@@ -140,7 +140,7 @@ export class AuthController {
   // ----------------------------------------------------------------
   @Get('/me')
   async me(@ReqUser() principal: Principal) {
-    const user = await this.userService.findOne(principal.user.id);
+    const user = await this.userService.findById(principal.user.id);
     const sessions = await this.authService.findSessions(principal.user.id);
     return { user, sessions };
   }

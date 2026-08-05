@@ -61,6 +61,13 @@ export class UsersService extends BaseService<User> {
     });
   }
 
+  findById(id: string) {
+    return this.userRepo.findOneOrFail({
+      where: { id },
+      relations: { roles: { role: true } },
+    });
+  }
+
   findByUsernameOrEmail(value: string) {
     return this.userRepo.findOneOrFail({
       where: [{ username: value }, { email: value }],
