@@ -4,21 +4,18 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { Recipient } from './entities/recipient.entity';
-import { BaseService } from '../../common/classes/base/service.base';
 import {
   ResourceScopeOptions,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
-export class NotificationService extends BaseService<Notification> {
+export class NotificationService {
   constructor(
     @InjectDataSource('default') private datasource: DataSource,
     @InjectRepository(Notification)
     private notificationRepo: Repository<Notification>,
-  ) {
-    super(notificationRepo);
-  }
+  ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
     const { recipients, ...payload } = createNotificationDto;
@@ -43,6 +40,6 @@ export class NotificationService extends BaseService<Notification> {
   }
 
   findOne(options: ResourceScopeOptions) {
-    return this.notificationRepo.findOneOrFail(options);
+    return this.notificationRepo.findOne(options);
   }
 }

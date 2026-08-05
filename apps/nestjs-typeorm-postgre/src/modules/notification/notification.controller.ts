@@ -52,7 +52,7 @@ export class NotificationController {
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    return this.notificationService.findOneByScope(permission.scope);
+    return this.notificationService.findOne(permission.scope.toOptions());
   }
 
   // ================================================================

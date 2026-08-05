@@ -23,7 +23,6 @@ const VALUES_SEPARATOR = ',';
 
 export interface ResourceScopeOptions {
   where: Record<string, any>[];
-  relations: Record<string, any>;
   order: Record<string, any>;
   withDeleted: boolean;
 }
@@ -54,7 +53,6 @@ const ResourceScopeClauseOperator: Record<
 
 export class ResourceScope {
   private where: ResourceScopeOptions['where'] = [];
-  private relations: ResourceScopeOptions['relations'] = {};
 
   // view
   private order: ResourceScopeOptions['order'] = {};
@@ -105,7 +103,6 @@ export class ResourceScope {
   public toOptions(): ResourceScopeOptions {
     return {
       where: this.where,
-      relations: this.relations,
       order: this.order,
       withDeleted: this.withDeleted,
     };
@@ -114,7 +111,6 @@ export class ResourceScope {
   public toPageOptions(): ResourceScopePageOptions {
     return {
       where: this.where,
-      relations: this.relations,
       order: this.order,
       skip: this.skip,
       take: this.take,
@@ -146,8 +142,6 @@ export class ResourceScope {
               !relations.includes(relationKeys.join(KEYS_SEPARATOR)))
           )
             return;
-
-          this.addRelations(relationKeys);
         }
 
         const resolvedValue = value ? this.resolveContext(value, context) : '';
@@ -220,24 +214,6 @@ export class ResourceScope {
     }
 
     return result;
-  }
-
-  private addRelations(keys: string[]) {
-    let current = this.relations;
-
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-
-      if (i === keys.length - 1) {
-        if (typeof current[key] !== 'object' || current[key] === null)
-          current[key] = true;
-      } else {
-        if (typeof current[key] !== 'object' || current[key] === null)
-          current[key] = {};
-
-        current = current[key];
-      }
-    }
   }
 
   private addOrder(keys: string[], value: string) {
