@@ -48,8 +48,8 @@ export class RolesService {
     });
   }
 
-  update(id: string, updateRoleDto: UpdateRoleDto) {
-    return this.roleRepo.update({ id }, updateRoleDto);
+  update(options: ResourceScopeOptions, updateRoleDto: UpdateRoleDto) {
+    return this.roleRepo.update(options.where, updateRoleDto);
   }
 
   async updatePermissions(
@@ -79,15 +79,15 @@ export class RolesService {
     }
   }
 
-  softDelete(id: string) {
-    return this.roleRepo.softDelete({ id });
+  softDelete(options: ResourceScopeOptions) {
+    return this.roleRepo.softDelete(options.where);
   }
 
-  restore(id: string) {
-    return this.roleRepo.restore({ id });
+  restore(options: ResourceScopeOptions) {
+    return this.roleRepo.restore(options.where);
   }
 
-  delete(id: string) {
-    return this.roleRepo.delete({ id });
+  delete(options: ResourceScopeOptions) {
+    return this.roleRepo.delete(options.where);
   }
 }

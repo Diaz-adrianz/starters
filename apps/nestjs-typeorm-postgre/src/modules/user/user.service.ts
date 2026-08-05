@@ -74,10 +74,12 @@ export class UserService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const result = await this.userRepo.update({ id }, updateUserDto);
-    await this.clearCache([id]);
-    return result;
+  update(options: ResourceScopeOptions, updateUserDto: UpdateUserDto) {
+    return this.userRepo.update(options.where, updateUserDto);
+  }
+
+  updateById(id: string, updateUserDto: UpdateUserDto) {
+    return this.userRepo.update({ id }, updateUserDto);
   }
 
   async updatePassword(id: string, password: string) {
@@ -109,21 +111,15 @@ export class UserService {
     }
   }
 
-  async softDelete(id: string) {
-    const result = this.userRepo.softDelete({ id });
-    await this.clearCache([id]);
-    return result;
+  softDelete(options: ResourceScopeOptions) {
+    return this.userRepo.softDelete(options.where);
   }
 
-  async restore(id: string) {
-    const result = this.userRepo.restore({ id });
-    await this.clearCache([id]);
-    return result;
+  restore(options: ResourceScopeOptions) {
+    return this.userRepo.restore(options.where);
   }
 
-  async delete(id: string) {
-    const result = this.userRepo.delete({ id });
-    await this.clearCache([id]);
-    return result;
+  delete(options: ResourceScopeOptions) {
+    return this.userRepo.delete(options.where);
   }
 }

@@ -128,7 +128,7 @@ export class AuthService {
     await this.cacheService.del((k) => k.verifyToken(tokenHash));
 
     const user = await this.userService.findById(userId);
-    await this.userService.update(user.id, {
+    await this.userService.updateById(user.id, {
       enabled: true,
       verifiedAt: new Date(),
       verificationSentAt: null,
@@ -173,7 +173,7 @@ export class AuthService {
     );
     await this.signOutAll(cache.userId);
     await this.cacheService.del((k) => k.resetPasswordToken(cache.tokenHash));
-    await this.userService.update(cache.userId, {
+    await this.userService.updateById(cache.userId, {
       resetPasswordSentAt: null,
     });
   }
@@ -272,7 +272,7 @@ export class AuthService {
         },
       },
     });
-    await this.userService.update(user.id, {
+    await this.userService.updateById(user.id, {
       resetPasswordSentAt: new Date(),
     });
   }
@@ -304,7 +304,7 @@ export class AuthService {
         },
       },
     });
-    await this.userService.update(user.id, {
+    await this.userService.updateById(user.id, {
       verificationSentAt: new Date(),
     });
   }

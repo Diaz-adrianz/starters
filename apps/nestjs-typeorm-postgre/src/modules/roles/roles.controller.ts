@@ -47,14 +47,16 @@ export class RolesController {
 
   @Permission('roles:update')
   @Patch(':id')
-  async update(
+  update(
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.rolesService.findOne(permission.scope.toOptions());
-    return this.rolesService.update(id, updateRoleDto);
+    return this.rolesService.update(
+      permission.scope.toOptions(),
+      updateRoleDto,
+    );
   }
 
   @Permission('roles:update-permissions')
@@ -72,28 +74,22 @@ export class RolesController {
 
   @Permission('roles:soft-delete')
   @Delete(':id/soft')
-  async softDelete(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-  ) {
+  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.rolesService.findOne(permission.scope.toOptions());
-    return this.rolesService.softDelete(id);
+    return this.rolesService.softDelete(permission.scope.toOptions());
   }
 
   @Permission('roles:restore')
   @Patch(':id/restore')
-  async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.rolesService.findOne(permission.scope.toOptions());
-    return this.rolesService.restore(id);
+    return this.rolesService.restore(permission.scope.toOptions());
   }
 
   @Permission('roles:delete')
   @Delete(':id')
-  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.rolesService.findOne(permission.scope.toOptions());
-    return this.rolesService.delete(id);
+    return this.rolesService.delete(permission.scope.toOptions());
   }
 }

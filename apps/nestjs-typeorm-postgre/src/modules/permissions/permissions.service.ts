@@ -28,19 +28,22 @@ export class PermissionsService {
     return this.permissionRepo.findOneOrFail(options);
   }
 
-  update(id: string, updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionRepo.update({ id }, updatePermissionDto);
+  update(
+    options: ResourceScopeOptions,
+    updatePermissionDto: UpdatePermissionDto,
+  ) {
+    return this.permissionRepo.update(options.where, updatePermissionDto);
   }
 
-  softDelete(id: string) {
-    return this.permissionRepo.softDelete({ id });
+  softDelete(options: ResourceScopeOptions) {
+    return this.permissionRepo.softDelete(options.where);
   }
 
-  restore(id: string) {
-    return this.permissionRepo.restore({ id });
+  restore(options: ResourceScopeOptions) {
+    return this.permissionRepo.restore(options.where);
   }
 
-  delete(id: string) {
-    return this.permissionRepo.delete({ id });
+  delete(options: ResourceScopeOptions) {
+    return this.permissionRepo.delete(options.where);
   }
 }

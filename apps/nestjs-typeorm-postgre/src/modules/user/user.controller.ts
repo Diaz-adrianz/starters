@@ -72,14 +72,13 @@ export class UserController {
 
   @Permission('users:update')
   @Patch(':id')
-  async update(
+  update(
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
-    return this.userService.update(id, updateUserDto);
+    return this.userService.update(permission.scope.toOptions(), updateUserDto);
   }
 
   @Permission('users:update-roles')
@@ -102,40 +101,34 @@ export class UserController {
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
+    const data = await this.userService.findOne(permission.scope.toOptions());
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
-      (k) => k.avatar(id),
+      (k) => k.avatar(data.id),
     );
-    return this.userService.update(id, {
+    return this.userService.updateById(data.id, {
       avatar: avatar.key,
     });
   }
 
   @Permission('users:soft-delete')
   @Delete(':id/soft')
-  async softDelete(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-  ) {
+  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
-    return this.userService.softDelete(id);
+    return this.userService.softDelete(permission.scope.toOptions());
   }
 
   @Permission('users:restore')
   @Patch(':id/restore')
-  async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}`, trash: true });
-    await this.userService.findOne(permission.scope.toOptions());
-    return this.userService.restore(id);
+    return this.userService.restore(permission.scope.toOptions());
   }
 
   @Permission('users:delete')
   @Delete(':id')
-  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
-    return this.userService.delete(id);
+    return this.userService.delete(permission.scope.toOptions());
   }
 }

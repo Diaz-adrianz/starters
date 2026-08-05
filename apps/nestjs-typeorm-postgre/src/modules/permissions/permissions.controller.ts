@@ -45,40 +45,36 @@ export class PermissionsController {
 
   @Permission('permissions:update')
   @Patch(':id')
-  async update(
+  update(
     @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.findOne(permission.scope.toOptions());
-    return this.permissionsService.update(id, updatePermissionDto);
+    return this.permissionsService.update(
+      permission.scope.toOptions(),
+      updatePermissionDto,
+    );
   }
 
   @Permission('permissions:soft-delete')
   @Delete(':id/soft')
-  async softDelete(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-  ) {
+  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.findOne(permission.scope.toOptions());
-    return this.permissionsService.softDelete(id);
+    return this.permissionsService.softDelete(permission.scope.toOptions());
   }
 
   @Permission('permissions:restore')
   @Patch(':id/restore')
-  async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.findOne(permission.scope.toOptions());
-    return this.permissionsService.restore(id);
+    return this.permissionsService.restore(permission.scope.toOptions());
   }
 
   @Permission('permissions:delete')
   @Delete(':id')
-  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.findOne(permission.scope.toOptions());
-    return this.permissionsService.delete(id);
+    return this.permissionsService.delete(permission.scope.toOptions());
   }
 }
