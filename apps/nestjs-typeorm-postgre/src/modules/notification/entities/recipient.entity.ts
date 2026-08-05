@@ -8,7 +8,7 @@ import {
   Unique,
 } from 'typeorm';
 import { Notification } from './notification.entity';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { Delivery } from './delivery.entity';
 
 @Entity({ schema: 'notification', name: 'recipients' })

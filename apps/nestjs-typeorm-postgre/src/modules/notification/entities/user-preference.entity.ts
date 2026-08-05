@@ -7,7 +7,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { DeliveryChannel } from './delivery.entity';
 
 export type UserPreferenceChannels = Record<DeliveryChannel, boolean>;

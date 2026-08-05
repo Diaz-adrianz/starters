@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { UsersService } from '../../users/users.service';
+import { UserService } from '../../user/user.service';
 import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 import { DefaultLoggerService } from '../../../lib/logger/default/default-logger.service';
 import { Principal } from '../../../shared/classes/principal.class';
@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
     private loggerService: DefaultLoggerService,
-    private usersService: UsersService,
+    private userService: UserService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -39,7 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       );
 
       if (!userCache) {
-        const user = await this.usersService.findById(payload.sub);
+        const user = await this.userService.findById(payload.sub);
         userCache = {
           id: user.id,
           username: user.username,

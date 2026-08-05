@@ -4,9 +4,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -28,7 +28,7 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
@@ -36,7 +36,7 @@ export class AuthService {
   ) {}
 
   async signUpLocal(signUpLocalDto: SignUpLocalDto) {
-    const existUser = await this.usersService
+    const existUser = await this.userService
       .findByUsernameOrEmail(signUpLocalDto.email)
       .catch(() => null);
 
@@ -56,7 +56,7 @@ export class AuthService {
       return existUser;
     }
 
-    const user = await this.usersService.create({
+    const user = await this.userService.create({
       username: signUpLocalDto.username,
       email: signUpLocalDto.email,
       password: signUpLocalDto.password,
@@ -127,8 +127,8 @@ export class AuthService {
 
     await this.cacheService.del((k) => k.verifyToken(tokenHash));
 
-    const user = await this.usersService.findById(userId);
-    await this.usersService.update(user.id, {
+    const user = await this.userService.findById(userId);
+    await this.userService.update(user.id, {
       enabled: true,
       verifiedAt: new Date(),
       verificationSentAt: null,
@@ -137,7 +137,7 @@ export class AuthService {
 
   // password settings
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.usersService
+    const user = await this.userService
       .findByUsernameOrEmail(forgotPasswordDto.email)
       .catch(() => null);
 
@@ -167,20 +167,20 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const cache = await this.resetPasswordCheck(resetPasswordDto);
-    await this.usersService.updatePassword(
+    await this.userService.updatePassword(
       cache.userId,
       resetPasswordDto.password,
     );
     await this.signOutAll(cache.userId);
     await this.cacheService.del((k) => k.resetPasswordToken(cache.tokenHash));
-    await this.usersService.update(cache.userId, {
+    await this.userService.update(cache.userId, {
       resetPasswordSentAt: null,
     });
   }
 
   // auth validations
   async validateLocalStrategy(username: string, password: string) {
-    const user = await this.usersService.findByUsernameOrEmail(username);
+    const user = await this.userService.findByUsernameOrEmail(username);
 
     if (!user.password)
       throw new UnauthorizedException(
@@ -272,7 +272,7 @@ export class AuthService {
         },
       },
     });
-    await this.usersService.update(user.id, {
+    await this.userService.update(user.id, {
       resetPasswordSentAt: new Date(),
     });
   }
@@ -304,7 +304,7 @@ export class AuthService {
         },
       },
     });
-    await this.usersService.update(user.id, {
+    await this.userService.update(user.id, {
       verificationSentAt: new Date(),
     });
   }

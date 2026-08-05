@@ -6,7 +6,7 @@ import {
   Unique,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
 
 @Entity({ schema: 'auth', name: 'user_roles' })

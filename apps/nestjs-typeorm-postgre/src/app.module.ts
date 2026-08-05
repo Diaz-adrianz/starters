@@ -8,7 +8,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { UsersModule } from './modules/users/users.module';
+import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './lib/cache/default/default-cache.module';
@@ -54,7 +54,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     DefaultFirebaseModule,
 
     // app modules
-    UsersModule,
+    UserModule,
     AuthModule,
     RolesModule,
     PermissionsModule,

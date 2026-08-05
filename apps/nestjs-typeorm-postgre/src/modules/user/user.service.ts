@@ -15,7 +15,7 @@ import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.cl
 import { BaseService } from '../../common/classes/base/service.base';
 
 @Injectable()
-export class UsersService extends BaseService<User> {
+export class UserService extends BaseService<User> {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,

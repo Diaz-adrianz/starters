@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../../users/entities/user-role.entity';
+import { UserRole } from '../../user/entities/user-role.entity';
 import { RolePermission } from './role-permission.entity';
 
 @Entity({ schema: 'auth', name: 'roles' })
