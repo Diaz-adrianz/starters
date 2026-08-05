@@ -11,18 +11,18 @@ import {
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
-import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.class';
-import { BaseService } from '../../common/classes/base/service.base';
+import {
+  ResourceScopeOptions,
+  ResourceScopePageOptions,
+} from '../../shared/classes/resource-scope.class';
 
 @Injectable()
-export class UserService extends BaseService<User> {
+export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
     private cacheService: DefaultCacheService,
-  ) {
-    super(userRepo);
-  }
+  ) {}
 
   async clearCache(userIds: string[]) {
     if (!userIds.length) return;
@@ -54,9 +54,9 @@ export class UserService extends BaseService<User> {
     return this.userRepo.findAndCount(options);
   }
 
-  findOne(id: string) {
+  findOne(options: ResourceScopeOptions) {
     return this.userRepo.findOneOrFail({
-      where: { id },
+      ...options,
       relations: { roles: { role: true } },
     });
   }

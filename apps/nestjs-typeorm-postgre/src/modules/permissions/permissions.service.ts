@@ -4,17 +4,17 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import { Repository } from 'typeorm';
-import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.class';
-import { BaseService } from '../../common/classes/base/service.base';
+import {
+  ResourceScopeOptions,
+  ResourceScopePageOptions,
+} from '../../shared/classes/resource-scope.class';
 
 @Injectable()
-export class PermissionsService extends BaseService<Permission> {
+export class PermissionsService {
   constructor(
     @InjectRepository(Permission)
     private permissionRepo: Repository<Permission>,
-  ) {
-    super(permissionRepo);
-  }
+  ) {}
 
   create(createPermissionDto: CreatePermissionDto) {
     return this.permissionRepo.insert(createPermissionDto);
@@ -24,8 +24,8 @@ export class PermissionsService extends BaseService<Permission> {
     return this.permissionRepo.findAndCount(options);
   }
 
-  findOne(id: string) {
-    return this.permissionRepo.findOneOrFail({ where: { id } });
+  findOne(options: ResourceScopeOptions) {
+    return this.permissionRepo.findOneOrFail(options);
   }
 
   update(id: string, updatePermissionDto: UpdatePermissionDto) {

@@ -10,19 +10,19 @@ import {
 } from './dto/update-role-permission.dto';
 import { RolePermission } from './entities/role-permission.entity';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
-import { ResourceScopePageOptions } from '../../shared/classes/resource-scope.class';
-import { BaseService } from '../../common/classes/base/service.base';
+import {
+  ResourceScopeOptions,
+  ResourceScopePageOptions,
+} from '../../shared/classes/resource-scope.class';
 
 @Injectable()
-export class RolesService extends BaseService<Role> {
+export class RolesService {
   constructor(
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     @InjectRepository(RolePermission)
     private rolePermissionRepo: Repository<RolePermission>,
     private cacheService: DefaultCacheService,
-  ) {
-    super(roleRepo);
-  }
+  ) {}
 
   async clearPermissionsCache(roleIds: string[]) {
     if (!roleIds.length) return;
@@ -41,9 +41,9 @@ export class RolesService extends BaseService<Role> {
     return this.roleRepo.findAndCount(options);
   }
 
-  findOne(id: string) {
+  findOne(options: ResourceScopeOptions) {
     return this.roleRepo.findOneOrFail({
-      where: { id },
+      ...options,
       relations: { permissions: { permission: true } },
     });
   }

@@ -45,7 +45,7 @@ export class UserController {
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(id)),
       mimeType,
@@ -67,8 +67,7 @@ export class UserController {
   @Get(':id')
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
-    return this.userService.findOne(id);
+    return this.userService.findOne(permission.scope.toOptions());
   }
 
   @Permission('users:update')
@@ -79,7 +78,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.userService.update(id, updateUserDto);
   }
 
@@ -92,7 +91,7 @@ export class UserController {
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.userService.updateUserRoles(id, updateUserRolesDto);
   }
 
@@ -103,7 +102,7 @@ export class UserController {
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
       (k) => k.avatar(id),
@@ -120,7 +119,7 @@ export class UserController {
     @Param('id') id: string,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.userService.softDelete(id);
   }
 
@@ -128,7 +127,7 @@ export class UserController {
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.userService.restore(id);
   }
 
@@ -136,7 +135,7 @@ export class UserController {
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.existByScope(permission.scope);
+    await this.userService.findOne(permission.scope.toOptions());
     return this.userService.delete(id);
   }
 }

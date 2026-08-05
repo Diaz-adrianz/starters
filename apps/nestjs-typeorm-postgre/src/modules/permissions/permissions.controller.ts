@@ -38,10 +38,9 @@ export class PermissionsController {
 
   @Permission('permissions:find-one')
   @Get(':id')
-  async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.existByScope(permission.scope);
-    return this.permissionsService.findOne(id);
+    return this.permissionsService.findOne(permission.scope.toOptions());
   }
 
   @Permission('permissions:update')
@@ -52,7 +51,7 @@ export class PermissionsController {
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.existByScope(permission.scope);
+    await this.permissionsService.findOne(permission.scope.toOptions());
     return this.permissionsService.update(id, updatePermissionDto);
   }
 
@@ -63,7 +62,7 @@ export class PermissionsController {
     @Param('id') id: string,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.existByScope(permission.scope);
+    await this.permissionsService.findOne(permission.scope.toOptions());
     return this.permissionsService.softDelete(id);
   }
 
@@ -71,7 +70,7 @@ export class PermissionsController {
   @Patch(':id/restore')
   async restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.existByScope(permission.scope);
+    await this.permissionsService.findOne(permission.scope.toOptions());
     return this.permissionsService.restore(id);
   }
 
@@ -79,7 +78,7 @@ export class PermissionsController {
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    await this.permissionsService.existByScope(permission.scope);
+    await this.permissionsService.findOne(permission.scope.toOptions());
     return this.permissionsService.delete(id);
   }
 }
