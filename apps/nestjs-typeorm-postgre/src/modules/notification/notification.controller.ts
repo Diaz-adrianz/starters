@@ -5,14 +5,10 @@ import { Principal } from '../../shared/classes/principal.class';
 import { Permission } from '../../common/decorators/permission.decorator';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
-import { RecipientService } from './services/recipient.service';
 
 @Controller('notifications')
 export class NotificationController {
-  constructor(
-    private readonly notificationService: NotificationService,
-    private readonly recipientService: RecipientService,
-  ) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   @Permission('notifications:create')
   @Post()
@@ -35,17 +31,5 @@ export class NotificationController {
   async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
     return this.notificationService.findOne(permission.scope.toOptions());
-  }
-
-  @Permission('notifications:read')
-  @Get(':id/recipients')
-  async findManyRecipients(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Query() query: ResourceScopeDto,
-  ) {
-    permission.scope.add(query);
-    permission.scope.add({ where: `notificationId:${id}` });
-    return this.recipientService.findMany(permission.scope.toPageOptions());
   }
 }

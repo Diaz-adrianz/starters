@@ -27,5 +27,5 @@
   [ "users", "delete", [["Superadmin"], ["Admin"]] ],
 
   [ "notifications", "create", [["Superadmin"], ["Admin"]] ],
-  [ "notifications", "read", [["Superadmin"], ["Admin"]] ]
+  [ "notifications", "read", [["Superadmin"], ["Admin"], ["User", {"where": "userId:$subject.user.id"}]] ]
 ]
