@@ -1,9 +1,12 @@
 import {
+  ArrayMinSize,
+  IsArray,
   IsIn,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { CategoryKeys } from '../constants/category-keys.constant';
 import { MessageData } from '../entities/message.entity';
@@ -26,4 +29,10 @@ export class CreateMessageDto {
   @IsOptional()
   @IsObject()
   data?: MessageData | null;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID('4', { each: true })
+  userIds: string[];
 }

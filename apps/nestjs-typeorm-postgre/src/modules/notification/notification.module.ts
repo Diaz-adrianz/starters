@@ -9,6 +9,8 @@ import { DeviceToken } from './entities/device-token.entity';
 import { DeviceTokenService } from './services/device-token.service';
 import { DeviceTokenController } from './controllers/device-token.controller';
 import { Message } from './entities/message.entity';
+import { MessageController } from './controllers/message.controller';
+import { MessageService } from './services/message.service';
 
 @Module({
   imports: [
@@ -20,8 +22,12 @@ import { Message } from './entities/message.entity';
       DeviceToken,
     ]),
   ],
-  controllers: [NotificationController, DeviceTokenController],
-  providers: [NotificationService, DeviceTokenService],
+  controllers: [
+    NotificationController,
+    DeviceTokenController,
+    MessageController,
+  ],
+  providers: [NotificationService, DeviceTokenService, MessageService],
   exports: [NotificationService],
 })
 export class NotificationModule {}
