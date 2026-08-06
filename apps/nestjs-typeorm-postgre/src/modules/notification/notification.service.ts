@@ -96,10 +96,15 @@ export class NotificationService {
       isnull: isRead ? 'readAt' : undefined,
     });
 
-    console.log(JSON.stringify(scope.toOptions().where));
-
     return this.notificationRepo.update(scope.toOptions().where, {
       readAt: isRead ? new Date() : null,
     });
+  }
+
+  // ================================================================
+  // Update
+  // ----------------------------------------------------------------
+  delete(scope: ResourceScope) {
+    return this.notificationRepo.delete(scope.where);
   }
 }

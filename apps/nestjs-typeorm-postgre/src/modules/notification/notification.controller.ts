@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -60,5 +61,15 @@ export class NotificationController {
     @Body() markAsReadDto: MarkAsReadDto,
   ) {
     return this.notificationService.markAsRead(permission.scope, markAsReadDto);
+  }
+
+  // ================================================================
+  // Delete
+  // ----------------------------------------------------------------
+  @Permission('notifications:delete')
+  @Delete(':id')
+  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+    permission.scope.add({ where: `id:${id}` });
+    return this.notificationService.delete(permission.scope);
   }
 }

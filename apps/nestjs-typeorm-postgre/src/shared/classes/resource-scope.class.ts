@@ -59,7 +59,7 @@ const ResourceScopeClauseOperator: Record<
 };
 
 export class ResourceScope {
-  private where: ResourceScopeOptions['where'] = [];
+  where: ResourceScopeOptions['where'] = [];
 
   // view
   private order: ResourceScopeOptions['order'] = {};

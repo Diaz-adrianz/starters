@@ -28,5 +28,6 @@
 
   [ "notifications", "create", [["Superadmin"], ["Admin"]] ],
   [ "notifications", "read", [["Superadmin"], ["Admin"], ["User", {"where": "userId:$subject.user.id"}]] ],
-  [ "notifications", "mark-as-read", [["Superadmin", {"where": "userId:$subject.user.id"}], ["Admin", {"where": "userId:$subject.user.id"}], ["User", {"where": "userId:$subject.user.id"}]] ]
+  [ "notifications", "mark-as-read", [["Superadmin", {"where": "userId:$subject.user.id"}], ["Admin", {"where": "userId:$subject.user.id"}], ["User", {"where": "userId:$subject.user.id"}]] ],
+  [ "notifications", "delete", [["Superadmin", {"where": "userId:$subject.user.id"}], ["Admin", {"where": "userId:$subject.user.id"}], ["User", {"where": "userId:$subject.user.id"}]] ]
 ]
