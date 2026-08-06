@@ -15,17 +15,15 @@ import {
   ResourceScopeOptions,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
-import { ServiceBase } from '../../common/classes/base/service.base';
+import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
 
 @Injectable()
-export class UserService extends ServiceBase<User> {
+export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
     private cacheService: DefaultCacheService,
-  ) {
-    super(userRepo);
-  }
+  ) {}
 
   async clearCache(userIds: string[]) {
     if (!userIds.length) return;
@@ -58,7 +56,13 @@ export class UserService extends ServiceBase<User> {
       ...options,
       relations: { roles: { role: true } },
       select: {
-        ...this.select(['id', 'username', 'email', 'enabled', 'avatar']),
+        ...repoSelect(this.userRepo, [
+          'id',
+          'username',
+          'email',
+          'enabled',
+          'avatar',
+        ]),
         roles: { id: true, role: { id: true, name: true } },
       },
     });
@@ -69,7 +73,7 @@ export class UserService extends ServiceBase<User> {
       ...options,
       relations: { roles: { role: true } },
       select: {
-        ...this.select('*'),
+        ...repoSelect(this.userRepo, '*'),
         roles: { id: true, role: { id: true, name: true } },
       },
     });

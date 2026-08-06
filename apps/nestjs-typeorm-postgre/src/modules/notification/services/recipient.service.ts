@@ -3,23 +3,26 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Recipient } from '../entities/recipient.entity';
 import { Repository } from 'typeorm';
 import { ResourceScopePageOptions } from '../../../shared/classes/resource-scope.class';
-import { ServiceBase } from '../../../common/classes/base/service.base';
+import { repoSelect } from '../../../shared/utils/typeorm/repo-select.util';
 
 @Injectable()
-export class RecipientService extends ServiceBase<Recipient> {
+export class RecipientService {
   constructor(
     @InjectRepository(Recipient)
     private recipientRepo: Repository<Recipient>,
-  ) {
-    super(recipientRepo);
-  }
+  ) {}
 
   findMany(options: ResourceScopePageOptions) {
     return this.recipientRepo.findAndCount({
       ...options,
       relations: { user: true },
       select: {
-        ...this.select(['id', 'readAt', 'createdAt', 'notificationId']),
+        ...repoSelect(this.recipientRepo, [
+          'id',
+          'readAt',
+          'createdAt',
+          'notificationId',
+        ]),
         user: { id: true, username: true, avatar: true },
       },
     });

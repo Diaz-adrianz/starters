@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { type DataSourceOptions, DataSource } from 'typeorm';
 import { type PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions.js';
-import { SnakeNamingStrategy } from '../../shared/utils/typeorm-naming-strategy.util';
+import { SnakeNamingStrategy } from '../../shared/utils/typeorm/naming-strategy.util';
 import { EnvConfig, Mode } from '../../config/env.config';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
