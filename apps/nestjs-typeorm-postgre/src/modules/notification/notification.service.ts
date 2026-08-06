@@ -4,11 +4,14 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './entities/notification.entity';
 import {
+  ResourceScope,
   ResourceScopeOptions,
   ResourceScopePageOptions,
+  VALUES_SEPARATOR,
 } from '../../shared/classes/resource-scope.class';
 import { Message } from './entities/message.entity';
 import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
+import { MarkAsReadDto } from './dto/mark-as-read.dto';
 
 @Injectable()
 export class NotificationService {
@@ -20,6 +23,9 @@ export class NotificationService {
     private messageRepo: Repository<Message>,
   ) {}
 
+  // ================================================================
+  // Create
+  // ----------------------------------------------------------------
   async create(createNotificationDto: CreateNotificationDto) {
     const data = await this.datasource.transaction(async (manager) => {
       const message = manager.create(Message, createNotificationDto.message);
@@ -39,6 +45,9 @@ export class NotificationService {
     return data;
   }
 
+  // ================================================================
+  // Read
+  // ----------------------------------------------------------------
   findMany(options: ResourceScopePageOptions) {
     return this.notificationRepo.findAndCount({
       ...options,
@@ -74,6 +83,23 @@ export class NotificationService {
         ]),
         user: { id: true, username: true, avatar: true },
       },
+    });
+  }
+
+  // ================================================================
+  // Update
+  // ----------------------------------------------------------------
+  markAsRead(scope: ResourceScope, markAsReadDto: MarkAsReadDto) {
+    const { notificationIds, isRead } = markAsReadDto;
+    scope.add({
+      in: `id:${notificationIds.join(VALUES_SEPARATOR)}`,
+      isnull: isRead ? 'readAt' : undefined,
+    });
+
+    console.log(JSON.stringify(scope.toOptions().where));
+
+    return this.notificationRepo.update(scope.toOptions().where, {
+      readAt: isRead ? new Date() : null,
     });
   }
 }

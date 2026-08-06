@@ -18,10 +18,10 @@ import {
 import { castValue } from '../utils/transformer.util';
 import { plainToInstance } from 'class-transformer';
 
-const PAIR_SEPARATOR = ':';
-const PAIRS_SEPARATOR = ';';
-const KEYS_SEPARATOR = '.';
-const VALUES_SEPARATOR = ',';
+export const PAIR_SEPARATOR = ':';
+export const PAIRS_SEPARATOR = ';';
+export const KEYS_SEPARATOR = '.';
+export const VALUES_SEPARATOR = ',';
 
 export interface ResourceScopeOptions {
   where: Record<string, any>[];
