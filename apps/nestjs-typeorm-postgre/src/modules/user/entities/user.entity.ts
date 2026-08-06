@@ -11,9 +11,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from './user-role.entity';
-import { Recipient as NotificationRecipient } from '../../notification/entities/recipient.entity';
 import { UserPreference as NotificationPreference } from '../../notification/entities/user-preference.entity';
 import { DeviceToken as NotificationDeviceToken } from '../../notification/entities/device-token.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity({ schema: 'auth', name: 'users' })
 export class User {
@@ -49,8 +49,8 @@ export class User {
   roles: UserRole[];
 
   // Notification
-  @OneToMany(() => NotificationRecipient, (nr) => nr.user)
-  notifications: NotificationRecipient[];
+  @OneToMany(() => Notification, (n) => n.user)
+  notifications: Notification[];
 
   @OneToMany(() => NotificationPreference, (np) => np.user)
   notificationPreferences: NotificationPreference[];
