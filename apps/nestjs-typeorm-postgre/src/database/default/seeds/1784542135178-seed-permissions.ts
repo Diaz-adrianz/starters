@@ -1,9 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Permission } from '../../../modules/access-control/entities/permission.entity';
-import permissionsData from '../data/permissions.json';
-
-type PermissionEntry = [string, string];
+import { PermissionsData } from '../data/permissions.data';
 
 export class SeedPermissions1784542135178 implements Seeder {
   track = false;
@@ -14,11 +12,16 @@ export class SeedPermissions1784542135178 implements Seeder {
   ): Promise<any> {
     const permissionRepo = dataSource.getRepository(Permission);
 
-    const values = (permissionsData as PermissionEntry[]).map(
-      ([resource, action]) => ({
-        resource,
-        action,
-        description: `${action} ${resource}`,
+    const values = PermissionsData.flatMap((group) =>
+      group.entries.map((entry) => {
+        const [resource, action] = entry.permission.split(':');
+
+        return {
+          resource,
+          action,
+          group: group.group,
+          description: entry.description,
+        };
       }),
     );
 

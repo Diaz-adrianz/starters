@@ -3,11 +3,7 @@ import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Role } from '../../../modules/access-control/entities/role.entity';
 import { RolePermission } from '../../../modules/access-control/entities/role-permission.entity';
 import { Permission } from '../../../modules/access-control/entities/permission.entity';
-import permissionsData from '../data/permissions.json';
-import { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
-
-type RoleEntry = [string] | [string, ResourceScopeIntf];
-type PermissionEntry = [string, string, RoleEntry[]];
+import { PermissionsData } from '../data/permissions.data';
 
 export class SeedRolePermissions1784542556618 implements Seeder {
   track = false;
@@ -28,13 +24,13 @@ export class SeedRolePermissions1784542556618 implements Seeder {
       permissions.map((p) => [`${p.resource}:${p.action}`, p]),
     );
 
-    const values = (permissionsData as PermissionEntry[]).flatMap(
-      ([resource, action, roleEntries]) => {
-        const permission = permissionMap.get(`${resource}:${action}`);
+    const values = PermissionsData.flatMap((group) =>
+      group.entries.flatMap((entry) => {
+        const permission = permissionMap.get(entry.permission);
         if (!permission) return [];
 
-        return roleEntries.flatMap(([roleName, scope]) => {
-          const role = roleMap.get(roleName);
+        return entry.roles.flatMap(({ name, scope }) => {
+          const role = roleMap.get(name);
           if (!role) return [];
 
           return [
@@ -45,7 +41,7 @@ export class SeedRolePermissions1784542556618 implements Seeder {
             },
           ];
         });
-      },
+      }),
     );
 
     const result = await rolePermissionRepo

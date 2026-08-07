@@ -2,9 +2,9 @@ import { hash } from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { User } from '../../../modules/user/entities/user.entity';
-import rolesData from '../data/roles.json';
 import { Role } from '../../../modules/access-control/entities/role.entity';
 import { UserRole } from '../../../modules/access-control/entities/user-role.entity';
+import { UsersData } from '../data/users.data';
 
 export class SeedUsers1784544001014 implements Seeder {
   track = false;
@@ -23,15 +23,13 @@ export class SeedUsers1784544001014 implements Seeder {
 
     const password = await hash(process.env.SEED_USERS_PASSWORD, 10);
 
-    const userValues = rolesData.flatMap((role) =>
-      role.users.map((username: string) => ({
-        username: username,
-        email: `${username}@example.com`,
-        password,
-        enabled: true,
-        verifiedAt: new Date(),
-      })),
-    );
+    const userValues = UsersData.map((user) => ({
+      username: user.username,
+      email: user.email,
+      password,
+      enabled: true,
+      verifiedAt: new Date(),
+    }));
 
     const insertResult = await userRepo
       .createQueryBuilder()
@@ -50,15 +48,19 @@ export class SeedUsers1784544001014 implements Seeder {
     const userMap = new Map(allUsers.map((u) => [u.username, u]));
     const roleMap = new Map(allRoles.map((r) => [r.name, r]));
 
-    const userRoleValues = rolesData.flatMap((roleEntry) => {
-      const role = roleMap.get(roleEntry.name);
-      if (!role) return [];
-
-      return roleEntry.users
-        .map((username) => userMap.get(username))
-        .filter((user): user is User => !!user)
-        .map((user) => ({ userId: user.id, roleId: role.id }));
-    });
+    const userRoleValues = UsersData.flatMap((userData) =>
+      userData.roles
+        .map((roleData) => {
+          const user = userMap.get(userData.username);
+          const role = roleMap.get(roleData.name);
+          if (!user || !role) return null;
+          return {
+            userId: user.id,
+            roleId: role.id,
+          };
+        })
+        .filter((value) => !!value),
+    );
 
     const roleAssignResult = await userRoleRepo
       .createQueryBuilder()
