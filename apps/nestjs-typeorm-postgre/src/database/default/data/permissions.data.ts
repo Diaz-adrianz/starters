@@ -14,11 +14,6 @@ export const PermissionsData: {
     entries: [
       // permissions
       {
-        description: 'Create permission',
-        permission: 'permissions:create',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-      {
         description: 'Read permission',
         permission: 'permissions:read',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
