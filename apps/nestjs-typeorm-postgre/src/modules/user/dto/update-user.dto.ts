@@ -1,11 +1,42 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
   IsOptional,
+  IsUUID,
   Matches,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+
+export enum UpdateUserRolesAction {
+  SET = 'set',
+  REM = 'rem',
+  ADD = 'add',
+}
+
+export class UpdateUserRoleDto {
+  @IsNotEmpty()
+  @IsUUID()
+  roleId: string;
+}
+
+export class UpdateUserRolesDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => UpdateUserRoleDto)
+  items: UpdateUserRoleDto[];
+
+  @IsNotEmpty()
+  @IsEnum(UpdateUserRolesAction)
+  action: UpdateUserRolesAction;
+}
 
 export class UpdateUserDto {
   @IsOptional()
@@ -21,6 +52,15 @@ export class UpdateUserDto {
   @IsBoolean()
   enabled?: boolean;
 
+  @IsOptional()
+  @ValidateNested()
+  @IsObject()
+  @Type(() => UpdateUserRolesDto)
+  roles?: UpdateUserRolesDto;
+
+  // ==========================
+  // Internal data
+  // --------------------------
   @Exclude()
   avatar?: string | null;
 

@@ -11,9 +11,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdateUserRolesDto } from './dto/update-user-role.dto';
 import { Permission } from '../../common/decorators/permission.decorator';
-import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import {
   CreateUserAvatarUploadUrlDto,
   UpdateUserAvatarDto,
@@ -103,19 +101,6 @@ export class UserController {
   ) {
     permission.scope.add({ where: `id:${id}` });
     return this.userService.update(permission.scope, updateUserDto);
-  }
-
-  @Permission('users:update-roles')
-  @ResSuccess({ allowNoAffected: true })
-  @Patch(':id/roles')
-  async updateRoles(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Body() updateUserRolesDto: UpdateUserRolesDto,
-  ) {
-    permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope);
-    return this.userService.updateUserRoles(id, updateUserRolesDto);
   }
 
   @Permission('users:archive')

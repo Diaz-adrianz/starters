@@ -1,23 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import {
-  UpdateUserRolesAction,
-  UpdateUserRolesDto,
-} from './dto/update-user-role.dto';
-import { UserRole } from '../access-control/entities/user-role.entity';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
+import { UserRole } from '../access-control/entities/user-role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
+    @InjectDataSource('default') private datasource: DataSource,
     @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
   ) {}
 
   // ================================================================
@@ -82,38 +78,53 @@ export class UserService {
   }
 
   update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
-    return this.userRepo.update(scope.where, updateUserDto);
+    const { roles, ...payload } = updateUserDto;
+
+    return this.datasource.transaction(async (manager) => {
+      const data = await manager.findOneOrFail(User, scope.toOptions());
+      const result = await manager.update(User, scope.where, payload);
+
+      if (roles) {
+        const { items, action } = roles;
+
+        if (action === UpdateUserRolesAction.SET) {
+          await manager.delete(UserRole, { userId: data.id });
+          await manager.insert(
+            UserRole,
+            items.map((i) => ({
+              userId: data.id,
+              roleId: i.roleId,
+            })),
+          );
+        } else if (action === UpdateUserRolesAction.ADD)
+          await manager.upsert(
+            UserRole,
+            items.map((i) => ({
+              userId: data.id,
+              roleId: i.roleId,
+            })),
+            ['userId', 'roleId'],
+          );
+        else if (action === UpdateUserRolesAction.REM)
+          await manager.delete(UserRole, {
+            userId: data.id,
+            roleId: In(items.map((i) => i.roleId)),
+          });
+      }
+
+      return result;
+    });
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepo.update({ id }, updateUserDto);
+    const scope = new ResourceScope({ where: `id:${id}` });
+    return this.update(scope, updateUserDto);
   }
 
   async updatePassword(id: string, password: string) {
     const salt = await bcrypt.genSalt(10),
       hashed = await bcrypt.hash(password, salt);
     return this.userRepo.update(id, { password: hashed });
-  }
-
-  async updateUserRoles(id: string, { action, roles }: UpdateUserRolesDto) {
-    const userRoles = this.userRoleRepo.create(
-      roles.map((ur) => ({
-        userId: id,
-        roleId: ur.roleId,
-      })),
-    );
-
-    if (action == UpdateUserRolesAction.ADD) {
-      return this.userRoleRepo.insert(userRoles);
-    } else if (action == UpdateUserRolesAction.REMOVE) {
-      return this.userRoleRepo.delete({
-        userId: id,
-        roleId: In(roles.map((ur) => ur.roleId)),
-      });
-    } else if (action == UpdateUserRolesAction.SET) {
-      await this.userRoleRepo.delete({ userId: id });
-      return this.userRoleRepo.insert(userRoles);
-    }
   }
 
   archive(scope: ResourceScope) {

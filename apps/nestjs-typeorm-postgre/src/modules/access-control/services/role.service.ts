@@ -9,7 +9,7 @@ import {
 } from '../dto/update-role.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { repoSelect } from '../../../shared/utils/typeorm/repo-select.util';
-import { DataSource } from 'typeorm/browser';
+import { DataSource } from 'typeorm';
 import { RolePermission } from '../entities/role-permission.entity';
 
 @Injectable()
