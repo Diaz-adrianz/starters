@@ -215,13 +215,11 @@ export class AuthService {
   // Session handlers
   // ----------------------------------------------------------------
   private async saveSession(sessionId: string, payload: Session) {
-    await this.cacheService.set(
-      (k) => k.session(sessionId),
-      payload,
-      this.configService.getOrThrow('jwt.refresh.expire', {
+    await this.cacheService.set((k) => k.session(sessionId), payload, {
+      EX: this.configService.getOrThrow('jwt.refresh.expire', {
         infer: true,
-      }) * 1000,
-    );
+      }),
+    });
     await this.cacheService.sadd(
       (k) => k.userSessions(payload.userId),
       sessionId,
@@ -290,7 +288,7 @@ export class AuthService {
     await this.cacheService.set(
       (k) => k.resetPasswordToken(tokenHash),
       user.id,
-      expire * 1000,
+      { EX: expire },
     );
     await this.mailerService.send({
       to: user.email,
@@ -319,11 +317,9 @@ export class AuthService {
       infer: true,
     });
 
-    await this.cacheService.set(
-      (k) => k.verifyToken(tokenHash),
-      user.id,
-      expire * 1000,
-    );
+    await this.cacheService.set((k) => k.verifyToken(tokenHash), user.id, {
+      EX: expire,
+    });
     await this.mailerService.send({
       to: user.email,
       subject: 'Email Verification',

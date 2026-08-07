@@ -22,12 +22,13 @@ export class DefaultCacheService {
   async set<T>(
     key: CacheKeyInput,
     value: T,
-    ttlMs?: number,
+    { EX, NX }: { EX?: number; NX?: boolean } = {},
   ): Promise<T | undefined> {
     const resolvedKey = this.resolveKey(key);
     try {
       await this.redisClient.set(resolvedKey, JSON.stringify(value), {
-        PX: ttlMs,
+        EX,
+        NX,
       });
       return value;
     } catch {
