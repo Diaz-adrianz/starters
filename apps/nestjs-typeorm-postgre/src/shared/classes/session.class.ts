@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { DeviceType } from './client.class';
 
 export class Session {
   // user info
@@ -10,6 +11,9 @@ export class Session {
   rtHash: string;
 
   // device info
+  deviceId?: string;
+  deviceType?: DeviceType;
+  deviceName?: string;
   ip?: string;
   userAgent?: string;
 

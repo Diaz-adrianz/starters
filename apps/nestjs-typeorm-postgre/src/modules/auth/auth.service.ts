@@ -88,6 +88,9 @@ export class AuthService {
       id: sessionId,
       userId: user.id,
       rtHash: sha256(rt),
+      deviceId: client.deviceId,
+      deviceType: client.deviceType,
+      deviceName: client.deviceName,
       ip: client.ip,
       userAgent: client.userAgent,
       createdAt: new Date().toISOString(),
@@ -247,6 +250,7 @@ export class AuthService {
     } else return [];
   }
 
+  // TODO: handle race condition + handle sliding RT expire
   async refreshSession(rt: string) {
     const tokenPayload = await this.verifyRefreshToken(rt);
 

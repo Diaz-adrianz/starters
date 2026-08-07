@@ -66,8 +66,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.signIn(user, client);
-    this.saveRefreshToken(res, result.rt);
-    return { user: result.user, tokens: { access: result.at } };
+    if (client.isWeb()) this.saveRefreshToken(res, result.rt);
+    return {
+      user: result.user,
+      tokens: {
+        access: result.at,
+        refresh: client.isMobile() ? result.rt : undefined,
+      },
+    };
   }
 
   // ================================================================
@@ -81,8 +87,13 @@ export class AuthController {
   ) {
     if (!client.refreshToken) throw new UnauthorizedException('Missing token');
     const result = await this.authService.refreshSession(client.refreshToken);
-    this.saveRefreshToken(res, result.newRt);
-    return { tokens: { access: result.at } };
+    if (client.isWeb()) this.saveRefreshToken(res, result.newRt);
+    return {
+      tokens: {
+        access: result.at,
+        refresh: client.isMobile() ? result.newRt : undefined,
+      },
+    };
   }
 
   // ================================================================
@@ -97,22 +108,25 @@ export class AuthController {
   ) {
     if (client.refreshToken)
       await this.authService.signOut(client.refreshToken);
-    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-      path: CookiePath.REFRESH_TOKEN,
-    });
+
+    if (client.isWeb())
+      res.clearCookie(CookieKeys.REFRESH_TOKEN, {
+        path: CookiePath.REFRESH_TOKEN,
+      });
     return;
   }
 
   @ResSuccess({ message: 'Signed out all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
+    @ReqClient() client: Client,
     @ReqUser() { user, session }: Principal,
     @Res({ passthrough: true }) res: Response,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
   ) {
     await this.authService.signOutAll(user.id, keepCurrent ? [session.id] : []);
-    if (!keepCurrent)
+    if (!keepCurrent && client.isWeb())
       res.clearCookie(CookieKeys.REFRESH_TOKEN, {
         path: CookiePath.REFRESH_TOKEN,
       });

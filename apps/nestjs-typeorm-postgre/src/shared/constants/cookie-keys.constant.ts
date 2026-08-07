@@ -1,5 +1,4 @@
 export const CookieKeys = {
-  DEVICE_ID: 'did',
   REFRESH_TOKEN: 'rt',
 };
 
