@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +7,7 @@ import { DefaultLoggerService } from '../../logger/default/default-logger.servic
 import { DefaultStorageController } from './default-storage.controller';
 import { IsStorageFileConstraint } from './validators/is-storage-file';
 
+@Global()
 @Module({
   imports: [
     S3Module.forRootAsync({

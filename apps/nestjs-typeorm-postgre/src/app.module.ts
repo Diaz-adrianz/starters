@@ -14,6 +14,7 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './lib/cache/default/default-cache.module';
 import { DefaultLoggerModule } from './lib/logger/default/default-logger.module';
 import { DefaultMailerModule } from './lib/mailer/default/default-mailer.module';
+import { DefaultQueueModule } from './lib/queue/default/default-queue.module';
 import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
 import { S3Filter } from './common/filters/s3.filter';
 import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.module';
@@ -51,6 +52,9 @@ import { AccessControlModule } from './modules/access-control/access-control.mod
 
     // fcm
     DefaultFirebaseModule,
+
+    // queue
+    DefaultQueueModule,
 
     // app modules
     UserModule,
