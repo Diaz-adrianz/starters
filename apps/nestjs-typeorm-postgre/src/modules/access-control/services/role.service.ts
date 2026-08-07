@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../entities/role.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
-import { UpdateRoleDto } from '../dto/update-role.dto';
+import {
+  UpdateRoleDto,
+  UpdateRolePermissionsAction,
+} from '../dto/update-role.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { repoSelect } from '../../../shared/utils/typeorm/repo-select.util';
+import { DataSource } from 'typeorm/browser';
+import { RolePermission } from '../entities/role-permission.entity';
 
 @Injectable()
 export class RoleService {
   constructor(
+    @InjectDataSource('default') private datasource: DataSource,
     @InjectRepository(Role)
     private roleRepo: Repository<Role>,
   ) {}
@@ -45,7 +51,44 @@ export class RoleService {
   }
 
   update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
-    return this.roleRepo.update(scope.where, updateRoleDto);
+    const { permissions, ...payload } = updateRoleDto;
+
+    return this.datasource.transaction(async (manager) => {
+      const data = await manager.findOneOrFail(Role, scope.toOptions());
+      const result = await manager.update(Role, scope.where, payload);
+
+      if (permissions) {
+        const { items, action } = permissions;
+
+        if (action === UpdateRolePermissionsAction.SET) {
+          await manager.delete(RolePermission, { roleId: data.id });
+          await manager.insert(
+            RolePermission,
+            items.map((i) => ({
+              roleId: data.id,
+              permissionId: i.permissionId,
+              scope: i.scope,
+            })),
+          );
+        } else if (action === UpdateRolePermissionsAction.ADD)
+          await manager.upsert(
+            RolePermission,
+            items.map((i) => ({
+              roleId: data.id,
+              permissionId: i.permissionId,
+              scope: i.scope,
+            })),
+            ['roleId', 'permissionId'],
+          );
+        else if (action === UpdateRolePermissionsAction.REM)
+          await manager.delete(RolePermission, {
+            roleId: data.id,
+            permissionId: In(items.map((i) => i.permissionId)),
+          });
+      }
+
+      return result;
+    });
   }
 
   archive(scope: ResourceScope) {
