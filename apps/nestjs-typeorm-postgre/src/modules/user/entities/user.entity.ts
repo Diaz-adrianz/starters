@@ -10,12 +10,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from './user-role.entity';
+import { UserRole } from '../../access-control/entities/user-role.entity';
 import { UserPreference as NotificationPreference } from '../../notification/entities/user-preference.entity';
 import { DeviceToken as NotificationDeviceToken } from '../../notification/entities/device-token.entity';
 import { Notification } from '../../notification/entities/notification.entity';
 
-@Entity({ schema: 'auth', name: 'users' })
+@Entity({ schema: 'identity', name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -60,13 +60,13 @@ export class User {
   // ------------
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: string;
+  updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 
   @BeforeInsert()
   async hashPassword() {

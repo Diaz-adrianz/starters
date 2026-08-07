@@ -14,13 +14,10 @@ export enum DeviceTokenChannel {
 }
 
 @Entity({ schema: 'notification', name: 'device_tokens' })
-@Unique(['deviceId', 'channel'])
+@Unique(['channel', 'token'])
 export class DeviceToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  deviceId: string;
 
   @Column({ type: 'enum', enum: DeviceTokenChannel })
   channel: DeviceTokenChannel;

@@ -18,7 +18,7 @@ export class DeviceTokenService {
     userId?: string | null,
   ) {
     return this.deviceTokenRepo.upsert(
-      { deviceId, ...createDeviceTokenDto, userId },
+      { ...createDeviceTokenDto, userId },
       { conflictPaths: ['deviceId', 'channel'] },
     );
   }
@@ -28,13 +28,10 @@ export class DeviceTokenService {
     token: string,
     updateDeviceTokenDto: UpdateDeviceTokenDto,
   ) {
-    return this.deviceTokenRepo.update(
-      { deviceId, token },
-      updateDeviceTokenDto,
-    );
+    return this.deviceTokenRepo.update({ token }, updateDeviceTokenDto);
   }
 
   delete(deviceId: string, token: string) {
-    return this.deviceTokenRepo.delete({ deviceId, token });
+    return this.deviceTokenRepo.delete({ token });
   }
 }

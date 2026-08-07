@@ -9,7 +9,7 @@ import {
   UpdateUserRolesAction,
   UpdateUserRolesDto,
 } from './dto/update-user-role.dto';
-import { UserRole } from './entities/user-role.entity';
+import { UserRole } from '../access-control/entities/user-role.entity';
 import {
   ResourceScopeOptions,
   ResourceScopePageOptions,

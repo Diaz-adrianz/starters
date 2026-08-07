@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { Role } from '../../../modules/roles/entities/role.entity';
-import { RolePermission } from '../../../modules/roles/entities/role-permission.entity';
-import { Permission } from '../../../modules/permissions/entities/permission.entity';
+import { Role } from '../../../modules/access-control/entities/role.entity';
+import { RolePermission } from '../../../modules/access-control/entities/role-permission.entity';
+import { Permission } from '../../../modules/access-control/entities/permission.entity';
 import permissionsData from '../data/permissions.json';
 import { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
 

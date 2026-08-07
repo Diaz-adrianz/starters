@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './entities/role.entity';
+import { Role } from '../access-control/entities/role.entity';
 import { In, Repository } from 'typeorm';
 import {
   UpdateRolePermissionsAction,
   UpdateRolePermissionsDto,
 } from './dto/update-role-permission.dto';
-import { RolePermission } from './entities/role-permission.entity';
+import { RolePermission } from '../access-control/entities/role-permission.entity';
 import {
   ResourceScopeOptions,
   ResourceScopePageOptions,

@@ -3,8 +3,8 @@ import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { User } from '../../../modules/user/entities/user.entity';
 import rolesData from '../data/roles.json';
-import { Role } from '../../../modules/roles/entities/role.entity';
-import { UserRole } from '../../../modules/user/entities/user-role.entity';
+import { Role } from '../../../modules/access-control/entities/role.entity';
+import { UserRole } from '../../../modules/access-control/entities/user-role.entity';
 
 export class SeedUsers1784544001014 implements Seeder {
   track = false;

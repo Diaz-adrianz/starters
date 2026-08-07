@@ -7,9 +7,9 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { Role } from '../../roles/entities/role.entity';
+import { Role } from './role.entity';
 
-@Entity({ schema: 'auth', name: 'user_roles' })
+@Entity({ schema: 'access_control', name: 'user_roles' })
 @Unique(['userId', 'roleId'])
 export class UserRole {
   @PrimaryGeneratedColumn('uuid')

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { Permission } from '../../../modules/permissions/entities/permission.entity';
+import { Permission } from '../../../modules/access-control/entities/permission.entity';
 import permissionsData from '../data/permissions.json';
 
 type PermissionEntry = [string, string];

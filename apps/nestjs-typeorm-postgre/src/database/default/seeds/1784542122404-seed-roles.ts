@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import rolesData from '../data/roles.json';
-import { Role } from '../../../modules/roles/entities/role.entity';
+import { Role } from '../../../modules/access-control/entities/role.entity';
 
 export class SeedRoles1784542342404 implements Seeder {
   track = false;

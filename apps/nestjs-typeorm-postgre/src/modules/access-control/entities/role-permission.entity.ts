@@ -6,11 +6,11 @@ import {
   Unique,
   CreateDateColumn,
 } from 'typeorm';
-import { Role } from '../../roles/entities/role.entity';
-import { Permission } from '../../permissions/entities/permission.entity';
+import { Role } from './role.entity';
+import { Permission } from './permission.entity';
 import type { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
 
-@Entity({ schema: 'auth', name: 'role_permissions' })
+@Entity({ schema: 'access_control', name: 'role_permissions' })
 @Unique(['roleId', 'permissionId'])
 export class RolePermission {
   @PrimaryGeneratedColumn('uuid')

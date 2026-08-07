@@ -7,16 +7,19 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../../user/entities/user-role.entity';
+import { UserRole } from './user-role.entity';
 import { RolePermission } from './role-permission.entity';
 
-@Entity({ schema: 'auth', name: 'roles' })
+@Entity({ schema: 'access_control', name: 'roles' })
 export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
   name: string;
+
+  @Column({ default: false })
+  isDefault: boolean;
 
   @OneToMany(() => UserRole, (ur) => ur.role)
   users: UserRole[];
@@ -25,11 +28,11 @@ export class Role {
   permissions: RolePermission[];
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: string;
+  updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 }

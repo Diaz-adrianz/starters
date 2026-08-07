@@ -8,9 +8,9 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { RolePermission } from '../../roles/entities/role-permission.entity';
+import { RolePermission } from './role-permission.entity';
 
-@Entity({ schema: 'auth', name: 'permissions' })
+@Entity({ schema: 'access_control', name: 'permissions' })
 @Unique(['resource', 'action'])
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
@@ -23,17 +23,20 @@ export class Permission {
   action: string;
 
   @Column({ type: 'varchar', nullable: true })
+  group?: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
   description?: string | null;
 
   @OneToMany(() => RolePermission, (rp) => rp.permission)
   roles: RolePermission[];
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: string;
+  updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 }

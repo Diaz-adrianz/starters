@@ -20,6 +20,7 @@ import { DefaultStorageModule } from './lib/storage/default/default-storage.modu
 import { S3Filter } from './common/filters/s3.filter';
 import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { AccessControlModule } from './modules/access-control/access-control.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     RolesModule,
     PermissionsModule,
     NotificationModule,
+    AccessControlModule,
   ],
   providers: [
     // guards
