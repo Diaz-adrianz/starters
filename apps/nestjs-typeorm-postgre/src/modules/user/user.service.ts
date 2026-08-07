@@ -10,10 +10,7 @@ import {
   UpdateUserRolesDto,
 } from './dto/update-user-role.dto';
 import { UserRole } from '../access-control/entities/user-role.entity';
-import {
-  ResourceScopeOptions,
-  ResourceScopePageOptions,
-} from '../../shared/classes/resource-scope.class';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
 
 @Injectable()
@@ -23,6 +20,9 @@ export class UserService {
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
   ) {}
 
+  // ================================================================
+  // Basic CRUD
+  // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
     const { email, username, password } = createUserDto;
     const sameEmail = await this.userRepo.count({
@@ -40,9 +40,9 @@ export class UserService {
     return user;
   }
 
-  findAll(options: ResourceScopePageOptions) {
+  findMany(scope: ResourceScope) {
     return this.userRepo.findAndCount({
-      ...options,
+      ...scope.toPageOptions(),
       relations: { roles: { role: true } },
       select: {
         ...repoSelect(this.userRepo, [
@@ -57,9 +57,9 @@ export class UserService {
     });
   }
 
-  findOne(options: ResourceScopeOptions) {
+  findOne(scope: ResourceScope) {
     return this.userRepo.findOneOrFail({
-      ...options,
+      ...scope.toOptions(),
       relations: { roles: { role: true } },
       select: {
         ...repoSelect(this.userRepo, '*'),
@@ -81,8 +81,8 @@ export class UserService {
     });
   }
 
-  update(options: ResourceScopeOptions, updateUserDto: UpdateUserDto) {
-    return this.userRepo.update(options.where, updateUserDto);
+  update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
+    return this.userRepo.update(scope.where, updateUserDto);
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
@@ -116,15 +116,15 @@ export class UserService {
     }
   }
 
-  softDelete(options: ResourceScopeOptions) {
-    return this.userRepo.softDelete(options.where);
+  archive(scope: ResourceScope) {
+    return this.userRepo.softDelete(scope.where);
   }
 
-  restore(options: ResourceScopeOptions) {
-    return this.userRepo.restore(options.where);
+  restore(scope: ResourceScope) {
+    return this.userRepo.restore(scope.where);
   }
 
-  delete(options: ResourceScopeOptions) {
-    return this.userRepo.delete(options.where);
+  delete(scope: ResourceScope) {
+    return this.userRepo.delete(scope.where);
   }
 }

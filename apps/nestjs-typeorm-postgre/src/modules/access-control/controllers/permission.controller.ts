@@ -49,7 +49,7 @@ export class PermissionController {
 
   @Permission('permissions:archive')
   @Patch(':id/archive')
-  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
     return this.permissionService.archive(permission.scope);
   }

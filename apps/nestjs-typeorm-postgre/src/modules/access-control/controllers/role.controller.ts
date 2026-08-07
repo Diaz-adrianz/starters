@@ -59,7 +59,7 @@ export class RoleController {
 
   @Permission('roles:archive')
   @Patch(':id/archive')
-  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
     return this.roleService.archive(permission.scope);
   }

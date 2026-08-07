@@ -31,12 +31,9 @@ export class UserController {
     private storageService: DefaultStorageService,
   ) {}
 
-  @Permission('users:create')
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
+  // ================================================================
+  // Update avatar S3
+  // ----------------------------------------------------------------
   @Permission('users:update-avatar')
   @Post(':id/avatar/upload-url')
   async createAvatarUploadUrl(
@@ -45,7 +42,7 @@ export class UserController {
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    const data = await this.userService.findOne(permission.scope.toOptions());
+    const data = await this.userService.findOne(permission.scope);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
       mimeType,
@@ -53,21 +50,48 @@ export class UserController {
     );
   }
 
-  @Permission('users:find-all')
+  @Permission('users:update-avatar')
+  @Patch(':id/avatar')
+  async updateAvatar(
+    @ReqUser() { permission }: Principal,
+    @Param('id') id: string,
+    @Body() updateUserAvatarDto: UpdateUserAvatarDto,
+  ) {
+    permission.scope.add({ where: `id:${id}` });
+    const data = await this.userService.findOne(permission.scope);
+    const avatar = await this.storageService.moveObject(
+      updateUserAvatarDto.avatar,
+      (k) => k.avatar(data.id),
+    );
+    return this.userService.updateById(data.id, {
+      avatar: avatar.key,
+    });
+  }
+
+  // ================================================================
+  // Basic CRUD
+  // ----------------------------------------------------------------
+  @Permission('users:create')
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
+  }
+
+  @Permission('users:read')
   @Get()
-  findAll(
+  findMany(
     @ReqUser() { permission }: Principal,
     @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query);
-    return this.userService.findAll(permission.scope.toPageOptions());
+    return this.userService.findMany(permission.scope);
   }
 
-  @Permission('users:find-one')
+  @Permission('users:read')
   @Get(':id')
-  async findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
+  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    return this.userService.findOne(permission.scope.toOptions());
+    return this.userService.findOne(permission.scope);
   }
 
   @Permission('users:update')
@@ -78,7 +102,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    return this.userService.update(permission.scope.toOptions(), updateUserDto);
+    return this.userService.update(permission.scope, updateUserDto);
   }
 
   @Permission('users:update-roles')
@@ -90,45 +114,28 @@ export class UserController {
     @Body() updateUserRolesDto: UpdateUserRolesDto,
   ) {
     permission.scope.add({ where: `id:${id}` });
-    await this.userService.findOne(permission.scope.toOptions());
+    await this.userService.findOne(permission.scope);
     return this.userService.updateUserRoles(id, updateUserRolesDto);
   }
 
-  @Patch(':id/avatar')
-  async updateAvatar(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Body() updateUserAvatarDto: UpdateUserAvatarDto,
-  ) {
+  @Permission('users:archive')
+  @Patch(':id/archive')
+  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    const data = await this.userService.findOne(permission.scope.toOptions());
-    const avatar = await this.storageService.moveObject(
-      updateUserAvatarDto.avatar,
-      (k) => k.avatar(data.id),
-    );
-    return this.userService.updateById(data.id, {
-      avatar: avatar.key,
-    });
-  }
-
-  @Permission('users:soft-delete')
-  @Delete(':id/soft')
-  softDelete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
-    return this.userService.softDelete(permission.scope.toOptions());
+    return this.userService.archive(permission.scope);
   }
 
   @Permission('users:restore')
   @Patch(':id/restore')
   restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}`, trash: true });
-    return this.userService.restore(permission.scope.toOptions());
+    return this.userService.restore(permission.scope);
   }
 
   @Permission('users:delete')
   @Delete(':id')
   delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add({ where: `id:${id}` });
-    return this.userService.delete(permission.scope.toOptions());
+    return this.userService.delete(permission.scope);
   }
 }
