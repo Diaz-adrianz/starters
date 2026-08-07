@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { DefaultCacheService } from './default-cache.service';
-import { createClient, RedisClientType } from 'redis';
+import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../../config/env.config';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
@@ -12,15 +12,14 @@ import { DefaultLoggerService } from '../../logger/default/default-logger.servic
     {
       provide: 'DEFAULT_CACHE_CLIENT',
       inject: [ConfigService, DefaultLoggerService],
-      useFactory: async (
+      useFactory: (
         configService: ConfigService<EnvConfig>,
         loggerService: DefaultLoggerService,
       ) => {
-        const client: RedisClientType = createClient({
-          url: `redis://${configService.getOrThrow('cache.default.host', { infer: true })}:${configService.getOrThrow('cache.default.port', { infer: true })}`,
-          socket: {
-            connectTimeout: 2000,
-          },
+        const client = new Redis({
+          host: configService.getOrThrow('cache.default.host', { infer: true }),
+          port: configService.getOrThrow('cache.default.port', { infer: true }),
+          connectTimeout: 2000,
         });
 
         client.on('error', (err) => loggerService.error(err, 'Cache'));
@@ -31,12 +30,6 @@ import { DefaultLoggerService } from '../../logger/default/default-logger.servic
         client.on('end', () =>
           loggerService.info('Redis disconnected', 'Cache'),
         );
-
-        try {
-          await client.connect();
-        } catch (err) {
-          loggerService.error(err, 'Cache');
-        }
 
         return client;
       },
