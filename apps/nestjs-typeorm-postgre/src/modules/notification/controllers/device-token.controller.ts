@@ -28,13 +28,11 @@ export class DeviceTokenController {
     @Body() createDeviceTokenDto: CreateDeviceTokenDto,
     @ReqUser() principal: Principal | undefined,
   ) {
-    this.requireClientDeviceId(client);
-
-    return this.deviceTokenService.create(
-      client.deviceId!,
-      createDeviceTokenDto,
-      principal?.user.id,
-    );
+    // return this.deviceTokenService.create(
+    //   client.deviceId!,
+    //   createDeviceTokenDto,
+    //   principal?.user.id,
+    // );
   }
 
   @Public()
@@ -44,26 +42,16 @@ export class DeviceTokenController {
     @Param('token') token: string,
     @Body() updateDeviceTokenDto: UpdateDeviceTokenDto,
   ) {
-    this.requireClientDeviceId(client);
-    return this.deviceTokenService.update(
-      client.deviceId!,
-      token,
-      updateDeviceTokenDto,
-    );
+    // return this.deviceTokenService.update(
+    //   client.deviceId!,
+    //   token,
+    //   updateDeviceTokenDto,
+    // );
   }
 
   @Public()
   @Delete(':token')
   delete(@ReqClient() client: Client, @Param('token') token: string) {
-    this.requireClientDeviceId(client);
-    return this.deviceTokenService.delete(client.deviceId!, token);
-  }
-
-  // ================================================================
-  // Local utils
-  // ----------------------------------------------------------------
-  private requireClientDeviceId(client: Client) {
-    if (!client.deviceId)
-      throw new BadRequestException('Device initialization required');
+    // return this.deviceTokenService.delete(client.deviceId!, token);
   }
 }

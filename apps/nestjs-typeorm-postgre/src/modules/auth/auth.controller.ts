@@ -18,11 +18,6 @@ import { Public } from '../../common/decorators/public.decorator';
 import { ReqClient } from '../../common/decorators/req-client.decorator';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '../../config/env.config';
-import {
-  generateDeviceId,
-  signDeviceId,
-  verifyDeviceId,
-} from '../../shared/utils/device-id.util';
 import type { Response } from 'express';
 import {
   CookieKeys,
@@ -50,16 +45,6 @@ export class AuthController {
   ) {}
 
   // ================================================================
-  // Init
-  // ----------------------------------------------------------------
-  @Public()
-  @Post('init')
-  init(@ReqClient() client: Client, @Res({ passthrough: true }) res: Response) {
-    this.saveDeviceId(res, client);
-    return 'ok';
-  }
-
-  // ================================================================
   // Sign up handlers per strategy
   // ----------------------------------------------------------------
   @Public()
@@ -80,8 +65,6 @@ export class AuthController {
     @ReqUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ) {
-    this.saveDeviceId(res, client);
-
     const result = await this.authService.signIn(user, client);
     this.saveRefreshToken(res, result.rt);
     return { user: result.user, tokens: { access: result.at } };
@@ -195,37 +178,5 @@ export class AuthController {
         1000,
       path: CookiePath.REFRESH_TOKEN,
     });
-  }
-
-  private saveDeviceId(res: Response, client: Client) {
-    const deviceIdSecret = this.configService.getOrThrow('deviceId.secret', {
-      infer: true,
-    });
-    client.deviceId =
-      client.deviceId && client.deviceIdSignature
-        ? verifyDeviceId(
-            deviceIdSecret,
-            client.deviceId,
-            client.deviceIdSignature,
-          )
-        : null;
-
-    if (!client.deviceId) {
-      client.deviceId = generateDeviceId();
-      res.cookie(
-        CookieKeys.DEVICE_ID,
-        signDeviceId(deviceIdSecret, client.deviceId),
-        {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge:
-            this.configService.getOrThrow('deviceId.expire', {
-              infer: true,
-            }) * 1000,
-          path: '/',
-        },
-      );
-    }
   }
 }

@@ -70,10 +70,7 @@ export class AuthService {
   }
 
   async signIn(user: User, client: Client) {
-    if (!client.deviceId)
-      throw new BadRequestException('Device initialization required');
-
-    const sessionId = sha256(`${user.id}:${client.deviceId}`);
+    const sessionId = generateRandomString(16);
 
     const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
     const [at, rt] = await Promise.all([
@@ -84,8 +81,6 @@ export class AuthService {
     const session: Session = {
       id: sessionId,
       userId: user.id,
-      username: user.username,
-      deviceId: client.deviceId,
       rtHash: sha256(rt),
       ip: client.ip,
       userAgent: client.userAgent,
