@@ -3,6 +3,7 @@ import type { RedisClientType } from 'redis';
 import { CacheKeys } from './constants/cache-keys.constant';
 
 type CacheKeyInput = ((keys: typeof CacheKeys) => string) | string;
+type CacheKeysInput = (keys: typeof CacheKeys) => string[];
 
 @Injectable()
 export class DefaultCacheService {
@@ -10,8 +11,12 @@ export class DefaultCacheService {
     @Inject('DEFAULT_CACHE_CLIENT') private redisClient: RedisClientType,
   ) {}
 
-  public resolveKey(key: CacheKeyInput): string {
+  resolveKey(key: CacheKeyInput): string {
     return typeof key === 'string' ? key : key(CacheKeys);
+  }
+
+  resolveKeys(keys: CacheKeysInput): string[] {
+    return keys(CacheKeys);
   }
 
   async set<T>(
@@ -41,6 +46,17 @@ export class DefaultCacheService {
     }
   }
 
+  async getMany<T>(keys: CacheKeysInput): Promise<(T | null)[] | undefined> {
+    const resolvedKeys = this.resolveKeys(keys);
+    try {
+      const raws = await this.redisClient.mGet(resolvedKeys);
+      if (raws === null || raws === undefined) return undefined;
+      return raws.map((raw) => (raw ? (JSON.parse(raw) as T) : null));
+    } catch {
+      // silent
+    }
+  }
+
   async del(key: CacheKeyInput): Promise<string | undefined> {
     const resolvedKey = this.resolveKey(key);
     try {
@@ -51,68 +67,47 @@ export class DefaultCacheService {
     }
   }
 
-  async delMany(keys: string[]): Promise<number> {
+  async delMany(keys: CacheKeysInput): Promise<number> {
+    const resolvedKeys = this.resolveKeys(keys);
     try {
-      return this.redisClient.del(keys);
+      return this.redisClient.del(resolvedKeys);
     } catch {
       return 0;
     }
   }
 
-  async scanKeys(pattern: CacheKeyInput): Promise<string[]> {
-    const resolvedPattern = this.resolveKey(pattern);
-    const foundKeys: string[] = [];
+  // ================================================================
+  // Set
+  // ----------------------------------------------------------------
+  async sadd(key: CacheKeyInput, value: string): Promise<string | undefined> {
+    const resolvedKey = this.resolveKey(key);
     try {
-      for await (const keys of this.redisClient.scanIterator({
-        MATCH: resolvedPattern + '*',
-        COUNT: 100,
-      }))
-        foundKeys.push(...keys);
+      await this.redisClient.sAdd(resolvedKey, value);
+      return value;
     } catch {
       // silent
     }
-    return foundKeys;
   }
 
-  async delByPattern(pattern: CacheKeyInput): Promise<number> {
-    const keys = await this.scanKeys(pattern);
-    if (keys.length === 0) return 0;
+  async smembers(key: CacheKeyInput): Promise<string[]> {
+    const resolvedKey = this.resolveKey(key);
     try {
-      return await this.redisClient.del(keys);
+      const value = await this.redisClient.sMembers(resolvedKey);
+      return value;
     } catch {
-      return 0;
+      return [];
     }
   }
 
-  async findByPattern<T>(
-    pattern: CacheKeyInput,
-    withKey: true,
-  ): Promise<{ key: string; value: T }[]>;
-  async findByPattern<T>(pattern: CacheKeyInput, withKey?: false): Promise<T[]>;
-  async findByPattern<T>(
-    pattern: CacheKeyInput,
-    withKey: boolean = false,
-  ): Promise<{ key: string; value: T }[] | T[]> {
-    const keys = await this.scanKeys(pattern);
-    if (keys.length === 0) return [];
-
+  async srem(
+    key: CacheKeyInput,
+    values: string[],
+  ): Promise<number | undefined> {
+    const resolvedKey = this.resolveKey(key);
     try {
-      const values = await this.redisClient.mGet(keys);
-      const parsed = keys
-        .map((key, i) => {
-          const raw = values[i];
-          if (raw === null || raw === undefined) return null;
-          try {
-            return { key, value: JSON.parse(raw) as T };
-          } catch {
-            return null;
-          }
-        })
-        .filter((entry): entry is { key: string; value: T } => entry !== null);
-
-      return withKey ? parsed : parsed.map((entry) => entry.value);
+      return this.redisClient.sRem(resolvedKey, values);
     } catch {
-      return [];
+      // silent
     }
   }
 }

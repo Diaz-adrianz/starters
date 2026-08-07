@@ -10,7 +10,6 @@ import {
   UpdateUserRolesDto,
 } from './dto/update-user-role.dto';
 import { UserRole } from './entities/user-role.entity';
-import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import {
   ResourceScopeOptions,
   ResourceScopePageOptions,
@@ -22,17 +21,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(UserRole) private userRoleRepo: Repository<UserRole>,
-    private cacheService: DefaultCacheService,
   ) {}
-
-  async clearCache(userIds: string[]) {
-    if (!userIds.length) return;
-
-    const keys = userIds.map((userId) =>
-      this.cacheService.resolveKey((k) => k.user(userId)),
-    );
-    await this.cacheService.delMany(keys);
-  }
 
   async create(createUserDto: CreateUserDto) {
     const { email, username, password } = createUserDto;
@@ -113,8 +102,6 @@ export class UserService {
         roleId: ur.roleId,
       })),
     );
-
-    await this.clearCache([id]);
 
     if (action == UpdateUserRolesAction.ADD) {
       return this.userRoleRepo.insert(userRoles);

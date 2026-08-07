@@ -35,13 +35,16 @@ export class AuthService {
     private mailerService: DefaultMailerService,
   ) {}
 
+  // ================================================================
+  // Sign up
+  // ----------------------------------------------------------------
   async signUpLocal(signUpLocalDto: SignUpLocalDto) {
     const existUser = await this.userService
       .findByUsernameOrEmail(signUpLocalDto.email)
       .catch(() => null);
 
     if (existUser && existUser.verifiedAt === null) {
-      // TODO: publish to jobs queue
+      // TODO: push email delivery to queue
       if (
         !existUser.verificationSentAt ||
         Date.now() >=
@@ -63,12 +66,15 @@ export class AuthService {
       matchPassword: signUpLocalDto.matchPassword,
     });
 
-    // TODO: publish to jobs queue
+    // TODO: push email delivery to queue
     await this.sendEmailVerification(user).catch(() => {});
 
     return user;
   }
 
+  // ================================================================
+  // Sign in
+  // ----------------------------------------------------------------
   async signIn(user: User, client: Client) {
     const sessionId = generateRandomString(16);
 
@@ -90,28 +96,40 @@ export class AuthService {
 
     await this.saveSession(sessionId, session);
 
+    // TODO: push warning notification to queue
+
     return { user, at, rt };
   }
 
+  // ================================================================
+  // Sign out
+  // ----------------------------------------------------------------
   async signOut(rt: string) {
     const rtPayload = await this.verifyRefreshToken(rt, true);
-    await this.cacheService.del((k) => k.session(rtPayload.sub, rtPayload.sid));
+    await this.cacheService.del((k) => k.session(rtPayload.sid));
+    await this.cacheService.srem(
+      (k) => k.userSessions(rtPayload.sub),
+      [rtPayload.sid],
+    );
   }
 
   async signOutAll(userId: string, excepts: string[] = []) {
-    if (excepts.length) {
-      const sessions = await this.cacheService.findByPattern<Session>(
-        (k) => k.session(userId),
-        true,
-      );
-      const keys = sessions
-        .map((s) => s.key)
-        .filter((key) => !excepts.some((except) => key.endsWith(except)));
-      if (keys.length) await this.cacheService.delMany(keys);
-    } else await this.cacheService.delByPattern((k) => k.session(userId));
+    const sessionIds = await this.cacheService.smembers((k) =>
+      k.userSessions(userId),
+    );
+    const revokeIds = excepts.length
+      ? sessionIds.filter((sessionId) => !excepts.includes(sessionId))
+      : sessionIds;
+
+    await this.cacheService.delMany((k) =>
+      revokeIds.map((id) => k.session(id)),
+    );
+    await this.cacheService.srem((k) => k.userSessions(userId), revokeIds);
   }
 
-  // verification
+  // ================================================================
+  // User verification
+  // ----------------------------------------------------------------
   async verifyEmail(verifyEmailDto: VerifyEmailDto) {
     const tokenHash = sha256(verifyEmailDto.token);
 
@@ -130,13 +148,15 @@ export class AuthService {
     });
   }
 
-  // password settings
+  // ================================================================
+  // Password reset
+  // ----------------------------------------------------------------
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const user = await this.userService
       .findByUsernameOrEmail(forgotPasswordDto.email)
       .catch(() => null);
 
-    // TODO: publish to jobs queue
+    // TODO: push email delivery to queue
     if (
       user &&
       (!user.resetPasswordSentAt ||
@@ -173,7 +193,9 @@ export class AuthService {
     });
   }
 
-  // auth validations
+  // ================================================================
+  // Strategy validation
+  // ----------------------------------------------------------------
   async validateLocalStrategy(username: string, password: string) {
     const user = await this.userService.findByUsernameOrEmail(username);
 
@@ -189,39 +211,51 @@ export class AuthService {
     return user;
   }
 
-  // session management
+  // ================================================================
+  // Session handlers
+  // ----------------------------------------------------------------
   private async saveSession(sessionId: string, payload: Session) {
-    // TODO: track user sessions count. If exceed limit, send warning
     await this.cacheService.set(
-      (k) => k.session(payload.userId, sessionId),
+      (k) => k.session(sessionId),
       payload,
       this.configService.getOrThrow('jwt.refresh.expire', {
         infer: true,
       }) * 1000,
     );
+    await this.cacheService.sadd(
+      (k) => k.userSessions(payload.userId),
+      sessionId,
+    );
   }
 
-  async findSession(userId: string, sessionId: string) {
+  async findSession(sessionId: string) {
     const session = await this.cacheService.get<Session>((k) =>
-      k.session(userId, sessionId),
+      k.session(sessionId),
     );
     if (session) return plainToInstance(Session, session);
   }
 
   async findSessions(userId: string) {
-    const sessions = await this.cacheService.findByPattern<Session>((k) =>
-      k.session(userId),
+    const sessionIds = await this.cacheService.smembers((k) =>
+      k.userSessions(userId),
     );
-    return plainToInstance(Session, sessions);
+    const sessions = await this.cacheService.getMany<Session>((k) =>
+      sessionIds.map((sid) => k.session(sid)),
+    );
+
+    if (sessions) {
+      const cleanSessions = sessions.filter((session) => !!session);
+      return plainToInstance(Session, cleanSessions);
+    } else return [];
   }
 
   async refreshSession(rt: string) {
     const tokenPayload = await this.verifyRefreshToken(rt);
 
-    const session = await this.findSession(tokenPayload.sub, tokenPayload.sid);
+    const session = await this.findSession(tokenPayload.sid);
     if (!session) throw new UnauthorizedException('Expired session');
 
-    // TODO: track missmatch RT hash, deviceId, userAgent, and IP as suspicious activity
+    // TODO: log missmatch as suspicious activity
     const rtHash = sha256(rt);
     if (rtHash != session.rtHash)
       throw new UnauthorizedException('Expired session');
@@ -242,7 +276,9 @@ export class AuthService {
     return { at, newRt };
   }
 
-  // utils
+  // ================================================================
+  // Utils
+  // ----------------------------------------------------------------
   private async sendResetPassword(user: User) {
     const token = generateRandomString(12);
     const tokenHash = sha256(token);
