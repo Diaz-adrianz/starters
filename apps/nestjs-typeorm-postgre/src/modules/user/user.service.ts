@@ -2,18 +2,19 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
-import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
 import { UserRole } from '../access-control/entities/user-role.entity';
+import { AppDataSource } from '../../database/typeorm/app-data-source';
+import { User } from './entities/user.entity';
+import { AppRepository } from '../../database/typeorm/app-repository';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectDataSource('default') private datasource: DataSource,
-    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectDataSource('default') private datasource: AppDataSource,
+    @InjectRepository(User) private userRepo: AppRepository<User>,
   ) {}
 
   // ================================================================
@@ -41,7 +42,7 @@ export class UserService {
       ...scope.toPageOptions(),
       relations: { roles: { role: true } },
       select: {
-        ...repoSelect(this.userRepo, [
+        ...this.userRepo.select([
           'id',
           'username',
           'email',
@@ -58,7 +59,7 @@ export class UserService {
       ...scope.toOptions(),
       relations: { roles: { role: true } },
       select: {
-        ...repoSelect(this.userRepo, '*'),
+        ...this.userRepo.select('*'),
         roles: { id: true, role: { id: true, name: true } },
       },
     });
@@ -82,7 +83,9 @@ export class UserService {
 
     return this.datasource.transaction(async (manager) => {
       const data = await manager.findOneOrFail(User, scope.toOptions());
-      const result = await manager.update(User, scope.where, payload);
+      const result = await manager.update(User, scope.where, payload, {
+        returning: ['id'],
+      });
 
       if (roles) {
         const { items, action } = roles;
@@ -128,14 +131,14 @@ export class UserService {
   }
 
   archive(scope: ResourceScope) {
-    return this.userRepo.softDelete(scope.where);
+    return this.userRepo.softDelete(scope.where, { returning: ['id'] });
   }
 
   restore(scope: ResourceScope) {
-    return this.userRepo.restore(scope.where);
+    return this.userRepo.restore(scope.where, { returning: ['id'] });
   }
 
   delete(scope: ResourceScope) {
-    return this.userRepo.delete(scope.where);
+    return this.userRepo.delete(scope.where, { returning: ['id'] });
   }
 }

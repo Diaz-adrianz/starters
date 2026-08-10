@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EnvConfig, envConfig, envConfigSchema } from './config/env.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { defaultDataSourceFactory } from './database/default/datasource';
+import { ConfigModule } from '@nestjs/config';
+import { envConfig, envConfigSchema } from './config/env.config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
@@ -20,6 +18,7 @@ import { S3Filter } from './common/filters/s3.filter';
 import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AccessControlModule } from './modules/access-control/access-control.module';
+import { DefaultDatabaseModule } from './database/default/default-database.module';
 
 @Module({
   imports: [
@@ -31,12 +30,7 @@ import { AccessControlModule } from './modules/access-control/access-control.mod
     }),
 
     // databases
-    TypeOrmModule.forRootAsync({
-      name: 'default',
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) =>
-        defaultDataSourceFactory(configService),
-    }),
+    DefaultDatabaseModule,
 
     // caches
     DefaultCacheModule,
