@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Message } from '../entities/message.entity';
-import { DataSource, Repository } from 'typeorm';
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { Notification } from '../entities/notification.entity';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
+import { AppRepository } from '../../../database/typeorm/app-repository';
+import { AppDataSource } from '../../../database/typeorm/app-data-source';
 
 @Injectable()
 export class MessageService {
   constructor(
-    @InjectDataSource('default') private datasource: DataSource,
-    @InjectRepository(Message) private messageRepo: Repository<Message>,
+    @InjectDataSource('default') private dataSource: AppDataSource,
+    @InjectRepository(Message, 'default')
+    private messageRepo: AppRepository<Message>,
   ) {}
   // ================================================================
   // Basic CRUD
@@ -18,7 +20,7 @@ export class MessageService {
   async create(createMessageDto: CreateMessageDto) {
     const { userIds, ...payload } = createMessageDto;
 
-    const data = await this.datasource.transaction(async (manager) => {
+    const data = await this.dataSource.transaction(async (manager) => {
       const message = manager.create(Message, payload);
 
       await manager.save(message);

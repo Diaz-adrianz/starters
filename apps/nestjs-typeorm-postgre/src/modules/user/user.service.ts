@@ -13,8 +13,8 @@ import { AppRepository } from '../../database/typeorm/app-repository';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectDataSource('default') private datasource: AppDataSource,
-    @InjectRepository(User) private userRepo: AppRepository<User>,
+    @InjectDataSource('default') private dataSource: AppDataSource,
+    @InjectRepository(User, 'default') private userRepo: AppRepository<User>,
   ) {}
 
   // ================================================================
@@ -81,7 +81,7 @@ export class UserService {
   update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
     const { roles, ...payload } = updateUserDto;
 
-    return this.datasource.transaction(async (manager) => {
+    return this.dataSource.transaction(async (manager) => {
       const data = await manager.findOneOrFail(User, scope.toOptions());
       const result = await manager.update(User, scope.where, payload, {
         returning: ['id'],

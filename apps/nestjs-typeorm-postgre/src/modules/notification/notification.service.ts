@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import {
   ResourceScope,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
 import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
+import { AppRepository } from '../../database/typeorm/app-repository';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectRepository(Notification)
-    private notificationRepo: Repository<Notification>,
+    @InjectRepository(Notification, 'default')
+    private notificationRepo: AppRepository<Notification>,
   ) {}
 
   markRead(scope: ResourceScope) {

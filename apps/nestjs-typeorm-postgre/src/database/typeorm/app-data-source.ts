@@ -1,22 +1,29 @@
-import { DataSource, QueryRunner } from 'typeorm';
+import { DataSource, EntityTarget, ObjectLiteral, QueryRunner } from 'typeorm';
 import { AppEntityManager } from './app-entity-manager';
 import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel.js';
+import { AppRepository } from './app-repository';
 
 export class AppDataSource extends DataSource {
   declare manager: AppEntityManager;
 
-  createEntityManager(queryRunner?: QueryRunner): AppEntityManager {
+  override createEntityManager(queryRunner?: QueryRunner): AppEntityManager {
     return new AppEntityManager(this, queryRunner);
   }
 
-  async transaction<T>(
+  override getRepository<Entity extends ObjectLiteral>(
+    target: EntityTarget<Entity>,
+  ): AppRepository<Entity> {
+    return this.manager.getRepository(target);
+  }
+
+  override async transaction<T>(
     runInTransaction: (entityManager: AppEntityManager) => Promise<T>,
   ): Promise<T>;
-  async transaction<T>(
+  override async transaction<T>(
     isolationLevel: IsolationLevel,
     runInTransaction: (entityManager: AppEntityManager) => Promise<T>,
   ): Promise<T>;
-  async transaction<T>(
+  override async transaction<T>(
     isolationOrRunInTransaction:
       IsolationLevel | ((entityManager: AppEntityManager) => Promise<T>),
     runInTransactionParam?: (entityManager: AppEntityManager) => Promise<T>,

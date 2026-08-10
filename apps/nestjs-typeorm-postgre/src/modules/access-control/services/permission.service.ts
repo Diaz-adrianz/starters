@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';
+import { AppRepository } from '../../../database/typeorm/app-repository';
 
 @Injectable()
 export class PermissionService {
   constructor(
-    @InjectRepository(Permission)
-    private permissionRepo: Repository<Permission>,
+    @InjectRepository(Permission, 'default')
+    private permissionRepo: AppRepository<Permission>,
   ) {}
 
   async findGroups() {

@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { DataSource } from 'typeorm';
 import {
   PERMISSION_METADATA,
   PermissionMetadata,
@@ -17,16 +16,18 @@ import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScopeIntf } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { AppDataSource } from '../../database/typeorm/app-data-source';
 
 type RolePermissionsCache = [string, ResourceScopeIntf | null];
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
+    @InjectDataSource('default') private dataSource: AppDataSource,
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
     private loggerService: DefaultLoggerService,
-    private dataSource: DataSource,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

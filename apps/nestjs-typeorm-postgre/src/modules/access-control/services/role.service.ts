@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../entities/role.entity';
-import { In, Repository } from 'typeorm';
+import { In } from 'typeorm';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 import {
   UpdateRoleDto,
@@ -9,15 +9,16 @@ import {
 } from '../dto/update-role.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { repoSelect } from '../../../shared/utils/typeorm/repo-select.util';
-import { DataSource } from 'typeorm';
 import { RolePermission } from '../entities/role-permission.entity';
+import { AppDataSource } from '../../../database/typeorm/app-data-source';
+import { AppRepository } from '../../../database/typeorm/app-repository';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectDataSource('default') private datasource: DataSource,
-    @InjectRepository(Role)
-    private roleRepo: Repository<Role>,
+    @InjectDataSource('default') private dataSource: AppDataSource,
+    @InjectRepository(Role, 'default')
+    private roleRepo: AppRepository<Role>,
   ) {}
 
   // ================================================================
@@ -53,7 +54,7 @@ export class RoleService {
   update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
     const { permissions, ...payload } = updateRoleDto;
 
-    return this.datasource.transaction(async (manager) => {
+    return this.dataSource.transaction(async (manager) => {
       const data = await manager.findOneOrFail(Role, scope.toOptions());
       const result = await manager.update(Role, scope.where, payload);
 

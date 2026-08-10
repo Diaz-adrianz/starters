@@ -14,13 +14,10 @@ import { MessageService } from './services/message.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Notification,
-      Message,
-      Delivery,
-      UserPreference,
-      DeviceToken,
-    ]),
+    TypeOrmModule.forFeature(
+      [Notification, Message, Delivery, UserPreference, DeviceToken],
+      'default',
+    ),
   ],
   controllers: [
     NotificationController,
