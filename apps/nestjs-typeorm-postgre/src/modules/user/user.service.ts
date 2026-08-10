@@ -9,13 +9,21 @@ import { UserRole } from '../access-control/entities/user-role.entity';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { User } from './entities/user.entity';
 import { AppRepository } from '../../database/typeorm/app-repository';
+import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectDataSource('default') private dataSource: AppDataSource,
     @InjectRepository(User, 'default') private userRepo: AppRepository<User>,
+    private cacheService: DefaultCacheService,
   ) {}
+
+  invalidateMany(users: Pick<User, 'id'>[]) {
+    return this.cacheService.delMany((k) =>
+      users.map((user) => k.user(user.id)),
+    );
+  }
 
   // ================================================================
   // Basic CRUD
@@ -78,10 +86,10 @@ export class UserService {
     });
   }
 
-  update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
+  async update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
     const { roles, ...payload } = updateUserDto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const data = await manager.findOneOrFail(User, scope.toOptions());
       const result = await manager.update(User, scope.where, payload, {
         returning: ['id'],
@@ -117,6 +125,8 @@ export class UserService {
 
       return result;
     });
+    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    return result;
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
@@ -127,18 +137,39 @@ export class UserService {
   async updatePassword(id: string, password: string) {
     const salt = await bcrypt.genSalt(10),
       hashed = await bcrypt.hash(password, salt);
-    return this.userRepo.update(id, { password: hashed });
+    const result = await this.userRepo.update(
+      id,
+      { password: hashed },
+      { returning: ['id'] },
+    );
+    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    return result;
   }
 
-  archive(scope: ResourceScope) {
-    return this.userRepo.softDelete(scope.where, { returning: ['id'] });
+  async archive(scope: ResourceScope) {
+    const result = await this.userRepo.softDelete(scope.where, {
+      returning: ['id'],
+    });
+    console.log(result);
+    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    return result;
   }
 
-  restore(scope: ResourceScope) {
-    return this.userRepo.restore(scope.where, { returning: ['id'] });
+  async restore(scope: ResourceScope) {
+    const result = await this.userRepo.restore(scope.where, {
+      returning: ['id'],
+    });
+    console.log(result);
+    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    return result;
   }
 
-  delete(scope: ResourceScope) {
-    return this.userRepo.delete(scope.where, { returning: ['id'] });
+  async delete(scope: ResourceScope) {
+    const result = await this.userRepo.delete(scope.where, {
+      returning: ['id'],
+    });
+    console.log(result);
+    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    return result;
   }
 }

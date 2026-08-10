@@ -60,7 +60,7 @@ export class DefaultCacheService {
   async delMany(keys: CacheKeysInput): Promise<number> {
     const resolvedKeys = this.resolveKeys(keys);
     try {
-      return this.redis.del(resolvedKeys);
+      return resolvedKeys.length ? this.redis.del(resolvedKeys) : 0;
     } catch {
       return 0;
     }
