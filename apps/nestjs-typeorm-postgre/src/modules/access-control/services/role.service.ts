@@ -8,7 +8,6 @@ import {
   UpdateRolePermissionsAction,
 } from '../dto/update-role.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
-import { repoSelect } from '../../../shared/utils/typeorm/repo-select.util';
 import { RolePermission } from '../entities/role-permission.entity';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../database/typeorm/app-repository';
@@ -40,7 +39,7 @@ export class RoleService {
       ...scope.toOptions(),
       relations: { permissions: { permission: true } },
       select: {
-        ...repoSelect(this.roleRepo, '*'),
+        ...this.roleRepo.select('*'),
         permissions: {
           id: true,
           createdAt: true,

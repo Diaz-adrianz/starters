@@ -5,7 +5,6 @@ import {
   ResourceScope,
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
-import { repoSelect } from '../../shared/utils/typeorm/repo-select.util';
 import { AppRepository } from '../../database/typeorm/app-repository';
 
 @Injectable()
@@ -30,7 +29,7 @@ export class NotificationService {
       ...options,
       relations: { user: true, message: true },
       select: {
-        ...repoSelect(this.notificationRepo, ['id', 'readAt', 'createdAt']),
+        ...this.notificationRepo.select(['id', 'readAt', 'createdAt']),
         message: {
           id: true,
           category: true,
