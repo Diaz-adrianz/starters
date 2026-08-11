@@ -340,7 +340,7 @@ export class AuthService {
     });
   }
 
-  private checkUserActive(user: User) {
+  public checkUserActive(user: User) {
     if (!user.isActive())
       throw new ForbiddenException('Account suspended or not verified yet');
   }
