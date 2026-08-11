@@ -226,6 +226,20 @@ export const PermissionsData: {
         permission: 'notification-deliveries:retry',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
+
+      // device tokens
+      {
+        description: 'Read notification device token',
+        permission: 'notification-device-tokens:read',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          { name: RolesData.ADMIN },
+          {
+            name: RolesData.USER,
+            scope: { where: 'userId:$subject.user.id' },
+          },
+        ],
+      },
     ],
   },
 ];

@@ -4,6 +4,7 @@ import { DeviceToken } from '../entities/device-token.entity';
 import { RegisterDeviceTokenDto } from '../dto/register-device-token.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { Client } from '../../../shared/classes/client.class';
+import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class DeviceTokenService {
@@ -35,5 +36,19 @@ export class DeviceTokenService {
 
   revokeByToken(token: string) {
     return this.deviceTokenRepo.update({ token }, { isActive: false });
+  }
+
+  // ================================================================
+  // Basic CRUD
+  // ----------------------------------------------------------------
+  findMany(scope: ResourceScope) {
+    return this.deviceTokenRepo.findAndCount({
+      ...scope.toPageOptions(),
+      relations: { user: true },
+      select: {
+        ...this.deviceTokenRepo.select(['token'], 'omit'),
+        user: { id: true, username: true, avatar: true },
+      },
+    });
   }
 }
