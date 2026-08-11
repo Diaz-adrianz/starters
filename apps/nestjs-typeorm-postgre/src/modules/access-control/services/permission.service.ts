@@ -4,12 +4,18 @@ import { Permission } from '../entities/permission.entity';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
+import { RoleService } from './role.service';
+import { RolePermission } from '../entities/role-permission.entity';
+import { In } from 'typeorm';
 
 @Injectable()
 export class PermissionService {
   constructor(
     @InjectRepository(Permission, 'default')
     private permissionRepo: AppRepository<Permission>,
+    @InjectRepository(RolePermission, 'default')
+    private rolePermissionRepo: AppRepository<RolePermission>,
+    private roleService: RoleService,
   ) {}
 
   async findGroups() {
@@ -45,7 +51,24 @@ export class PermissionService {
     return this.permissionRepo.findOneOrFail({ ...scope.toOptions() });
   }
 
-  update(scope: ResourceScope, updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionRepo.update(scope.where, updatePermissionDto);
+  async update(scope: ResourceScope, updatePermissionDto: UpdatePermissionDto) {
+    const result = await this.permissionRepo.update(
+      scope.where,
+      updatePermissionDto,
+      { returning: ['id'] },
+    );
+
+    const affectedRoles = await this.rolePermissionRepo.find({
+      where: {
+        permission: In(
+          (result.raw as Pick<Permission, 'id'>[]).map((p) => p.id),
+        ),
+      },
+      select: { roleId: true },
+    });
+    await this.roleService.invalidateMany(
+      affectedRoles.map((role) => ({ id: role.roleId })),
+    );
+    return;
   }
 }
