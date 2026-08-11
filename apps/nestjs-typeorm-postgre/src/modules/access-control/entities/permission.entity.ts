@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -31,12 +30,12 @@ export class Permission {
   @OneToMany(() => RolePermission, (rp) => rp.permission)
   roles: RolePermission[];
 
+  @Column({ default: true })
+  enabled: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

@@ -32,7 +32,12 @@ export class PermissionService {
   findMany(scope: ResourceScope) {
     return this.permissionRepo.findAndCount({
       ...scope.toPageOptions(),
-      select: { id: true, group: true, description: true },
+      select: this.permissionRepo.select([
+        'id',
+        'group',
+        'description',
+        'enabled',
+      ]),
     });
   }
 
@@ -42,13 +47,5 @@ export class PermissionService {
 
   update(scope: ResourceScope, updatePermissionDto: UpdatePermissionDto) {
     return this.permissionRepo.update(scope.where, updatePermissionDto);
-  }
-
-  archive(scope: ResourceScope) {
-    return this.permissionRepo.softDelete(scope.where);
-  }
-
-  restore(scope: ResourceScope) {
-    return this.permissionRepo.restore(scope.where);
   }
 }

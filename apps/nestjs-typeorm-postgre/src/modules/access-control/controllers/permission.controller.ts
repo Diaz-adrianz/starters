@@ -46,18 +46,4 @@ export class PermissionController {
     permission.scope.add({ where: `id:${id}` });
     return this.permissionService.update(permission.scope, updatePermissionDto);
   }
-
-  @Permission('permissions:archive')
-  @Patch(':id/archive')
-  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
-    return this.permissionService.archive(permission.scope);
-  }
-
-  @Permission('permissions:restore')
-  @Patch(':id/restore')
-  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
-    return this.permissionService.restore(permission.scope);
-  }
 }

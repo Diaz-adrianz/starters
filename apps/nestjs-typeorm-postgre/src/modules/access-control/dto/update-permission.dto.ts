@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class UpdatePermissionDto {
   @IsOptional()
@@ -8,4 +8,8 @@ export class UpdatePermissionDto {
   @IsOptional()
   @IsString()
   description?: string | null;
+
+  @ValidateIf((o) => o.enabled !== undefined)
+  @IsBoolean()
+  enabled?: boolean;
 }
