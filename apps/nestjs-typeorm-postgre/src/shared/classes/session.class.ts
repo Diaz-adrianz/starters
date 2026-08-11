@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { DeviceType } from './client.class';
+import { DeviceType } from '../constants/device-types.constant';
 
 export class Session {
   // user info

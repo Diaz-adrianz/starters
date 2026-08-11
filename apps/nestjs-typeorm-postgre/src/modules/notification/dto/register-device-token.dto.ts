@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { DeviceTokenChannel } from '../entities/device-token.entity';
 
-export class CreateDeviceTokenDto {
+export class RegisterDeviceTokenDto {
   @IsNotEmpty()
   @IsEnum(DeviceTokenChannel)
   channel: DeviceTokenChannel;

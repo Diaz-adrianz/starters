@@ -1,6 +1,4 @@
-export const deviceTypes = ['web', 'ios', 'android'] as const;
-
-export type DeviceType = (typeof deviceTypes)[number];
+import { DeviceType } from '../constants/device-types.constant';
 
 export class Client {
   constructor(data?: Partial<Client>) {

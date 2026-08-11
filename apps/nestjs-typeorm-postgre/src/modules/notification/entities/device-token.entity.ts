@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { DeviceType } from '../../../shared/constants/device-types.constant';
 
 export enum DeviceTokenChannel {
   FCM = 'fcm',
@@ -36,6 +37,15 @@ export class DeviceToken {
     nullable: true,
   })
   user: User | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  deviceId: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  deviceType: DeviceType | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  deviceName: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

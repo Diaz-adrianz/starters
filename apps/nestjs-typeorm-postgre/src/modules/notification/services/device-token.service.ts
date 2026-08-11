@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceToken } from '../entities/device-token.entity';
-import { CreateDeviceTokenDto } from '../dto/create-device-token.dto';
-import { UpdateDeviceTokenDto } from '../dto/update-device-token.dto';
+import { RegisterDeviceTokenDto } from '../dto/register-device-token.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
+import { Client } from '../../../shared/classes/client.class';
 
 @Injectable()
 export class DeviceTokenService {
@@ -12,26 +12,28 @@ export class DeviceTokenService {
     private deviceTokenRepo: AppRepository<DeviceToken>,
   ) {}
 
-  create(
-    deviceId: string,
-    createDeviceTokenDto: CreateDeviceTokenDto,
-    userId?: string | null,
+  register(
+    userId: string | undefined,
+    registerDeviceTokenDto: RegisterDeviceTokenDto,
+    client: Client,
   ) {
     return this.deviceTokenRepo.upsert(
-      { ...createDeviceTokenDto, userId },
-      { conflictPaths: ['deviceId', 'channel'] },
+      {
+        ...registerDeviceTokenDto,
+        userId,
+        deviceId: client.deviceId,
+        deviceType: client.deviceType,
+        deviceName: client.deviceName,
+      },
+      { conflictPaths: ['channel', 'token'] },
     );
   }
 
-  update(
-    deviceId: string,
-    token: string,
-    updateDeviceTokenDto: UpdateDeviceTokenDto,
-  ) {
-    return this.deviceTokenRepo.update({ token }, updateDeviceTokenDto);
+  revoke(id: string) {
+    return this.deviceTokenRepo.update({ id }, { isActive: false });
   }
 
-  delete(deviceId: string, token: string) {
-    return this.deviceTokenRepo.delete({ token });
+  revokeByToken(token: string) {
+    return this.deviceTokenRepo.update({ token }, { isActive: false });
   }
 }
