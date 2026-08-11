@@ -58,7 +58,7 @@ export class PermissionGuard implements CanActivate {
 
         if (!cached || !cached.length) {
           const rolePermissions = await rolePermissionRepo.find({
-            where: { roleId: role.id },
+            where: { role: { id: role.id } },
             relations: { permission: true },
             select: {
               roleId: true,

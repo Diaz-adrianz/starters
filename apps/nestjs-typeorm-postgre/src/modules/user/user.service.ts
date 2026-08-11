@@ -150,7 +150,6 @@ export class UserService {
     const result = await this.userRepo.softDelete(scope.where, {
       returning: ['id'],
     });
-    console.log(result);
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
     return result;
   }
@@ -159,7 +158,6 @@ export class UserService {
     const result = await this.userRepo.restore(scope.where, {
       returning: ['id'],
     });
-    console.log(result);
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
     return result;
   }
@@ -168,7 +166,6 @@ export class UserService {
     const result = await this.userRepo.delete(scope.where, {
       returning: ['id'],
     });
-    console.log(result);
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
     return result;
   }

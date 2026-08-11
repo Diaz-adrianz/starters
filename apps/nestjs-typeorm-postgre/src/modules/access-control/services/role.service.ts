@@ -11,6 +11,7 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { RolePermission } from '../entities/role-permission.entity';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../database/typeorm/app-repository';
+import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 
 @Injectable()
 export class RoleService {
@@ -18,7 +19,14 @@ export class RoleService {
     @InjectDataSource('default') private dataSource: AppDataSource,
     @InjectRepository(Role, 'default')
     private roleRepo: AppRepository<Role>,
+    private cacheService: DefaultCacheService,
   ) {}
+
+  invalidateMany(roles: Pick<Role, 'id'>[]) {
+    return this.cacheService.delMany((k) =>
+      roles.map((role) => k.rolePermissions(role.id)),
+    );
+  }
 
   // ================================================================
   // Basic CRUD
@@ -50,12 +58,14 @@ export class RoleService {
     });
   }
 
-  update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
+  async update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
     const { permissions, ...payload } = updateRoleDto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const data = await manager.findOneOrFail(Role, scope.toOptions());
-      const result = await manager.update(Role, scope.where, payload);
+      const result = await manager.update(Role, scope.where, payload, {
+        returning: ['id'],
+      });
 
       if (permissions) {
         const { items, action } = permissions;
@@ -89,17 +99,31 @@ export class RoleService {
 
       return result;
     });
+    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    return result;
   }
 
-  archive(scope: ResourceScope) {
-    return this.roleRepo.softDelete(scope.where);
+  async archive(scope: ResourceScope) {
+    const result = await this.roleRepo.softDelete(scope.where, {
+      returning: ['id'],
+    });
+    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    return result;
   }
 
-  restore(scope: ResourceScope) {
-    return this.roleRepo.restore(scope.where);
+  async restore(scope: ResourceScope) {
+    const result = await this.roleRepo.restore(scope.where, {
+      returning: ['id'],
+    });
+    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    return result;
   }
 
-  delete(scope: ResourceScope) {
-    return this.roleRepo.delete(scope.where);
+  async delete(scope: ResourceScope) {
+    const result = await this.roleRepo.delete(scope.where, {
+      returning: ['id'],
+    });
+    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    return result;
   }
 }
