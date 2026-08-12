@@ -7,13 +7,14 @@ import { AppRepository } from '../../../database/typeorm/app-repository';
 import { RoleService } from './role.service';
 import { RolePermission } from '../entities/role-permission.entity';
 import { In } from 'typeorm';
+import { DatabaseKeys } from '../../../database/database-keys.contant';
 
 @Injectable()
 export class PermissionService {
   constructor(
-    @InjectRepository(Permission, 'default')
+    @InjectRepository(Permission, DatabaseKeys.DEFAULT)
     private permissionRepo: AppRepository<Permission>,
-    @InjectRepository(RolePermission, 'default')
+    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
     private rolePermissionRepo: AppRepository<RolePermission>,
     private roleService: RoleService,
   ) {}

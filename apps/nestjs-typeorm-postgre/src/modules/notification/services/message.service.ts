@@ -6,12 +6,13 @@ import { Notification } from '../entities/notification.entity';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
+import { DatabaseKeys } from '../../../database/database-keys.contant';
 
 @Injectable()
 export class MessageService {
   constructor(
-    @InjectDataSource('default') private dataSource: AppDataSource,
-    @InjectRepository(Message, 'default')
+    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
+    @InjectRepository(Message, DatabaseKeys.DEFAULT)
     private messageRepo: AppRepository<Message>,
   ) {}
   // ================================================================

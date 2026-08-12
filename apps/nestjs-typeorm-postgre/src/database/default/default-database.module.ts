@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { defaultDataSourceFactory } from './datasource';
 import { AppDataSource } from '../typeorm/app-data-source';
@@ -9,11 +9,13 @@ import {
   DatabaseConfig,
 } from '../../config/database.config';
 import { ConfigModule } from '@nestjs/config';
+import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { DatabaseKeys } from '../database-keys.contant';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      name: 'default',
+      name: DatabaseKeys.DEFAULT,
       imports: [
         ConfigModule.forFeature(appConfig),
         ConfigModule.forFeature(databaseConfig),
@@ -23,11 +25,22 @@ import { ConfigModule } from '@nestjs/config';
         defaultDataSourceFactory(appConfig.mode, databaseConfig),
       dataSourceFactory: async (options) => {
         if (!options)
-          throw new Error('No DataSource options provided for "default"');
+          throw new Error(
+            `No DataSource options provided for "${DatabaseKeys.DEFAULT}"`,
+          );
         return new AppDataSource(options).initialize();
       },
     }),
   ],
   exports: [TypeOrmModule],
 })
-export class DefaultDatabaseModule {}
+export class DefaultDatabaseModule {
+  static forFeature(entities: EntityClassOrSchema[]): DynamicModule {
+    const inner = TypeOrmModule.forFeature(entities, DatabaseKeys.DEFAULT);
+    return {
+      module: DefaultDatabaseModule,
+      imports: [inner],
+      exports: [inner],
+    };
+  }
+}

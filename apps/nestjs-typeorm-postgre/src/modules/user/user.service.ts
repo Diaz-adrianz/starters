@@ -10,12 +10,14 @@ import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { User } from './entities/user.entity';
 import { AppRepository } from '../../database/typeorm/app-repository';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
+import { DatabaseKeys } from '../../database/database-keys.contant';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectDataSource('default') private dataSource: AppDataSource,
-    @InjectRepository(User, 'default') private userRepo: AppRepository<User>,
+    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
+    @InjectRepository(User, DatabaseKeys.DEFAULT)
+    private userRepo: AppRepository<User>,
     private cacheService: DefaultCacheService,
   ) {}
 

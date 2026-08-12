@@ -6,11 +6,12 @@ import {
   ResourceScopePageOptions,
 } from '../../shared/classes/resource-scope.class';
 import { AppRepository } from '../../database/typeorm/app-repository';
+import { DatabaseKeys } from '../../database/database-keys.contant';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectRepository(Notification, 'default')
+    @InjectRepository(Notification, DatabaseKeys.DEFAULT)
     private notificationRepo: AppRepository<Notification>,
   ) {}
 

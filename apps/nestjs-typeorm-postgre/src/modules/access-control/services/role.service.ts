@@ -12,12 +12,13 @@ import { RolePermission } from '../entities/role-permission.entity';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
+import { DatabaseKeys } from '../../../database/database-keys.contant';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectDataSource('default') private dataSource: AppDataSource,
-    @InjectRepository(Role, 'default')
+    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
+    @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
     private cacheService: DefaultCacheService,
   ) {}

@@ -18,13 +18,14 @@ import { RolePermission } from '../../modules/access-control/entities/role-permi
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
+import { DatabaseKeys } from '../../database/database-keys.contant';
 
 type RolePermissionsCache = [string, ResourceScopeIntf | null];
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
-    @InjectDataSource('default') private dataSource: AppDataSource,
+    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
     private loggerService: DefaultLoggerService,

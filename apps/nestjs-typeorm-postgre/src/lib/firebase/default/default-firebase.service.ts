@@ -8,6 +8,7 @@ import {
   FIREBASE_CONFIG_KEY,
   type FirebaseConfig,
 } from '../../../config/firebase.config';
+import { FirebaseKeys } from '../firebase-keys.constant';
 
 @Injectable()
 export class DefaultFirebaseService implements OnModuleInit {
@@ -31,7 +32,7 @@ export class DefaultFirebaseService implements OnModuleInit {
 
       this.app = admin.initializeApp(
         { credential: admin.cert(serviceAccount as admin.ServiceAccount) },
-        'default',
+        FirebaseKeys.DEFAULT,
       );
 
       this.messaging = getMessaging(this.app);

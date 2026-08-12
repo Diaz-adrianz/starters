@@ -5,11 +5,12 @@ import { RegisterDeviceTokenDto } from '../dto/register-device-token.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { Client } from '../../../shared/classes/client.class';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
+import { DatabaseKeys } from '../../../database/database-keys.contant';
 
 @Injectable()
 export class DeviceTokenService {
   constructor(
-    @InjectRepository(DeviceToken, 'default')
+    @InjectRepository(DeviceToken, DatabaseKeys.DEFAULT)
     private deviceTokenRepo: AppRepository<DeviceToken>,
   ) {}
 

@@ -1,16 +1,17 @@
-import { Global, Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { BullModule, RegisterQueueOptions } from '@nestjs/bullmq';
 import {
   CACHE_CONFIG_KEY,
   cacheConfig,
   CacheConfig,
 } from '../../../config/cache.config';
 import { ConfigModule } from '@nestjs/config';
+import { QueueKeys } from '../queue-keys.constant';
 
 @Global()
 @Module({
   imports: [
-    BullModule.forRootAsync({
+    BullModule.forRootAsync(QueueKeys.DEFAULT, {
       inject: [CACHE_CONFIG_KEY],
       imports: [ConfigModule.forFeature(cacheConfig)],
       useFactory: (cacheConfig: CacheConfig) => ({
@@ -23,4 +24,17 @@ import { ConfigModule } from '@nestjs/config';
   ],
   exports: [BullModule],
 })
-export class DefaultQueueModule {}
+export class DefaultQueueModule {
+  static registerQueue(
+    ...queues: Omit<RegisterQueueOptions, 'configKey'>[]
+  ): DynamicModule {
+    const inner = BullModule.registerQueue(
+      ...queues.map((q) => ({ ...q, configKey: QueueKeys.DEFAULT })),
+    );
+    return {
+      module: DefaultQueueModule,
+      imports: [inner],
+      exports: [inner],
+    };
+  }
+}
