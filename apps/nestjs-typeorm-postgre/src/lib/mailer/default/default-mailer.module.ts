@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DefaultMailerService } from './default-mailer.service';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import {
@@ -8,7 +8,6 @@ import {
 } from '../../../config/mailer.config';
 import { ConfigModule } from '@nestjs/config';
 
-@Global()
 @Module({
   imports: [
     ConfigModule.forFeature(mailerConfig),

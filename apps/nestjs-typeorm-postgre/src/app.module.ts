@@ -9,62 +9,47 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './lib/cache/default/default-cache.module';
 import { DefaultLoggerModule } from './lib/logger/default/default-logger.module';
-import { DefaultMailerModule } from './lib/mailer/default/default-mailer.module';
-import { DefaultQueueModule } from './lib/queue/default/default-queue.module';
-import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
 import { S3Filter } from './common/filters/s3.filter';
-import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AccessControlModule } from './modules/access-control/access-control.module';
-import { DefaultDatabaseModule } from './database/default/default-database.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config/app.config';
 
 @Module({
   imports: [
+    // Used for global app providers
+    // ---------------------------------
     ConfigModule.forFeature(appConfig),
 
-    // databases
-    DefaultDatabaseModule,
-
-    // caches
+    // Used everywhere libs
+    // ---------------------------------
     DefaultCacheModule,
-
-    // loggers
     DefaultLoggerModule,
 
-    // mailers
-    DefaultMailerModule,
-
-    // storages
-    DefaultStorageModule,
-
-    // fcm
-    DefaultFirebaseModule,
-
-    // queue
-    DefaultQueueModule,
-
-    // app modules
+    // App modules
+    // ---------------------------------
     UserModule,
     AuthModule,
     NotificationModule,
     AccessControlModule,
   ],
   providers: [
-    // guards
+    // Guard providers
+    // ---------------------------------
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
     },
 
-    // pipes
+    // Pipe providers
+    // ---------------------------------
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
 
-    // filters
+    // Filter providers
+    // ---------------------------------
     {
       provide: APP_FILTER,
       useClass: ExceptionFilter,
@@ -78,7 +63,8 @@ import { appConfig } from './config/app.config';
       useClass: S3Filter,
     },
 
-    // interceptors
+    // Interceptor providers
+    // ---------------------------------
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,

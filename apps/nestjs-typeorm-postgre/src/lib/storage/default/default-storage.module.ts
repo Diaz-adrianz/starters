@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
@@ -11,7 +11,6 @@ import {
 } from '../../../config/storage.config';
 import { ConfigModule } from '@nestjs/config';
 
-@Global()
 @Module({
   imports: [
     ConfigModule.forFeature(storageConfig),

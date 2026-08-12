@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { BullModule, RegisterQueueOptions } from '@nestjs/bullmq';
 import {
   CACHE_CONFIG_KEY,
@@ -8,7 +8,6 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { QueueKeys } from '../queue-keys.constant';
 
-@Global()
 @Module({
   imports: [
     BullModule.forRootAsync(QueueKeys.DEFAULT, {

@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from '../../config/app.config';
 import { authConfig } from '../../config/auth.config';
+import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { authConfig } from '../../config/auth.config';
     UserModule,
     PassportModule,
     JwtModule,
+    DefaultMailerModule,
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
