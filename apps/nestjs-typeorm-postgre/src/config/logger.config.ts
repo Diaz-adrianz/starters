@@ -2,7 +2,7 @@ import { ConfigType, registerAs } from '@nestjs/config';
 import * as yup from 'yup';
 
 const schema = yup.object({
-  LOGGER_DEFAULT_PATH: yup.string().matches(/\/$/).required(),
+  LOGGER_PATH: yup.string().matches(/\/$/).required(),
 });
 
 export const loggerConfig = registerAs('logger', () => {
@@ -13,9 +13,7 @@ export const loggerConfig = registerAs('logger', () => {
     });
 
     return {
-      default: {
-        path: value.LOGGER_DEFAULT_PATH,
-      },
+      path: value.LOGGER_PATH,
     };
   } catch (error) {
     throw new Error(

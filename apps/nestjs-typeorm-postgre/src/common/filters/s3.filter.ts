@@ -6,16 +6,16 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
+import { LoggerService } from '../../infra/logger/logger.service';
 
 @Catch(S3ServiceException)
 export class S3Filter implements ExceptionFilter {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   catch(exception: S3ServiceException, host: ArgumentsHost) {
@@ -43,7 +43,7 @@ export class S3Filter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.loggerService.error(exception, 'Storage');
+      this.logger.error(exception, 'Storage');
 
     res.status(body.statusCode).json(body);
   }

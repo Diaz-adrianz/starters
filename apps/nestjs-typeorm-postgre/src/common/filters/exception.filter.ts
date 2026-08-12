@@ -9,15 +9,15 @@ import {
 import { HttpAdapterHost } from '@nestjs/core';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { ValidationException } from '../classes/exceptions/validation.exception';
-import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
+import { LoggerService } from '../../infra/logger/logger.service';
 
 @Catch()
 export class ExceptionFilter implements NestExceptionFilter {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private readonly httpAdapterHost: HttpAdapterHost,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
@@ -48,7 +48,7 @@ export class ExceptionFilter implements NestExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.loggerService.error(exception);
+      this.logger.error(exception);
 
     httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
   }

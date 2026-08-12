@@ -1,5 +1,4 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 import path from 'path';
 import * as fs from 'fs/promises';
 import * as admin from 'firebase-admin';
@@ -9,6 +8,7 @@ import {
   type FirebaseConfig,
 } from '../../../config/firebase.config';
 import { FirebaseKeys } from '../firebase-keys.constant';
+import { LoggerService } from '../../../infra/logger/logger.service';
 
 @Injectable()
 export class DefaultFirebaseService implements OnModuleInit {
@@ -17,7 +17,7 @@ export class DefaultFirebaseService implements OnModuleInit {
 
   constructor(
     @Inject(FIREBASE_CONFIG_KEY) private firebaseConfig: FirebaseConfig,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   async onModuleInit() {
@@ -37,12 +37,12 @@ export class DefaultFirebaseService implements OnModuleInit {
 
       this.messaging = getMessaging(this.app);
 
-      this.loggerService.info(
+      this.logger.info(
         `Firebase initialized with projectId: ${serviceAccount.project_id}`,
         'Firebase',
       );
     } catch (error) {
-      this.loggerService.error(error, 'Firebase');
+      this.logger.error(error, 'Firebase');
     }
   }
 
@@ -63,7 +63,7 @@ export class DefaultFirebaseService implements OnModuleInit {
       // TODO: handle failure messages
       return response;
     } catch (error) {
-      this.loggerService.error(error, 'Firebase');
+      this.logger.error(error, 'Firebase');
     }
 
     return;

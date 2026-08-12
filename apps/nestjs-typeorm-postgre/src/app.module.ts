@@ -8,12 +8,12 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { DefaultCacheModule } from './lib/cache/default/default-cache.module';
-import { DefaultLoggerModule } from './lib/logger/default/default-logger.module';
 import { S3Filter } from './common/filters/s3.filter';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AccessControlModule } from './modules/access-control/access-control.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config/app.config';
+import { LoggerModule } from './infra/logger/logger.module';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { appConfig } from './config/app.config';
     // Used everywhere libs
     // ---------------------------------
     DefaultCacheModule,
-    DefaultLoggerModule,
+    LoggerModule,
 
     // App modules
     // ---------------------------------

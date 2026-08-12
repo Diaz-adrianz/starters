@@ -8,14 +8,14 @@ import {
 import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
-import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
+import { LoggerService } from '../../infra/logger/logger.service';
 
 @Catch(TypeORMError)
 export class TypeormFilter implements ExceptionFilter {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {
@@ -70,7 +70,7 @@ export class TypeormFilter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.loggerService.error(exception, 'Database');
+      this.logger.error(exception, 'Database');
 
     res.status(body.statusCode).json(body);
   }

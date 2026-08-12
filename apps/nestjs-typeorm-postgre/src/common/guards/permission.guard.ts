@@ -11,7 +11,6 @@ import {
   PermissionMetadata,
 } from '../decorators/permission.decorator';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
-import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScopeIntf } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
@@ -19,6 +18,7 @@ import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { DatabaseKeys } from '../../database/database-keys.contant';
+import { LoggerService } from '../../infra/logger/logger.service';
 
 type RolePermissionsCache = [string, ResourceScopeIntf | null];
 
@@ -28,7 +28,7 @@ export class PermissionGuard implements CanActivate {
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     private reflector: Reflector,
     private cacheService: DefaultCacheService,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -83,7 +83,7 @@ export class PermissionGuard implements CanActivate {
           permissions.set(p[0], [...existing, p[1]]);
         });
       } catch (error) {
-        this.loggerService.error(error, 'PermissionGuard');
+        this.logger.error(error, 'PermissionGuard');
       }
     }
 

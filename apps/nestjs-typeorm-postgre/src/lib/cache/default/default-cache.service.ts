@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CacheKeys } from './constants/cache-keys.constant';
 import Redis from 'ioredis';
-import { DefaultLoggerService } from '../../logger/default/default-logger.service';
+import { LoggerService } from '../../../infra/logger/logger.service';
 
 type CacheKeyInput = ((keys: typeof CacheKeys) => string) | string;
 type CacheKeysInput = (keys: typeof CacheKeys) => string[];
@@ -10,7 +10,7 @@ type CacheKeysInput = (keys: typeof CacheKeys) => string[];
 export class DefaultCacheService {
   constructor(
     @Inject('DEFAULT_CACHE_CLIENT') private redis: Redis,
-    private loggerService: DefaultLoggerService,
+    private logger: LoggerService,
   ) {}
 
   resolveKey(key: CacheKeyInput): string {
@@ -30,7 +30,7 @@ export class DefaultCacheService {
         return this.redis.set(resolvedKey, serialized, 'EX', opts.EX);
       else return this.redis.set(resolvedKey, serialized);
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache set failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -44,7 +44,7 @@ export class DefaultCacheService {
       if (raw === null || raw === undefined) return;
       return JSON.parse(raw) as T;
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache get failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -58,7 +58,7 @@ export class DefaultCacheService {
       if (raws === null || raws === undefined) return;
       return raws.map((raw) => (raw ? (JSON.parse(raw) as T) : null));
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache get failed [${resolvedKeys.join(', ')}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -71,7 +71,7 @@ export class DefaultCacheService {
       await this.redis.del(resolvedKey);
       return resolvedKey;
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache del failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -83,7 +83,7 @@ export class DefaultCacheService {
     try {
       return resolvedKeys.length ? this.redis.del(resolvedKeys) : 0;
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache del failed [${resolvedKeys.join(', ')}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -100,7 +100,7 @@ export class DefaultCacheService {
       await this.redis.sadd(resolvedKey, value);
       return value;
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache set add failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -113,7 +113,7 @@ export class DefaultCacheService {
       const value = await this.redis.smembers(resolvedKey);
       return value;
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache set members failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );
@@ -129,7 +129,7 @@ export class DefaultCacheService {
     try {
       return this.redis.srem(resolvedKey, values);
     } catch (err) {
-      this.loggerService.error(
+      this.logger.error(
         `Cache set rem failed [${resolvedKey}]: ${(err as Error).message}`,
         'Cache',
       );

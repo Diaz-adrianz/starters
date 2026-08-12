@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
-import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 import { DefaultStorageController } from './default-storage.controller';
 import { IsStorageFileConstraint } from './validators/is-storage-file';
 import {
@@ -10,17 +9,15 @@ import {
   StorageConfig,
 } from '../../../config/storage.config';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerService } from '../../../infra/logger/logger.service';
 
 @Module({
   imports: [
     ConfigModule.forFeature(storageConfig),
     S3Module.forRootAsync({
       imports: [ConfigModule.forFeature(storageConfig)],
-      inject: [STORAGE_CONFIG_KEY, DefaultLoggerService],
-      useFactory: (
-        storageConfig: StorageConfig,
-        loggerService: DefaultLoggerService,
-      ) => ({
+      inject: [STORAGE_CONFIG_KEY, LoggerService],
+      useFactory: (storageConfig: StorageConfig, logger: LoggerService) => ({
         config: {
           credentials: {
             accessKeyId: storageConfig.default.accessKeyId,
@@ -34,13 +31,13 @@ import { ConfigModule } from '@nestjs/config';
               // silent
             },
             error(...content) {
-              loggerService.error(content, 'Storage');
+              logger.error(content, 'Storage');
             },
             debug() {
               // silent
             },
             warn(...content) {
-              loggerService.warn(content, 'Storage');
+              logger.warn(content, 'Storage');
             },
           },
         },
