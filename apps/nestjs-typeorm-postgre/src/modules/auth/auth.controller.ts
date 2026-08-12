@@ -3,6 +3,7 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  Inject,
   ParseBoolPipe,
   Post,
   Query,
@@ -16,8 +17,6 @@ import { User } from '../user/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { ReqClient } from '../../common/decorators/req-client.decorator';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
 import type { Response } from 'express';
 import {
   CookieKeys,
@@ -35,13 +34,14 @@ import {
 } from './dto/reset-password.dto';
 import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private authService: AuthService,
     private userService: UserService,
-    private configService: ConfigService<EnvConfig>,
   ) {}
 
   // ================================================================
@@ -187,9 +187,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
-      maxAge:
-        this.configService.getOrThrow('jwt.refresh.expire', { infer: true }) *
-        1000,
+      maxAge: this.authConfig.jwt.refresh.expire * 1000,
       path: CookiePath.REFRESH_TOKEN,
     });
   }

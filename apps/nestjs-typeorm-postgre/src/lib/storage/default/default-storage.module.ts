@@ -1,43 +1,35 @@
 import { Global, Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 import { DefaultStorageController } from './default-storage.controller';
 import { IsStorageFileConstraint } from './validators/is-storage-file';
+import {
+  STORAGE_CONFIG_KEY,
+  storageConfig,
+  StorageConfig,
+} from '../../../config/storage.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [
+    ConfigModule.forFeature(storageConfig),
     S3Module.forRootAsync({
-      inject: [ConfigService, DefaultLoggerService],
-
+      imports: [ConfigModule.forFeature(storageConfig)],
+      inject: [STORAGE_CONFIG_KEY, DefaultLoggerService],
       useFactory: (
-        configService: ConfigService<EnvConfig>,
+        storageConfig: StorageConfig,
         loggerService: DefaultLoggerService,
       ) => ({
         config: {
           credentials: {
-            accessKeyId: configService.getOrThrow(
-              'storage.default.accessKeyId',
-              { infer: true },
-            ),
-            secretAccessKey: configService.getOrThrow(
-              'storage.default.secretAccessKey',
-              { infer: true },
-            ),
+            accessKeyId: storageConfig.default.accessKeyId,
+            secretAccessKey: storageConfig.default.secretAccessKey,
           },
-          region: configService.getOrThrow('storage.default.region', {
-            infer: true,
-          }),
-          endpoint: configService.getOrThrow('storage.default.endpoint', {
-            infer: true,
-          }),
-          forcePathStyle: configService.getOrThrow(
-            'storage.default.forcePathStyle',
-            { infer: true },
-          ),
+          region: storageConfig.default.region,
+          endpoint: storageConfig.default.endpoint,
+          forcePathStyle: storageConfig.default.forcePathStyle,
           logger: {
             info() {
               // silent

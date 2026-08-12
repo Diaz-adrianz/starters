@@ -1,11 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from './config/env.config';
 import cookieParser from 'cookie-parser';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { useContainer } from 'class-validator';
 import { HeaderKeys } from './shared/constants/header-keys.contant';
+import { APP_CONFIG_KEY, AppConfig } from './config/app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,9 +20,9 @@ async function bootstrap() {
     allowedHeaders: Object.values(HeaderKeys),
   });
 
-  const configService: ConfigService<EnvConfig> = app.get(ConfigService);
+  const appConfig: AppConfig = app.get(APP_CONFIG_KEY);
 
-  await app.listen(configService.getOrThrow('port'));
+  await app.listen(appConfig.port);
 }
 
 void bootstrap();

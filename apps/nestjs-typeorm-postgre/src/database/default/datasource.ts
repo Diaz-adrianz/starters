@@ -2,13 +2,13 @@ import 'dotenv/config';
 import { type DataSourceOptions, DataSource } from 'typeorm';
 import { type PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions.js';
 import { SnakeNamingStrategy } from '../../shared/utils/typeorm/naming-strategy.util';
-import { EnvConfig, Mode } from '../../config/env.config';
-import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { SeederOptions } from 'typeorm-extension';
+import { DatabaseConfig } from '../../config/database.config';
+import { AppMode } from '../../config/app.config';
 
 const buildDataSource = (
-  mode: Mode,
+  mode: AppMode,
   options: PostgresConnectionCredentialsOptions,
 ): DataSourceOptions & SeederOptions => ({
   type: 'postgres',
@@ -27,23 +27,17 @@ const buildDataSource = (
   seedTracking: false,
 });
 
-const defaultDataSourceFactory = (configService: ConfigService<EnvConfig>) =>
-  buildDataSource(configService.getOrThrow('mode'), {
-    host: configService.getOrThrow('database.default.host', { infer: true }),
-    port: configService.getOrThrow('database.default.port', { infer: true }),
-    username: configService.getOrThrow('database.default.username', {
-      infer: true,
-    }),
-    password: configService.getOrThrow('database.default.password', {
-      infer: true,
-    }),
-    database: configService.getOrThrow('database.default.name', {
-      infer: true,
-    }),
+const defaultDataSourceFactory = (mode: AppMode, config: DatabaseConfig) =>
+  buildDataSource(mode, {
+    host: config.default.host,
+    port: config.default.port,
+    username: config.default.username,
+    password: config.default.password,
+    database: config.default.name,
   });
 
 const defaultDataSource = new DataSource(
-  buildDataSource(process.env.MODE as Mode, {
+  buildDataSource(process.env.APP_MODE as AppMode, {
     host: process.env.DATABASE_DEFAULT_HOST,
     port: parseInt(process.env.DATABASE_DEFAULT_PORT ?? ''),
     username: process.env.DATABASE_DEFAULT_USERNAME,

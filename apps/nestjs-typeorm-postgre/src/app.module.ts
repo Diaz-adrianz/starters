@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { envConfig, envConfigSchema } from './config/env.config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
@@ -19,15 +17,12 @@ import { DefaultFirebaseModule } from './lib/firebase/default/default-firebase.m
 import { NotificationModule } from './modules/notification/notification.module';
 import { AccessControlModule } from './modules/access-control/access-control.module';
 import { DefaultDatabaseModule } from './database/default/default-database.module';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from './config/app.config';
 
 @Module({
   imports: [
-    // configs
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [envConfig],
-      validationSchema: envConfigSchema,
-    }),
+    ConfigModule.forFeature(appConfig),
 
     // databases
     DefaultDatabaseModule,

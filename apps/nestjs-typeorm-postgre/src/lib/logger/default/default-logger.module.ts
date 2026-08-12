@@ -3,8 +3,12 @@ import { DefaultLoggerService } from './default-logger.service';
 import { WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
+import {
+  LOGGER_CONFIG_KEY,
+  loggerConfig,
+  LoggerConfig,
+} from '../../../config/logger.config';
+import { ConfigModule } from '@nestjs/config';
 
 const { combine, timestamp, printf, colorize, errors } = format;
 
@@ -12,8 +16,9 @@ const { combine, timestamp, printf, colorize, errors } = format;
 @Module({
   imports: [
     WinstonModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) => ({
+      imports: [ConfigModule.forFeature(loggerConfig)],
+      inject: [LOGGER_CONFIG_KEY],
+      useFactory: (loggerConfig: LoggerConfig) => ({
         format: combine(
           timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
           errors({ stack: true }),
@@ -25,9 +30,7 @@ const { combine, timestamp, printf, colorize, errors } = format;
         transports: [
           new transports.Console(),
           new DailyRotateFile({
-            filename:
-              configService.getOrThrow('logger.default.path', { infer: true }) +
-              '%DATE%.log',
+            filename: loggerConfig.default.path + '%DATE%.log',
             level: 'warn',
             datePattern: 'YYYY-MM-DD',
             zippedArchive: false,

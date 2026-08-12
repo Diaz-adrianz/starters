@@ -1,24 +1,29 @@
 import { Global, Module } from '@nestjs/common';
 import { DefaultCacheService } from './default-cache.service';
 import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
+import {
+  CACHE_CONFIG_KEY,
+  cacheConfig,
+  type CacheConfig,
+} from '../../../config/cache.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
+  imports: [ConfigModule.forFeature(cacheConfig)],
   providers: [
     DefaultCacheService,
     {
       provide: 'DEFAULT_CACHE_CLIENT',
-      inject: [ConfigService, DefaultLoggerService],
+      inject: [CACHE_CONFIG_KEY, DefaultLoggerService],
       useFactory: (
-        configService: ConfigService<EnvConfig>,
+        cacheConfig: CacheConfig,
         loggerService: DefaultLoggerService,
       ) => {
         const client = new Redis({
-          host: configService.getOrThrow('cache.default.host', { infer: true }),
-          port: configService.getOrThrow('cache.default.port', { infer: true }),
+          host: cacheConfig.default.host,
+          port: cacheConfig.default.port,
           connectTimeout: 2000,
         });
 

@@ -1,17 +1,26 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EnvConfig } from '../../config/env.config';
 import { defaultDataSourceFactory } from './datasource';
 import { AppDataSource } from '../typeorm/app-data-source';
+import { APP_CONFIG_KEY, appConfig, AppConfig } from '../../config/app.config';
+import {
+  DATABASE_CONFIG_KEY,
+  databaseConfig,
+  DatabaseConfig,
+} from '../../config/database.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       name: 'default',
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) =>
-        defaultDataSourceFactory(configService),
+      imports: [
+        ConfigModule.forFeature(appConfig),
+        ConfigModule.forFeature(databaseConfig),
+      ],
+      inject: [APP_CONFIG_KEY, DATABASE_CONFIG_KEY],
+      useFactory: (appConfig: AppConfig, databaseConfig: DatabaseConfig) =>
+        defaultDataSourceFactory(appConfig.mode, databaseConfig),
       dataSourceFactory: async (options) => {
         if (!options)
           throw new Error('No DataSource options provided for "default"');

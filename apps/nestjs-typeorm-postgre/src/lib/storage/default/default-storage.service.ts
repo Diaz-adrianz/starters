@@ -7,12 +7,14 @@ import {
   CopyObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectS3, type S3 } from 'nestjs-s3';
-import { EnvConfig } from '../../../config/env.config';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { StorageKeys } from './constants/storage-keys';
+import {
+  STORAGE_CONFIG_KEY,
+  type StorageConfig,
+} from '../../../config/storage.config';
 
 type StorageKeyInput = ((keys: typeof StorageKeys) => string) | string;
 
@@ -22,11 +24,9 @@ export class DefaultStorageService {
 
   constructor(
     @InjectS3() private readonly s3: S3,
-    private configService: ConfigService<EnvConfig>,
+    @Inject(STORAGE_CONFIG_KEY) private storageConfig: StorageConfig,
   ) {
-    this.bucket = configService.getOrThrow('storage.default.bucket', {
-      infer: true,
-    });
+    this.bucket = storageConfig.default.bucket;
   }
 
   resolveKey(key: StorageKeyInput): string {

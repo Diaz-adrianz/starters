@@ -4,23 +4,22 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import { EnvConfig } from '../../config/env.config';
-import { ConfigService } from '@nestjs/config';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
+import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 
 @Catch(S3ServiceException)
 export class S3Filter implements ExceptionFilter {
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private loggerService: DefaultLoggerService,
   ) {}
 
   catch(exception: S3ServiceException, host: ArgumentsHost) {
-    const isProd =
-      this.configService.getOrThrow('mode', { infer: true }) == 'production';
+    const isProd = this.appConfig.mode == 'production';
 
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();

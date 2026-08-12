@@ -3,24 +3,23 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
+import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 
 @Catch(TypeORMError)
 export class TypeormFilter implements ExceptionFilter {
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private loggerService: DefaultLoggerService,
   ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {
-    const isProd =
-      this.configService.getOrThrow('mode', { infer: true }) == 'production';
+    const isProd = this.appConfig.mode == 'production';
 
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();

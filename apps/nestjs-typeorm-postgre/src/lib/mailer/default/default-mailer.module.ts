@@ -1,32 +1,28 @@
 import { Global, Module } from '@nestjs/common';
 import { DefaultMailerService } from './default-mailer.service';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
+import {
+  MAILER_CONFIG_KEY,
+  mailerConfig,
+  MailerConfig,
+} from '../../../config/mailer.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [
+    ConfigModule.forFeature(mailerConfig),
     NestMailerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) => ({
+      inject: [MAILER_CONFIG_KEY],
+      imports: [ConfigModule.forFeature(mailerConfig)],
+      useFactory: (mailerConfig: MailerConfig) => ({
         transport: {
-          host: configService.getOrThrow('mailer.default.host', {
-            infer: true,
-          }),
-          port: configService.getOrThrow('mailer.default.port', {
-            infer: true,
-          }),
-          secure: configService.getOrThrow('mailer.default.secure', {
-            infer: true,
-          }),
+          host: mailerConfig.default.host,
+          port: mailerConfig.default.port,
+          secure: mailerConfig.default.secure,
           auth: {
-            user: configService.getOrThrow('mailer.default.user', {
-              infer: true,
-            }),
-            pass: configService.getOrThrow('mailer.default.pass', {
-              infer: true,
-            }),
+            user: mailerConfig.default.user,
+            pass: mailerConfig.default.pass,
           },
         },
       }),

@@ -4,25 +4,24 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
 import { ValidationException } from '../classes/exceptions/validation.exception';
 import { DefaultLoggerService } from '../../lib/logger/default/default-logger.service';
+import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 
 @Catch()
 export class ExceptionFilter implements NestExceptionFilter {
   constructor(
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private readonly httpAdapterHost: HttpAdapterHost,
-    private configService: ConfigService<EnvConfig>,
     private loggerService: DefaultLoggerService,
   ) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
-    const isProd =
-      this.configService.getOrThrow('mode', { infer: true }) == 'production';
+    const isProd = this.appConfig.mode == 'production';
 
     const { httpAdapter } = this.httpAdapterHost;
 

@@ -1,17 +1,22 @@
 import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
+import {
+  CACHE_CONFIG_KEY,
+  cacheConfig,
+  CacheConfig,
+} from '../../../config/cache.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [
     BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) => ({
+      inject: [CACHE_CONFIG_KEY],
+      imports: [ConfigModule.forFeature(cacheConfig)],
+      useFactory: (cacheConfig: CacheConfig) => ({
         connection: {
-          host: configService.getOrThrow('cache.default.host', { infer: true }),
-          port: configService.getOrThrow('cache.default.port', { infer: true }),
+          host: cacheConfig.default.host,
+          port: cacheConfig.default.port,
         },
       }),
     }),

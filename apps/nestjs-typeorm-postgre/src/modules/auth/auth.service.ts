@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,8 +10,6 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
 import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
 import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { generateRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../shared/classes/session.class';
@@ -24,13 +23,16 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
+import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
+import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
+    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private userService: UserService,
     private jwtService: JwtService,
-    private configService: ConfigService<EnvConfig>,
     private cacheService: DefaultCacheService,
     private mailerService: DefaultMailerService,
   ) {}
@@ -49,10 +51,7 @@ export class AuthService {
         !existUser.verificationSentAt ||
         Date.now() >=
           existUser.verificationSentAt.getTime() +
-            this.configService.getOrThrow('token.verification.expire', {
-              infer: true,
-            }) *
-              1000
+            this.authConfig.token.verification.expire * 1000
       )
         await this.sendEmailVerification(existUser).catch(() => {});
 
@@ -165,10 +164,7 @@ export class AuthService {
       (!user.resetPasswordSentAt ||
         Date.now() >=
           user.resetPasswordSentAt.getTime() +
-            this.configService.getOrThrow('token.resetPassword.expire', {
-              infer: true,
-            }) *
-              1000)
+            this.authConfig.token.resetPassword.expire * 1000)
     )
       await this.sendResetPassword(user).catch(() => {});
   }
@@ -219,9 +215,7 @@ export class AuthService {
   // ----------------------------------------------------------------
   private async saveSession(sessionId: string, payload: Session) {
     await this.cacheService.set((k) => k.session(sessionId), payload, {
-      EX: this.configService.getOrThrow('jwt.refresh.expire', {
-        infer: true,
-      }),
+      EX: this.authConfig.jwt.refresh.expire,
     });
     await this.cacheService.sadd(
       (k) => k.userSessions(payload.userId),
@@ -284,10 +278,8 @@ export class AuthService {
   private async sendResetPassword(user: User) {
     const token = generateRandomString(12);
     const tokenHash = sha256(token);
-    const link = `${this.configService.getOrThrow('server.url', { infer: true })}/auth/reset-password-check?token=${token}`;
-    const expire = this.configService.getOrThrow('token.resetPassword.expire', {
-      infer: true,
-    });
+    const link = `${this.appConfig.url}/auth/reset-password-check?token=${token}`;
+    const expire = this.authConfig.token.resetPassword.expire;
 
     await this.cacheService.set(
       (k) => k.resetPasswordToken(tokenHash),
@@ -316,10 +308,8 @@ export class AuthService {
 
     const token = generateRandomString(12);
     const tokenHash = sha256(token);
-    const link = `${this.configService.getOrThrow('server.url', { infer: true })}/auth/verify-email?token=${token}`;
-    const expire = this.configService.getOrThrow('token.verification.expire', {
-      infer: true,
-    });
+    const link = `${this.appConfig.url}/auth/verify-email?token=${token}`;
+    const expire = this.authConfig.token.verification.expire;
 
     await this.cacheService.set((k) => k.verifyToken(tokenHash), user.id, {
       EX: expire,
@@ -349,13 +339,9 @@ export class AuthService {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
-        secret: this.configService.getOrThrow('jwt.access.secret', {
-          infer: true,
-        }),
-        expiresIn: this.configService.getOrThrow('jwt.access.expire', {
-          infer: true,
-        }),
-        issuer: this.configService.getOrThrow('jwt.issuer', { infer: true }),
+        secret: this.authConfig.jwt.access.secret,
+        expiresIn: this.authConfig.jwt.access.expire,
+        issuer: this.authConfig.jwt.issuer,
       },
     );
   }
@@ -364,13 +350,9 @@ export class AuthService {
     return this.jwtService.signAsync(
       { sub: payload.sub, sid: payload.sid },
       {
-        secret: this.configService.getOrThrow('jwt.refresh.secret', {
-          infer: true,
-        }),
-        expiresIn: this.configService.getOrThrow('jwt.refresh.expire', {
-          infer: true,
-        }),
-        issuer: this.configService.getOrThrow('jwt.issuer', { infer: true }),
+        secret: this.authConfig.jwt.refresh.secret,
+        expiresIn: this.authConfig.jwt.refresh.expire,
+        issuer: this.authConfig.jwt.issuer,
       },
     );
   }
@@ -378,9 +360,7 @@ export class AuthService {
   private verifyRefreshToken(token: string, ignoreExpiration: boolean = false) {
     try {
       return this.jwtService.verifyAsync<JwtTokenPayload>(token, {
-        secret: this.configService.getOrThrow('jwt.refresh.secret', {
-          infer: true,
-        }),
+        secret: this.authConfig.jwt.refresh.secret,
         ignoreExpiration,
       });
     } catch {

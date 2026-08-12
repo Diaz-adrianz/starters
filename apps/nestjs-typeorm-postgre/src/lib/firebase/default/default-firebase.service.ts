@@ -1,11 +1,13 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { DefaultLoggerService } from '../../logger/default/default-logger.service';
 import path from 'path';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
 import * as fs from 'fs/promises';
 import * as admin from 'firebase-admin';
 import { getMessaging, Message, Messaging } from 'firebase-admin/messaging';
+import {
+  FIREBASE_CONFIG_KEY,
+  type FirebaseConfig,
+} from '../../../config/firebase.config';
 
 @Injectable()
 export class DefaultFirebaseService implements OnModuleInit {
@@ -13,7 +15,7 @@ export class DefaultFirebaseService implements OnModuleInit {
   private messaging: Messaging;
 
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(FIREBASE_CONFIG_KEY) private firebaseConfig: FirebaseConfig,
     private loggerService: DefaultLoggerService,
   ) {}
 
@@ -21,9 +23,7 @@ export class DefaultFirebaseService implements OnModuleInit {
     try {
       const serviceAccountPath = path.join(
         process.cwd(),
-        this.configService.getOrThrow('firebase.default.serviceAccountPath', {
-          infer: true,
-        }),
+        this.firebaseConfig.default.serviceAccountPath,
       );
 
       const serviceAccountFile = await fs.readFile(serviceAccountPath, 'utf8');

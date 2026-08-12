@@ -1,15 +1,17 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
-import { EnvConfig } from '../../../config/env.config';
+import {
+  MAILER_CONFIG_KEY,
+  type MailerConfig,
+} from '../../../config/mailer.config';
 
 @Injectable()
 export class DefaultMailerService {
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(MAILER_CONFIG_KEY) private mailerConfig: MailerConfig,
     private mailerService: MailerService,
   ) {}
 
@@ -17,10 +19,7 @@ export class DefaultMailerService {
     fileName: string,
     payload: Record<string, any>,
   ): Promise<string> {
-    const templatesDir = this.configService.getOrThrow(
-        'mailer.default.templatesPath',
-        { infer: true },
-      ),
+    const templatesDir = this.mailerConfig.default.templatesPath,
       file = await fs.readFile(join(templatesDir, fileName), {
         encoding: 'utf-8',
       }),
@@ -34,12 +33,8 @@ export class DefaultMailerService {
     subject: string;
     content: string | { fileName: string; payload: Record<string, any> };
   }): Promise<void> {
-    const sender = this.configService.getOrThrow('mailer.default.sender', {
-      infer: true,
-    });
-    const from =
-      params.from ??
-      `${sender} <${this.configService.getOrThrow('mailer.default.user', { infer: true })}>`;
+    const sender = this.mailerConfig.default.sender;
+    const from = params.from ?? `${sender} <${this.mailerConfig.default.user}>`;
 
     const content =
       typeof params.content == 'string'

@@ -1,13 +1,12 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../../config/env.config';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
 import { UserService } from '../../user/user.service';
 import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 import { Principal } from '../../../shared/classes/principal.class';
 import { AuthService } from '../auth.service';
+import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
 
 type UserCache = {
   id: string;
@@ -18,7 +17,7 @@ type UserCache = {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private cacheService: DefaultCacheService,
     private userService: UserService,
     private authService: AuthService,
@@ -26,9 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow('jwt.access.secret', {
-        infer: true,
-      }),
+      secretOrKey: authConfig.jwt.access.secret,
     });
   }
 
