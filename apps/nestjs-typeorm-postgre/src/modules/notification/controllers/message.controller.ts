@@ -15,7 +15,7 @@ import { ReqUser } from '../../../common/decorators/req-user.decorator';
 import { Principal } from '../../../shared/classes/principal.class';
 import { ResourceScopeDto } from '../../../shared/dto/resource-scope.dto';
 
-@Controller('notification-messages')
+@Controller('notification/messages')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
