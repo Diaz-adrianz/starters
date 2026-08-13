@@ -25,9 +25,9 @@ import { LoggerService } from '../../../infra/logger/logger.service';
         });
 
         client.on('error', (err) => logger.error(err, 'Cache'));
-        client.on('connect', () => logger.info('Redis connected', 'Cache'));
-        client.on('ready', () => logger.info('Redis ready', 'Cache'));
-        client.on('end', () => logger.info('Redis disconnected', 'Cache'));
+        client.on('connect', () => logger.log('Redis connected', 'Cache'));
+        client.on('ready', () => logger.log('Redis ready', 'Cache'));
+        client.on('end', () => logger.log('Redis disconnected', 'Cache'));
 
         return client;
       },

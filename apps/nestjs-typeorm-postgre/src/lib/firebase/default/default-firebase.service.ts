@@ -37,7 +37,7 @@ export class DefaultFirebaseService implements OnModuleInit {
 
       this.messaging = getMessaging(this.app);
 
-      this.logger.info(
+      this.logger.log(
         `Firebase initialized with projectId: ${serviceAccount.project_id}`,
         'Firebase',
       );

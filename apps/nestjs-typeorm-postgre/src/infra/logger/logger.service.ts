@@ -1,19 +1,29 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  LoggerService as NestLoggerService,
+} from '@nestjs/common';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
-export class LoggerService {
+export class LoggerService implements NestLoggerService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  info(message: any, context?: string) {
+  log(message: any, context?: string) {
     this.logger.info(message, { context });
   }
 
-  error(message: any, context?: string) {
-    this.logger.error(message, { context });
+  error(message: any, stackOrContext?: string, context?: string) {
+    const stack = context ? stackOrContext : message?.stack;
+    const ctx = context ?? stackOrContext;
+
+    this.logger.error(message?.message ?? message, {
+      stack,
+      context: ctx,
+    });
   }
 
   warn(message: any, context?: string) {
@@ -26,5 +36,9 @@ export class LoggerService {
 
   verbose(message: any, context?: string) {
     this.logger.verbose(message, { context });
+  }
+
+  fatal(message: any, context?: string) {
+    this.logger.error(message, { context });
   }
 }

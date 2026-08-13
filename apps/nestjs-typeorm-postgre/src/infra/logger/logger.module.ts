@@ -12,6 +12,23 @@ import {
 
 const { combine, timestamp, printf, colorize, errors } = format;
 
+const consoleFormat = combine(
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  errors({ stack: true }),
+  colorize(),
+  printf(({ level, message, timestamp, context, stack }) => {
+    return `${timestamp} [${context ?? 'App'}] ${level}: ${message}${stack ? ` - ${stack}` : ''}`;
+  }),
+);
+
+const fileFormat = combine(
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  errors({ stack: true }),
+  printf(({ level, message, timestamp, context, stack }) => {
+    return `${timestamp} [${context ?? 'App'}] ${level}: ${message}${stack ? ` - ${stack}` : ''}`;
+  }),
+);
+
 @Global()
 @Module({
   imports: [
@@ -19,17 +36,10 @@ const { combine, timestamp, printf, colorize, errors } = format;
       imports: [ConfigModule.forFeature(loggerConfig)],
       inject: [LOGGER_CONFIG_KEY],
       useFactory: (loggerConfig: LoggerConfig) => ({
-        format: combine(
-          timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-          errors({ stack: true }),
-          colorize(),
-          printf(({ level, message, timestamp, context, stack }) => {
-            return `${timestamp} [${context ?? 'App'}] ${level}: ${message} ${stack ? `- ${stack}` : ''}`;
-          }),
-        ),
         transports: [
-          new transports.Console(),
+          new transports.Console({ format: consoleFormat }),
           new DailyRotateFile({
+            format: fileFormat,
             filename: loggerConfig.path + '%DATE%.log',
             level: 'warn',
             datePattern: 'YYYY-MM-DD',
