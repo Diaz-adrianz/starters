@@ -33,7 +33,7 @@ export class NotificationService {
         ...this.notificationRepo.select(['id', 'readAt', 'createdAt']),
         message: {
           id: true,
-          category: true,
+          type: true,
           title: true,
           body: true,
           data: true,

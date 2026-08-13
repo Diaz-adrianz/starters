@@ -32,11 +32,11 @@ export class DeviceTokenService {
   }
 
   revoke(id: string) {
-    return this.deviceTokenRepo.update({ id }, { isActive: false });
+    return this.deviceTokenRepo.update({ id }, { enabled: false });
   }
 
   revokeByToken(token: string) {
-    return this.deviceTokenRepo.update({ token }, { isActive: false });
+    return this.deviceTokenRepo.update({ token }, { enabled: false });
   }
 
   // ================================================================

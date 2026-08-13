@@ -5,12 +5,12 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { DeviceTokenChannel } from '../entities/device-token.entity';
+import { DeviceTokenProvider } from '../entities/device-token.entity';
 
 export class RegisterDeviceTokenDto {
   @IsNotEmpty()
-  @IsEnum(DeviceTokenChannel)
-  channel: DeviceTokenChannel;
+  @IsEnum(DeviceTokenProvider)
+  channel: DeviceTokenProvider;
 
   @IsNotEmpty()
   @IsString()
@@ -18,5 +18,5 @@ export class RegisterDeviceTokenDto {
 
   @IsOptional()
   @IsBoolean()
-  isActive: boolean = true;
+  enabled: boolean = true;
 }

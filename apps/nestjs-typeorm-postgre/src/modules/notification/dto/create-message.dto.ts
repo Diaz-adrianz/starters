@@ -8,15 +8,15 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { CategoryKeys } from '../constants/category-keys.constant';
+import { TypeKeys } from '../constants/type-keys.constant';
 import { MessageData } from '../entities/message.entity';
 
-const CategoryKeysFlat = Object.values(CategoryKeys);
+const TypeKeysFlat = Object.values(TypeKeys);
 
 export class CreateMessageDto {
   @IsNotEmpty()
-  @IsIn(CategoryKeysFlat)
-  category: string;
+  @IsIn(TypeKeysFlat)
+  type: string;
 
   @IsNotEmpty()
   @IsString()

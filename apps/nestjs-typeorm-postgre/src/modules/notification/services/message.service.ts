@@ -43,7 +43,7 @@ export class MessageService {
       ...scope.toPageOptions(),
       select: {
         id: true,
-        category: true,
+        type: true,
         title: true,
         body: true,
         data: true,
