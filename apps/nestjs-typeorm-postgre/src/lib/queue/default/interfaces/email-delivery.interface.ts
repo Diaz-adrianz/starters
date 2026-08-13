@@ -9,9 +9,11 @@ export type EmailDeliveryJobName =
 
 export interface EmailDeliveryJobPayload {
   [EmailDeliveryJobNames.SEND_TRANSACTIONAL_EMAIL]: {
+    from?: string;
     to: string;
+    subject: string;
     template: string;
-    data: Record<string, unknown>;
+    payload: Record<string, unknown>;
   };
 }
 

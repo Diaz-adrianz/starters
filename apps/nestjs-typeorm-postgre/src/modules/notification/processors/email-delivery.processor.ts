@@ -3,23 +3,29 @@ import { Queues } from '../../../lib/queue/default/constants/queues.constant';
 import { Job } from 'bullmq';
 import { EmailDeliveryJob } from '../../../lib/queue/default/interfaces/email-delivery.interface';
 import { LoggerService } from '../../../infra/logger/logger.service';
+import { DefaultMailerService } from '../../../lib/mailer/default/default-mailer.service';
 
 @Processor(Queues.EMAIL_DELIVERIES, {
   concurrency: 3,
   limiter: { max: 30, duration: 60000 },
 })
 export class EmailDeliveryProcessor extends WorkerHost {
-  constructor(private logger: LoggerService) {
+  constructor(
+    private logger: LoggerService,
+    private mailerService: DefaultMailerService,
+  ) {
     super();
   }
 
   async process(job: EmailDeliveryJob): Promise<void> {
-    await Promise.resolve();
-
     switch (job.name) {
       case 'send-transactional-email': {
         const data = job.data;
-        console.log(data);
+        await this.mailerService.send({
+          to: data.to,
+          subject: data.subject,
+          content: { fileName: data.template, payload: data.payload },
+        });
         break;
       }
     }

@@ -15,9 +15,13 @@ import { UserEventListener } from './listeners/user-event.listener';
 import { EmailDeliveryProcessor } from './processors/email-delivery.processor';
 import { DefaultQueueModule } from '../../lib/queue/default/default-queue.module';
 import { Queues } from '../../lib/queue/default/constants/queues.constant';
+import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from '../../config/app.config';
 
 @Module({
   imports: [
+    ConfigModule.forFeature(appConfig),
     DefaultDatabaseModule.forFeature([
       Notification,
       Message,
@@ -26,6 +30,7 @@ import { Queues } from '../../lib/queue/default/constants/queues.constant';
       DeviceToken,
     ]),
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
+    DefaultMailerModule,
   ],
   controllers: [
     NotificationController,
