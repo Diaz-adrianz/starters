@@ -3,6 +3,7 @@ import { DeviceType } from '../../../shared/constants/device-types.constant';
 export interface EventPayload {
   'user.signIn': {
     userId: string;
+    email: string;
     deviceId?: string;
     deviceType?: DeviceType;
     deviceName?: string;

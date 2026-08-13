@@ -12,6 +12,9 @@ import { MessageController } from './controllers/message.controller';
 import { MessageService } from './services/message.service';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
 import { UserEventListener } from './listeners/user-event.listener';
+import { EmailDeliveryProcessor } from './processors/email-delivery.processor';
+import { DefaultQueueModule } from '../../lib/queue/default/default-queue.module';
+import { Queues } from '../../lib/queue/default/constants/queues.constant';
 
 @Module({
   imports: [
@@ -22,6 +25,7 @@ import { UserEventListener } from './listeners/user-event.listener';
       UserPreference,
       DeviceToken,
     ]),
+    DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
   ],
   controllers: [
     NotificationController,
@@ -33,6 +37,7 @@ import { UserEventListener } from './listeners/user-event.listener';
     DeviceTokenService,
     MessageService,
     UserEventListener,
+    EmailDeliveryProcessor,
   ],
   exports: [NotificationService],
 })

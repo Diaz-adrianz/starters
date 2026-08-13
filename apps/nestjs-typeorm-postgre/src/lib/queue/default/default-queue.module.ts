@@ -2,12 +2,17 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { BullModule, RegisterQueueOptions } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
 import { QueueKeys } from '../queue-keys.constant';
-import { QueueConfig, queueConfig } from '../../../config/queue.config';
+import {
+  QUEUE_CONFIG_KEY,
+  QueueConfig,
+  queueConfig,
+} from '../../../config/queue.config';
 
 @Module({
   imports: [
     BullModule.forRootAsync(QueueKeys.DEFAULT, {
       imports: [ConfigModule.forFeature(queueConfig)],
+      inject: [QUEUE_CONFIG_KEY],
       useFactory: (queueConfig: QueueConfig) => ({
         connection: {
           host: queueConfig.default.redis.host,

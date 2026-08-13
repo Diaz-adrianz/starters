@@ -102,6 +102,7 @@ export class AuthService {
 
     this.event.emit('user.signIn', {
       userId: session.userId,
+      email: user.email,
       deviceId: session.deviceId,
       deviceType: session.deviceType,
       deviceName: session.deviceName,
