@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config/app.config';
 import { LoggerModule } from './infra/logger/logger.module';
 import { CacheModule } from './infra/cache/cache.module';
+import { EventModule } from './infra/event/event.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CacheModule } from './infra/cache/cache.module';
     // ---------------------------------
     CacheModule,
     LoggerModule,
+    EventModule,
 
     // App modules
     // ---------------------------------

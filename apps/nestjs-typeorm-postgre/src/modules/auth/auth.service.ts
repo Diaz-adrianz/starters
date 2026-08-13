@@ -25,6 +25,7 @@ import {
 } from './dto/reset-password.dto';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
+import { EventService } from '../../infra/event/event.service';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +36,7 @@ export class AuthService {
     private jwtService: JwtService,
     private redisService: DefaultRedisService,
     private mailerService: DefaultMailerService,
+    private event: EventService,
   ) {}
 
   // ================================================================
@@ -98,7 +100,13 @@ export class AuthService {
 
     await this.saveSession(sessionId, session);
 
-    // TODO: push warning notification to queue
+    this.event.emit('user.signIn', {
+      userId: session.userId,
+      deviceId: session.deviceId,
+      deviceType: session.deviceType,
+      deviceName: session.deviceName,
+      ip: session.ip,
+    });
 
     return { user, at, rt };
   }

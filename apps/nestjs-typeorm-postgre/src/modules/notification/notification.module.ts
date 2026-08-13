@@ -11,6 +11,7 @@ import { Message } from './entities/message.entity';
 import { MessageController } from './controllers/message.controller';
 import { MessageService } from './services/message.service';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
+import { UserEventListener } from './listeners/user-event.listener';
 
 @Module({
   imports: [
@@ -27,7 +28,12 @@ import { DefaultDatabaseModule } from '../../database/default/default-database.m
     DeviceTokenController,
     MessageController,
   ],
-  providers: [NotificationService, DeviceTokenService, MessageService],
+  providers: [
+    NotificationService,
+    DeviceTokenService,
+    MessageService,
+    UserEventListener,
+  ],
   exports: [NotificationService],
 })
 export class NotificationModule {}
