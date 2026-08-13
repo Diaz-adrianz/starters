@@ -10,33 +10,27 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { DeviceType } from '../../../shared/constants/device-types.constant';
 
-export enum DeviceTokenChannel {
+export enum DeviceTokenProvider {
   FCM = 'fcm',
 }
 
 @Entity({ schema: 'notification', name: 'device_tokens' })
-@Unique(['channel', 'token'])
+@Unique(['provider', 'token'])
 export class DeviceToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: DeviceTokenChannel })
-  channel: DeviceTokenChannel;
-
   @Column({ nullable: true })
   userId: string | null;
+
+  @Column({ type: 'enum', enum: DeviceTokenProvider })
+  provider: DeviceTokenProvider;
 
   @Column()
   token: string;
 
   @Column({ default: true })
-  isActive: boolean;
-
-  @ManyToOne(() => User, (u) => u.notificationPreferences, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
-  user: User | null;
+  enabled: boolean;
 
   @Column({ type: 'varchar', nullable: true })
   deviceId: string | null;
@@ -46,6 +40,12 @@ export class DeviceToken {
 
   @Column({ type: 'varchar', nullable: true })
   deviceName: string | null;
+
+  @ManyToOne(() => User, (u) => u.notificationDeviceTokens, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  user: User | null;
 
   @CreateDateColumn()
   createdAt: Date;

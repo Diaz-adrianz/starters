@@ -3,7 +3,6 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { Notification } from './entities/notification.entity';
 import { Delivery } from './entities/delivery.entity';
-import { UserPreference } from './entities/user-preference.entity';
 import { DeviceToken } from './entities/device-token.entity';
 import { DeviceTokenService } from './services/device-token.service';
 import { DeviceTokenController } from './controllers/device-token.controller';
@@ -26,7 +25,6 @@ import { appConfig } from '../../config/app.config';
       Notification,
       Message,
       Delivery,
-      UserPreference,
       DeviceToken,
     ]),
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),

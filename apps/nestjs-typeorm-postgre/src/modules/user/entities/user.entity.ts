@@ -11,7 +11,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../../access-control/entities/user-role.entity';
-import { UserPreference as NotificationPreference } from '../../notification/entities/user-preference.entity';
 import { DeviceToken as NotificationDeviceToken } from '../../notification/entities/device-token.entity';
 import { Notification } from '../../notification/entities/notification.entity';
 
@@ -51,9 +50,6 @@ export class User {
   // Notification
   @OneToMany(() => Notification, (n) => n.user)
   notifications: Notification[];
-
-  @OneToMany(() => NotificationPreference, (np) => np.user)
-  notificationPreferences: NotificationPreference[];
 
   @OneToMany(() => NotificationDeviceToken, (ndt) => ndt.user)
   notificationDeviceTokens: NotificationDeviceToken[];

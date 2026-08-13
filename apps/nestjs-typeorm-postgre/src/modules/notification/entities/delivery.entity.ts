@@ -9,7 +9,8 @@ import { Notification } from './notification.entity';
 
 export enum DeliveryChannel {
   EMAIL = 'email',
-  FCM = 'fcm',
+  PUSH = 'push',
+  IN_APP = 'in_app',
 }
 
 export enum DeliveryStatus {

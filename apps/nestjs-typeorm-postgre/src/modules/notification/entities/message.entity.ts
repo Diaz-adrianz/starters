@@ -16,7 +16,7 @@ export class Message {
   id: string;
 
   @Column()
-  category: string;
+  type: string;
 
   @Column()
   title: string;
