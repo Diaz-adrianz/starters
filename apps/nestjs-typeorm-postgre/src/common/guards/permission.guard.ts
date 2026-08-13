@@ -10,7 +10,6 @@ import {
   PERMISSION_METADATA,
   PermissionMetadata,
 } from '../decorators/permission.decorator';
-import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScopeIntf } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
@@ -19,6 +18,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { DatabaseKeys } from '../../database/database-keys.contant';
 import { LoggerService } from '../../infra/logger/logger.service';
+import { CacheService } from '../../infra/cache/cache.service';
 
 type RolePermissionsCache = [string, ResourceScopeIntf | null];
 
@@ -27,7 +27,7 @@ export class PermissionGuard implements CanActivate {
   constructor(
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     private reflector: Reflector,
-    private cacheService: DefaultCacheService,
+    private cache: CacheService,
     private logger: LoggerService,
   ) {}
 
@@ -53,13 +53,15 @@ export class PermissionGuard implements CanActivate {
 
     for (const role of principal.roles) {
       try {
-        let cached = await this.cacheService.get<RolePermissionsCache[]>((k) =>
+        let cached = await this.cache.get<RolePermissionsCache[]>((k) =>
           k.rolePermissions(role.id),
         );
 
         if (!cached || !cached.length) {
+          this.logger.log('Permissions cache missed', this.constructor.name);
+
           const rolePermissions = await rolePermissionRepo.find({
-            where: { role: { id: role.id } },
+            where: { role: { id: role.id }, permission: { enabled: true } },
             relations: { permission: true },
             select: {
               roleId: true,
@@ -72,10 +74,7 @@ export class PermissionGuard implements CanActivate {
             `${rp.permission.resource}:${rp.permission.action}`,
             rp.scope,
           ]);
-          await this.cacheService.set(
-            (k) => k.rolePermissions(role.id),
-            cached,
-          );
+          await this.cache.set((k) => k.rolePermissions(role.id), cached, 0);
         }
 
         cached.forEach((p) => {
@@ -83,7 +82,7 @@ export class PermissionGuard implements CanActivate {
           permissions.set(p[0], [...existing, p[1]]);
         });
       } catch (error) {
-        this.logger.error(error, 'PermissionGuard');
+        this.logger.error(error, this.constructor.name);
       }
     }
 

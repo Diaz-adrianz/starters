@@ -11,8 +11,8 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { RolePermission } from '../entities/role-permission.entity';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../database/typeorm/app-repository';
-import { DefaultCacheService } from '../../../lib/cache/default/default-cache.service';
 import { DatabaseKeys } from '../../../database/database-keys.contant';
+import { CacheService } from '../../../infra/cache/cache.service';
 
 @Injectable()
 export class RoleService {
@@ -20,11 +20,11 @@ export class RoleService {
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
-    private cacheService: DefaultCacheService,
+    private cache: CacheService,
   ) {}
 
   invalidateMany(roles: Pick<Role, 'id'>[]) {
-    return this.cacheService.delMany((k) =>
+    return this.cache.delMany((k) =>
       roles.map((role) => k.rolePermissions(role.id)),
     );
   }

@@ -2,8 +2,8 @@ import { ConfigType, registerAs } from '@nestjs/config';
 import * as yup from 'yup';
 
 const schema = yup.object({
-  CACHE_DEFAULT_HOST: yup.string().required(),
-  CACHE_DEFAULT_PORT: yup.number().required(),
+  CACHE_TTL: yup.string().required(),
+  CACHE_MAX: yup.number().required(),
 });
 
 export const cacheConfig = registerAs('cache', () => {
@@ -14,10 +14,8 @@ export const cacheConfig = registerAs('cache', () => {
     });
 
     return {
-      default: {
-        host: value.CACHE_DEFAULT_HOST,
-        port: value.CACHE_DEFAULT_PORT,
-      },
+      ttl: value.CACHE_TTL,
+      max: value.CACHE_MAX,
     };
   } catch (error) {
     throw new Error(

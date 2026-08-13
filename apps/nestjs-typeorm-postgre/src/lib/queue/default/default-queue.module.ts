@@ -1,22 +1,17 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { BullModule, RegisterQueueOptions } from '@nestjs/bullmq';
-import {
-  CACHE_CONFIG_KEY,
-  cacheConfig,
-  CacheConfig,
-} from '../../../config/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import { QueueKeys } from '../queue-keys.constant';
+import { QueueConfig, queueConfig } from '../../../config/queue.config';
 
 @Module({
   imports: [
     BullModule.forRootAsync(QueueKeys.DEFAULT, {
-      inject: [CACHE_CONFIG_KEY],
-      imports: [ConfigModule.forFeature(cacheConfig)],
-      useFactory: (cacheConfig: CacheConfig) => ({
+      imports: [ConfigModule.forFeature(queueConfig)],
+      useFactory: (queueConfig: QueueConfig) => ({
         connection: {
-          host: cacheConfig.default.host,
-          port: cacheConfig.default.port,
+          host: queueConfig.default.redis.host,
+          port: queueConfig.default.redis.port,
         },
       }),
     }),

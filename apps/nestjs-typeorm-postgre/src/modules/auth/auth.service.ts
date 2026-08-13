@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
 import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
+import { DefaultRedisService } from '../../lib/redis/default/default-redis.service';
 import { generateRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../shared/classes/session.class';
 import { Client } from '../../shared/classes/client.class';
@@ -33,7 +33,7 @@ export class AuthService {
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private userService: UserService,
     private jwtService: JwtService,
-    private cacheService: DefaultCacheService,
+    private redisService: DefaultRedisService,
     private mailerService: DefaultMailerService,
   ) {}
 
@@ -108,25 +108,25 @@ export class AuthService {
   // ----------------------------------------------------------------
   async signOut(rt: string) {
     const rtPayload = await this.verifyRefreshToken(rt, true);
-    await this.cacheService.del((k) => k.session(rtPayload.sid));
-    await this.cacheService.srem(
+    await this.redisService.del((k) => k.session(rtPayload.sid));
+    await this.redisService.srem(
       (k) => k.userSessions(rtPayload.sub),
       [rtPayload.sid],
     );
   }
 
   async signOutAll(userId: string, excepts: string[] = []) {
-    const sessionIds = await this.cacheService.smembers((k) =>
+    const sessionIds = await this.redisService.smembers((k) =>
       k.userSessions(userId),
     );
     const revokeIds = excepts.length
       ? sessionIds.filter((sessionId) => !excepts.includes(sessionId))
       : sessionIds;
 
-    await this.cacheService.delMany((k) =>
+    await this.redisService.delMany((k) =>
       revokeIds.map((id) => k.session(id)),
     );
-    await this.cacheService.srem((k) => k.userSessions(userId), revokeIds);
+    await this.redisService.srem((k) => k.userSessions(userId), revokeIds);
   }
 
   // ================================================================
@@ -135,12 +135,12 @@ export class AuthService {
   async verifyEmail(verifyEmailDto: VerifyEmailDto) {
     const tokenHash = sha256(verifyEmailDto.token);
 
-    const userId = await this.cacheService.get<string>((k) =>
+    const userId = await this.redisService.get<string>((k) =>
       k.verifyToken(tokenHash),
     );
     if (!userId) throw new BadRequestException('Token invalid or expired');
 
-    await this.cacheService.del((k) => k.verifyToken(tokenHash));
+    await this.redisService.del((k) => k.verifyToken(tokenHash));
 
     const user = await this.userService.findById(userId);
     await this.userService.updateById(user.id, {
@@ -172,7 +172,7 @@ export class AuthService {
   async resetPasswordCheck(resetPasswordCheck: ResetPasswordCheckDto) {
     const tokenHash = sha256(resetPasswordCheck.token);
 
-    const userId = await this.cacheService.get<string>((k) =>
+    const userId = await this.redisService.get<string>((k) =>
       k.resetPasswordToken(tokenHash),
     );
     if (!userId) throw new BadRequestException('Token invalid or expired');
@@ -186,7 +186,7 @@ export class AuthService {
       resetPasswordDto.password,
     );
     await this.signOutAll(cache.userId);
-    await this.cacheService.del((k) => k.resetPasswordToken(cache.tokenHash));
+    await this.redisService.del((k) => k.resetPasswordToken(cache.tokenHash));
     await this.userService.updateById(cache.userId, {
       resetPasswordSentAt: null,
     });
@@ -214,27 +214,27 @@ export class AuthService {
   // Session handlers
   // ----------------------------------------------------------------
   private async saveSession(sessionId: string, payload: Session) {
-    await this.cacheService.set((k) => k.session(sessionId), payload, {
+    await this.redisService.set((k) => k.session(sessionId), payload, {
       EX: this.authConfig.jwt.refresh.expire,
     });
-    await this.cacheService.sadd(
+    await this.redisService.sadd(
       (k) => k.userSessions(payload.userId),
       sessionId,
     );
   }
 
   async findSession(sessionId: string) {
-    const session = await this.cacheService.get<Session>((k) =>
+    const session = await this.redisService.get<Session>((k) =>
       k.session(sessionId),
     );
     if (session) return plainToInstance(Session, session);
   }
 
   async findSessions(userId: string) {
-    const sessionIds = await this.cacheService.smembers((k) =>
+    const sessionIds = await this.redisService.smembers((k) =>
       k.userSessions(userId),
     );
-    const sessions = await this.cacheService.getMany<Session>((k) =>
+    const sessions = await this.redisService.getMany<Session>((k) =>
       sessionIds.map((sid) => k.session(sid)),
     );
 
@@ -281,7 +281,7 @@ export class AuthService {
     const link = `${this.appConfig.url}/auth/reset-password-check?token=${token}`;
     const expire = this.authConfig.token.resetPassword.expire;
 
-    await this.cacheService.set(
+    await this.redisService.set(
       (k) => k.resetPasswordToken(tokenHash),
       user.id,
       { EX: expire },
@@ -311,7 +311,7 @@ export class AuthService {
     const link = `${this.appConfig.url}/auth/verify-email?token=${token}`;
     const expire = this.authConfig.token.verification.expire;
 
-    await this.cacheService.set((k) => k.verifyToken(tokenHash), user.id, {
+    await this.redisService.set((k) => k.verifyToken(tokenHash), user.id, {
       EX: expire,
     });
     await this.mailerService.send({

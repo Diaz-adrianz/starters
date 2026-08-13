@@ -9,8 +9,8 @@ import { UserRole } from '../access-control/entities/user-role.entity';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { User } from './entities/user.entity';
 import { AppRepository } from '../../database/typeorm/app-repository';
-import { DefaultCacheService } from '../../lib/cache/default/default-cache.service';
 import { DatabaseKeys } from '../../database/database-keys.contant';
+import { CacheService } from '../../infra/cache/cache.service';
 
 @Injectable()
 export class UserService {
@@ -18,13 +18,11 @@ export class UserService {
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(User, DatabaseKeys.DEFAULT)
     private userRepo: AppRepository<User>,
-    private cacheService: DefaultCacheService,
+    private cache: CacheService,
   ) {}
 
   invalidateMany(users: Pick<User, 'id'>[]) {
-    return this.cacheService.delMany((k) =>
-      users.map((user) => k.user(user.id)),
-    );
+    return this.cache.delMany((k) => users.map((user) => k.user(user.id)));
   }
 
   // ================================================================
