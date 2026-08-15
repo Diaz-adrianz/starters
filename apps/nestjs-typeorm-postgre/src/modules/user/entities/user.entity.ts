@@ -11,8 +11,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../../access-control/entities/user-role.entity';
-import { DeviceToken as NotificationDeviceToken } from '../../notification/entities/device-token.entity';
-import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
@@ -46,14 +44,6 @@ export class User {
 
   @OneToMany(() => UserRole, (ur) => ur.user)
   roles: UserRole[];
-
-  // Notification
-  @OneToMany(() => Notification, (n) => n.user)
-  notifications: Notification[];
-
-  @OneToMany(() => NotificationDeviceToken, (ndt) => ndt.user)
-  notificationDeviceTokens: NotificationDeviceToken[];
-  // ------------
 
   @CreateDateColumn()
   createdAt: Date;

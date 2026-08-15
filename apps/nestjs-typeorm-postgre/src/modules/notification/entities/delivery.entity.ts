@@ -1,25 +1,16 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Notification } from './notification.entity';
-
-export enum DeliveryChannel {
-  EMAIL = 'email',
-  PUSH = 'push',
-  IN_APP = 'in_app',
-}
-
-export enum DeliveryStatus {
-  PENDING = 'pending',
-  SENT = 'sent',
-  FAILED = 'failed',
-}
+import { DeliveryChannel } from '../enums/delivery-channel.enum';
+import { DeliveryStatus } from '../enums/delivery-status.enum';
 
 @Entity({ schema: 'notification', name: 'deliveries' })
+@Unique(['notificationId', 'channel'])
 export class Delivery {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -33,15 +24,15 @@ export class Delivery {
   @Column({ type: 'enum', enum: DeliveryStatus })
   status: DeliveryStatus;
 
-  @Column({ type: 'text', nullable: true })
-  statusDetail: string | null;
+  @Column({ type: 'int', nullable: true })
+  attemptCount: number | null;
 
   @Column({ type: 'timestamptz', nullable: true })
-  sentAt: Date | null;
+  lastAttemptAt: Date | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  providerResponse: string | null;
 
   @ManyToOne(() => Notification, (n) => n.deliveries, { onDelete: 'CASCADE' })
   notification: Notification;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }
