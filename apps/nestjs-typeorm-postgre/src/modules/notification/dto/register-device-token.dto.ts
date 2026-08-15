@@ -5,12 +5,12 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { DeviceTokenProvider } from '../entities/device-token.entity';
+import { DeviceTokenProvider } from '../enums/device-token-provider.enum';
 
 export class RegisterDeviceTokenDto {
   @IsNotEmpty()
   @IsEnum(DeviceTokenProvider)
-  channel: DeviceTokenProvider;
+  provider: DeviceTokenProvider;
 
   @IsNotEmpty()
   @IsString()

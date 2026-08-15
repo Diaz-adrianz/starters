@@ -45,10 +45,8 @@ export class DeviceTokenService {
   findMany(scope: ResourceScope) {
     return this.deviceTokenRepo.findAndCount({
       ...scope.toPageOptions(),
-      relations: { user: true },
       select: {
         ...this.deviceTokenRepo.select(['token'], 'omit'),
-        user: { id: true, username: true, avatar: true },
       },
     });
   }
