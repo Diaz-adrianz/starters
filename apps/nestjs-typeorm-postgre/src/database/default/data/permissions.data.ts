@@ -124,10 +124,10 @@ export const PermissionsData: {
   {
     group: 'Notifications',
     entries: [
-      // notification
+      // messages
       {
-        description: 'Read notification',
-        permission: 'notifications:read',
+        description: 'Read message',
+        permission: 'notification-messages:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },
@@ -139,7 +139,7 @@ export const PermissionsData: {
       },
       {
         description: 'Delete notification',
-        permission: 'notifications:delete',
+        permission: 'notification-messages:delete',
         roles: [
           {
             name: RolesData.SUPERADMIN,
@@ -157,7 +157,7 @@ export const PermissionsData: {
       },
       {
         description: 'Mark notification as read',
-        permission: 'notifications:mark-read',
+        permission: 'notification-messages:mark-read',
         roles: [
           {
             name: RolesData.SUPERADMIN,
@@ -174,63 +174,10 @@ export const PermissionsData: {
         ],
       },
 
-      // message
+      // push tokens
       {
-        description: 'Create notification message',
-        permission: 'notification-messages:create',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-      {
-        description: 'Read notification message',
-        permission: 'notification-messages:read',
-        roles: [
-          { name: RolesData.SUPERADMIN },
-          { name: RolesData.ADMIN },
-          {
-            name: RolesData.USER,
-            scope: { where: 'notifications.userId:$subject.user.id' },
-          },
-        ],
-      },
-      {
-        description: 'Archive notification message',
-        permission: 'notification-messages:archive',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-      {
-        description: 'Restore notification message',
-        permission: 'notification-messages:restore',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-      {
-        description: 'Delete notification message',
-        permission: 'notification-messages:delete',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-
-      // deliveries
-      {
-        description: 'Read notification delivery',
-        permission: 'notification-deliveries:read',
-        roles: [
-          { name: RolesData.SUPERADMIN },
-          { name: RolesData.ADMIN },
-          {
-            name: RolesData.USER,
-            scope: { where: 'notification.userId:$subject.user.id' },
-          },
-        ],
-      },
-      {
-        description: 'Retry notification delivery',
-        permission: 'notification-deliveries:retry',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-
-      // device tokens
-      {
-        description: 'Read notification device token',
-        permission: 'notification-device-tokens:read',
+        description: 'Read push token',
+        permission: 'notification-push-tokens:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },

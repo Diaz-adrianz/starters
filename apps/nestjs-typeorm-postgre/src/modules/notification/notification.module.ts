@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { NotificationService } from './notification.service';
-import { NotificationController } from './notification.controller';
 import { Delivery } from './entities/delivery.entity';
 import { PushToken } from './entities/push-token.entity';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
@@ -16,6 +14,8 @@ import { Template } from './entities/template.entity';
 import { Message } from './entities/message.entity';
 import { PushTokenController } from './controllers/push-token.controller';
 import { PushTokenService } from './services/push-token.service';
+import { MessageController } from './controllers/message.controller';
+import { MessageService } from './services/message.service';
 
 @Module({
   imports: [
@@ -30,13 +30,12 @@ import { PushTokenService } from './services/push-token.service';
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
     DefaultMailerModule,
   ],
-  controllers: [NotificationController, PushTokenController],
+  controllers: [MessageController, PushTokenController],
   providers: [
-    NotificationService,
+    MessageService,
     PushTokenService,
     UserEventListener,
     EmailDeliveryProcessor,
   ],
-  exports: [NotificationService],
 })
 export class NotificationModule {}

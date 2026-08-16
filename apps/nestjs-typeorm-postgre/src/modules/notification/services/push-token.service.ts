@@ -27,7 +27,7 @@ export class PushTokenService {
         deviceType: client.deviceType,
         deviceName: client.deviceName,
       },
-      { conflictPaths: ['channel', 'token'] },
+      { conflictPaths: ['provider', 'token'] },
     );
   }
 
