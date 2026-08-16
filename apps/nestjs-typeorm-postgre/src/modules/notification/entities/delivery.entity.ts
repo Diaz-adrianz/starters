@@ -1,38 +1,31 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
-import { Notification } from './notification.entity';
-import { DeliveryChannel } from '../enums/delivery-channel.enum';
-import { DeliveryStatus } from '../enums/delivery-status.enum';
+import { Type } from '../enums/type.enum';
+import { DeliveryLog } from './delivery-log.entity';
+import { Message } from './message.entity';
 
 @Entity({ schema: 'notification', name: 'deliveries' })
-@Unique(['notificationId', 'channel'])
 export class Delivery {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  notificationId: string;
+  @Column('enum', { enum: Type })
+  type: Type;
 
-  @Column({ type: 'enum', enum: DeliveryChannel })
-  channel: DeliveryChannel;
+  @Column('varchar')
+  templateKey: string;
 
-  @Column({ type: 'enum', enum: DeliveryStatus })
-  status: DeliveryStatus;
+  @OneToMany(() => DeliveryLog, (dl) => dl.delivery)
+  logs: DeliveryLog[];
 
-  @Column({ type: 'int', nullable: true })
-  attemptCount: number | null;
+  @OneToMany(() => Message, (m) => m.delivery)
+  messages: Message[];
 
-  @Column({ type: 'timestamptz', nullable: true })
-  lastAttemptAt: Date | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  providerResponse: string | null;
-
-  @ManyToOne(() => Notification, (n) => n.deliveries, { onDelete: 'CASCADE' })
-  notification: Notification;
+  @CreateDateColumn()
+  createdAt: Date;
 }

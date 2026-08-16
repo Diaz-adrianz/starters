@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeviceToken } from '../entities/device-token.entity';
+import { DeviceToken } from '../entities/push-token.entity';
 import { RegisterDeviceTokenDto } from '../dto/register-device-token.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { Client } from '../../../shared/classes/client.class';

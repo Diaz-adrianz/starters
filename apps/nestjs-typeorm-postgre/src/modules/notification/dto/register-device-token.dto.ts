@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { DeviceTokenProvider } from '../enums/device-token-provider.enum';
+import { DeviceTokenProvider } from '../enums/push-provider.enum';
 
 export class RegisterDeviceTokenDto {
   @IsNotEmpty()

@@ -3,13 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { Message } from './message.entity';
-import { DeliveryChannel } from '../enums/delivery-channel.enum';
+import { Channel } from '../enums/channel.enum';
 
 @Entity({ schema: 'notification', name: 'templates' })
 @Unique(['key', 'channel'])
@@ -17,23 +15,23 @@ export class Template {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('varchar')
   key: string;
 
-  @Column({ type: 'enum', enum: DeliveryChannel })
-  channel: DeliveryChannel;
+  @Column('enum', { enum: Channel })
+  channel: Channel;
 
-  @Column({ type: 'varchar', nullable: true })
-  title: string | null;
+  @Column('varchar')
+  title: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  subject: string | null;
-
-  @Column({ type: 'text' })
+  @Column('text')
   body: string;
 
-  @OneToMany(() => Message, (m) => m.template)
-  messages: Message[];
+  @Column('text', { array: true })
+  availableKeys: string[];
+
+  @Column('text', { array: true })
+  sensitiveKeys: string[];
 
   @CreateDateColumn()
   createdAt: Date;

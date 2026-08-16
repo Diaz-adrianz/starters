@@ -1,4 +1,4 @@
-export enum MessageType {
+export enum Type {
   TRANSACTIONAL = 'transactional',
   SYSTEM = 'system',
   PROMOTIONAL = 'promotional',

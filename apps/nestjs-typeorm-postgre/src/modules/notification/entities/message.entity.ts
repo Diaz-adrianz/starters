@@ -1,41 +1,41 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Notification } from './notification.entity';
-import { Template } from './template.entity';
-import { MessageType } from '../enums/message-type.enum';
-
-export type MessageContext = Record<string, any>;
+import { Delivery } from './delivery.entity';
 
 @Entity({ schema: 'notification', name: 'messages' })
 export class Message {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  templateId: string;
+  @Column('uuid')
+  deliveryId: string;
 
-  @Column({ type: 'enum', enum: MessageType })
-  type: MessageType;
+  @Column('uuid')
+  userId: string;
 
-  @Column({ type: 'jsonb', nullable: true })
-  context: MessageContext | null;
+  @Column('varchar')
+  title: string;
 
-  @ManyToOne(() => Template, (t) => t.messages, { onDelete: 'CASCADE' })
-  template: Template;
+  @Column('text')
+  body: string;
 
-  @OneToMany(() => Notification, (n) => n.message)
-  notifications: Notification[];
+  @Column('varchar', { nullable: true })
+  actionUrl: string | null;
+
+  @Column('timestamptz', { nullable: true })
+  readAt: Date | null;
+
+  @Column('jsonb', { nullable: true })
+  payload: Record<string, any> | null;
+
+  @ManyToOne(() => Delivery, (d) => d.messages)
+  delivery: Delivery;
 
   @CreateDateColumn()
   createdAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

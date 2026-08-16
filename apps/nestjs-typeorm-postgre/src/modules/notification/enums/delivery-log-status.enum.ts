@@ -1,4 +1,4 @@
-export enum DeliveryStatus {
+export enum DeliveryLogStatus {
   PENDING = 'pending',
   SENT = 'sent',
   FAILED = 'failed',

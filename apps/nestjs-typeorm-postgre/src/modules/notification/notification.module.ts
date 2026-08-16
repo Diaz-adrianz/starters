@@ -3,7 +3,7 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { Notification } from './entities/notification.entity';
 import { Delivery } from './entities/delivery.entity';
-import { DeviceToken } from './entities/device-token.entity';
+import { DeviceToken } from './entities/push-token.entity';
 import { DeviceTokenService } from './services/device-token.service';
 import { DeviceTokenController } from './controllers/device-token.controller';
 import { Message } from './entities/message.entity';
