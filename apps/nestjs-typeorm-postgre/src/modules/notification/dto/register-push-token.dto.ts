@@ -5,12 +5,12 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { DeviceTokenProvider } from '../enums/push-provider.enum';
+import { PushProvider } from '../enums/push-provider.enum';
 
-export class RegisterDeviceTokenDto {
+export class RegisterPushTokenDto {
   @IsNotEmpty()
-  @IsEnum(DeviceTokenProvider)
-  provider: DeviceTokenProvider;
+  @IsEnum(PushProvider)
+  provider: PushProvider;
 
   @IsNotEmpty()
   @IsString()

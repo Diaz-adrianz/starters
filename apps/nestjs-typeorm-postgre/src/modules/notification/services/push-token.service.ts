@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeviceToken } from '../entities/push-token.entity';
-import { RegisterDeviceTokenDto } from '../dto/register-device-token.dto';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { Client } from '../../../shared/classes/client.class';
 import { ResourceScope } from '../../../shared/classes/resource-scope.class';
 import { DatabaseKeys } from '../../../database/database-keys.contant';
+import { PushToken } from '../entities/push-token.entity';
+import { RegisterPushTokenDto } from '../dto/register-push-token.dto';
 
 @Injectable()
-export class DeviceTokenService {
+export class PushTokenService {
   constructor(
-    @InjectRepository(DeviceToken, DatabaseKeys.DEFAULT)
-    private deviceTokenRepo: AppRepository<DeviceToken>,
+    @InjectRepository(PushToken, DatabaseKeys.DEFAULT)
+    private pushTokenRepo: AppRepository<PushToken>,
   ) {}
 
   register(
     userId: string | undefined,
-    registerDeviceTokenDto: RegisterDeviceTokenDto,
+    dto: RegisterPushTokenDto,
     client: Client,
   ) {
-    return this.deviceTokenRepo.upsert(
+    return this.pushTokenRepo.upsert(
       {
-        ...registerDeviceTokenDto,
+        ...dto,
         userId,
         deviceId: client.deviceId,
         deviceType: client.deviceType,
@@ -32,21 +32,21 @@ export class DeviceTokenService {
   }
 
   revoke(id: string) {
-    return this.deviceTokenRepo.update({ id }, { enabled: false });
+    return this.pushTokenRepo.update({ id }, { enabled: false });
   }
 
   revokeByToken(token: string) {
-    return this.deviceTokenRepo.update({ token }, { enabled: false });
+    return this.pushTokenRepo.update({ token }, { enabled: false });
   }
 
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
   findMany(scope: ResourceScope) {
-    return this.deviceTokenRepo.findAndCount({
+    return this.pushTokenRepo.findAndCount({
       ...scope.toPageOptions(),
       select: {
-        ...this.deviceTokenRepo.select(['token'], 'omit'),
+        ...this.pushTokenRepo.select(['token'], 'omit'),
       },
     });
   }

@@ -1,14 +1,8 @@
 import { Module } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
-import { Notification } from './entities/notification.entity';
 import { Delivery } from './entities/delivery.entity';
-import { DeviceToken } from './entities/push-token.entity';
-import { DeviceTokenService } from './services/device-token.service';
-import { DeviceTokenController } from './controllers/device-token.controller';
-import { Message } from './entities/message.entity';
-import { MessageController } from './controllers/message.controller';
-import { MessageService } from './services/message.service';
+import { PushToken } from './entities/push-token.entity';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
 import { UserEventListener } from './listeners/user-event.listener';
 import { EmailDeliveryProcessor } from './processors/email-delivery.processor';
@@ -17,28 +11,29 @@ import { Queues } from '../../lib/queue/default/constants/queues.constant';
 import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from '../../config/app.config';
+import { DeliveryLog } from './entities/delivery-log.entity';
+import { Template } from './entities/template.entity';
+import { Message } from './entities/message.entity';
+import { PushTokenController } from './controllers/push-token.controller';
+import { PushTokenService } from './services/push-token.service';
 
 @Module({
   imports: [
     ConfigModule.forFeature(appConfig),
     DefaultDatabaseModule.forFeature([
-      Notification,
-      Message,
+      DeliveryLog,
       Delivery,
-      DeviceToken,
+      Message,
+      PushToken,
+      Template,
     ]),
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
     DefaultMailerModule,
   ],
-  controllers: [
-    NotificationController,
-    DeviceTokenController,
-    MessageController,
-  ],
+  controllers: [NotificationController, PushTokenController],
   providers: [
     NotificationService,
-    DeviceTokenService,
-    MessageService,
+    PushTokenService,
     UserEventListener,
     EmailDeliveryProcessor,
   ],
