@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
-import { MessageService } from '../services/message.service';
-import { Permission } from '../../../common/decorators/permission.decorator';
-import { ReqUser } from '../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../shared/classes/principal.class';
-import { ResourceScopeDto } from '../../../shared/dto/resource-scope.dto';
+import { Permission } from '../../../../common/decorators/permission.decorator';
+import { ReqUser } from '../../../../common/decorators/req-user.decorator';
+import { Principal } from '../../../../shared/classes/principal.class';
+import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
+import { MessageService } from './message.service';
 
 @Controller('notification/messages')
 export class MessageController {
@@ -26,7 +26,7 @@ export class MessageController {
     @Query() query: ResourceScopeDto,
   ) {
     permission.scope.add(query, 'AND', ['delivery']);
-    return this.messageService.findMany(permission.scope.toPageOptions());
+    return this.messageService.findMany(permission.scope);
   }
 
   @Permission('notification-messages:delete')

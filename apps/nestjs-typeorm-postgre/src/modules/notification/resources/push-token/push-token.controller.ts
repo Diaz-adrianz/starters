@@ -7,16 +7,16 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { OptionalAuth } from '../../../common/decorators/optional-auth.decorator';
-import { ReqClient } from '../../../common/decorators/req-client.decorator';
-import { Client } from '../../../shared/classes/client.class';
-import { ReqUser } from '../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../shared/classes/principal.class';
-import { Public } from '../../../common/decorators/public.decorator';
-import { Permission } from '../../../common/decorators/permission.decorator';
-import { ResourceScopeDto } from '../../../shared/dto/resource-scope.dto';
-import { PushTokenService } from '../services/push-token.service';
-import { RegisterPushTokenDto } from '../dto/register-push-token.dto';
+import { OptionalAuth } from '../../../../common/decorators/optional-auth.decorator';
+import { ReqClient } from '../../../../common/decorators/req-client.decorator';
+import { Client } from '../../../../shared/classes/client.class';
+import { ReqUser } from '../../../../common/decorators/req-user.decorator';
+import { Principal } from '../../../../shared/classes/principal.class';
+import { Public } from '../../../../common/decorators/public.decorator';
+import { Permission } from '../../../../common/decorators/permission.decorator';
+import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
+import { PushTokenService } from './push-token.service';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 
 @Controller('notification/push-tokens')
 export class PushTokenController {

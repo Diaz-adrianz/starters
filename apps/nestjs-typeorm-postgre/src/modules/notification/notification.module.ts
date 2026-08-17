@@ -12,12 +12,12 @@ import { appConfig } from '../../config/app.config';
 import { DeliveryLog } from './entities/delivery-log.entity';
 import { Template } from './entities/template.entity';
 import { Message } from './entities/message.entity';
-import { PushTokenController } from './controllers/push-token.controller';
-import { PushTokenService } from './services/push-token.service';
-import { MessageController } from './controllers/message.controller';
-import { MessageService } from './services/message.service';
+import { MessageController } from './resources/message/message.controller';
 import { TemplateController } from './resources/template/template.controller';
 import { TemplateService } from './resources/template/template.service';
+import { PushTokenController } from './resources/push-token/push-token.controller';
+import { PushTokenService } from './resources/push-token/push-token.service';
+import { MessageService } from './resources/message/message.service';
 
 @Module({
   imports: [
