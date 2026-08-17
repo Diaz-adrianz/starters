@@ -124,6 +124,38 @@ export const PermissionsData: {
   {
     group: 'Notifications',
     entries: [
+      // template
+      {
+        description: 'Create template',
+        permission: 'notification-templates:create',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Read template',
+        permission: 'notification-templates:read',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Update template',
+        permission: 'notification-templates:update',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Archive template',
+        permission: 'notification-templates:archive',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Restore template',
+        permission: 'notification-templates:restore',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Delete template',
+        permission: 'notification-templates:delete',
+        roles: [{ name: RolesData.SUPERADMIN }],
+      },
+
       // messages
       {
         description: 'Read message',
@@ -138,7 +170,7 @@ export const PermissionsData: {
         ],
       },
       {
-        description: 'Delete notification',
+        description: 'Delete message',
         permission: 'notification-messages:delete',
         roles: [
           {
@@ -156,7 +188,7 @@ export const PermissionsData: {
         ],
       },
       {
-        description: 'Mark notification as read',
+        description: 'Mark message as read',
         permission: 'notification-messages:mark-read',
         roles: [
           {

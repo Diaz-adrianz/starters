@@ -16,6 +16,8 @@ import { PushTokenController } from './controllers/push-token.controller';
 import { PushTokenService } from './services/push-token.service';
 import { MessageController } from './controllers/message.controller';
 import { MessageService } from './services/message.service';
+import { TemplateController } from './resources/template/template.controller';
+import { TemplateService } from './resources/template/template.service';
 
 @Module({
   imports: [
@@ -30,10 +32,11 @@ import { MessageService } from './services/message.service';
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
     DefaultMailerModule,
   ],
-  controllers: [MessageController, PushTokenController],
+  controllers: [MessageController, PushTokenController, TemplateController],
   providers: [
     MessageService,
     PushTokenService,
+    TemplateService,
     UserEventListener,
     EmailDeliveryProcessor,
   ],
