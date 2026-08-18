@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { Delivery } from './entities/delivery.entity';
 import { PushToken } from './entities/push-token.entity';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
-import { UserEventListener } from './listeners/user-event.listener';
+import { AuthEventSubscriber } from './subscribers/auth-event.subscriber';
 import { EmailDeliveryProcessor } from './queue/email-delivery/email-delivery.processor';
 import { DefaultQueueModule } from '../../lib/queue/default/default-queue.module';
 import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
@@ -25,7 +25,10 @@ import { PushDeliveryProcessor } from './queue/push-delivery/push-delivery.proce
 import { DeliveryController } from './resources/delivery/delivery.controller';
 import { DeliveryService } from './resources/delivery/delivery.service';
 import { DefaultFirebaseModule } from '../../lib/firebase/default/default-firebase.module';
-import { EMAIL_DELIVERY_QUEUE } from './queue/email-delivery/email-delivery.config';
+import {
+  EMAIL_DELIVERY_QUEUE,
+  EmailDeliveryJobOptions,
+} from './queue/email-delivery/email-delivery.config';
 
 @Module({
   imports: [
@@ -37,11 +40,18 @@ import { EMAIL_DELIVERY_QUEUE } from './queue/email-delivery/email-delivery.conf
       PushToken,
       Template,
     ]),
-    DefaultQueueModule.registerQueue({ name: EMAIL_DELIVERY_QUEUE }),
+
+    // queue
+    DefaultQueueModule.registerQueue({
+      name: EMAIL_DELIVERY_QUEUE,
+      defaultJobOptions: EmailDeliveryJobOptions,
+    }),
     DefaultQueueModule.registerQueue({
       name: PUSH_DELIVERY_QUEUE,
       defaultJobOptions: PushDeliveryJobOptions,
     }),
+
+    // lib
     DefaultMailerModule,
     DefaultFirebaseModule,
   ],
@@ -56,7 +66,11 @@ import { EMAIL_DELIVERY_QUEUE } from './queue/email-delivery/email-delivery.conf
     PushTokenService,
     TemplateService,
     DeliveryService,
-    UserEventListener,
+
+    // subscribers
+    AuthEventSubscriber,
+
+    // processors
     EmailDeliveryProcessor,
     PushDeliveryProcessor,
   ],

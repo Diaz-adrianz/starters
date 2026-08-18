@@ -1,0 +1,46 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import {
+  EventName,
+  EventPayload,
+} from '../../../infra/event/interfaces/events.interface';
+import { LoggerService } from '../../../infra/logger/logger.service';
+import { APP_CONFIG_KEY, type AppConfig } from '../../../config/app.config';
+import { DeliveryService } from '../resources/delivery/delivery.service';
+import { Type } from '../enums/type.enum';
+import { Channel } from '../enums/channel.enum';
+
+@Injectable()
+export class AuthEventSubscriber {
+  constructor(
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
+    private logger: LoggerService,
+    private deliveryService: DeliveryService,
+  ) {}
+
+  @OnEvent(EventName['user.signIn'])
+  async signIn(payload: EventPayload['user.signIn']) {
+    if (this.appConfig.mode == 'development') return;
+
+    try {
+      await this.deliveryService.create({
+        type: Type.SYSTEM,
+        channels: [Channel.EMAIL],
+        templateKey: 'auth.signin-alert',
+        recipients: [
+          {
+            email: payload.email,
+            payload: {
+              deviceName: payload.deviceName,
+              deviceType: payload.deviceType,
+              ip: payload.ip,
+              userAgent: payload.userAgent,
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      this.logger.error(error, this.constructor.name);
+    }
+  }
+}

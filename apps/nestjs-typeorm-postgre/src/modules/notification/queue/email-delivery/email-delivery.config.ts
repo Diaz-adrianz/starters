@@ -1,21 +1,27 @@
-import { Job, Queue } from 'bullmq';
+import { Job, JobsOptions, Queue } from 'bullmq';
 
 export const EMAIL_DELIVERY_QUEUE = 'push-deliveries';
 
+export const EmailDeliveryJobOptions: JobsOptions = {
+  attempts: 3,
+  backoff: { type: 'exponential', delay: 5000 },
+};
+
 export const EmailDeliveryJobNames = {
-  SEND_TRANSACTIONAL_EMAIL: 'send-transactional-email',
+  SEND_TO_EMAIL: 'send-to-email',
 } as const;
 
 export type EmailDeliveryJobName =
   (typeof EmailDeliveryJobNames)[keyof typeof EmailDeliveryJobNames];
 
 export interface EmailDeliveryJobPayload {
-  [EmailDeliveryJobNames.SEND_TRANSACTIONAL_EMAIL]: {
-    from?: string;
-    to: string;
-    subject: string;
-    template: string;
+  [EmailDeliveryJobNames.SEND_TO_EMAIL]: {
+    deliveryId: string;
+    email: string;
+    templateKey: string;
     payload: Record<string, unknown>;
+    from?: string;
+    replyTo?: string;
   };
 }
 
