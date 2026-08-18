@@ -54,7 +54,13 @@ export class TemplateService {
   findMany(scope: ResourceScope) {
     return this.templateRepo.findAndCount({
       ...scope.toPageOptions(),
-      select: this.templateRepo.select(['id', 'key', 'channel', 'title']),
+      select: this.templateRepo.select([
+        'id',
+        'key',
+        'channel',
+        'title',
+        'availableKeys',
+      ]),
     });
   }
 
