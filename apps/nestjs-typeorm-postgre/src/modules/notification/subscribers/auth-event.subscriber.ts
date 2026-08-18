@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import {
-  EventName,
-  EventPayload,
-} from '../../../infra/event/interfaces/events.interface';
 import { LoggerService } from '../../../infra/logger/logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../../config/app.config';
 import { DeliveryService } from '../resources/delivery/delivery.service';
 import { Type } from '../enums/type.enum';
 import { Channel } from '../enums/channel.enum';
+import {
+  AuthEventName,
+  AuthEventPayload,
+} from '../../../infra/event/interfaces/auth-event.interface';
 
 @Injectable()
 export class AuthEventSubscriber {
@@ -18,8 +18,8 @@ export class AuthEventSubscriber {
     private deliveryService: DeliveryService,
   ) {}
 
-  @OnEvent(EventName['user.signIn'])
-  async signIn(payload: EventPayload['user.signIn']) {
+  @OnEvent(AuthEventName.AUTH_SIGNIN)
+  async signIn(payload: AuthEventPayload['auth.signIn']) {
     if (this.appConfig.mode == 'development') return;
 
     try {

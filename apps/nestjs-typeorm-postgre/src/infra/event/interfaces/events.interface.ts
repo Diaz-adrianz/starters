@@ -1,19 +1,5 @@
-import { DeviceType } from '../../../shared/constants/device-types.constant';
+import { AuthEventPayload } from './auth-event.interface';
 
-export interface EventPayload {
-  'user.signIn': {
-    userId: string;
-    email: string;
-    deviceId?: string;
-    deviceType?: DeviceType;
-    deviceName?: string;
-    ip?: string;
-    userAgent?: string;
-  };
-}
+export type EventPayload = AuthEventPayload;
 
 export type EventKey = keyof EventPayload;
-
-export const EventName: Record<EventKey, EventKey> = {
-  'user.signIn': 'user.signIn',
-} as const;

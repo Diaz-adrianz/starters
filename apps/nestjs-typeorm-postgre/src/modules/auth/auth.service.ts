@@ -100,7 +100,7 @@ export class AuthService {
 
     await this.saveSession(sessionId, session);
 
-    this.event.emit('user.signIn', {
+    this.event.emit('auth.signIn', {
       userId: session.userId,
       email: user.email,
       deviceId: session.deviceId,
