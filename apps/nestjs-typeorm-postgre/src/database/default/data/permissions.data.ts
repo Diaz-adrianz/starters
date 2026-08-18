@@ -124,6 +124,18 @@ export const PermissionsData: {
   {
     group: 'Notifications',
     entries: [
+      // delivery
+      {
+        description: 'Create delivery',
+        permission: 'notification-deliveries:create',
+        roles: [{ name: RolesData.SUPERADMIN }],
+      },
+      {
+        description: 'Read delivery',
+        permission: 'notification-deliveries:read',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+
       // template
       {
         description: 'Create template',

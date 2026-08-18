@@ -18,6 +18,11 @@ import { TemplateService } from './resources/template/template.service';
 import { PushTokenController } from './resources/push-token/push-token.controller';
 import { PushTokenService } from './resources/push-token/push-token.service';
 import { MessageService } from './resources/message/message.service';
+import { PUSHDELIVERY_QUEUE } from './queue/push-delivery/push-delivery.contract';
+import { PushDeliveryProcessor } from './queue/push-delivery/push.delivery.processor';
+import { DeliveryController } from './resources/delivery/delivery.controller';
+import { DeliveryService } from './resources/delivery/delivery.service';
+import { DefaultFirebaseModule } from '../../lib/firebase/default/default-firebase.module';
 
 @Module({
   imports: [
@@ -30,15 +35,24 @@ import { MessageService } from './resources/message/message.service';
       Template,
     ]),
     DefaultQueueModule.registerQueue({ name: Queues.EMAIL_DELIVERIES }),
+    DefaultQueueModule.registerQueue({ name: PUSHDELIVERY_QUEUE }),
     DefaultMailerModule,
+    DefaultFirebaseModule,
   ],
-  controllers: [MessageController, PushTokenController, TemplateController],
+  controllers: [
+    MessageController,
+    PushTokenController,
+    TemplateController,
+    DeliveryController,
+  ],
   providers: [
     MessageService,
     PushTokenService,
     TemplateService,
+    DeliveryService,
     UserEventListener,
     EmailDeliveryProcessor,
+    PushDeliveryProcessor,
   ],
 })
 export class NotificationModule {}

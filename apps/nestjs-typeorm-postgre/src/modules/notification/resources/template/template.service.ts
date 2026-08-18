@@ -6,6 +6,8 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdateTemplateDto } from './dto/update-template.dto';
+import { Channel } from '../../enums/channel.enum';
+import * as Handlebars from 'handlebars';
 
 @Injectable()
 export class TemplateService {
@@ -13,6 +15,34 @@ export class TemplateService {
     @InjectRepository(Template, DatabaseKeys.DEFAULT)
     private templateRepo: AppRepository<Template>,
   ) {}
+
+  async render(key: string, channel: Channel, payload: Record<string, any>) {
+    const data = await this.templateRepo.findOneOrFail({
+      where: { key, channel },
+    });
+
+    const title = Handlebars.compile(data?.title),
+      body = Handlebars.compile(data?.body);
+
+    return {
+      ...data,
+      title: title(payload),
+      body: body(payload),
+      maskedPayload: this.maskPayload(payload, data.sensitiveKeys),
+    };
+  }
+
+  maskPayload(
+    obj: Record<string, any>,
+    sensitiveKeys: string[],
+  ): Record<string, any> {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [
+        key,
+        sensitiveKeys.includes(key) ? '*'.repeat(String(value).length) : value,
+      ]),
+    );
+  }
 
   // ================================================================
   // Basic CRUD

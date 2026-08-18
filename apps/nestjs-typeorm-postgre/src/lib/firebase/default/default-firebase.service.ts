@@ -46,7 +46,7 @@ export class DefaultFirebaseService implements OnModuleInit {
     }
   }
 
-  async sendNofitication(
+  async sendManyNofitication(
     tokens: string[],
     title: string,
     body: string,
@@ -58,14 +58,7 @@ export class DefaultFirebaseService implements OnModuleInit {
       data: data,
     }));
 
-    try {
-      const response = await this.messaging.sendEach(messages);
-      // TODO: handle failure messages
-      return response;
-    } catch (error) {
-      this.logger.error(error, 'Firebase');
-    }
-
-    return;
+    const response = await this.messaging.sendEach(messages);
+    return response;
   }
 }
