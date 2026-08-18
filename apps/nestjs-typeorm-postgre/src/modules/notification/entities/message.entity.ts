@@ -33,7 +33,7 @@ export class Message {
   @Column('jsonb', { nullable: true })
   payload: Record<string, any> | null;
 
-  @ManyToOne(() => Delivery, (d) => d.messages)
+  @ManyToOne(() => Delivery, (d) => d.messages, { onDelete: 'CASCADE' })
   delivery: Delivery;
 
   @CreateDateColumn()

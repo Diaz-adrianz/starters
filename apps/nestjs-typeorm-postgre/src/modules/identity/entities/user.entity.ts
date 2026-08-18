@@ -11,36 +11,34 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../../access-control/entities/user-role.entity';
+import { VerificationToken } from './verification-token.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column('varchar', { unique: true })
   username: string;
 
-  @Column({ unique: true })
+  @Column('varchar', { unique: true })
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ type: 'varchar', nullable: true })
+  @Column('varchar', { nullable: true })
   password?: string | null;
 
-  @Column({ default: false })
+  @Column('bool', { default: false })
   enabled: boolean;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column('varchar', { nullable: true })
   avatar?: string | null;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column('timestamptz', { nullable: true })
   verifiedAt?: Date | null;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  verificationSentAt?: Date | null;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  resetPasswordSentAt?: Date | null;
+  @OneToMany(() => VerificationToken, (ur) => ur.user)
+  verificationTokens: VerificationToken[];
 
   @OneToMany(() => UserRole, (ur) => ur.user)
   roles: UserRole[];

@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { LoggerService } from '../../../infra/logger/logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../../config/app.config';
 import { DeliveryService } from '../resources/delivery/delivery.service';
-import { Type } from '../enums/type.enum';
+import { Type } from '../enums/delivery-type.enum';
 import { Channel } from '../enums/channel.enum';
 import {
   AuthEventName,

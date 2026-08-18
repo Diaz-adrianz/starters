@@ -12,7 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Channel } from '../../../enums/channel.enum';
-import { Type as NotificationType } from '../../../enums/type.enum';
+import { Type as NotificationType } from '../../../enums/delivery-type.enum';
 import { Type } from 'class-transformer';
 
 class CreateDeliveryRecipientDto {

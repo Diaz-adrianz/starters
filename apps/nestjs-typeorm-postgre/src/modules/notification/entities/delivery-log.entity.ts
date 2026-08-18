@@ -33,9 +33,12 @@ export class DeliveryLog {
   @Column('timestamptz', { nullable: true })
   sentAt: Date | null;
 
+  @Column('int', { nullable: true })
+  retryCount: number | null;
+
   @Column('jsonb', { nullable: true })
   payload: Record<string, any> | null;
 
-  @ManyToOne(() => Delivery, (d) => d.logs)
+  @ManyToOne(() => Delivery, (d) => d.logs, { onDelete: 'CASCADE' })
   delivery: Delivery;
 }
