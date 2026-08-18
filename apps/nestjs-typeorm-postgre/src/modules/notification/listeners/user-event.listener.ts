@@ -5,16 +5,18 @@ import {
   EventPayload,
 } from '../../../infra/event/interfaces/events.interface';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Queues } from '../../../lib/queue/default/constants/queues.constant';
-import type { EmailDeliveryQueue } from '../../../lib/queue/default/interfaces/email-delivery.interface';
 import { LoggerService } from '../../../infra/logger/logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../../config/app.config';
+import {
+  EMAIL_DELIVERY_QUEUE,
+  type EmailDeliveryQueue,
+} from '../queue/email-delivery/email-delivery.config';
 
 @Injectable()
 export class UserEventListener {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
-    @InjectQueue(Queues.EMAIL_DELIVERIES)
+    @InjectQueue(EMAIL_DELIVERY_QUEUE)
     private emailDeliveryQueue: EmailDeliveryQueue,
     private logger: LoggerService,
   ) {}

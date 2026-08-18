@@ -1,6 +1,6 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { PUSHDELIVERY_QUEUE, PushDeliveryJob } from './push-delivery.contract';
+import { PUSH_DELIVERY_QUEUE, PushDeliveryJob } from './push-delivery.config';
 import { LoggerService } from '../../../../infra/logger/logger.service';
 import { DefaultFirebaseService } from '../../../../lib/firebase/default/default-firebase.service';
 import { TemplateService } from '../../resources/template/template.service';
@@ -15,7 +15,7 @@ import { PushToken } from '../../entities/push-token.entity';
 import { DeliveryLogStatus } from '../../enums/delivery-log-status.enum';
 import { In } from 'typeorm';
 
-@Processor(PUSHDELIVERY_QUEUE, { concurrency: 5 })
+@Processor(PUSH_DELIVERY_QUEUE, { concurrency: 5 })
 export class PushDeliveryProcessor extends WorkerHost {
   constructor(
     private logger: LoggerService,

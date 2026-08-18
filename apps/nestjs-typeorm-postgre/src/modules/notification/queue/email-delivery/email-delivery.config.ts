@@ -1,5 +1,7 @@
 import { Job, Queue } from 'bullmq';
 
+export const EMAIL_DELIVERY_QUEUE = 'push-deliveries';
+
 export const EmailDeliveryJobNames = {
   SEND_TRANSACTIONAL_EMAIL: 'send-transactional-email',
 } as const;

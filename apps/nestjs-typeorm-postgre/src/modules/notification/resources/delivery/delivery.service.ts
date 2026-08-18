@@ -5,9 +5,9 @@ import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { DatabaseKeys } from '../../../../database/database-keys.contant';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
-  PUSHDELIVERY_QUEUE,
+  PUSH_DELIVERY_QUEUE,
   type PushDeliveryQueue,
-} from '../../queue/push-delivery/push-delivery.contract';
+} from '../../queue/push-delivery/push-delivery.config';
 import { Channel } from '../../enums/channel.enum';
 import { Injectable } from '@nestjs/common';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
@@ -17,7 +17,7 @@ export class DeliveryService {
   constructor(
     @InjectRepository(Delivery, DatabaseKeys.DEFAULT)
     private deliveryRepo: AppRepository<Delivery>,
-    @InjectQueue(PUSHDELIVERY_QUEUE)
+    @InjectQueue(PUSH_DELIVERY_QUEUE)
     private pushDeliveryQueue: PushDeliveryQueue,
   ) {}
 

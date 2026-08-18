@@ -1,6 +1,6 @@
 import { Job, Queue } from 'bullmq';
 
-export const PUSHDELIVERY_QUEUE = 'push-deliveries';
+export const PUSH_DELIVERY_QUEUE = 'push-deliveries';
 
 export const PushDeliveryJobNames = {
   SEND_TO_USER: 'send-to-user',

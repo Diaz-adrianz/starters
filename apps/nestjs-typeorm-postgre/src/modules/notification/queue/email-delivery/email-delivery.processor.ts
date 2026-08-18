@@ -1,13 +1,14 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Queues } from '../../../lib/queue/default/constants/queues.constant';
 import { Job } from 'bullmq';
-import { EmailDeliveryJob } from '../../../lib/queue/default/interfaces/email-delivery.interface';
-import { LoggerService } from '../../../infra/logger/logger.service';
-import { DefaultMailerService } from '../../../lib/mailer/default/default-mailer.service';
+import { LoggerService } from '../../../../infra/logger/logger.service';
+import { DefaultMailerService } from '../../../../lib/mailer/default/default-mailer.service';
+import {
+  EMAIL_DELIVERY_QUEUE,
+  EmailDeliveryJob,
+} from './email-delivery.config';
 
-@Processor(Queues.EMAIL_DELIVERIES, {
+@Processor(EMAIL_DELIVERY_QUEUE, {
   concurrency: 3,
-  limiter: { max: 30, duration: 60000 },
 })
 export class EmailDeliveryProcessor extends WorkerHost {
   constructor(
