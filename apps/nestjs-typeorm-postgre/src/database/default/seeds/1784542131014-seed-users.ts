@@ -1,7 +1,7 @@
 import { hash } from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { User } from '../../../modules/user/entities/user.entity';
+import { User } from '../../../modules/identity/entities/user.entity';
 import { Role } from '../../../modules/access-control/entities/role.entity';
 import { UserRole } from '../../../modules/access-control/entities/user-role.entity';
 import { UsersData } from '../data/users.data';

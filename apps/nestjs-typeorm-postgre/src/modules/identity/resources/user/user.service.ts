@@ -4,13 +4,13 @@ import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
-import { UserRole } from '../access-control/entities/user-role.entity';
-import { AppDataSource } from '../../database/typeorm/app-data-source';
-import { User } from './entities/user.entity';
-import { AppRepository } from '../../database/typeorm/app-repository';
-import { DatabaseKeys } from '../../database/database-keys.contant';
-import { CacheService } from '../../infra/cache/cache.service';
+import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { User } from '../../entities/user.entity';
+import { AppDataSource } from '../../../../database/typeorm/app-data-source';
+import { AppRepository } from '../../../../database/typeorm/app-repository';
+import { CacheService } from '../../../../infra/cache/cache.service';
+import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
+import { UserRole } from '../../../access-control/entities/user-role.entity';
 
 @Injectable()
 export class UserService {

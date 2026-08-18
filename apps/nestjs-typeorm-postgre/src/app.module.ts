@@ -4,7 +4,6 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { S3Filter } from './common/filters/s3.filter';
@@ -15,6 +14,7 @@ import { appConfig } from './config/app.config';
 import { LoggerModule } from './infra/logger/logger.module';
 import { CacheModule } from './infra/cache/cache.module';
 import { EventModule } from './infra/event/event.module';
+import { IdentityModule } from './modules/identity/identity.module';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { EventModule } from './infra/event/event.module';
 
     // App modules
     // ---------------------------------
-    UserModule,
+    IdentityModule,
     AuthModule,
     NotificationModule,
     AccessControlModule,

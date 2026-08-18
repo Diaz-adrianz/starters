@@ -2,12 +2,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { UserService } from '../../user/user.service';
 import { Principal } from '../../../shared/classes/principal.class';
 import { AuthService } from '../auth.service';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
 import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
+import { UserService } from '../../identity/resources/user/user.service';
 
 type UserCache = {
   id: string;

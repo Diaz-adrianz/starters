@@ -5,9 +5,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
-import { User } from '../user/entities/user.entity';
+import { User } from '../identity/entities/user.entity';
 import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { DefaultRedisService } from '../../lib/redis/default/default-redis.service';
@@ -26,6 +25,7 @@ import {
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 import { EventService } from '../../infra/event/event.service';
+import { UserService } from '../identity/resources/user/user.service';
 
 @Injectable()
 export class AuthService {

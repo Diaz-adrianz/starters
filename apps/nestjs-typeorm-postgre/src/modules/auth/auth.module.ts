@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
@@ -11,12 +10,13 @@ import { appConfig } from '../../config/app.config';
 import { authConfig } from '../../config/auth.config';
 import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
 import { DefaultRedisModule } from '../../lib/redis/default/default-redis.module';
+import { IdentityModule } from '../identity/identity.module';
 
 @Module({
   imports: [
     ConfigModule.forFeature(appConfig),
     ConfigModule.forFeature(authConfig),
-    UserModule,
+    IdentityModule,
     PassportModule,
     JwtModule,
     DefaultMailerModule,

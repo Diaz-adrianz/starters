@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
-import { User } from '../user/entities/user.entity';
+import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { ReqClient } from '../../common/decorators/req-client.decorator';
@@ -24,7 +24,6 @@ import {
 } from '../../shared/constants/cookie-keys.constant';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { Client } from '../../shared/classes/client.class';
-import { UserService } from '../user/user.service';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -35,6 +34,7 @@ import {
 import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
+import { UserService } from '../identity/resources/user/user.service';
 
 @Controller('auth')
 export class AuthController {

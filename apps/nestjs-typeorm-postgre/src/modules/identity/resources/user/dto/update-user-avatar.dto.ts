@@ -1,7 +1,7 @@
 import { IsIn, IsNotEmpty } from 'class-validator';
-import type { MediaMimeType } from '../../../shared/constants/media-types.constant';
-import { IsStorageFile } from '../../../lib/storage/default/validators/is-storage-file';
-import { MB } from '../../../shared/utils/number.util';
+import { type MediaMimeType } from '../../../../../shared/constants/media-types.constant';
+import { MB } from '../../../../../shared/utils/number.util';
+import { IsStorageFile } from '../../../../../lib/storage/default/validators/is-storage-file';
 
 export const UserAvatarMimeTypes: MediaMimeType[] = [
   'image/jpeg',

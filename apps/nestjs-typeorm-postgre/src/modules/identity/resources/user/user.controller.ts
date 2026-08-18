@@ -11,18 +11,18 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Permission } from '../../common/decorators/permission.decorator';
 import {
   CreateUserAvatarUploadUrlDto,
   UpdateUserAvatarDto,
   UserAvatarMaxBytes,
 } from './dto/update-user-avatar.dto';
-import { ReqUser } from '../../common/decorators/req-user.decorator';
-import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
-import { Principal } from '../../shared/classes/principal.class';
-import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
+import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
+import { Permission } from '../../../../common/decorators/permission.decorator';
+import { ReqUser } from '../../../../common/decorators/req-user.decorator';
+import { Principal } from '../../../../shared/classes/principal.class';
+import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
 
-@Controller('users')
+@Controller('identity/users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
