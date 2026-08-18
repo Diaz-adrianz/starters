@@ -17,8 +17,11 @@ import { TemplateService } from './resources/template/template.service';
 import { PushTokenController } from './resources/push-token/push-token.controller';
 import { PushTokenService } from './resources/push-token/push-token.service';
 import { MessageService } from './resources/message/message.service';
-import { PUSH_DELIVERY_QUEUE } from './queue/push-delivery/push-delivery.config';
-import { PushDeliveryProcessor } from './queue/push-delivery/push.delivery.processor';
+import {
+  PUSH_DELIVERY_QUEUE,
+  PushDeliveryJobOptions,
+} from './queue/push-delivery/push-delivery.config';
+import { PushDeliveryProcessor } from './queue/push-delivery/push-delivery.processor';
 import { DeliveryController } from './resources/delivery/delivery.controller';
 import { DeliveryService } from './resources/delivery/delivery.service';
 import { DefaultFirebaseModule } from '../../lib/firebase/default/default-firebase.module';
@@ -35,7 +38,10 @@ import { EMAIL_DELIVERY_QUEUE } from './queue/email-delivery/email-delivery.conf
       Template,
     ]),
     DefaultQueueModule.registerQueue({ name: EMAIL_DELIVERY_QUEUE }),
-    DefaultQueueModule.registerQueue({ name: PUSH_DELIVERY_QUEUE }),
+    DefaultQueueModule.registerQueue({
+      name: PUSH_DELIVERY_QUEUE,
+      defaultJobOptions: PushDeliveryJobOptions,
+    }),
     DefaultMailerModule,
     DefaultFirebaseModule,
   ],
