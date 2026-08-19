@@ -148,35 +148,34 @@ export class AuthController {
   // User verification
   // ----------------------------------------------------------------
   @Public()
-  @ResSuccess({ message: 'Verification success' })
-  @Get('/verify-email')
-  verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
-    // TODO: redirect to client url
-    return this.authService.verifyEmail(verifyEmailDto);
+  @ResSuccess({ message: 'Your email has been verified' })
+  @Post('/verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
   }
 
   // ================================================================
   // Reset password
   // ----------------------------------------------------------------
   @Public()
-  @ResSuccess({ message: 'Reset link has been sent to your email' })
+  @ResSuccess({ message: "If that email exists, we've sent a reset code" })
   @Post('/forgot-password')
-  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(forgotPasswordDto);
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
   }
 
   @Public()
-  @Get('/reset-password-check')
-  async resetPasswordCheck(@Query() resetPasswordCheck: ResetPasswordCheckDto) {
-    // TODO: redirect to client url
-    await this.authService.resetPasswordCheck(resetPasswordCheck);
-    return;
+  @ResSuccess({ message: 'Code is valid' })
+  @Post('/reset-password-check')
+  resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
+    return this.authService.resetPasswordCheck(dto);
   }
 
   @Public()
+  @ResSuccess({ message: 'Your password has been reset' })
   @Post('/reset-password')
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 
   // ================================================================

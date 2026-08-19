@@ -41,4 +41,12 @@ export class VerificationToken {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  isWithinCooldown(span: number) {
+    return this.sentAt && Date.now() < this.sentAt.getTime() + span;
+  }
+
+  isExpired() {
+    return this.expiresAt.getTime() < Date.now();
+  }
 }

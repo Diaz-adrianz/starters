@@ -74,5 +74,6 @@ import {
     EmailDeliveryProcessor,
     PushDeliveryProcessor,
   ],
+  exports: [DeliveryService],
 })
 export class NotificationModule {}

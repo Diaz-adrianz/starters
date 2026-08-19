@@ -1,10 +1,16 @@
-import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsStrongPassword,
+  Length,
+} from 'class-validator';
 import { MatchWith } from '../../../common/decorators/match-with.decorator';
 
 export class ResetPasswordCheckDto {
   @IsNotEmpty()
-  @IsString()
-  token: string;
+  @Length(6)
+  @IsNumberString()
+  otp: string;
 }
 
 export class ResetPasswordDto extends ResetPasswordCheckDto {

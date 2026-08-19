@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumberString, Length } from 'class-validator';
 
 export class VerifyEmailDto {
   @IsNotEmpty()
-  @IsString()
-  token: string;
+  @Length(6)
+  @IsNumberString()
+  otp: string;
 }

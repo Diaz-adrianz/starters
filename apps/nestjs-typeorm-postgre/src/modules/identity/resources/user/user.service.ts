@@ -40,7 +40,12 @@ export class UserService {
     });
     if (sameUsername) throw new BadRequestException('Username already exist');
 
-    const user = this.userRepo.create({ email, username, password });
+    const user = this.userRepo.create({
+      email,
+      username,
+      password,
+      enabled: true,
+    });
     await this.userRepo.save(user);
     return user;
   }

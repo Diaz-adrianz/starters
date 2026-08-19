@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ForbiddenException,
   Inject,
@@ -15,7 +16,6 @@ import { Session } from '../../shared/classes/session.class';
 import { Client } from '../../shared/classes/client.class';
 import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
-import { DefaultMailerService } from '../../lib/mailer/default/default-mailer.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import {
@@ -26,17 +26,29 @@ import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 import { EventService } from '../../infra/event/event.service';
 import { UserService } from '../identity/resources/user/user.service';
+import { VerificationTokenService } from '../identity/resources/verification-token/verification-token.service';
+import { VerificationToken } from '../identity/entities/verification-token.entity';
+import { generateOtp } from '../../shared/utils/number.util';
+import { VerificationTokenType } from '../identity/enums/verification-token-type.enum';
+import { LoggerService } from '../../infra/logger/logger.service';
+import { DeliveryService } from '../notification/resources/delivery/delivery.service';
+import { DeliveryType } from '../notification/enums/delivery-type.enum';
+import { DeliveryPriority } from '../notification/enums/delivery-priority.enum';
+import { Channel } from '../notification/enums/channel.enum';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
-    private userService: UserService,
-    private jwtService: JwtService,
-    private redisService: DefaultRedisService,
-    private mailerService: DefaultMailerService,
     private event: EventService,
+    private logger: LoggerService,
+    private jwtService: JwtService,
+    private userService: UserService,
+    private verificationTokenService: VerificationTokenService,
+    private deliveryService: DeliveryService,
+    private redisService: DefaultRedisService,
   ) {}
 
   // ================================================================
@@ -48,14 +60,23 @@ export class AuthService {
       .catch(() => null);
 
     if (existUser && existUser.verifiedAt === null) {
-      // TODO: push email delivery to queue
+      const existingToken = await this.verificationTokenService
+        .findOne(
+          new ResourceScope({
+            where: `userId:${existUser.id};type:${VerificationTokenType.EMAIL_VERIFICATION}`,
+            isnull: 'consumedAt',
+          }),
+        )
+        .catch(() => undefined);
+
       if (
-        !existUser.verificationSentAt ||
-        Date.now() >=
-          existUser.verificationSentAt.getTime() +
-            this.authConfig.token.verification.expire * 1000
-      )
-        await this.sendEmailVerification(existUser).catch(() => {});
+        !existingToken ||
+        !existingToken.isWithinCooldown(
+          this.authConfig.token.verification.expire * 1000,
+        )
+      ) {
+        await this.sendEmailVerification(existUser, existingToken);
+      }
 
       return existUser;
     }
@@ -67,8 +88,7 @@ export class AuthService {
       matchPassword: signUpLocalDto.matchPassword,
     });
 
-    // TODO: push email delivery to queue
-    await this.sendEmailVerification(user).catch(() => {});
+    await this.sendEmailVerification(user);
 
     return user;
   }
@@ -141,64 +161,83 @@ export class AuthService {
   // ================================================================
   // User verification
   // ----------------------------------------------------------------
-  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
-    const tokenHash = sha256(verifyEmailDto.token);
+  async verifyEmail(dto: VerifyEmailDto) {
+    const otpHash = sha256(dto.otp);
 
-    const userId = await this.redisService.get<string>((k) =>
-      k.verifyToken(tokenHash),
-    );
-    if (!userId) throw new BadRequestException('Token invalid or expired');
+    const token = await this.verificationTokenService
+      .findOne(
+        new ResourceScope({
+          where: `tokenHash:${otpHash};type:${VerificationTokenType.EMAIL_VERIFICATION}`,
+          isnull: 'consumedAt',
+        }),
+      )
+      .catch(() => null);
 
-    await this.redisService.del((k) => k.verifyToken(tokenHash));
+    if (!token || token.isExpired())
+      throw new BadRequestException('Token invalid or expired');
 
-    const user = await this.userService.findById(userId);
-    await this.userService.updateById(user.id, {
-      enabled: true,
-      verifiedAt: new Date(),
-      verificationSentAt: null,
+    await this.userService.updateById(token.userId, { verifiedAt: new Date() });
+    await this.verificationTokenService.updateById(token.id, {
+      consumedAt: new Date(),
     });
   }
 
   // ================================================================
   // Password reset
   // ----------------------------------------------------------------
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+  async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userService
-      .findByUsernameOrEmail(forgotPasswordDto.email)
+      .findByUsernameOrEmail(dto.email)
       .catch(() => null);
 
-    // TODO: push email delivery to queue
-    if (
-      user &&
-      (!user.resetPasswordSentAt ||
-        Date.now() >=
-          user.resetPasswordSentAt.getTime() +
-            this.authConfig.token.resetPassword.expire * 1000)
-    )
-      await this.sendResetPassword(user).catch(() => {});
+    if (user) {
+      const token = await this.verificationTokenService
+        .findOne(
+          new ResourceScope({
+            where: `userId:${user.id};type:${VerificationTokenType.PASSWORD_RESET}`,
+            isnull: 'consumedAt',
+          }),
+        )
+        .catch(() => undefined);
+
+      if (
+        !token ||
+        !token.isWithinCooldown(
+          this.authConfig.token.resetPassword.expire * 1000,
+        )
+      )
+        await this.sendEmailPasswordReset(user, token);
+    }
   }
 
-  async resetPasswordCheck(resetPasswordCheck: ResetPasswordCheckDto) {
-    const tokenHash = sha256(resetPasswordCheck.token);
+  async resetPasswordCheck(dto: ResetPasswordCheckDto) {
+    const otpHash = sha256(dto.otp);
 
-    const userId = await this.redisService.get<string>((k) =>
-      k.resetPasswordToken(tokenHash),
-    );
-    if (!userId) throw new BadRequestException('Token invalid or expired');
-    return { userId, tokenHash };
+    const token = await this.verificationTokenService
+      .findOne(
+        new ResourceScope({
+          where: `tokenHash:${otpHash};type:${VerificationTokenType.PASSWORD_RESET}`,
+          isnull: 'consumedAt',
+        }),
+      )
+      .catch(() => null);
+
+    if (!token || token.isExpired())
+      throw new BadRequestException('Token invalid or expired');
+
+    return token;
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const cache = await this.resetPasswordCheck(resetPasswordDto);
+    const token = await this.resetPasswordCheck(resetPasswordDto);
     await this.userService.updatePassword(
-      cache.userId,
+      token.userId,
       resetPasswordDto.password,
     );
-    await this.signOutAll(cache.userId);
-    await this.redisService.del((k) => k.resetPasswordToken(cache.tokenHash));
-    await this.userService.updateById(cache.userId, {
-      resetPasswordSentAt: null,
+    await this.verificationTokenService.updateById(token.id, {
+      consumedAt: new Date(),
     });
+    await this.signOutAll(token.userId);
   }
 
   // ================================================================
@@ -284,58 +323,101 @@ export class AuthService {
   // ================================================================
   // Utils
   // ----------------------------------------------------------------
-  private async sendResetPassword(user: User) {
-    const token = generateRandomString(12);
-    const tokenHash = sha256(token);
-    const link = `${this.appConfig.url}/auth/reset-password-check?token=${token}`;
+  private async sendEmailPasswordReset(
+    user: User,
+    existingToken?: VerificationToken,
+  ) {
+    const otp = generateOtp(6);
+    const otpHash = sha256(otp);
     const expire = this.authConfig.token.resetPassword.expire;
+    const expiresAt = new Date(Date.now() + expire * 1000);
 
-    await this.redisService.set(
-      (k) => k.resetPasswordToken(tokenHash),
-      user.id,
-      { EX: expire },
-    );
-    await this.mailerService.send({
-      to: user.email,
-      subject: 'Reset Password',
-      content: {
-        fileName: 'reset-password.html',
-        payload: {
-          link,
-          expiresIn: expire / 60 + ' minutes',
-        },
-      },
-    });
-    await this.userService.updateById(user.id, {
-      resetPasswordSentAt: new Date(),
+    let token = existingToken;
+    if (token)
+      await this.verificationTokenService.updateById(token.id, {
+        ...token,
+        tokenHash: otpHash,
+        expiresAt,
+      });
+    else
+      token = await this.verificationTokenService.create({
+        userId: user.id,
+        type: VerificationTokenType.PASSWORD_RESET,
+        tokenHash: otpHash,
+        expiresAt,
+      });
+
+    try {
+      await this.deliveryService.create({
+        type: DeliveryType.TRANSACTIONAL,
+        priority: DeliveryPriority.CRITICAL,
+        templateKey: 'auth.password-reset',
+        channels: [Channel.EMAIL],
+        recipients: [
+          {
+            email: user.email,
+            payload: { otp, expiresIn: `${expire / 60} minutes` },
+          },
+        ],
+      });
+    } catch (error) {
+      this.logger.error(error);
+    }
+
+    await this.verificationTokenService.updateById(token.id, {
+      sentAt: new Date(),
     });
   }
 
-  private async sendEmailVerification(user: User) {
+  private async sendEmailVerification(
+    user: User,
+    existingToken?: VerificationToken,
+  ) {
     if (user.verifiedAt !== null)
       throw new BadRequestException('Account already verified');
 
-    const token = generateRandomString(12);
-    const tokenHash = sha256(token);
-    const link = `${this.appConfig.url}/auth/verify-email?token=${token}`;
+    const otp = generateOtp(6);
+    const otpHash = sha256(otp);
     const expire = this.authConfig.token.verification.expire;
+    const expiresAt = new Date(Date.now() + expire * 1000);
 
-    await this.redisService.set((k) => k.verifyToken(tokenHash), user.id, {
-      EX: expire,
-    });
-    await this.mailerService.send({
-      to: user.email,
-      subject: 'Email Verification',
-      content: {
-        fileName: 'email-verification.html',
-        payload: {
-          link,
-          expiresIn: expire / 60 / 60 + ' hours',
-        },
-      },
-    });
-    await this.userService.updateById(user.id, {
-      verificationSentAt: new Date(),
+    let token = existingToken;
+    if (token)
+      await this.verificationTokenService.updateById(token.id, {
+        ...token,
+        tokenHash: otpHash,
+        expiresAt,
+      });
+    else
+      token = await this.verificationTokenService.create({
+        userId: user.id,
+        type: VerificationTokenType.EMAIL_VERIFICATION,
+        tokenHash: otpHash,
+        expiresAt,
+      });
+
+    try {
+      await this.deliveryService.create({
+        type: DeliveryType.TRANSACTIONAL,
+        priority: DeliveryPriority.CRITICAL,
+        templateKey: 'auth.email-verification',
+        channels: [Channel.EMAIL],
+        recipients: [
+          {
+            email: user.email,
+            payload: { otp, expiresIn: `${expire / 60 / 60} hours` },
+          },
+        ],
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadGatewayException(
+        "We couldn't send verification email right now. Please try again",
+      );
+    }
+
+    await this.verificationTokenService.updateById(token.id, {
+      sentAt: new Date(),
     });
   }
 
