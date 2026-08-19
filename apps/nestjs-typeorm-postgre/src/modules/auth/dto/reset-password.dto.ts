@@ -8,7 +8,7 @@ import { MatchWith } from '../../../common/decorators/match-with.decorator';
 
 export class ResetPasswordCheckDto {
   @IsNotEmpty()
-  @Length(6)
+  @Length(6, 6)
   @IsNumberString()
   otp: string;
 }

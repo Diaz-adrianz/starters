@@ -152,6 +152,8 @@ export class AuthService {
       ? sessionIds.filter((sessionId) => !excepts.includes(sessionId))
       : sessionIds;
 
+    if (!revokeIds.length) return;
+
     await this.redisService.delMany((k) =>
       revokeIds.map((id) => k.session(id)),
     );

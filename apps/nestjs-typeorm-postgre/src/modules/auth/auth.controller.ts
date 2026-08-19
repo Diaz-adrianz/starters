@@ -167,8 +167,9 @@ export class AuthController {
   @Public()
   @ResSuccess({ message: 'Code is valid' })
   @Post('/reset-password-check')
-  resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
-    return this.authService.resetPasswordCheck(dto);
+  async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
+    const { expiresAt } = await this.authService.resetPasswordCheck(dto);
+    return { expiresAt };
   }
 
   @Public()
