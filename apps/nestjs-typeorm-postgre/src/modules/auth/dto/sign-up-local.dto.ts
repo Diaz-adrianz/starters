@@ -6,7 +6,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { MatchWith } from '../../../common/decorators/match-with.decorator';
+import { MatchWith } from '../../../common/decorators/validators/match-with.validator';
 
 export class SignUpLocalDto {
   @IsNotEmpty()
