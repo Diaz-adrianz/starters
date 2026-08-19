@@ -1,6 +1,6 @@
 import { Job, JobsOptions, Queue } from 'bullmq';
 
-export const EMAIL_DELIVERY_QUEUE = 'push-deliveries';
+export const EMAIL_DELIVERY_QUEUE = 'email-deliveries';
 
 export const EmailDeliveryJobOptions: JobsOptions = {
   attempts: 3,
