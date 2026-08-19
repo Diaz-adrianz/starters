@@ -34,7 +34,7 @@ export class DeliveryLog {
   sentAt: Date | null;
 
   @Column('int', { nullable: true })
-  retryCount: number | null;
+  attemptsCount: number | null;
 
   @Column('jsonb', { nullable: true })
   payload: Record<string, any> | null;

@@ -47,7 +47,7 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TYPE "notification"."delivery_logs_status_enum" AS ENUM('pending', 'sent', 'failed', 'retrying')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "notification"."delivery_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "channel" "notification"."delivery_logs_channel_enum" NOT NULL, "recipient" character varying NOT NULL, "status" "notification"."delivery_logs_status_enum" NOT NULL, "status_message" character varying, "sent_at" TIMESTAMP WITH TIME ZONE, "retry_count" integer, "payload" jsonb, CONSTRAINT "UQ_78f84e530afd2b7d31f93592b68" UNIQUE ("delivery_id", "channel", "recipient"), CONSTRAINT "PK_c647802ec5e927513f2d0beec47" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "notification"."delivery_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "channel" "notification"."delivery_logs_channel_enum" NOT NULL, "recipient" character varying NOT NULL, "status" "notification"."delivery_logs_status_enum" NOT NULL, "status_message" character varying, "sent_at" TIMESTAMP WITH TIME ZONE, "attempts_count" integer, "payload" jsonb, CONSTRAINT "UQ_78f84e530afd2b7d31f93592b68" UNIQUE ("delivery_id", "channel", "recipient"), CONSTRAINT "PK_c647802ec5e927513f2d0beec47" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TYPE "notification"."push_tokens_provider_enum" AS ENUM('fcm')`,
