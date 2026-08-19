@@ -4,12 +4,15 @@ import { Message } from '../../entities/message.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.contant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
+import { TemplateService } from '../template/template.service';
+import { Channel } from '../../enums/channel.enum';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message, DatabaseKeys.DEFAULT)
     private messageRepo: AppRepository<Message>,
+    private templateService: TemplateService,
   ) {}
 
   markRead(scope: ResourceScope) {
@@ -17,6 +20,34 @@ export class MessageService {
     return this.messageRepo.update(scope.where, {
       readAt: new Date(),
     });
+  }
+
+  async createManyByDelivery(
+    deliveryId: string,
+    templateKey: string,
+    recipients: { userId: string; payload: Record<string, any> }[],
+  ) {
+    const messages = await this.messageRepo.insert(
+      await Promise.all(
+        recipients.map(async (r) => {
+          const rendered = await this.templateService.render(
+            templateKey,
+            Channel.IN_APP,
+            r.payload,
+          );
+          return {
+            deliveryId,
+            userId: r.userId,
+            title: rendered.title,
+            body: rendered.body,
+          };
+        }),
+      ),
+    );
+
+    // TODO: notify users via WS
+
+    return messages;
   }
 
   // ================================================================

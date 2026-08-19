@@ -18,10 +18,13 @@ import {
   type EmailDeliveryQueue,
 } from '../../queue/email-delivery/email-delivery.config';
 import { DeliveryPriorityWeight } from '../../enums/delivery-priority.enum';
+import { MessageService } from '../message/message.service';
+import { LoggerService } from '../../../../infra/logger/logger.service';
 
 @Injectable()
 export class DeliveryService {
   constructor(
+    private logger: LoggerService,
     @InjectRepository(Delivery, DatabaseKeys.DEFAULT)
     private deliveryRepo: AppRepository<Delivery>,
     @InjectRepository(DeliveryLog, DatabaseKeys.DEFAULT)
@@ -30,6 +33,7 @@ export class DeliveryService {
     private pushDeliveryQueue: PushDeliveryQueue,
     @InjectQueue(EMAIL_DELIVERY_QUEUE)
     private emailDeliveryQueue: EmailDeliveryQueue,
+    private messageService: MessageService,
   ) {}
 
   retry() {}
@@ -57,9 +61,12 @@ export class DeliveryService {
       sender: dto.sender,
     });
 
-    for (const channel of dto.channels) {
-      if (channel === Channel.PUSH)
-        await this.pushDeliveryQueue.addBulk(
+    const dispatches: { channel: Channel; promise: Promise<any> }[] = [];
+
+    if (dto.channels.includes(Channel.PUSH))
+      dispatches.push({
+        channel: Channel.PUSH,
+        promise: this.pushDeliveryQueue.addBulk(
           dto.recipients
             .filter((r): r is typeof r & { userId: string } => !!r.userId)
             .map((r) => ({
@@ -72,9 +79,12 @@ export class DeliveryService {
               },
               opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),
-        );
-      else if (channel === Channel.EMAIL)
-        await this.emailDeliveryQueue.addBulk(
+        ),
+      });
+    if (dto.channels.includes(Channel.EMAIL))
+      dispatches.push({
+        channel: Channel.EMAIL,
+        promise: this.emailDeliveryQueue.addBulk(
           dto.recipients
             .filter((r): r is typeof r & { email: string } => !!r.email)
             .map((r) => ({
@@ -95,8 +105,40 @@ export class DeliveryService {
               },
               opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),
-        );
+        ),
+      });
+
+    if (dto.channels.includes(Channel.IN_APP))
+      dispatches.push({
+        channel: Channel.IN_APP,
+        promise: this.messageService.createManyByDelivery(
+          delivery.id,
+          dto.templateKey,
+          dto.recipients
+            .filter((r): r is typeof r & { userId: string } => !!r.userId)
+            .map((r) => ({
+              userId: r.userId,
+              payload: r.payload,
+            })),
+        ),
+      });
+
+    const results = await Promise.allSettled(dispatches.map((d) => d.promise));
+
+    const failed = results
+      .map((r, i) =>
+        r.status === 'rejected'
+          ? { channel: dispatches[i].channel, reason: String(r.reason) }
+          : null,
+      )
+      .filter(Boolean);
+
+    if (failed.length) {
+      this.logger.warn(
+        `Dispatch partially failed for delivery ${delivery.id}: ${failed.map((f) => `- ${f?.channel}: ${f?.reason}`).join('\n')}`,
+      );
     }
+
     return delivery;
   }
 
