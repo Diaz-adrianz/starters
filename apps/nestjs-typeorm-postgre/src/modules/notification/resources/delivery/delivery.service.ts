@@ -17,6 +17,7 @@ import {
   EMAIL_DELIVERY_QUEUE,
   type EmailDeliveryQueue,
 } from '../../queue/email-delivery/email-delivery.config';
+import { DeliveryPriorityWeight } from '../../enums/delivery-priority.enum';
 
 @Injectable()
 export class DeliveryService {
@@ -68,6 +69,7 @@ export class DeliveryService {
                 userId: r.userId,
                 payload: r.payload,
               },
+              opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),
         );
       else if (channel === Channel.EMAIL)
@@ -82,6 +84,7 @@ export class DeliveryService {
                 email: r.email,
                 payload: r.payload,
               },
+              opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),
         );
     }

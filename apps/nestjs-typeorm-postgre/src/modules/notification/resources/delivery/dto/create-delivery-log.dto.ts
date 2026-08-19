@@ -19,5 +19,8 @@ export class CreateDeliveryLogDto {
   sentAt?: Date | null;
 
   @Exclude()
+  attemptsCount?: number | null;
+
+  @Exclude()
   payload?: Record<string, any> | null;
 }

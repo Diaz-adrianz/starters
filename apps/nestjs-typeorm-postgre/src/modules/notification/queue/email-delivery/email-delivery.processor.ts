@@ -29,13 +29,17 @@ export class EmailDeliveryProcessor extends WorkerHost {
     switch (job.name) {
       case 'send-to-email': {
         const data = job.data;
-        const log = { channel: Channel.EMAIL, recipient: data.email };
-        const isLastAttempt = job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
+        const log = {
+          channel: Channel.EMAIL,
+          recipient: data.email,
+          attemptsCount: job.attemptsMade,
+        };
+        const isLastAttempt = log.attemptsCount + 1 >= (job.opts.attempts ?? 1);
 
         await this.deliveryService.upsertLog(data.deliveryId, {
           ...log,
           status:
-            job.attemptsMade === 0
+            log.attemptsCount === 0
               ? DeliveryLogStatus.PENDING
               : DeliveryLogStatus.RETRYING,
         });
@@ -72,8 +76,9 @@ export class EmailDeliveryProcessor extends WorkerHost {
             await this.deliveryService.upsertLog(data.deliveryId, {
               ...log,
               status: DeliveryLogStatus.FAILED,
+              statusMessage: `Delivery error: ${(e as Error)?.message}`,
+              attemptsCount: log.attemptsCount + 1,
             });
-            return;
           }
           throw e;
         }
@@ -92,6 +97,7 @@ export class EmailDeliveryProcessor extends WorkerHost {
 
   @OnWorkerEvent('failed')
   onFailed(job: Job, err: Error) {
+    // TODO: send dev alert event after reached max attempts
     this.logger.error(
       `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): ${err.message}`,
       this.constructor.name,
