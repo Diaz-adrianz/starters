@@ -13,6 +13,7 @@ import { DeliveryPriority } from '../enums/delivery-priority.enum';
 export interface DeliverySender {
   name?: string;
   email?: string;
+  emailReplyTo?: string;
 }
 
 @Entity({ schema: 'notification', name: 'deliveries' })

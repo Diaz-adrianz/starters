@@ -54,6 +54,7 @@ export class DeliveryService {
       type: dto.type,
       priority: dto.priority,
       templateKey: dto.templateKey,
+      sender: dto.sender,
     });
 
     for (const channel of dto.channels) {
@@ -83,6 +84,14 @@ export class DeliveryService {
                 templateKey: delivery.templateKey,
                 email: r.email,
                 payload: r.payload,
+                sender:
+                  delivery.sender.name && delivery.sender.email
+                    ? {
+                        name: delivery.sender.name,
+                        email: delivery.sender.email,
+                      }
+                    : undefined,
+                replyTo: delivery.sender.emailReplyTo,
               },
               opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),

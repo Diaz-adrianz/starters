@@ -20,7 +20,7 @@ export interface EmailDeliveryJobPayload {
     email: string;
     templateKey: string;
     payload: Record<string, unknown>;
-    from?: string;
+    sender?: { name: string; email: string };
     replyTo?: string;
   };
 }

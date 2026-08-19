@@ -6,7 +6,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsObject,
-  IsOptional,
   IsString,
   IsUUID,
   ValidateNested,
@@ -15,13 +14,29 @@ import { Channel } from '../../../enums/channel.enum';
 import { Type } from 'class-transformer';
 import { DeliveryType } from '../../../enums/delivery-type.enum';
 import { DeliveryPriority } from '../../../enums/delivery-priority.enum';
+import { DeliverySender } from '../../../entities/delivery.entity';
+import { IsOptionalNonNull } from '../../../../../common/decorators/validators/is-optional-non-null.validator';
+
+class CreateDeliverySenderDto implements DeliverySender {
+  @IsOptionalNonNull()
+  @IsString()
+  name?: string;
+
+  @IsOptionalNonNull()
+  @IsString()
+  email?: string;
+
+  @IsOptionalNonNull()
+  @IsEmail()
+  emailReplyTo?: string;
+}
 
 class CreateDeliveryRecipientDto {
-  @IsOptional()
+  @IsOptionalNonNull()
   @IsUUID()
   userId?: string;
 
-  @IsOptional()
+  @IsOptionalNonNull()
   @IsEmail()
   email?: string;
 
@@ -56,4 +71,10 @@ export class CreateDeliveryDto {
   @ValidateNested({ each: true })
   @Type(() => CreateDeliveryRecipientDto)
   recipients: CreateDeliveryRecipientDto[];
+
+  @IsOptionalNonNull()
+  @ValidateNested()
+  @IsObject()
+  @Type(() => CreateDeliverySenderDto)
+  sender?: CreateDeliverySenderDto;
 }

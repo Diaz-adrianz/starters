@@ -2,13 +2,13 @@ import { ConfigType, registerAs } from '@nestjs/config';
 import * as yup from 'yup';
 
 const schema = yup.object({
-  MAILER_DEFAULT_TEMPLATES_PATH: yup.string().required(),
   MAILER_DEFAULT_HOST: yup.string().required(),
   MAILER_DEFAULT_PORT: yup.number().required(),
-  MAILER_DEFAULT_SENDER: yup.string().required(),
   MAILER_DEFAULT_USER: yup.string().required(),
   MAILER_DEFAULT_PASS: yup.string().required(),
   MAILER_DEFAULT_SECURE: yup.bool().required(),
+  MAILER_DEFAULT_SENDER_NAME: yup.string().required(),
+  MAILER_DEFAULT_SENDER_EMAIL: yup.string().email().required(),
 });
 
 export const mailerConfig = registerAs('mailer', () => {
@@ -20,13 +20,15 @@ export const mailerConfig = registerAs('mailer', () => {
 
     return {
       default: {
-        templatesPath: value.MAILER_DEFAULT_TEMPLATES_PATH,
         host: value.MAILER_DEFAULT_HOST,
         port: value.MAILER_DEFAULT_PORT,
-        sender: value.MAILER_DEFAULT_SENDER,
         user: value.MAILER_DEFAULT_USER,
         pass: value.MAILER_DEFAULT_PASS,
         secure: value.MAILER_DEFAULT_SECURE,
+        sender: {
+          name: value.MAILER_DEFAULT_SENDER_NAME,
+          email: value.MAILER_DEFAULT_SENDER_EMAIL,
+        },
       },
     };
   } catch (error) {

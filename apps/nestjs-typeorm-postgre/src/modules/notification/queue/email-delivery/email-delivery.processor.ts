@@ -57,12 +57,15 @@ export class EmailDeliveryProcessor extends WorkerHost {
         if (!template) return;
 
         try {
-          await this.mailerService.send({
-            from: data.from,
-            to: data.email,
-            subject: template.title,
-            content: template.body,
-          });
+          await this.mailerService.send(
+            data.email,
+            template.title,
+            template.body,
+            {
+              sender: data.sender,
+              replyTo: data.replyTo,
+            },
+          );
 
           await this.deliveryService.upsertLog(data.deliveryId, {
             ...log,
