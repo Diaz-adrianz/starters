@@ -12,8 +12,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Channel } from '../../../enums/channel.enum';
-import { Type as NotificationType } from '../../../enums/delivery-type.enum';
 import { Type } from 'class-transformer';
+import { DeliveryType } from '../../../enums/delivery-type.enum';
+import { DeliveryPriority } from '../../../enums/delivery-priority.enum';
 
 class CreateDeliveryRecipientDto {
   @IsOptional()
@@ -31,8 +32,12 @@ class CreateDeliveryRecipientDto {
 
 export class CreateDeliveryDto {
   @IsNotEmpty()
-  @IsEnum(NotificationType)
-  type: NotificationType;
+  @IsEnum(DeliveryType)
+  type: DeliveryType;
+
+  @IsNotEmpty()
+  @IsEnum(DeliveryPriority)
+  priority: DeliveryPriority;
 
   @IsNotEmpty()
   @IsString()

@@ -3,12 +3,13 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { LoggerService } from '../../../infra/logger/logger.service';
 import { APP_CONFIG_KEY, type AppConfig } from '../../../config/app.config';
 import { DeliveryService } from '../resources/delivery/delivery.service';
-import { Type } from '../enums/delivery-type.enum';
 import { Channel } from '../enums/channel.enum';
 import {
   AuthEventName,
   AuthEventPayload,
 } from '../../../infra/event/interfaces/auth-event.interface';
+import { DeliveryType } from '../enums/delivery-type.enum';
+import { DeliveryPriority } from '../enums/delivery-priority.enum';
 
 @Injectable()
 export class AuthEventSubscriber {
@@ -24,7 +25,8 @@ export class AuthEventSubscriber {
 
     try {
       await this.deliveryService.create({
-        type: Type.SYSTEM,
+        type: DeliveryType.SYSTEM,
+        priority: DeliveryPriority.HIGH,
         channels: [Channel.EMAIL],
         templateKey: 'auth.signin-alert',
         recipients: [

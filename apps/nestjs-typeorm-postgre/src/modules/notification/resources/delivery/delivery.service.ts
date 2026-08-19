@@ -51,6 +51,7 @@ export class DeliveryService {
   async create(dto: CreateDeliveryDto) {
     const delivery = await this.deliveryRepo.save({
       type: dto.type,
+      priority: dto.priority,
       templateKey: dto.templateKey,
     });
 
