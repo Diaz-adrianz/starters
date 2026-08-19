@@ -1,4 +1,5 @@
 import { Job, JobsOptions, Queue } from 'bullmq';
+import { PushProvider } from '../../enums/push-provider.enum';
 
 export const PUSH_DELIVERY_QUEUE = 'push-deliveries';
 
@@ -20,6 +21,12 @@ export interface PushDeliveryJobPayload {
     userId: string;
     templateKey: string;
     payload: Record<string, any>;
+    pushTokens?: { token: string; provider: PushProvider }[];
+    stats?: {
+      sent?: number;
+      total?: number;
+      revoked?: number;
+    };
   };
 }
 
