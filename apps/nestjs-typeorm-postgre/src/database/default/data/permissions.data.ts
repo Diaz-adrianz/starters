@@ -1,4 +1,4 @@
-import { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
+import { Scope } from '../../../shared/interfaces/resource-scope.interface';
 import { RolesData } from './roles.data';
 
 export const PermissionsData: {
@@ -6,7 +6,7 @@ export const PermissionsData: {
   entries: {
     description: string;
     permission: string;
-    roles: { name: string; scope?: ResourceScopeIntf }[];
+    roles: { name: string; scope?: Scope }[];
   }[];
 }[] = [
   {
@@ -83,7 +83,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: { where: 'id:$subject.user.id' },
+            scope: [{ field: 'id', op: 'where', value: '{{subject.user.id}}' }],
           },
         ],
       },
@@ -100,7 +100,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: { where: 'id:$subject.user.id' },
+            scope: [{ field: 'id', op: 'where', value: '{{subject.user.id}}' }],
           },
         ],
       },
@@ -177,7 +177,9 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
         ],
       },
@@ -187,15 +189,21 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
           {
             name: RolesData.ADMIN,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
           {
             name: RolesData.USER,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
         ],
       },
@@ -205,15 +213,21 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
           {
             name: RolesData.ADMIN,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
           {
             name: RolesData.USER,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
         ],
       },
@@ -227,7 +241,9 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: { where: 'userId:$subject.user.id' },
+            scope: [
+              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
+            ],
           },
         ],
       },

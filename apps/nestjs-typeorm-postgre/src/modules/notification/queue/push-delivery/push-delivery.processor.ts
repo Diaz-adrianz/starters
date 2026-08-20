@@ -243,6 +243,7 @@ export class PushDeliveryProcessor extends WorkerHost {
 
   @OnWorkerEvent('failed')
   onFailed(job: Job, err: Error) {
+    // TODO: send dev alert event after reached max attempts
     this.logger.error(
       `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): ${err.message}`,
       this.constructor.name,

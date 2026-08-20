@@ -38,14 +38,14 @@ export class RoleService {
 
   findMany(scope: ResourceScope) {
     return this.roleRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       select: { id: true, name: true, isDefault: true },
     });
   }
 
   findOne(scope: ResourceScope) {
     return this.roleRepo.findOneOrFail({
-      ...scope.toOptions(),
+      ...scope.toFindOptions(),
       relations: { permissions: { permission: true } },
       select: {
         ...this.roleRepo.select('*'),
@@ -63,8 +63,9 @@ export class RoleService {
     const { permissions, ...payload } = updateRoleDto;
 
     const result = await this.dataSource.transaction(async (manager) => {
-      const data = await manager.findOneOrFail(Role, scope.toOptions());
-      const result = await manager.update(Role, scope.where, payload, {
+      const options = scope.toFindOptions();
+      const data = await manager.findOneOrFail(Role, options);
+      const result = await manager.update(Role, options.where, payload, {
         returning: ['id'],
       });
 
@@ -105,7 +106,7 @@ export class RoleService {
   }
 
   async archive(scope: ResourceScope) {
-    const result = await this.roleRepo.softDelete(scope.where, {
+    const result = await this.roleRepo.softDelete(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
@@ -113,7 +114,7 @@ export class RoleService {
   }
 
   async restore(scope: ResourceScope) {
-    const result = await this.roleRepo.restore(scope.where, {
+    const result = await this.roleRepo.restore(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
@@ -121,7 +122,7 @@ export class RoleService {
   }
 
   async delete(scope: ResourceScope) {
-    const result = await this.roleRepo.delete(scope.where, {
+    const result = await this.roleRepo.delete(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);

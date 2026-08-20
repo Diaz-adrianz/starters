@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Permission } from './permission.entity';
-import type { ResourceScopeIntf } from '../../../shared/interfaces/resource-scope.interface';
+import { Scope } from '../../../shared/interfaces/resource-scope.interface';
 
 @Entity({ schema: 'access_control', name: 'role_permissions' })
 @Unique(['roleId', 'permissionId'])
@@ -23,7 +23,7 @@ export class RolePermission {
   permissionId: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  scope: ResourceScopeIntf | null;
+  scope: Scope | null;
 
   @ManyToOne(() => Role, (role) => role.permissions, { onDelete: 'CASCADE' })
   role: Role;

@@ -44,7 +44,7 @@ export class PushTokenService {
   // ----------------------------------------------------------------
   findMany(scope: ResourceScope) {
     return this.pushTokenRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       select: {
         ...this.pushTokenRepo.select(['token'], 'omit'),
       },

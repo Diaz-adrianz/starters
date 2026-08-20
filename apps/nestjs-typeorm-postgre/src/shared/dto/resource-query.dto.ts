@@ -8,24 +8,37 @@ import {
   Min,
   ValidationOptions,
 } from 'class-validator';
-import { ResourceScopeIntf } from '../interfaces/resource-scope.interface';
+import { ResourceQueryIntf } from '../interfaces/resource-query.interface';
+import {
+  VALUES_SEPARATOR,
+  CONDITION_SEPARATOR,
+  SCOPE_SEPARATOR,
+  FIELDS_SEPARATOR,
+} from '../classes/resource-scope.class';
+import { escapeRegex } from '../utils/transformer.util';
 
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 20;
 
-const CLAUSE_PATTERN_REGEX =
-  /^[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*(?:;[\w]+(?:\.[\w]+)*:[\w$]+(?:[.,][\w$]+)*)*$/;
+const FIELD_PATTERN = `[a-zA-Z_][a-zA-Z0-9_]*(?:${escapeRegex(FIELDS_SEPARATOR)}[a-zA-Z0-9_]*)*`;
+const VALUE_PATTERN = String.raw`[^${VALUES_SEPARATOR}${CONDITION_SEPARATOR}${escapeRegex(SCOPE_SEPARATOR)}]+`;
+const CONDITION_PATTERN = `${FIELD_PATTERN}${CONDITION_SEPARATOR}${VALUE_PATTERN}(?:${VALUES_SEPARATOR}${VALUE_PATTERN})*`;
 
-const ClausePattern = (validationOptions?: ValidationOptions) =>
-  Matches(CLAUSE_PATTERN_REGEX, {
+const CONDITION_PATTERN_REGEX = new RegExp(
+  `^${CONDITION_PATTERN}(?:\\${SCOPE_SEPARATOR}${CONDITION_PATTERN})*$`,
+);
+
+const ConditionPattern = (validationOptions?: ValidationOptions) =>
+  Matches(CONDITION_PATTERN_REGEX, {
     message: ($property) =>
       `${$property.property} must match pattern "field:value1,value2;field2:value1,value2"`,
     ...validationOptions,
   });
 
-const ORDER_PATTERN_REGEX =
-  /^[\w]+(?:\.[\w]+)*:(?:asc|desc)(?:;[\w]+(?:\.[\w]+)*:(?:asc|desc))*$/i;
-
+const ORDER_PATTERN_REGEX = new RegExp(
+  `^${FIELD_PATTERN}${CONDITION_SEPARATOR}(?:asc|desc)(?:\\${SCOPE_SEPARATOR}${FIELD_PATTERN}${CONDITION_SEPARATOR}(?:asc|desc))*$`,
+  'i',
+);
 const OrderPattern = (validationOptions?: ValidationOptions) =>
   Matches(ORDER_PATTERN_REGEX, {
     message: ($property) =>
@@ -33,25 +46,25 @@ const OrderPattern = (validationOptions?: ValidationOptions) =>
     ...validationOptions,
   });
 
-export class ResourceScopeBaseDto implements ResourceScopeIntf {
+export class ResourceQueryDto implements ResourceQueryIntf {
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   search?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   starts?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   where?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   in?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   nin?: string;
 
   @IsOptional()
@@ -61,21 +74,17 @@ export class ResourceScopeBaseDto implements ResourceScopeIntf {
   notnull?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   gte?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   lte?: string;
 
   @IsOptional()
-  @ClausePattern()
+  @ConditionPattern()
   between?: string;
-}
-export class ResourceScopeDto
-  extends ResourceScopeBaseDto
-  implements ResourceScopeIntf
-{
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

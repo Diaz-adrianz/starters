@@ -62,10 +62,15 @@ export class AuthService {
     if (existUser && existUser.verifiedAt === null) {
       const existingToken = await this.verificationTokenService
         .findOne(
-          new ResourceScope({
-            where: `userId:${existUser.id};type:${VerificationTokenType.EMAIL_VERIFICATION}`,
-            isnull: 'consumedAt',
-          }),
+          new ResourceScope([
+            { field: 'userId', op: 'where', value: existUser.id },
+            {
+              field: 'type',
+              op: 'where',
+              value: VerificationTokenType.EMAIL_VERIFICATION,
+            },
+            { field: 'consumedAt', op: 'isnull' },
+          ]),
         )
         .catch(() => undefined);
 
@@ -168,10 +173,15 @@ export class AuthService {
 
     const token = await this.verificationTokenService
       .findOne(
-        new ResourceScope({
-          where: `tokenHash:${otpHash};type:${VerificationTokenType.EMAIL_VERIFICATION}`,
-          isnull: 'consumedAt',
-        }),
+        new ResourceScope([
+          { field: 'tokenHash', op: 'where', value: otpHash },
+          {
+            field: 'type',
+            op: 'where',
+            value: VerificationTokenType.EMAIL_VERIFICATION,
+          },
+          { field: 'consumedAt', op: 'isnull' },
+        ]),
       )
       .catch(() => null);
 
@@ -195,10 +205,15 @@ export class AuthService {
     if (user) {
       const token = await this.verificationTokenService
         .findOne(
-          new ResourceScope({
-            where: `userId:${user.id};type:${VerificationTokenType.PASSWORD_RESET}`,
-            isnull: 'consumedAt',
-          }),
+          new ResourceScope([
+            { field: 'userId', op: 'where', value: user.id },
+            {
+              field: 'type',
+              op: 'where',
+              value: VerificationTokenType.PASSWORD_RESET,
+            },
+            { field: 'consumedAt', op: 'isnull' },
+          ]),
         )
         .catch(() => undefined);
 
@@ -217,10 +232,15 @@ export class AuthService {
 
     const token = await this.verificationTokenService
       .findOne(
-        new ResourceScope({
-          where: `tokenHash:${otpHash};type:${VerificationTokenType.PASSWORD_RESET}`,
-          isnull: 'consumedAt',
-        }),
+        new ResourceScope([
+          { field: 'tokenHash', op: 'where', value: otpHash },
+          {
+            field: 'type',
+            op: 'where',
+            value: VerificationTokenType.PASSWORD_RESET,
+          },
+          { field: 'consumedAt', op: 'isnull' },
+        ]),
       )
       .catch(() => null);
 

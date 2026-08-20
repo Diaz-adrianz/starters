@@ -20,7 +20,7 @@ import { DefaultStorageService } from '../../../../lib/storage/default/default-s
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { ReqUser } from '../../../../common/decorators/req-user.decorator';
 import { Principal } from '../../../../shared/classes/principal.class';
-import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
+import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 
 @Controller('identity/users')
 export class UserController {
@@ -39,7 +39,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     const data = await this.userService.findOne(permission.scope);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
@@ -55,7 +55,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     const data = await this.userService.findOne(permission.scope);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
@@ -79,16 +79,16 @@ export class UserController {
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeDto,
+    @Query() query: ResourceQueryDto,
   ) {
-    permission.scope.add(query);
+    permission.scope.addQuery(query);
     return this.userService.findMany(permission.scope);
   }
 
   @Permission('users:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.findOne(permission.scope);
   }
 
@@ -99,28 +99,28 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.update(permission.scope, updateUserDto);
   }
 
   @Permission('users:archive')
   @Patch(':id/archive')
   archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.archive(permission.scope);
   }
 
   @Permission('users:restore')
   @Patch(':id/restore')
   restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}`, trash: true });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.restore(permission.scope);
   }
 
   @Permission('users:delete')
   @Delete(':id')
   delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.delete(permission.scope);
   }
 }

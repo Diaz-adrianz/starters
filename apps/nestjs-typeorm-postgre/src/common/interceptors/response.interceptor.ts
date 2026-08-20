@@ -17,7 +17,7 @@ import {
   ResSuccessMetadata,
 } from '../decorators/res-success.decorator';
 import { PaginationResponseDto } from '../../shared/dto/pagination-response.dto';
-import { ResourceScopeDto } from '../../shared/dto/resource-scope.dto';
+import { ResourceQueryDto } from '../../shared/dto/resource-query.dto';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor<
@@ -75,7 +75,7 @@ export class ResponseInterceptor implements NestInterceptor<
       typeof data[1] === 'number'
     ) {
       const [items, total] = data as [unknown[], number];
-      const query = plainToInstance(ResourceScopeDto, request.query || {});
+      const query = plainToInstance(ResourceQueryDto, request.query || {});
 
       return new PaginationResponseDto(
         this.toPlain(items) as unknown[],

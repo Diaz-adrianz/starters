@@ -11,7 +11,7 @@ import {
   PermissionMetadata,
 } from '../decorators/permission.decorator';
 import { Principal } from '../../shared/classes/principal.class';
-import { ResourceScopeIntf } from '../../shared/interfaces/resource-scope.interface';
+import { Scope } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -20,7 +20,7 @@ import { DatabaseKeys } from '../../database/database-keys.contant';
 import { LoggerService } from '../../infra/logger/logger.service';
 import { CacheService } from '../../infra/cache/cache.service';
 
-type RolePermissionsCache = [string, ResourceScopeIntf | null];
+type RolePermissionsCache = [string, Scope | null];
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -92,9 +92,7 @@ export class PermissionGuard implements CanActivate {
     const resourceScope = new ResourceScope();
     scopes.forEach((scope) => {
       if (scope)
-        resourceScope.add(scope, 'OR', 'auto', {
-          subject: principal.toSubject(),
-        });
+        resourceScope.add(scope, 'or', '*', { subject: principal.toSubject() });
     });
 
     principal.permission = { name: metadata.permission, scope: resourceScope };

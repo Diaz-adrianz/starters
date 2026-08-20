@@ -16,8 +16,8 @@ export class MessageService {
   ) {}
 
   markRead(scope: ResourceScope) {
-    scope.add({ isnull: 'readAt' });
-    return this.messageRepo.update(scope.where, {
+    scope.add([{ field: 'readAt', op: 'isnull' }]);
+    return this.messageRepo.update(scope.toFindOptions().where, {
       readAt: new Date(),
     });
   }
@@ -55,7 +55,7 @@ export class MessageService {
   // ----------------------------------------------------------------
   findMany(scope: ResourceScope) {
     return this.messageRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       relations: { delivery: true },
       select: {
         ...this.messageRepo.select('*'),
@@ -68,6 +68,6 @@ export class MessageService {
   }
 
   delete(scope: ResourceScope) {
-    return this.messageRepo.delete(scope.where);
+    return this.messageRepo.delete(scope.toFindOptions().where);
   }
 }

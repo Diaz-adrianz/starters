@@ -38,7 +38,7 @@ export class PermissionService {
   // ----------------------------------------------------------------
   findMany(scope: ResourceScope) {
     return this.permissionRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       select: this.permissionRepo.select([
         'id',
         'group',
@@ -49,12 +49,12 @@ export class PermissionService {
   }
 
   findOne(scope: ResourceScope) {
-    return this.permissionRepo.findOneOrFail({ ...scope.toOptions() });
+    return this.permissionRepo.findOneOrFail({ ...scope.toFindOptions() });
   }
 
   async update(scope: ResourceScope, updatePermissionDto: UpdatePermissionDto) {
     const result = await this.permissionRepo.update(
-      scope.where,
+      scope.toFindOptions().where,
       updatePermissionDto,
       { returning: ['id'] },
     );

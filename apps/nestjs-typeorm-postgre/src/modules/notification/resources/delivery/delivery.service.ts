@@ -144,13 +144,13 @@ export class DeliveryService {
 
   findMany(scope: ResourceScope) {
     return this.deliveryRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
     });
   }
 
   findOne(scope: ResourceScope) {
     return this.deliveryRepo.findOneOrFail({
-      ...scope.toOptions(),
+      ...scope.toFindOptions(),
     });
   }
 

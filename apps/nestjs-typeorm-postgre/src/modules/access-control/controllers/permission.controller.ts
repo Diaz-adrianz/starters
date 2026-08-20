@@ -3,8 +3,8 @@ import { PermissionService } from '../services/permission.service';
 import { Permission } from '../../../common/decorators/permission.decorator';
 import { ReqUser } from '../../../common/decorators/req-user.decorator';
 import { Principal } from '../../../shared/classes/principal.class';
-import { ResourceScopeDto } from '../../../shared/dto/resource-scope.dto';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';
+import { ResourceQueryDto } from '../../../shared/dto/resource-query.dto';
 
 @Controller('access-control/permissions')
 export class PermissionController {
@@ -23,16 +23,16 @@ export class PermissionController {
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeDto,
+    @Query() query: ResourceQueryDto,
   ) {
-    permission.scope.add(query);
+    permission.scope.addQuery(query);
     return this.permissionService.findMany(permission.scope);
   }
 
   @Permission('permissions:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.permissionService.findOne(permission.scope);
   }
 
@@ -43,7 +43,7 @@ export class PermissionController {
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.permissionService.update(permission.scope, updatePermissionDto);
   }
 }

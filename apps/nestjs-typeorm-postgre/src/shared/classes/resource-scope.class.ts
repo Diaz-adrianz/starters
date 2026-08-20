@@ -1,3 +1,16 @@
+import { isArray, isString } from 'class-validator';
+import {
+  JoinStrategy,
+  Scope,
+  ScopeContext,
+  NestedFields,
+  Operator,
+  Condition,
+  OrderDir,
+} from '../interfaces/resource-scope.interface';
+import { ResourceQueryDto } from '../dto/resource-query.dto';
+import { plainToInstance } from 'class-transformer';
+import { castValue } from '../utils/transformer.util';
 import {
   And,
   Between,
@@ -10,250 +23,286 @@ import {
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
-import {
-  DEFAULT_LIMIT,
-  DEFAULT_PAGE,
-  ResourceScopeDto,
-} from '../dto/resource-scope.dto';
-import { castValue } from '../utils/transformer.util';
-import { plainToInstance } from 'class-transformer';
 
-export const PAIR_SEPARATOR = ':';
-export const PAIRS_SEPARATOR = ';';
-export const KEYS_SEPARATOR = '.';
+export const CONDITION_SEPARATOR = ':';
+export const SCOPE_SEPARATOR = ';';
+export const FIELDS_SEPARATOR = '.';
 export const VALUES_SEPARATOR = ',';
 
-export interface ResourceScopeOptions {
+// ================================================================
+// TypeORM FindOptions
+// ----------------------------------------------------------------
+interface ResourceScopeFindOptions {
   where: Record<string, any>[];
-  order: Record<string, any>;
-  withDeleted: boolean;
+  order?: Record<string, any>;
+  withDeleted?: boolean;
+  skip?: number;
+  take?: number;
 }
 
-export interface ResourceScopePageOptions extends ResourceScopeOptions {
-  skip: number;
-  take: number;
-}
-
-export type ClauseOperator = keyof Omit<
-  ResourceScopeDto,
-  'limit' | 'page' | 'order' | 'trash'
->;
-
-const ResourceScopeClauseOperator: Record<
-  ClauseOperator,
-  (value: string) => FindOperator<any>
-> = {
-  search: (v) => ILike(`%${v}%`),
-  starts: (v) => ILike(`${v}%`),
-  where: (v) => Equal(castValue(v)),
-  in: (v) => In(v.split(VALUES_SEPARATOR).map((v) => castValue(v))),
-  nin: (v) => Not(In(v.split(VALUES_SEPARATOR).map((v) => castValue(v)))),
-  isnull: () => IsNull(),
-  notnull: () => Not(IsNull()),
-  gte: (v) => MoreThanOrEqual(castValue(v)),
-  lte: (v) => LessThanOrEqual(castValue(v)),
-  between: (v) => {
-    const [start, end] = v.split(VALUES_SEPARATOR);
-    return Between(castValue(start), castValue(end));
-  },
-};
-
+// ----------------------------------------------------------------
 export class ResourceScope {
-  where: ResourceScopeOptions['where'] = [];
+  public scopes: Scope[] = [];
 
-  // view
-  private order: ResourceScopeOptions['order'] = {};
-  private skip: ResourceScopePageOptions['skip'] = 0;
-  private take: ResourceScopePageOptions['take'] = 0;
-  private withDeleted: ResourceScopeOptions['withDeleted'] = false;
+  // Options
+  // ---------------------------------
+  private skip?: number;
+  private take?: number;
+  private withDeleted: boolean = false;
+  private order: { field: string; dir: OrderDir }[] = [];
 
-  constructor(scope?: ResourceScopeDto, relations?: string[] | 'auto') {
-    if (scope) this.add(scope, 'AND', relations);
+  constructor(scope?: Scope) {
+    this.scopes = scope ? [scope] : [];
   }
 
   public add(
-    scope: ResourceScopeDto,
-    strategy: 'OR' | 'AND' = 'AND',
-    relations: string[] | 'auto' = [],
-    context: Record<string, any> = {},
+    scope: Scope,
+    joinStrategy: JoinStrategy = 'and',
+    nestedFields: NestedFields = [],
+    context?: ScopeContext,
   ) {
-    scope =
-      scope instanceof ResourceScopeDto
-        ? scope
-        : (plainToInstance(ResourceScopeDto, scope) as ResourceScopeDto);
+    scope = this.resolveFields(scope, nestedFields);
+    if (context) scope = this.resolveScopeContext(scope, context);
 
-    this.take = scope.limit ?? DEFAULT_LIMIT;
-    this.skip = ((scope.page ?? DEFAULT_PAGE) - 1) * (this.take || 0);
-    this.withDeleted = !!scope.trash;
+    this.joinScope(scope, joinStrategy);
+  }
 
+  public addOrder(field: string, dir: OrderDir) {
+    this.order.push({ field, dir });
+  }
+
+  public addQuery(
+    query: ResourceQueryDto,
+    joinStrategy: JoinStrategy = 'and',
+    nestedFields: NestedFields = [],
+    context?: ScopeContext,
+  ) {
+    const scope = this.toScope(query, nestedFields, context);
+    this.joinScope(scope, joinStrategy);
+  }
+
+  private joinScope(scope: Scope, strategy: JoinStrategy = 'and') {
+    if (strategy === 'and')
+      this.scopes = this.scopes.length
+        ? this.scopes.map((s) => [...s, ...scope])
+        : [scope];
+    else if (strategy === 'or') this.scopes = [...this.scopes, scope];
+  }
+
+  // ================================================================
+  // Transformers
+  // ----------------------------------------------------------------
+  public toScope(
+    query: ResourceQueryDto,
+    nestedFields: NestedFields = [],
+    context?: ScopeContext,
+  ) {
+    const scope: Scope = [];
+
+    query =
+      query instanceof ResourceQueryDto
+        ? query
+        : (plainToInstance(ResourceQueryDto, query) as ResourceQueryDto);
+
+    if (query.limit) this.take = query.limit;
+    if (query.page && query.page >= 1)
+      this.skip = (query.page - 1) * (this.take || 0);
+
+    if (query.trash) this.withDeleted = true;
+    if (query.order) {
+      const conditions = query.order.split(SCOPE_SEPARATOR);
+      conditions.forEach((condition) => {
+        const [field, value] = condition.split(CONDITION_SEPARATOR);
+        if (value !== 'asc' && value !== 'desc') return;
+        this.addOrder(field, value);
+      });
+    }
+
+    (
+      [
+        'search',
+        'starts',
+        'where',
+        'in',
+        'nin',
+        'isnull',
+        'notnull',
+        'gte',
+        'lte',
+        'between',
+      ] as Operator[]
+    ).forEach((op) => {
+      if (!query[op] || typeof query[op] !== 'string') return;
+      const conditions = query[op].split(SCOPE_SEPARATOR);
+      conditions.forEach((condition) => {
+        const [field, rawValue] = condition.split(CONDITION_SEPARATOR);
+
+        if (!this.isFieldAllowed(field, nestedFields)) return;
+        const value = context
+          ? this.resolveValueContext(rawValue, context)
+          : rawValue;
+
+        if (op === 'search' || op === 'starts')
+          scope.push({ field, op, value });
+        else if (op === 'where')
+          scope.push({
+            field,
+            op,
+            value: castValue(value, ['string', 'number', 'boolean']),
+          });
+        else if (op === 'in' || op === 'nin')
+          scope.push({
+            field,
+            op,
+            value: value
+              .split(VALUES_SEPARATOR)
+              .map((v) => castValue(v, ['string', 'number', 'date'])),
+          });
+        else if (op === 'isnull' || op === 'notnull') scope.push({ field, op });
+        else if (op === 'gte' || op === 'lte')
+          scope.push({
+            field,
+            op,
+            value: castValue(value, ['string', 'number', 'date']),
+          });
+        else if (op === 'between')
+          scope.push({
+            field,
+            op,
+            value: value
+              .split(VALUES_SEPARATOR)
+              .slice(0, 2)
+              .map((v) => castValue(v, ['string', 'number', 'date'])),
+          });
+      });
+    });
+
+    return scope;
+  }
+
+  public toFindOptions(): ResourceScopeFindOptions {
     if (this.withDeleted)
-      scope.notnull = scope.notnull
-        ? `${scope.notnull}${PAIRS_SEPARATOR}deletedAt`
-        : 'deletedAt';
+      this.add([{ field: 'deletedAt', op: 'notnull' }], 'and', '*');
 
-    if (scope.order) {
-      const [key, value] = scope.order.split(PAIR_SEPARATOR);
-      this.addOrder(key.split(KEYS_SEPARATOR), value.toUpperCase());
-    }
+    const buildSubWhere = (
+      subWhere: ResourceScopeFindOptions['where'][number],
+      fields: string[],
+      value: FindOperator<any> | string,
+    ) => {
+      const [head, ...rest] = fields;
 
-    const where = this.buildWhere(scope, relations, context);
+      if (rest.length === 0) {
+        if (value instanceof FindOperator)
+          subWhere[head] = subWhere[head] ? And(subWhere[head], value) : value;
+        else subWhere[head] = value;
+        return;
+      }
 
-    if (strategy == 'OR') this.where = [...this.where, where];
-    else if (strategy == 'AND') {
-      this.where = this.where.length
-        ? this.where.map((w) => this.mergeWhere(w, where))
-        : [where];
-    }
-  }
+      if (!subWhere[head] || subWhere[head] instanceof FindOperator)
+        subWhere[head] = {};
 
-  public toOptions(): ResourceScopeOptions {
-    return {
-      where: this.where,
-      order: this.order,
-      withDeleted: this.withDeleted,
+      buildSubWhere(subWhere[head], rest, value);
     };
-  }
 
-  public toPageOptions(): ResourceScopePageOptions {
+    const where = this.scopes.map((scope) => {
+      const subWhere: ResourceScopeFindOptions['where'][number] = {};
+
+      scope.forEach((c) => {
+        const fields = c.field.split(FIELDS_SEPARATOR);
+
+        let value: FindOperator<any> | string = '';
+        if (c.op === 'search') value = ILike(`%${c.value}%`);
+        else if (c.op === 'starts') value = ILike(`${c.value}%`);
+        else if (c.op === 'where') value = Equal(c.value);
+        else if (c.op === 'in') value = In(c.value);
+        else if (c.op === 'nin') value = Not(In(c.value));
+        else if (c.op === 'isnull') value = IsNull();
+        else if (c.op === 'notnull') value = Not(IsNull());
+        else if (c.op === 'gte') value = MoreThanOrEqual(c.value);
+        else if (c.op === 'lte') value = LessThanOrEqual(c.value);
+        else if (c.op === 'between')
+          value = Between(c.value.at(0), c.value.at(1));
+
+        buildSubWhere(subWhere, fields, value);
+      });
+
+      return subWhere;
+    });
+
+    const order = this.order?.reduce<Record<string, any>>((a, c) => {
+      const fields = c.field.split(FIELDS_SEPARATOR);
+      let node = a;
+      fields.forEach((f, i) => {
+        if (i === fields.length - 1) node[f] = c.dir;
+        else node = node[f] = node[f] ?? {};
+      });
+      return a;
+    }, {});
+
     return {
-      where: this.where,
-      order: this.order,
+      where,
+      order,
       skip: this.skip,
       take: this.take,
       withDeleted: this.withDeleted,
     };
   }
 
-  private buildWhere(
-    scope: ResourceScopeDto,
-    relations: string[] | 'auto' = [],
-    context: Record<string, any> = {},
-  ) {
-    const where: ResourceScopeOptions['where'][number] = {};
+  // ================================================================
+  // Field resolver
+  // ----------------------------------------------------------------
+  private resolveFields(scope: Scope, nestedFields: NestedFields) {
+    if (nestedFields == '*') return scope;
 
-    for (const clause of Object.keys(
-      ResourceScopeClauseOperator,
-    ) as ClauseOperator[]) {
-      const pairs = scope[clause];
-      if (pairs === undefined || typeof pairs !== 'string') continue;
-
-      pairs.split(PAIRS_SEPARATOR).forEach((pair) => {
-        const [key, value] = pair.split(PAIR_SEPARATOR);
-        const keys = key.split(KEYS_SEPARATOR);
-        if (keys.length > 1) {
-          const relationKeys = keys.slice(0, -1);
-          if (
-            relations !== 'auto' &&
-            (!relations.length ||
-              !relations.includes(relationKeys.join(KEYS_SEPARATOR)))
-          )
-            return;
-        }
-
-        const resolvedValue = value ? this.resolveContext(value, context) : '';
-        this.addWhere(
-          where,
-          keys,
-          ResourceScopeClauseOperator[clause](resolvedValue),
-        );
-      });
-    }
-
-    return where;
+    return scope.filter(({ field }) =>
+      this.isFieldAllowed(field, nestedFields),
+    );
   }
 
-  private addWhere(
-    target: ResourceScopeOptions['where'][number],
-    path: string[],
-    value: FindOperator<any> | string,
-  ) {
-    const [head, ...rest] = path;
+  private isFieldAllowed(field: string, nestedFields: NestedFields) {
+    if (nestedFields === '*') return true;
 
-    if (rest.length === 0) {
-      if (value instanceof FindOperator)
-        target[head] = target[head] ? And(target[head], value) : value;
-      else {
-        target[head] = value;
-      }
-      return;
-    }
+    const parts = field.split(FIELDS_SEPARATOR);
+    if (parts.length === 1) return true;
 
-    if (!target[head] || target[head] instanceof FindOperator) {
-      target[head] = {};
-    }
-    this.addWhere(target[head], rest, value);
+    const parent = parts.slice(0, -1).join(FIELDS_SEPARATOR);
+    return (
+      nestedFields.includes(field) ||
+      nestedFields.includes(`${parent}${FIELDS_SEPARATOR}*`)
+    );
   }
 
-  private mergeWhere(
-    base: ResourceScopeOptions['where'][number],
-    filler: ResourceScopeOptions['where'][number],
-  ): ResourceScopeOptions['where'][number] {
-    const result = { ...base };
-
-    for (const key in filler) {
-      const valBase = result[key];
-      const valFiller = filler[key];
-
-      if (valBase == null) {
-        result[key] = valFiller;
-      } else if (valFiller == null) {
-        continue;
-      } else if (
-        typeof valBase === 'object' &&
-        !(valBase instanceof FindOperator) &&
-        typeof valFiller === 'object' &&
-        !(valFiller instanceof FindOperator)
-      ) {
-        result[key] = this.mergeWhere(valBase, valFiller);
-      } else {
-        const arrBase =
-          valBase instanceof FindOperator && valBase.type === 'and'
-            ? valBase.value
-            : [valBase];
-        const arrFiller =
-          valFiller instanceof FindOperator && valFiller.type === 'and'
-            ? valFiller.value
-            : [valFiller];
-
-        result[key] = And(...arrBase, ...arrFiller);
-      }
-    }
-
-    return result;
+  // ================================================================
+  // Context resolver
+  // ----------------------------------------------------------------
+  private resolveScopeContext(scope: Scope, context: ScopeContext) {
+    return scope.map((condition) =>
+      this.resolveConditionContext(condition, context),
+    );
   }
 
-  private addOrder(keys: string[], value: string) {
-    let current = this.order;
+  private resolveConditionContext(condition: Condition, context: ScopeContext) {
+    if (!('value' in condition)) return condition;
 
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
+    if (isString(condition.value))
+      condition.value = this.resolveValueContext(condition.value, context);
+    else if (isArray(condition.value))
+      condition.value = condition.value.map((v) =>
+        isString(v) ? this.resolveValueContext(v, context) : v,
+      );
 
-      if (i === keys.length - 1) {
-        if (typeof current[key] !== 'object' || current[key] === null)
-          current[key] = value;
-      } else {
-        if (typeof current[key] !== 'object' || current[key] === null)
-          current[key] = {};
-
-        current = current[key];
-      }
-    }
+    return condition;
   }
 
-  private resolveContext(str: string, context: Record<string, any>): string {
-    return str
-      .split(VALUES_SEPARATOR)
-      .map((value) =>
-        value.replace(
-          /^\$([a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)*)$/,
-          (_, path: string) =>
-            String(
-              path
-                .split('.')
-                .reduce<any>((value, key) => value?.[key], context) ?? '',
-            ),
+  private resolveValueContext(value: string, context: ScopeContext) {
+    return value.replace(
+      /^\{\{([a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)*)\}\}$/,
+      (_, path: string) =>
+        String(
+          path
+            .split(FIELDS_SEPARATOR)
+            .reduce<any>((v, key) => v?.[key], context) ?? '',
         ),
-      )
-      .join(',');
+    );
   }
 }

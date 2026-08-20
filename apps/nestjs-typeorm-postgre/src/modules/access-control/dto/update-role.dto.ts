@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ResourceScopeBaseDto } from '../../../shared/dto/resource-scope.dto';
+import { Scope } from '../../../shared/interfaces/resource-scope.interface';
 
 export enum UpdateRolePermissionsAction {
   SET = 'set',
@@ -26,9 +26,7 @@ export class UpdateRolePermissionDto {
 
   @IsOptional()
   @IsObject()
-  @ValidateNested()
-  @Type(() => ResourceScopeBaseDto)
-  scope?: ResourceScopeBaseDto;
+  scope?: Scope | null;
 }
 
 export class UpdateRolePermissionsDto {

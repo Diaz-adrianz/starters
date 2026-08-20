@@ -138,7 +138,9 @@ export class AuthController {
   // ----------------------------------------------------------------
   @Get('/me')
   async me(@ReqUser() principal: Principal) {
-    const scope = new ResourceScope({ where: `id:${principal.user.id}` });
+    const scope = new ResourceScope([
+      { field: 'id', op: 'where', value: principal.user.id },
+    ]);
     const user = await this.userService.findOne(scope);
     const sessions = await this.authService.findSessions(principal.user.id);
     return { user, sessions };

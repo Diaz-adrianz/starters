@@ -4,7 +4,7 @@ import { DeliveryService } from './delivery.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { ReqUser } from '../../../../common/decorators/req-user.decorator';
 import { Principal } from '../../../../shared/classes/principal.class';
-import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
+import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 
 @Controller('notification/deliveries')
 export class DeliveryController {
@@ -23,16 +23,16 @@ export class DeliveryController {
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeDto,
+    @Query() query: ResourceQueryDto,
   ) {
-    permission.scope.add(query);
+    permission.scope.addQuery(query);
     return this.deliveryService.findMany(permission.scope);
   }
 
   @Permission('notification-deliveries:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add({ where: `id:${id}` });
+    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.deliveryService.findOne(permission.scope);
   }
 }

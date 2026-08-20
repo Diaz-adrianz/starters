@@ -23,7 +23,7 @@ export class VerificationTokenService {
 
   findMany(scope: ResourceScope) {
     return this.verificationTokenRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       relations: { user: true },
       select: {
         ...this.verificationTokenRepo.select('*'),
@@ -33,19 +33,21 @@ export class VerificationTokenService {
   }
 
   findOne(scope: ResourceScope) {
-    return this.verificationTokenRepo.findOneOrFail({ ...scope.toOptions() });
+    return this.verificationTokenRepo.findOneOrFail({
+      ...scope.toFindOptions(),
+    });
   }
 
   update(scope: ResourceScope, dto: UpdateVerificationTokenDto) {
-    return this.verificationTokenRepo.update(scope.where, dto);
+    return this.verificationTokenRepo.update(scope.toFindOptions().where, dto);
   }
 
   updateById(id: string, dto: UpdateVerificationTokenDto) {
-    const scope = new ResourceScope({ where: `id:${id}` });
+    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
     return this.update(scope, dto);
   }
 
   delete(scope: ResourceScope) {
-    return this.verificationTokenRepo.delete(scope.where);
+    return this.verificationTokenRepo.delete(scope.toFindOptions().where);
   }
 }

@@ -14,9 +14,9 @@ import { ReqUser } from '../../../../common/decorators/req-user.decorator';
 import { Principal } from '../../../../shared/classes/principal.class';
 import { Public } from '../../../../common/decorators/public.decorator';
 import { Permission } from '../../../../common/decorators/permission.decorator';
-import { ResourceScopeDto } from '../../../../shared/dto/resource-scope.dto';
 import { PushTokenService } from './push-token.service';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
+import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 
 @Controller('notification/push-tokens')
 export class PushTokenController {
@@ -51,9 +51,9 @@ export class PushTokenController {
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
-    @Query() query: ResourceScopeDto,
+    @Query() query: ResourceQueryDto,
   ) {
-    permission.scope.add(query);
+    permission.scope.addQuery(query);
     return this.pushTokenService.findMany(permission.scope);
   }
 }

@@ -52,7 +52,7 @@ export class UserService {
 
   findMany(scope: ResourceScope) {
     return this.userRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       relations: { roles: { role: true } },
       select: {
         ...this.userRepo.select([
@@ -69,7 +69,7 @@ export class UserService {
 
   findOne(scope: ResourceScope) {
     return this.userRepo.findOneOrFail({
-      ...scope.toOptions(),
+      ...scope.toFindOptions(),
       relations: { roles: { role: true } },
       select: {
         ...this.userRepo.select('*'),
@@ -95,8 +95,9 @@ export class UserService {
     const { roles, ...payload } = updateUserDto;
 
     const result = await this.dataSource.transaction(async (manager) => {
-      const data = await manager.findOneOrFail(User, scope.toOptions());
-      const result = await manager.update(User, scope.where, payload, {
+      const options = scope.toFindOptions();
+      const data = await manager.findOneOrFail(User, options);
+      const result = await manager.update(User, options.where, payload, {
         returning: ['id'],
       });
 
@@ -135,7 +136,7 @@ export class UserService {
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
-    const scope = new ResourceScope({ where: `id:${id}` });
+    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
     return this.update(scope, updateUserDto);
   }
 
@@ -152,7 +153,7 @@ export class UserService {
   }
 
   async archive(scope: ResourceScope) {
-    const result = await this.userRepo.softDelete(scope.where, {
+    const result = await this.userRepo.softDelete(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
@@ -160,7 +161,7 @@ export class UserService {
   }
 
   async restore(scope: ResourceScope) {
-    const result = await this.userRepo.restore(scope.where, {
+    const result = await this.userRepo.restore(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
@@ -168,7 +169,7 @@ export class UserService {
   }
 
   async delete(scope: ResourceScope) {
-    const result = await this.userRepo.delete(scope.where, {
+    const result = await this.userRepo.delete(scope.toFindOptions().where, {
       returning: ['id'],
     });
     await this.invalidateMany(result.raw as Pick<User, 'id'>[]);

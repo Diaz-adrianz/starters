@@ -53,7 +53,7 @@ export class TemplateService {
 
   findMany(scope: ResourceScope) {
     return this.templateRepo.findAndCount({
-      ...scope.toPageOptions(),
+      ...scope.toFindOptions(),
       select: this.templateRepo.select([
         'id',
         'key',
@@ -66,23 +66,23 @@ export class TemplateService {
 
   findOne(scope: ResourceScope) {
     return this.templateRepo.findOneOrFail({
-      ...scope.toOptions(),
+      ...scope.toFindOptions(),
     });
   }
 
   update(scope: ResourceScope, dto: UpdateTemplateDto) {
-    return this.templateRepo.update(scope.where, dto);
+    return this.templateRepo.update(scope.toFindOptions().where, dto);
   }
 
   archive(scope: ResourceScope) {
-    return this.templateRepo.softDelete(scope.where);
+    return this.templateRepo.softDelete(scope.toFindOptions().where);
   }
 
   restore(scope: ResourceScope) {
-    return this.templateRepo.restore(scope.where);
+    return this.templateRepo.restore(scope.toFindOptions().where);
   }
 
   delete(scope: ResourceScope) {
-    return this.templateRepo.delete(scope.where);
+    return this.templateRepo.delete(scope.toFindOptions().where);
   }
 }
