@@ -23,6 +23,7 @@ import {
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
+import { BadRequestException } from '@nestjs/common';
 
 export const CONDITION_SEPARATOR = ':';
 export const SCOPE_SEPARATOR = ';';
@@ -192,14 +193,22 @@ export class ResourceScope {
       const [head, ...rest] = fields;
 
       if (rest.length === 0) {
-        if (value instanceof FindOperator)
-          subWhere[head] = subWhere[head] ? And(subWhere[head], value) : value;
-        else subWhere[head] = value;
+        if (subWhere[head] && !(subWhere[head] instanceof FindOperator))
+          throw new BadRequestException(
+            `Field "${head}" is not directly filterable`,
+          );
+        subWhere[head] =
+          value instanceof FindOperator && subWhere[head]
+            ? And(subWhere[head], value)
+            : value;
         return;
       }
 
-      if (!subWhere[head] || subWhere[head] instanceof FindOperator)
-        subWhere[head] = {};
+      if (subWhere[head] instanceof FindOperator)
+        throw new BadRequestException(
+          `Field "${head}" is not directly filterable`,
+        );
+      if (!subWhere[head]) subWhere[head] = {};
 
       buildSubWhere(subWhere[head], rest, value);
     };
@@ -229,15 +238,17 @@ export class ResourceScope {
       return subWhere;
     });
 
-    const order = this.order?.reduce<Record<string, any>>((a, c) => {
-      const fields = c.field.split(FIELDS_SEPARATOR);
-      let node = a;
-      fields.forEach((f, i) => {
-        if (i === fields.length - 1) node[f] = c.dir;
-        else node = node[f] = node[f] ?? {};
-      });
-      return a;
-    }, {});
+    const order = this.order.length
+      ? this.order.reduce<Record<string, any>>((a, c) => {
+          const fields = c.field.split(FIELDS_SEPARATOR);
+          let node = a;
+          fields.forEach((f, i) => {
+            if (i === fields.length - 1) node[f] = c.dir;
+            else node = node[f] = node[f] ?? {};
+          });
+          return a;
+        }, {})
+      : undefined;
 
     return {
       where,
@@ -297,12 +308,14 @@ export class ResourceScope {
   private resolveValueContext(value: string, context: ScopeContext) {
     return value.replace(
       /^\{\{([a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)*)\}\}$/,
-      (_, path: string) =>
-        String(
-          path
-            .split(FIELDS_SEPARATOR)
-            .reduce<any>((v, key) => v?.[key], context) ?? '',
-        ),
+      (_, path: string) => {
+        const resolved = path
+          .split(FIELDS_SEPARATOR)
+          .reduce<any>((v, key) => v?.[key], context);
+        if (resolved === undefined)
+          throw new Error(`Context path "${path}" could not be resolved`);
+        return String(resolved);
+      },
     );
   }
 }
