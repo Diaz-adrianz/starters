@@ -49,7 +49,6 @@ export class AccessControlEventSubscriber {
   // Utils
   // ----------------------------------------------------------------
   invalidateRoles(roles: { id: string }[]) {
-    console.log(roles);
     return this.cache.delMany((k) =>
       roles.map((role) => k.rolePermissions(role.id)),
     );
