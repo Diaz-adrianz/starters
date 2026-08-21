@@ -15,14 +15,16 @@ export class UserRole {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('uuid')
   userId: string;
 
-  @Column()
+  @Column('uuid')
   roleId: string;
 
+  // Identity
   @ManyToOne(() => User, (user) => user.roles, { onDelete: 'CASCADE' })
   user: User;
+  // ---------------------------------
 
   @ManyToOne(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   role: Role;

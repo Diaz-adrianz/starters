@@ -16,13 +16,13 @@ export class RolePermission {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('uuid')
   roleId: string;
 
-  @Column()
+  @Column('uuid')
   permissionId: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column('jsonb', { nullable: true })
   scope: Scope | null;
 
   @ManyToOne(() => Role, (role) => role.permissions, { onDelete: 'CASCADE' })

@@ -15,6 +15,9 @@ export class PushToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column('uuid', { nullable: true })
+  userId: string | null;
+
   @Column('enum', { enum: PushProvider })
   provider: PushProvider;
 
@@ -23,9 +26,6 @@ export class PushToken {
 
   @Column('bool', { default: true })
   enabled: boolean;
-
-  @Column('varchar', { nullable: true })
-  userId: string | null;
 
   @Column('varchar', { nullable: true })
   deviceId: string | null;

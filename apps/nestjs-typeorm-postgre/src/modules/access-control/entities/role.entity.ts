@@ -15,10 +15,10 @@ export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column('varchar', { unique: true })
   name: string;
 
-  @Column({ default: false })
+  @Column('bool', { default: false })
   isDefault: boolean;
 
   @OneToMany(() => UserRole, (ur) => ur.role)

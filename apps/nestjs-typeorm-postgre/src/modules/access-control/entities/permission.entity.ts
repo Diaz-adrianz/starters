@@ -10,28 +10,28 @@ import {
 import { RolePermission } from './role-permission.entity';
 
 @Entity({ schema: 'access_control', name: 'permissions' })
-@Unique(['resource', 'action'])
+@Unique(['module', 'resource', 'action'])
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('varchar')
+  module: string;
+
+  @Column('varchar')
   resource: string;
 
-  @Column()
+  @Column('varchar')
   action: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  group?: string | null;
+  @Column('varchar')
+  description: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  description?: string | null;
+  @Column('bool', { default: false })
+  enabled: boolean;
 
   @OneToMany(() => RolePermission, (rp) => rp.permission)
   roles: RolePermission[];
-
-  @Column({ default: true })
-  enabled: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

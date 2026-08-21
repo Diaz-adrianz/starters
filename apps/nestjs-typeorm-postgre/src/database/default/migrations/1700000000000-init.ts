@@ -26,7 +26,7 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "access_control"."role_permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "role_id" uuid NOT NULL, "permission_id" uuid NOT NULL, "scope" jsonb, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_25d24010f53bb80b78e412c9656" UNIQUE ("role_id", "permission_id"), CONSTRAINT "PK_84059017c90bfcb701b8fa42297" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "access_control"."permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "resource" character varying NOT NULL, "action" character varying NOT NULL, "group" character varying, "description" character varying, "enabled" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_7331684c0c5b063803a425001a0" UNIQUE ("resource", "action"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "access_control"."permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "module" character varying NOT NULL, "resource" character varying NOT NULL, "action" character varying NOT NULL, "description" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_534580365a9abdb3120b7307312" UNIQUE ("module", "resource", "action"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "notification"."messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "user_id" uuid NOT NULL, "title" character varying NOT NULL, "body" text NOT NULL, "action_url" character varying, "read_at" TIMESTAMP WITH TIME ZONE, "payload" jsonb, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_18325f38ae6de43878487eff986" PRIMARY KEY ("id"))`,
@@ -53,7 +53,7 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TYPE "notification"."push_tokens_provider_enum" AS ENUM('fcm')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "notification"."push_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "provider" "notification"."push_tokens_provider_enum" NOT NULL, "token" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT true, "user_id" character varying, "device_id" character varying, "device_type" character varying, "device_name" character varying, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_3470f186e712e35b679da817270" UNIQUE ("provider", "token"), CONSTRAINT "PK_32734e87f299c29ca3878861f4f" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "notification"."push_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid, "provider" "notification"."push_tokens_provider_enum" NOT NULL, "token" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT true, "device_id" character varying, "device_type" character varying, "device_name" character varying, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_3470f186e712e35b679da817270" UNIQUE ("provider", "token"), CONSTRAINT "PK_32734e87f299c29ca3878861f4f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TYPE "notification"."templates_channel_enum" AS ENUM('email', 'push', 'in_app')`,

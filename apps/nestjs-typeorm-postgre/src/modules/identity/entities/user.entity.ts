@@ -40,8 +40,10 @@ export class User {
   @OneToMany(() => VerificationToken, (ur) => ur.user)
   verificationTokens: VerificationToken[];
 
+  // Access control
   @OneToMany(() => UserRole, (ur) => ur.user)
   roles: UserRole[];
+  // ---------------------------------
 
   @CreateDateColumn()
   createdAt: Date;
