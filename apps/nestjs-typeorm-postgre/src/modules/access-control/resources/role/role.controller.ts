@@ -23,13 +23,13 @@ export class RoleController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('roles:create')
+  @Permission('access-control:role:create')
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.create(createRoleDto);
   }
 
-  @Permission('roles:read')
+  @Permission('access-control:role:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -39,14 +39,14 @@ export class RoleController {
     return this.roleService.findMany(permission.scope);
   }
 
-  @Permission('roles:read')
+  @Permission('access-control:role:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.roleService.findOne(permission.scope);
   }
 
-  @Permission('roles:update')
+  @Permission('access-control:role:update')
   @Patch(':id')
   update(
     @ReqUser() { permission }: Principal,
@@ -57,21 +57,21 @@ export class RoleController {
     return this.roleService.update(permission.scope, updateRoleDto);
   }
 
-  @Permission('roles:archive')
+  @Permission('access-control:role:archive')
   @Patch(':id/archive')
   archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.roleService.archive(permission.scope);
   }
 
-  @Permission('roles:restore')
+  @Permission('access-control:role:restore')
   @Patch(':id/restore')
   restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.roleService.restore(permission.scope);
   }
 
-  @Permission('roles:delete')
+  @Permission('access-control:role:delete')
   @Delete(':id')
   delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);

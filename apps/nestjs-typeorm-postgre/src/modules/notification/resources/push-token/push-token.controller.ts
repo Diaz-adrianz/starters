@@ -47,7 +47,7 @@ export class PushTokenController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('notification-push-tokens:read')
+  @Permission('notification:push-token:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,

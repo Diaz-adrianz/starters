@@ -19,16 +19,17 @@ export class PermissionService {
     private roleService: RoleService,
   ) {}
 
-  async findGroups() {
-    const result: { group: string; count: string }[] = await this.permissionRepo
-      .createQueryBuilder('p')
-      .select('p.group', 'group')
-      .addSelect('COUNT(p.id)', 'count')
-      .groupBy('p.group')
-      .getRawMany();
+  async findModules() {
+    const result: { module: string; count: string }[] =
+      await this.permissionRepo
+        .createQueryBuilder('p')
+        .select('p.module', 'module')
+        .addSelect('COUNT(p.id)', 'count')
+        .groupBy('p.module')
+        .getRawMany();
 
     return result.map((row) => ({
-      group: row.group,
+      module: row.module,
       count: Number(row.count),
     }));
   }

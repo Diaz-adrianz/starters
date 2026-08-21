@@ -10,16 +10,16 @@ import { Permission } from '../../../../common/decorators/permission.decorator';
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
-  @Permission('permissions:read')
-  @Get('/groups')
-  findGroups() {
-    return this.permissionService.findGroups();
+  @Permission('access-control:permission:read')
+  @Get('/modules')
+  findModules() {
+    return this.permissionService.findModules();
   }
 
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('permissions:read')
+  @Permission('access-control:permission:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -29,14 +29,14 @@ export class PermissionController {
     return this.permissionService.findMany(permission.scope);
   }
 
-  @Permission('permissions:read')
+  @Permission('access-control:permission:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.permissionService.findOne(permission.scope);
   }
 
-  @Permission('permissions:update')
+  @Permission('access-control:permission:update')
   @Patch(':id')
   update(
     @ReqUser() { permission }: Principal,

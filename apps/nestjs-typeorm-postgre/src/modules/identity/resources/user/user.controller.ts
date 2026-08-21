@@ -32,7 +32,7 @@ export class UserController {
   // ================================================================
   // Update avatar S3
   // ----------------------------------------------------------------
-  @Permission('users:update-avatar')
+  @Permission('identity:user:update-avatar')
   @Post(':id/avatar/upload-url')
   async createAvatarUploadUrl(
     @ReqUser() { permission }: Principal,
@@ -48,7 +48,7 @@ export class UserController {
     );
   }
 
-  @Permission('users:update-avatar')
+  @Permission('identity:user:update-avatar')
   @Patch(':id/avatar')
   async updateAvatar(
     @ReqUser() { permission }: Principal,
@@ -69,13 +69,13 @@ export class UserController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('users:create')
+  @Permission('identity:user:create')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  @Permission('users:read')
+  @Permission('identity:user:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -85,14 +85,14 @@ export class UserController {
     return this.userService.findMany(permission.scope);
   }
 
-  @Permission('users:read')
+  @Permission('identity:user:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.findOne(permission.scope);
   }
 
-  @Permission('users:update')
+  @Permission('identity:user:update')
   @Patch(':id')
   update(
     @ReqUser() { permission }: Principal,
@@ -103,21 +103,21 @@ export class UserController {
     return this.userService.update(permission.scope, updateUserDto);
   }
 
-  @Permission('users:archive')
+  @Permission('identity:user:archive')
   @Patch(':id/archive')
   archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.archive(permission.scope);
   }
 
-  @Permission('users:restore')
+  @Permission('identity:user:restore')
   @Patch(':id/restore')
   restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.userService.restore(permission.scope);
   }
 
-  @Permission('users:delete')
+  @Permission('identity:user:delete')
   @Delete(':id')
   delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);

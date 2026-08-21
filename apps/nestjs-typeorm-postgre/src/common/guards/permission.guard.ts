@@ -66,12 +66,12 @@ export class PermissionGuard implements CanActivate {
             select: {
               roleId: true,
               scope: true,
-              permission: { resource: true, action: true },
+              permission: { module: true, resource: true, action: true },
             },
           });
 
           cached = rolePermissions.map((rp) => [
-            `${rp.permission.resource}:${rp.permission.action}`,
+            `${rp.permission.module}:${rp.permission.resource}:${rp.permission.action}`,
             rp.scope,
           ]);
           await this.cache.set((k) => k.rolePermissions(role.id), cached, 0);

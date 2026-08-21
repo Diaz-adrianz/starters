@@ -9,7 +9,7 @@ import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Permission('notification-messages:mark-read')
+  @Permission('notification:message:mark-read')
   @Patch(':id/mark-read')
   markRead(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
@@ -19,7 +19,7 @@ export class MessageController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('notification-messages:read')
+  @Permission('notification:message:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -29,7 +29,7 @@ export class MessageController {
     return this.messageService.findMany(permission.scope);
   }
 
-  @Permission('notification-messages:delete')
+  @Permission('notification:message:delete')
   @Delete(':id')
   async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);

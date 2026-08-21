@@ -23,13 +23,13 @@ export class TemplateController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('notification-templates:create')
+  @Permission('notification:template:create')
   @Post()
   create(@Body() dto: CreateTemplateDto) {
     return this.templateService.create(dto);
   }
 
-  @Permission('notification-templates:read')
+  @Permission('notification:template:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -39,14 +39,14 @@ export class TemplateController {
     return this.templateService.findMany(permission.scope);
   }
 
-  @Permission('notification-templates:read')
+  @Permission('notification:template:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.templateService.findOne(permission.scope);
   }
 
-  @Permission('notification-templates:update')
+  @Permission('notification:template:update')
   @Patch(':id')
   update(
     @ReqUser() { permission }: Principal,
@@ -57,21 +57,21 @@ export class TemplateController {
     return this.templateService.update(permission.scope, dto);
   }
 
-  @Permission('notification-templates:archive')
+  @Permission('notification:template:archive')
   @Patch(':id/archive')
   archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.templateService.archive(permission.scope);
   }
 
-  @Permission('notification-templates:restore')
+  @Permission('notification:template:restore')
   @Patch(':id/restore')
   restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.templateService.restore(permission.scope);
   }
 
-  @Permission('notification-templates:delete')
+  @Permission('notification:template:delete')
   @Delete(':id')
   delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);

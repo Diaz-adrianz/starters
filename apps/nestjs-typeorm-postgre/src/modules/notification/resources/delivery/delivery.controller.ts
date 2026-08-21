@@ -13,13 +13,13 @@ export class DeliveryController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @Permission('notification-deliveries:create')
+  @Permission('notification:delivery:create')
   @Post()
   create(@Body() dto: CreateDeliveryDto) {
     return this.deliveryService.create(dto);
   }
 
-  @Permission('notification-deliveries:read')
+  @Permission('notification:delivery:read')
   @Get()
   findMany(
     @ReqUser() { permission }: Principal,
@@ -29,7 +29,7 @@ export class DeliveryController {
     return this.deliveryService.findMany(permission.scope);
   }
 
-  @Permission('notification-deliveries:read')
+  @Permission('notification:delivery:read')
   @Get(':id')
   findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
     permission.scope.add([{ field: 'id', op: 'where', value: id }]);
