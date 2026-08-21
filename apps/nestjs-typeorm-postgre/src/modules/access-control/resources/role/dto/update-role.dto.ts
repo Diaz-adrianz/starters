@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Scope } from '../../../shared/interfaces/resource-scope.interface';
+import { Scope } from '../../../../../shared/interfaces/resource-scope.interface';
 
 export enum UpdateRolePermissionsAction {
   SET = 'set',

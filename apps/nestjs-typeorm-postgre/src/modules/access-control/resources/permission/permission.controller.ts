@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { PermissionService } from '../services/permission.service';
-import { Permission } from '../../../common/decorators/permission.decorator';
-import { ReqUser } from '../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../shared/classes/principal.class';
-import { UpdatePermissionDto } from '../dto/update-permission.dto';
-import { ResourceQueryDto } from '../../../shared/dto/resource-query.dto';
+import { ReqUser } from '../../../../common/decorators/req-user.decorator';
+import { Principal } from '../../../../shared/classes/principal.class';
+import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
+import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { PermissionService } from './permission.service';
+import { Permission } from '../../../../common/decorators/permission.decorator';
 
 @Controller('access-control/permissions')
 export class PermissionController {

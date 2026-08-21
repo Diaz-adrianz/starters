@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Permission } from '../entities/permission.entity';
-import { ResourceScope } from '../../../shared/classes/resource-scope.class';
-import { UpdatePermissionDto } from '../dto/update-permission.dto';
-import { AppRepository } from '../../../database/typeorm/app-repository';
-import { RoleService } from './role.service';
-import { RolePermission } from '../entities/role-permission.entity';
 import { In } from 'typeorm';
-import { DatabaseKeys } from '../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { AppRepository } from '../../../../database/typeorm/app-repository';
+import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
+import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { RolePermission } from '../../entities/role-permission.entity';
+import { RoleService } from '../role/role.service';
+import { Permission } from '../../entities/permission.entity';
 
 @Injectable()
 export class PermissionService {

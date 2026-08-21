@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { Role } from '../entities/role.entity';
 import { In } from 'typeorm';
-import { ResourceScope } from '../../../shared/classes/resource-scope.class';
+import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { AppDataSource } from '../../../../database/typeorm/app-data-source';
+import { AppRepository } from '../../../../database/typeorm/app-repository';
+import { CacheService } from '../../../../infra/cache/cache.service';
+import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
+import { RolePermission } from '../../entities/role-permission.entity';
+import { Role } from '../../entities/role.entity';
+import { CreateRoleDto } from './dto/create-role.dto';
 import {
   UpdateRoleDto,
   UpdateRolePermissionsAction,
-} from '../dto/update-role.dto';
-import { CreateRoleDto } from '../dto/create-role.dto';
-import { RolePermission } from '../entities/role-permission.entity';
-import { AppDataSource } from '../../../database/typeorm/app-data-source';
-import { AppRepository } from '../../../database/typeorm/app-repository';
-import { DatabaseKeys } from '../../../database/database-keys.contant';
-import { CacheService } from '../../../infra/cache/cache.service';
+} from './dto/update-role.dto';
 
 @Injectable()
 export class RoleService {

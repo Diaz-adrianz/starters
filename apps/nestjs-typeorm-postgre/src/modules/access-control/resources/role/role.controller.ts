@@ -8,13 +8,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ReqUser } from '../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../shared/classes/principal.class';
-import { Permission } from '../../../common/decorators/permission.decorator';
-import { RoleService } from '../services/role.service';
-import { UpdateRoleDto } from '../dto/update-role.dto';
-import { CreateRoleDto } from '../dto/create-role.dto';
-import { ResourceQueryDto } from '../../../shared/dto/resource-query.dto';
+import { ReqUser } from '../../../../common/decorators/req-user.decorator';
+import { Principal } from '../../../../shared/classes/principal.class';
+import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
+import { RoleService } from './role.service';
+import { Permission } from '../../../../common/decorators/permission.decorator';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('access-control/roles')
 export class RoleController {

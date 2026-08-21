@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AccessControlService } from './access-control.service';
-import { AccessControlController } from './access-control.controller';
 import { Permission } from './entities/permission.entity';
 import { RolePermission } from './entities/role-permission.entity';
 import { Role } from './entities/role.entity';
 import { UserRole } from './entities/user-role.entity';
-import { PermissionService } from './services/permission.service';
-import { RoleService } from './services/role.service';
-import { PermissionController } from './controllers/permission.controller';
-import { RoleController } from './controllers/role.controller';
+import { RoleService } from './resources/role/role.service';
+import { PermissionController } from './resources/permission/permission.controller';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
+import { RoleController } from './resources/role/role.controller';
+import { PermissionService } from './resources/permission/permission.service';
 
 @Module({
   imports: [
@@ -20,7 +18,7 @@ import { DefaultDatabaseModule } from '../../database/default/default-database.m
       UserRole,
     ]),
   ],
-  controllers: [AccessControlController, PermissionController, RoleController],
-  providers: [AccessControlService, PermissionService, RoleService],
+  controllers: [PermissionController, RoleController],
+  providers: [PermissionService, RoleService],
 })
 export class AccessControlModule {}
