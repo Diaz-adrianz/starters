@@ -8,6 +8,7 @@ import { PermissionController } from './resources/permission/permission.controll
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
 import { RoleController } from './resources/role/role.controller';
 import { PermissionService } from './resources/permission/permission.service';
+import { AccessControlEventSubscriber } from './subscribers/access-control-event.subscriber';
 
 @Module({
   imports: [
@@ -19,6 +20,12 @@ import { PermissionService } from './resources/permission/permission.service';
     ]),
   ],
   controllers: [PermissionController, RoleController],
-  providers: [PermissionService, RoleService],
+  providers: [
+    PermissionService,
+    RoleService,
+
+    // subscribers
+    AccessControlEventSubscriber,
+  ],
 })
 export class AccessControlModule {}

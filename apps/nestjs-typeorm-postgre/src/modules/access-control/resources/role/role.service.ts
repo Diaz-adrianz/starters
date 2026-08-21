@@ -4,7 +4,6 @@ import { In } from 'typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.contant';
 import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { CacheService } from '../../../../infra/cache/cache.service';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { RolePermission } from '../../entities/role-permission.entity';
 import { Role } from '../../entities/role.entity';
@@ -13,6 +12,7 @@ import {
   UpdateRoleDto,
   UpdateRolePermissionsAction,
 } from './dto/update-role.dto';
+import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
 export class RoleService {
@@ -20,14 +20,8 @@ export class RoleService {
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
-    private cache: CacheService,
+    private event: EventService,
   ) {}
-
-  invalidateMany(roles: Pick<Role, 'id'>[]) {
-    return this.cache.delMany((k) =>
-      roles.map((role) => k.rolePermissions(role.id)),
-    );
-  }
 
   // ================================================================
   // Basic CRUD
@@ -101,7 +95,9 @@ export class RoleService {
 
       return result;
     });
-    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    this.event.emit('accessControl.role.updated', {
+      roles: result.raw as Pick<Role, 'id'>[],
+    });
     return result;
   }
 
@@ -109,7 +105,9 @@ export class RoleService {
     const result = await this.roleRepo.softDelete(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    this.event.emit('accessControl.role.updated', {
+      roles: result.raw as Pick<Role, 'id'>[],
+    });
     return result;
   }
 
@@ -117,7 +115,9 @@ export class RoleService {
     const result = await this.roleRepo.restore(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    this.event.emit('accessControl.role.updated', {
+      roles: result.raw as Pick<Role, 'id'>[],
+    });
     return result;
   }
 
@@ -125,7 +125,9 @@ export class RoleService {
     const result = await this.roleRepo.delete(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<Role, 'id'>[]);
+    this.event.emit('accessControl.role.deleted', {
+      roles: result.raw as Pick<Role, 'id'>[],
+    });
     return result;
   }
 }

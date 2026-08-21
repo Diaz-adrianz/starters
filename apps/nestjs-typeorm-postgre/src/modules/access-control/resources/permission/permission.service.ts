@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.contant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { RolePermission } from '../../entities/role-permission.entity';
-import { RoleService } from '../role/role.service';
 import { Permission } from '../../entities/permission.entity';
+import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
 export class PermissionService {
   constructor(
     @InjectRepository(Permission, DatabaseKeys.DEFAULT)
     private permissionRepo: AppRepository<Permission>,
-    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
-    private rolePermissionRepo: AppRepository<RolePermission>,
-    private roleService: RoleService,
+    private event: EventService,
   ) {}
 
   async findModules() {
@@ -60,17 +56,9 @@ export class PermissionService {
       { returning: ['id'] },
     );
 
-    const affectedRoles = await this.rolePermissionRepo.find({
-      where: {
-        permission: In(
-          (result.raw as Pick<Permission, 'id'>[]).map((p) => p.id),
-        ),
-      },
-      select: { roleId: true },
+    this.event.emit('accessControl.permission.updated', {
+      permissions: result.raw as Pick<Permission, 'id'>[],
     });
-    await this.roleService.invalidateMany(
-      affectedRoles.map((role) => ({ id: role.roleId })),
-    );
     return;
   }
 }
