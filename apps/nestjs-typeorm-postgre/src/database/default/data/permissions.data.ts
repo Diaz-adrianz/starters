@@ -2,7 +2,7 @@ import { Scope } from '../../../shared/interfaces/resource-scope.interface';
 import { RolesData } from './roles.data';
 
 export const PermissionsData: {
-  group: string;
+  name: string;
   entries: {
     description: string;
     permission: string;
@@ -10,74 +10,74 @@ export const PermissionsData: {
   }[];
 }[] = [
   {
-    group: 'Access control',
+    name: 'access-control',
     entries: [
-      // permissions
+      // permission
       {
         description: 'Read permission',
-        permission: 'permissions:read',
+        permission: 'permission:read',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Update permission',
-        permission: 'permissions:update',
+        permission: 'permission:update',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Archive permission',
-        permission: 'permissions:archive',
+        permission: 'permission:archive',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Restore permission',
-        permission: 'permissions:restore',
+        permission: 'permission:restore',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
 
-      // roles
+      // role
       {
         description: 'Create role',
-        permission: 'roles:create',
+        permission: 'role:create',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Read role',
-        permission: 'roles:read',
+        permission: 'role:read',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Update role',
-        permission: 'roles:update',
+        permission: 'role:update',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Archive role',
-        permission: 'roles:archive',
+        permission: 'role:archive',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Restore role',
-        permission: 'roles:restore',
+        permission: 'role:restore',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Delete role',
-        permission: 'roles:delete',
+        permission: 'role:delete',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
     ],
   },
   {
-    group: 'Users',
+    name: 'identity',
     entries: [
       {
         description: 'Create user',
-        permission: 'users:create',
+        permission: 'user:create',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Read user',
-        permission: 'users:read',
+        permission: 'user:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },
@@ -89,12 +89,12 @@ export const PermissionsData: {
       },
       {
         description: 'Update user',
-        permission: 'users:update',
+        permission: 'user:update',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Update user avatar',
-        permission: 'users:update-avatar',
+        permission: 'user:update-avatar',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },
@@ -106,72 +106,72 @@ export const PermissionsData: {
       },
       {
         description: 'Archive user',
-        permission: 'users:archive',
+        permission: 'user:archive',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Restore user',
-        permission: 'users:restore',
+        permission: 'user:restore',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Delete user',
-        permission: 'users:delete',
+        permission: 'user:delete',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
     ],
   },
   {
-    group: 'Notifications',
+    name: 'notification',
     entries: [
       // delivery
       {
         description: 'Create delivery',
-        permission: 'notification-deliveries:create',
+        permission: 'delivery:create',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Read delivery',
-        permission: 'notification-deliveries:read',
+        permission: 'delivery:read',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
 
       // template
       {
         description: 'Create template',
-        permission: 'notification-templates:create',
+        permission: 'template:create',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Read template',
-        permission: 'notification-templates:read',
+        permission: 'template:read',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Update template',
-        permission: 'notification-templates:update',
+        permission: 'template:update',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Archive template',
-        permission: 'notification-templates:archive',
+        permission: 'template:archive',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Restore template',
-        permission: 'notification-templates:restore',
+        permission: 'template:restore',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
       {
         description: 'Delete template',
-        permission: 'notification-templates:delete',
+        permission: 'template:delete',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
 
-      // messages
+      // message
       {
         description: 'Read message',
-        permission: 'notification-messages:read',
+        permission: 'message:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },
@@ -185,7 +185,7 @@ export const PermissionsData: {
       },
       {
         description: 'Delete message',
-        permission: 'notification-messages:delete',
+        permission: 'message:delete',
         roles: [
           {
             name: RolesData.SUPERADMIN,
@@ -209,7 +209,7 @@ export const PermissionsData: {
       },
       {
         description: 'Mark message as read',
-        permission: 'notification-messages:mark-read',
+        permission: 'message:mark-read',
         roles: [
           {
             name: RolesData.SUPERADMIN,
@@ -232,10 +232,10 @@ export const PermissionsData: {
         ],
       },
 
-      // push tokens
+      // push token
       {
         description: 'Read push token',
-        permission: 'notification-push-tokens:read',
+        permission: 'push-token:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           { name: RolesData.ADMIN },

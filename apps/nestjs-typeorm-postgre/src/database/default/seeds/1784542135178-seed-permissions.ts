@@ -12,14 +12,14 @@ export class SeedPermissions1784542135178 implements Seeder {
   ): Promise<any> {
     const permissionRepo = dataSource.getRepository(Permission);
 
-    const values = PermissionsData.flatMap((group) =>
-      group.entries.map((entry) => {
+    const values = PermissionsData.flatMap((mod) =>
+      mod.entries.map((entry) => {
         const [resource, action] = entry.permission.split(':');
 
         return {
           resource,
           action,
-          group: group.group,
+          module: mod.name,
           description: entry.description,
         };
       }),
