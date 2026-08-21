@@ -53,7 +53,7 @@ export class RoleService {
           id: true,
           createdAt: true,
           scope: true,
-          permission: { id: true, group: true, description: true },
+          permission: { id: true, module: true, description: true },
         },
       },
     });

@@ -41,7 +41,7 @@ export class PermissionService {
       ...scope.toFindOptions(),
       select: this.permissionRepo.select([
         'id',
-        'group',
+        'module',
         'description',
         'enabled',
       ]),
