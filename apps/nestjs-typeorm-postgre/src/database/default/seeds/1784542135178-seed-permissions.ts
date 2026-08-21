@@ -21,6 +21,7 @@ export class SeedPermissions1784542135178 implements Seeder {
           action,
           module: mod.name,
           description: entry.description,
+          enabled: true,
         };
       }),
     );
