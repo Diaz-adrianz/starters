@@ -11,6 +11,7 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CacheService } from '../../../../infra/cache/cache.service';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UserRole } from '../../../access-control/entities/user-role.entity';
+import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
 export class UserService {
@@ -19,11 +20,8 @@ export class UserService {
     @InjectRepository(User, DatabaseKeys.DEFAULT)
     private userRepo: AppRepository<User>,
     private cache: CacheService,
+    private event: EventService,
   ) {}
-
-  invalidateMany(users: Pick<User, 'id'>[]) {
-    return this.cache.delMany((k) => users.map((user) => k.user(user.id)));
-  }
 
   // ================================================================
   // Basic CRUD
@@ -131,7 +129,9 @@ export class UserService {
 
       return result;
     });
-    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    this.event.emit('identity.user.updated', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
     return result;
   }
 
@@ -148,7 +148,9 @@ export class UserService {
       { password: hashed },
       { returning: ['id'] },
     );
-    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    this.event.emit('identity.user.updated', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
     return result;
   }
 
@@ -156,7 +158,9 @@ export class UserService {
     const result = await this.userRepo.softDelete(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    this.event.emit('identity.user.updated', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
     return result;
   }
 
@@ -164,7 +168,9 @@ export class UserService {
     const result = await this.userRepo.restore(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    this.event.emit('identity.user.updated', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
     return result;
   }
 
@@ -172,7 +178,9 @@ export class UserService {
     const result = await this.userRepo.delete(scope.toFindOptions().where, {
       returning: ['id'],
     });
-    await this.invalidateMany(result.raw as Pick<User, 'id'>[]);
+    this.event.emit('identity.user.deleted', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
     return result;
   }
 }
