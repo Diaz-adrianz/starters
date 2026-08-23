@@ -15,6 +15,7 @@ import { LoggerModule } from './infra/logger/logger.module';
 import { CacheModule } from './infra/cache/cache.module';
 import { EventModule } from './infra/event/event.module';
 import { IdentityModule } from './modules/identity/identity.module';
+import { TrackerModule } from './modules/tracker/tracker.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { IdentityModule } from './modules/identity/identity.module';
     AuthModule,
     NotificationModule,
     AccessControlModule,
+    TrackerModule,
   ],
   providers: [
     // Guard providers
