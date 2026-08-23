@@ -3,16 +3,37 @@ import { PermissionGuard } from '../guards/permission.guard';
 
 export interface PermissionMetadata {
   permission: string;
+  module: string;
+  resource: string;
+  action: string;
   forbiddenMessage?: string;
 }
 
 export const PERMISSION_METADATA = 'PERMISSION';
 
 export const Permission = (
-  permission: PermissionMetadata['permission'],
-  options: Omit<PermissionMetadata, 'permission'> = {},
+  permission: string,
+  options: Omit<
+    PermissionMetadata,
+    'permission' | 'module' | 'resource' | 'action'
+  > = {},
 ) => {
-  const metadata: PermissionMetadata = { permission, ...options };
+  const parts = permission.split(':');
+  if (parts.length !== 3 || parts.some((part) => !part)) {
+    throw new Error(
+      `Invalid permission string "${permission}" — expected "module:resource:action"`,
+    );
+  }
+
+  const [module, resource, action] = parts;
+  const metadata: PermissionMetadata = {
+    permission,
+    module,
+    resource,
+    action,
+    ...options,
+  };
+
   return applyDecorators(
     SetMetadata(PERMISSION_METADATA, metadata),
     UseGuards(PermissionGuard),
