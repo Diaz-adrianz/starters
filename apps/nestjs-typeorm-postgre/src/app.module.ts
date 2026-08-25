@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
@@ -16,6 +16,8 @@ import { CacheModule } from './infra/cache/cache.module';
 import { EventModule } from './infra/event/event.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { TrackerModule } from './modules/tracker/tracker.module';
+import { StoreModule } from './infra/store/store.module';
+import { RequestMiddleware } from './common/middlewares/request.middleware';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { TrackerModule } from './modules/tracker/tracker.module';
     CacheModule,
     LoggerModule,
     EventModule,
+    StoreModule,
 
     // App modules
     // ---------------------------------
@@ -75,4 +78,8 @@ import { TrackerModule } from './modules/tracker/tracker.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestMiddleware).forRoutes('*');
+  }
+}
