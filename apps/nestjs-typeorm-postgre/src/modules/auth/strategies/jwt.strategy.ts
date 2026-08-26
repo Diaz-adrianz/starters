@@ -2,7 +2,6 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
-import { Principal } from '../../../shared/classes/principal.class';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
 import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
@@ -13,8 +12,12 @@ import { User } from '../../identity/entities/user.entity';
 
 type UserCache = {
   id: string;
-  username: string;
-  roles: [string, string][];
+  name: string;
+  roles: { id: string; name: string }[];
+};
+
+export type JwtUser = UserCache & {
+  session: { id: string };
 };
 
 @Injectable()
@@ -32,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: JwtTokenPayload): Promise<Principal | undefined> {
+  async validate(payload: JwtTokenPayload): Promise<JwtUser | undefined> {
     let userCache = await this.cache.get<UserCache>((k) => k.user(payload.sub));
 
     if (!userCache) {
@@ -52,19 +55,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
       userCache = {
         id: user.id,
-        username: user.username,
-        roles: user.roles.map((r) => [r.role.id, r.role.name]) ?? [],
+        name: user.username,
+        roles: user.roles.map((r) => ({ id: r.role.id, name: r.role.name })),
       };
 
       await this.cache.set((k) => k.user(payload.sub), userCache, 0);
     }
 
-    const principal = new Principal(
-      { id: userCache.id, username: userCache.username },
-      { id: payload.sid },
-      userCache.roles.map((role) => ({ id: role[0], name: role[1] })),
-    );
-
-    return principal;
+    return {
+      id: userCache.id,
+      name: userCache.id,
+      roles: userCache.roles,
+      session: { id: payload.sid },
+    };
   }
 }

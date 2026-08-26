@@ -18,15 +18,15 @@ import {
 } from './dto/update-user-avatar.dto';
 import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
 import { Permission } from '../../../../common/decorators/permission.decorator';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../../shared/classes/principal.class';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('identity/users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private storageService: DefaultStorageService,
+    private store: StoreService,
   ) {}
 
   // ================================================================
@@ -35,12 +35,12 @@ export class UserController {
   @Permission('identity:user:update-avatar')
   @Post(':id/avatar/upload-url')
   async createAvatarUploadUrl(
-    @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(permission.scope);
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    const data = await this.userService.findOne(scope);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
       mimeType,
@@ -51,12 +51,12 @@ export class UserController {
   @Permission('identity:user:update-avatar')
   @Patch(':id/avatar')
   async updateAvatar(
-    @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(permission.scope);
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    const data = await this.userService.findOne(scope);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
       (k) => k.avatar(data.id),
@@ -77,50 +77,49 @@ export class UserController {
 
   @Permission('identity:user:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query);
-    return this.userService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.userService.findMany(scope);
   }
 
   @Permission('identity:user:read')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.findOne(permission.scope);
+  findOne(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.userService.findOne(scope);
   }
 
   @Permission('identity:user:update')
   @Patch(':id')
-  update(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.update(permission.scope, updateUserDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.userService.update(scope, updateUserDto);
   }
 
   @Permission('identity:user:archive')
   @Patch(':id/archive')
-  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.archive(permission.scope);
+  archive(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.userService.archive(scope);
   }
 
   @Permission('identity:user:restore')
   @Patch(':id/restore')
-  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.restore(permission.scope);
+  restore(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.userService.restore(scope);
   }
 
   @Permission('identity:user:delete')
   @Delete(':id')
-  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.delete(permission.scope);
+  delete(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.userService.delete(scope);
   }
 }

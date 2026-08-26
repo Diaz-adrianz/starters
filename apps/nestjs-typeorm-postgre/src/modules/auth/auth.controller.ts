@@ -31,10 +31,10 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
-import { Principal } from '../../shared/classes/principal.class';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { UserService } from '../identity/resources/user/user.service';
+import { StoreService } from '../../infra/store/store.service';
 
 @Controller('auth')
 export class AuthController {
@@ -42,6 +42,7 @@ export class AuthController {
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private authService: AuthService,
     private userService: UserService,
+    private store: StoreService,
   ) {}
 
   // ================================================================
@@ -120,12 +121,14 @@ export class AuthController {
   @Post('/sign-out-all')
   async signOutAll(
     @ReqClient() client: Client,
-    @ReqUser() { user, session }: Principal,
     @Res({ passthrough: true }) res: Response,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
   ) {
-    await this.authService.signOutAll(user.id, keepCurrent ? [session.id] : []);
+    await this.authService.signOutAll(
+      this.store.actor.id,
+      keepCurrent ? [this.store.session.id] : [],
+    );
     if (!keepCurrent && client.isWeb())
       res.clearCookie(CookieKeys.REFRESH_TOKEN, {
         path: CookiePath.REFRESH_TOKEN,
@@ -134,15 +137,15 @@ export class AuthController {
   }
 
   // ================================================================
-  // Principal info
+  // Actor info
   // ----------------------------------------------------------------
   @Get('/me')
-  async me(@ReqUser() principal: Principal) {
+  async me() {
     const scope = new ResourceScope([
-      { field: 'id', op: 'where', value: principal.user.id },
+      { field: 'id', op: 'where', value: this.store.actor.id },
     ]);
     const user = await this.userService.findOne(scope);
-    const sessions = await this.authService.findSessions(principal.user.id);
+    const sessions = await this.authService.findSessions(this.store.actor.id);
     return { user, sessions };
   }
 

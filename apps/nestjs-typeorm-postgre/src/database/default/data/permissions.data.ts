@@ -83,7 +83,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'id', op: 'where', value: '{{subject.user.id}}' }],
+            scope: [{ field: 'id', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -100,7 +100,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'id', op: 'where', value: '{{subject.user.id}}' }],
+            scope: [{ field: 'id', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -177,9 +177,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -189,21 +187,15 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
           {
             name: RolesData.ADMIN,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
           {
             name: RolesData.USER,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -213,21 +205,15 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
           {
             name: RolesData.ADMIN,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
           {
             name: RolesData.USER,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -241,9 +227,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [
-              { field: 'userId', op: 'where', value: '{{subject.user.id}}' },
-            ],
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
           },
         ],
       },
@@ -262,7 +246,7 @@ export const PermissionsData: {
             name: RolesData.USER,
             scope: [
               { field: 'actorType', op: 'where', value: 'user' },
-              { field: 'actorId', op: 'where', value: '{{subject.user.id}}' },
+              { field: 'actorId', op: 'where', value: '{{actor.id}}' },
             ],
           },
         ],

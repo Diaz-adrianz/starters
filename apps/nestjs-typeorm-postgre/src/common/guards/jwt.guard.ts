@@ -6,12 +6,16 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { Principal } from '../../shared/classes/principal.class';
 import { IS_OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
+import { JwtUser } from '../../modules/auth/strategies/jwt.strategy';
+import { StoreService } from '../../infra/store/store.service';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
-  constructor(private reflector: Reflector) {
+  constructor(
+    private reflector: Reflector,
+    private store: StoreService,
+  ) {
     super();
   }
 
@@ -25,7 +29,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = Principal>(
+  handleRequest<TUser = JwtUser>(
     err: any,
     user: TUser | false | null | undefined,
     _info: any,
@@ -38,6 +42,17 @@ export class JwtGuard extends AuthGuard('jwt') {
 
     if ((err || !user) && !isOptional)
       throw err || new UnauthorizedException('Session expired');
+
+    if (user) {
+      const actor = user as unknown as JwtUser;
+      this.store.set('actor', {
+        type: 'user',
+        id: actor.id,
+        name: actor.name,
+        roles: actor.roles,
+      });
+      this.store.set('session', { id: actor.session.id });
+    }
 
     return user || undefined;
   }

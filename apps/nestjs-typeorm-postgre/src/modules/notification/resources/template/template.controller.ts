@@ -11,14 +11,16 @@ import {
 import { TemplateService } from './template.service';
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateTemplateDto } from './dto/create-template.dto';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../../shared/classes/principal.class';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('notification/templates')
 export class TemplateController {
-  constructor(private readonly templateService: TemplateService) {}
+  constructor(
+    private readonly templateService: TemplateService,
+    private store: StoreService,
+  ) {}
 
   // ================================================================
   // Basic CRUD
@@ -31,50 +33,49 @@ export class TemplateController {
 
   @Permission('notification:template:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query);
-    return this.templateService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.templateService.findMany(scope);
   }
 
   @Permission('notification:template:read')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.findOne(permission.scope);
+  findOne(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.templateService.findOne(scope);
   }
 
   @Permission('notification:template:update')
   @Patch(':id')
-  update(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Body() dto: UpdateTemplateDto,
-  ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.update(permission.scope, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateTemplateDto) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.templateService.update(scope, dto);
   }
 
   @Permission('notification:template:archive')
   @Patch(':id/archive')
-  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.archive(permission.scope);
+  archive(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.templateService.archive(scope);
   }
 
   @Permission('notification:template:restore')
   @Patch(':id/restore')
-  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.restore(permission.scope);
+  restore(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.templateService.restore(scope);
   }
 
   @Permission('notification:template:delete')
   @Delete(':id')
-  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.delete(permission.scope);
+  delete(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.templateService.delete(scope);
   }
 }

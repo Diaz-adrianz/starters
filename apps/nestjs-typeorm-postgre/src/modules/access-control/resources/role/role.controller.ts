@@ -8,17 +8,19 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../../shared/classes/principal.class';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { RoleService } from './role.service';
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('access-control/roles')
 export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(
+    private readonly roleService: RoleService,
+    private store: StoreService,
+  ) {}
 
   // ================================================================
   // Basic CRUD
@@ -31,50 +33,49 @@ export class RoleController {
 
   @Permission('access-control:role:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query);
-    return this.roleService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.roleService.findMany(scope);
   }
 
   @Permission('access-control:role:read')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.findOne(permission.scope);
+  findOne(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.roleService.findOne(scope);
   }
 
   @Permission('access-control:role:update')
   @Patch(':id')
-  update(
-    @ReqUser() { permission }: Principal,
-    @Param('id') id: string,
-    @Body() updateRoleDto: UpdateRoleDto,
-  ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.update(permission.scope, updateRoleDto);
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.roleService.update(scope, updateRoleDto);
   }
 
   @Permission('access-control:role:archive')
   @Patch(':id/archive')
-  archive(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.archive(permission.scope);
+  archive(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.roleService.archive(scope);
   }
 
   @Permission('access-control:role:restore')
   @Patch(':id/restore')
-  restore(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.restore(permission.scope);
+  restore(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.roleService.restore(scope);
   }
 
   @Permission('access-control:role:delete')
   @Delete(':id')
-  delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.delete(permission.scope);
+  delete(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.roleService.delete(scope);
   }
 }

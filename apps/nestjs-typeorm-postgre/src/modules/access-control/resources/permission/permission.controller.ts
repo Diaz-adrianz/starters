@@ -1,14 +1,16 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../../shared/classes/principal.class';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionService } from './permission.service';
 import { Permission } from '../../../../common/decorators/permission.decorator';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('access-control/permissions')
 export class PermissionController {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(
+    private readonly permissionService: PermissionService,
+    private store: StoreService,
+  ) {}
 
   @Permission('access-control:permission:read')
   @Get('/modules')
@@ -21,29 +23,28 @@ export class PermissionController {
   // ----------------------------------------------------------------
   @Permission('access-control:permission:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query);
-    return this.permissionService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.permissionService.findMany(scope);
   }
 
   @Permission('access-control:permission:read')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.permissionService.findOne(permission.scope);
+  findOne(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.permissionService.findOne(scope);
   }
 
   @Permission('access-control:permission:update')
   @Patch(':id')
   update(
-    @ReqUser() { permission }: Principal,
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.permissionService.update(permission.scope, updatePermissionDto);
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.permissionService.update(scope, updatePermissionDto);
   }
 }

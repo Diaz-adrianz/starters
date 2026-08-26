@@ -1,19 +1,22 @@
 import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { Permission } from '../../../../common/decorators/permission.decorator';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
-import { Principal } from '../../../../shared/classes/principal.class';
 import { MessageService } from './message.service';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('notification/messages')
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private store: StoreService,
+  ) {}
 
   @Permission('notification:message:mark-read')
   @Patch(':id/mark-read')
-  markRead(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.messageService.markRead(permission.scope);
+  markRead(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.messageService.markRead(scope);
   }
 
   // ================================================================
@@ -21,18 +24,17 @@ export class MessageController {
   // ----------------------------------------------------------------
   @Permission('notification:message:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query, 'and', ['delivery.*']);
-    return this.messageService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query, 'and', ['delivery.*']);
+    return this.messageService.findMany(scope);
   }
 
   @Permission('notification:message:delete')
   @Delete(':id')
-  async delete(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.messageService.delete(permission.scope);
+  async delete(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.messageService.delete(scope);
   }
 }

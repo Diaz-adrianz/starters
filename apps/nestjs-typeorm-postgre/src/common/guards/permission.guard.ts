@@ -5,20 +5,18 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
 import {
   PERMISSION_METADATA,
   PermissionMetadata,
 } from '../decorators/permission.decorator';
-import { Principal } from '../../shared/classes/principal.class';
 import { Scope } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { DatabaseKeys } from '../../database/database-keys.contant';
 import { LoggerService } from '../../infra/logger/logger.service';
 import { CacheService } from '../../infra/cache/cache.service';
+import { StoreService } from '../../infra/store/store.service';
 
 type RolePermissionsCache = [string, Scope | null];
 
@@ -29,10 +27,11 @@ export class PermissionGuard implements CanActivate {
     private reflector: Reflector,
     private cache: CacheService,
     private logger: LoggerService,
+    private store: StoreService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<Request>();
+    const actor = this.store.get('actor');
 
     const metadata = this.reflector.getAllAndOverride<PermissionMetadata>(
         PERMISSION_METADATA,
@@ -40,18 +39,16 @@ export class PermissionGuard implements CanActivate {
       ),
       message = metadata.forbiddenMessage || 'Access denied';
 
-    if (!metadata?.permission || !req.user)
-      throw new ForbiddenException(message);
+    if (!metadata?.permission || !actor) throw new ForbiddenException(message);
 
     const rolePermissionRepo = this.dataSource.getRepository(RolePermission);
 
-    const principal = req.user as Principal;
     const permissions = new Map<
       RolePermissionsCache[0],
       RolePermissionsCache[1][]
     >();
 
-    for (const role of principal.roles) {
+    for (const role of actor.roles) {
       try {
         let cached = await this.cache.get<RolePermissionsCache[]>((k) =>
           k.rolePermissions(role.id),
@@ -89,13 +86,14 @@ export class PermissionGuard implements CanActivate {
     const scopes = permissions.get(metadata.permission);
     if (!scopes?.length) throw new ForbiddenException(message);
 
-    const resourceScope = new ResourceScope();
-    scopes.forEach((scope) => {
-      if (scope)
-        resourceScope.add(scope, 'or', '*', { subject: principal.toSubject() });
+    this.store.set('permission', {
+      module: metadata.module,
+      resource: metadata.resource,
+      action: metadata.action,
+      scopes: scopes.some((s) => s === null)
+        ? []
+        : scopes.filter((s): s is Scope => s !== null),
     });
-
-    principal.permission = { name: metadata.permission, scope: resourceScope };
 
     return true;
   }

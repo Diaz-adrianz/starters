@@ -1,31 +1,32 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 import { Permission } from '../../../../common/decorators/permission.decorator';
-import { ReqUser } from '../../../../common/decorators/req-user.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
-import { Principal } from '../../../../shared/classes/principal.class';
+import { StoreService } from '../../../../infra/store/store.service';
 
 @Controller('tracker/activities')
 export class ActivityController {
-  constructor(private readonly activityService: ActivityService) {}
+  constructor(
+    private readonly activityService: ActivityService,
+    private store: StoreService,
+  ) {}
 
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
   @Permission('tracker:activity:read')
   @Get()
-  findMany(
-    @ReqUser() { permission }: Principal,
-    @Query() query: ResourceQueryDto,
-  ) {
-    permission.scope.addQuery(query);
-    return this.activityService.findMany(permission.scope);
+  findMany(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.activityService.findMany(scope);
   }
 
   @Permission('tracker:activity:read')
   @Get(':id')
-  findOne(@ReqUser() { permission }: Principal, @Param('id') id: string) {
-    permission.scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.activityService.findOne(permission.scope);
+  findOne(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.activityService.findOne(scope);
   }
 }

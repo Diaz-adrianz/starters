@@ -7,12 +7,14 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { ROLES_METADATA, RolesMetadata } from '../decorators/roles.decorator';
-import { Request } from 'express';
-import { Principal } from '../../shared/classes/principal.class';
+import { StoreService } from '../../infra/store/store.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private store: StoreService,
+  ) {}
 
   canActivate(
     context: ExecutionContext,
@@ -23,13 +25,12 @@ export class RolesGuard implements CanActivate {
       ),
       message = metadata.forbiddenMessage || 'Access denied';
 
-    const req = context.switchToHttp().getRequest<Request>();
-    const principal = req.user as Principal | undefined;
+    const actor = this.store.get('actor');
 
     if (
       !metadata?.roles.length ||
-      !principal ||
-      !principal.roles.some((role) => metadata.roles.includes(role.name))
+      !actor ||
+      !actor.roles.some((role) => metadata.roles.includes(role.name))
     )
       throw new ForbiddenException(message);
 
