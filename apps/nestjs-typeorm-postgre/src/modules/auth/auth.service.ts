@@ -13,7 +13,6 @@ import { JwtService } from '@nestjs/jwt';
 import { DefaultRedisService } from '../../lib/redis/default/default-redis.service';
 import { generateRandomString, sha256 } from '../../shared/utils/string.util';
 import { Session } from '../../shared/classes/session.class';
-import { Client } from '../../shared/classes/client.class';
 import { plainToInstance } from 'class-transformer';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -36,12 +35,14 @@ import { DeliveryType } from '../notification/enums/delivery-type.enum';
 import { DeliveryPriority } from '../notification/enums/delivery-priority.enum';
 import { Channel } from '../notification/enums/channel.enum';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { StoreService } from '../../infra/store/store.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
+    private store: StoreService,
     private event: EventService,
     private logger: LoggerService,
     private jwtService: JwtService,
@@ -101,7 +102,7 @@ export class AuthService {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  async signIn(user: User, client: Client) {
+  async signIn(user: User) {
     const sessionId = generateRandomString(16);
 
     const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
@@ -110,15 +111,17 @@ export class AuthService {
       this.signRefreshToken(tokenPayload),
     ]);
 
+    const client = this.store.get('client');
+
     const session: Session = {
       id: sessionId,
       userId: user.id,
       rtHash: sha256(rt),
-      deviceId: client.deviceId,
-      deviceType: client.deviceType,
-      deviceName: client.deviceName,
-      ip: client.ip,
-      userAgent: client.userAgent,
+      deviceId: client?.deviceId,
+      deviceType: client?.deviceType,
+      deviceName: client?.deviceName,
+      ip: client?.ip,
+      userAgent: client?.userAgent,
       createdAt: new Date().toISOString(),
       lastUsedAt: new Date().toISOString(),
     };

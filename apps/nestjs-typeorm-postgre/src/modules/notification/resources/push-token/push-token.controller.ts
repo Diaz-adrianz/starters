@@ -8,8 +8,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { OptionalAuth } from '../../../../common/decorators/optional-auth.decorator';
-import { ReqClient } from '../../../../common/decorators/req-client.decorator';
-import { Client } from '../../../../shared/classes/client.class';
 import { Public } from '../../../../common/decorators/public.decorator';
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { PushTokenService } from './push-token.service';
@@ -26,12 +24,8 @@ export class PushTokenController {
 
   @OptionalAuth()
   @Post('register')
-  register(@ReqClient() client: Client, @Body() dto: RegisterPushTokenDto) {
-    return this.pushTokenService.register(
-      this.store.get('actor')?.id,
-      dto,
-      client,
-    );
+  register(@Body() dto: RegisterPushTokenDto) {
+    return this.pushTokenService.register(this.store.get('actor')?.id, dto);
   }
 
   @Public()
