@@ -64,7 +64,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     return {
       id: userCache.id,
-      name: userCache.id,
+      name: userCache.name,
       roles: userCache.roles,
       session: { id: payload.sid },
     };
