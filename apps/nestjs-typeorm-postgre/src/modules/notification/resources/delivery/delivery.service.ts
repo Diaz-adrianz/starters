@@ -54,12 +54,13 @@ export class DeliveryService {
   // Basic CRUD
   // ----------------------------------------------------------------
   async create(dto: CreateDeliveryDto) {
-    const delivery = await this.deliveryRepo.save({
+    const delivery = this.deliveryRepo.create({
       type: dto.type,
       priority: dto.priority,
       templateKey: dto.templateKey,
       sender: dto.sender,
     });
+    await this.deliveryRepo.save(delivery);
 
     const dispatches: { channel: Channel; promise: Promise<any> }[] = [];
 
@@ -95,13 +96,13 @@ export class DeliveryService {
                 email: r.email,
                 payload: r.payload,
                 sender:
-                  delivery.sender.name && delivery.sender.email
+                  delivery.sender?.name && delivery.sender?.email
                     ? {
                         name: delivery.sender.name,
                         email: delivery.sender.email,
                       }
                     : undefined,
-                replyTo: delivery.sender.emailReplyTo,
+                replyTo: delivery.sender?.emailReplyTo,
               },
               opts: { priority: DeliveryPriorityWeight[delivery.priority] },
             })),
