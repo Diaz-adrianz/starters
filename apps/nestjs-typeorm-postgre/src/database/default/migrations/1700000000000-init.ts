@@ -29,6 +29,9 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "access_control"."permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "module" character varying NOT NULL, "resource" character varying NOT NULL, "action" character varying NOT NULL, "description" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_534580365a9abdb3120b7307312" UNIQUE ("module", "resource", "action"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
+      `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "device_id" character varying, "device_label" character varying, "device_type" character varying, "browser" character varying, "os" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
       `CREATE TABLE "notification"."messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "user_id" uuid NOT NULL, "title" character varying NOT NULL, "body" text NOT NULL, "action_url" character varying, "read_at" TIMESTAMP WITH TIME ZONE, "payload" jsonb, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_18325f38ae6de43878487eff986" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
@@ -127,6 +130,7 @@ export class Init1700000000000 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "notification"."deliveries_type_enum"`);
     await queryRunner.query(`DROP TABLE "notification"."messages"`);
+    await queryRunner.query(`DROP TABLE "auth"."sessions"`);
     await queryRunner.query(`DROP TABLE "access_control"."permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."role_permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."roles"`);

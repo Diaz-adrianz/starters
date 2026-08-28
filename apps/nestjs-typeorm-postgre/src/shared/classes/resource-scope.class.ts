@@ -219,12 +219,12 @@ export class ResourceScope {
       scope.forEach((c) => {
         const fields = c.field.split(FIELDS_SEPARATOR);
 
-        let value: FindOperator<any> | string = '';
+        let value: FindOperator<any> | null = null;
         if (c.op === 'search') value = ILike(`%${c.value}%`);
         else if (c.op === 'starts') value = ILike(`${c.value}%`);
         else if (c.op === 'where') value = Equal(c.value);
-        else if (c.op === 'in') value = In(c.value);
-        else if (c.op === 'nin') value = Not(In(c.value));
+        else if (c.op === 'in' && c.value.length) value = In(c.value);
+        else if (c.op === 'nin' && c.value.length) value = Not(In(c.value));
         else if (c.op === 'isnull') value = IsNull();
         else if (c.op === 'notnull') value = Not(IsNull());
         else if (c.op === 'gte') value = MoreThanOrEqual(c.value);
@@ -232,7 +232,7 @@ export class ResourceScope {
         else if (c.op === 'between')
           value = Between(c.value.at(0), c.value.at(1));
 
-        buildSubWhere(subWhere, fields, value);
+        if (value) buildSubWhere(subWhere, fields, value);
       });
 
       return subWhere;

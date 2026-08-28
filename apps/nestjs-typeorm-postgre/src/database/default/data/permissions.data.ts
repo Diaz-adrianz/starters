@@ -10,6 +10,42 @@ export const PermissionsData: {
   }[];
 }[] = [
   {
+    name: 'auth',
+    entries: [
+      // session
+      {
+        description: 'Read session',
+        permission: 'session:read',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          {
+            name: RolesData.ADMIN,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+          {
+            name: RolesData.USER,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+        ],
+      },
+      {
+        description: 'Revoke session',
+        permission: 'session:revoke',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          {
+            name: RolesData.ADMIN,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+          {
+            name: RolesData.USER,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: 'access-control',
     entries: [
       // permission

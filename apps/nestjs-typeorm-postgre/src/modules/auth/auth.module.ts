@@ -11,6 +11,8 @@ import { authConfig } from '../../config/auth.config';
 import { DefaultRedisModule } from '../../lib/redis/default/default-redis.module';
 import { IdentityModule } from '../identity/identity.module';
 import { NotificationModule } from '../notification/notification.module';
+import { SessionService } from './resources/session/session.service';
+import { SessionController } from './resources/session/session.controller';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { NotificationModule } from '../notification/notification.module';
     // lib
     DefaultRedisModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  controllers: [AuthController],
+  providers: [AuthService, LocalStrategy, JwtStrategy, SessionService],
+  controllers: [AuthController, SessionController],
 })
 export class AuthModule {}
