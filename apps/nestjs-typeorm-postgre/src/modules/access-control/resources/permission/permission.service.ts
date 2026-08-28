@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdatePermissionDto } from './dto/update-permission.dto';

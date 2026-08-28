@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { In } from 'typeorm';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';

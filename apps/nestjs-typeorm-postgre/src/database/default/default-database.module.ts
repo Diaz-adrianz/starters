@@ -10,7 +10,7 @@ import {
 } from '../../config/database.config';
 import { ConfigModule } from '@nestjs/config';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
-import { DatabaseKeys } from '../database-keys.contant';
+import { DatabaseKeys } from '../database-keys.constant';
 
 @Module({
   imports: [

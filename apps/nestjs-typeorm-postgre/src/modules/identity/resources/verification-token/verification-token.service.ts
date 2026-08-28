@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { VerificationToken } from '../../entities/verification-token.entity';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdateVerificationTokenDto } from './dto/update-verification-token.dto';

@@ -7,7 +7,7 @@ import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
-import { DatabaseKeys } from '../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../database/database-keys.constant';
 import { User } from '../../identity/entities/user.entity';
 
 type UserCache = {

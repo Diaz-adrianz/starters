@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Template } from '../../entities/template.entity';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';

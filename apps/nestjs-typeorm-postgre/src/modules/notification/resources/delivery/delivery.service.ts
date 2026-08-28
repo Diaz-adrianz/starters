@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { Delivery } from '../../entities/delivery.entity';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   PUSH_DELIVERY_QUEUE,

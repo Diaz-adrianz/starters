@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PushToken } from '../../entities/push-token.entity';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';

@@ -13,7 +13,7 @@ import { Scope } from '../../shared/interfaces/resource-scope.interface';
 import { RolePermission } from '../../modules/access-control/entities/role-permission.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
-import { DatabaseKeys } from '../../database/database-keys.contant';
+import { DatabaseKeys } from '../../database/database-keys.constant';
 import { LoggerService } from '../../infra/logger/logger.service';
 import { CacheService } from '../../infra/cache/cache.service';
 import { StoreService } from '../../infra/store/store.service';

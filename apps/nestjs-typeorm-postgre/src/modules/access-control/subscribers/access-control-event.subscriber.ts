@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { RolePermission } from '../entities/role-permission.entity';
 import { AppRepository } from '../../../database/typeorm/app-repository';
-import { DatabaseKeys } from '../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../database/database-keys.constant';
 import { In } from 'typeorm';
 
 @Injectable()

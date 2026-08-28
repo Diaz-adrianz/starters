@@ -4,7 +4,7 @@ import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
 import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';

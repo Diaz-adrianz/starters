@@ -7,7 +7,7 @@ import { TemplateService } from '../../resources/template/template.service';
 import { Channel } from '../../enums/channel.enum';
 import { PushProvider } from '../../enums/push-provider.enum';
 import { chunk } from '../../../../shared/utils/array.util';
-import { DatabaseKeys } from '../../../../database/database-keys.contant';
+import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PushToken } from '../../entities/push-token.entity';
