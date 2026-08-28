@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { StoreService } from '../../infra/store/store.service';
 import { Request, Response } from 'express';
-import { HeaderKeys } from '../../shared/constants/header-keys.contant';
+import { HeaderKeys } from '../../shared/constants/header-keys.constant';
 import { CookieKeys } from '../../shared/constants/cookie-keys.constant';
 import {
   DeviceType,

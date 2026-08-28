@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { useContainer } from 'class-validator';
-import { HeaderKeys } from './shared/constants/header-keys.contant';
+import { HeaderKeys } from './shared/constants/header-keys.constant';
 import { APP_CONFIG_KEY, AppConfig } from './config/app.config';
 import { LoggerService } from './infra/logger/logger.service';
 
