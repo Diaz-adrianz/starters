@@ -13,11 +13,14 @@ import { IdentityModule } from '../identity/identity.module';
 import { NotificationModule } from '../notification/notification.module';
 import { SessionService } from './resources/session/session.service';
 import { SessionController } from './resources/session/session.controller';
+import { DefaultDatabaseModule } from '../../database/default/default-database.module';
+import { Session } from './entities/session.entity';
 
 @Module({
   imports: [
     ConfigModule.forFeature(appConfig),
     ConfigModule.forFeature(authConfig),
+    DefaultDatabaseModule.forFeature([Session]),
     PassportModule,
     JwtModule,
 

@@ -17,6 +17,7 @@ import { EventModule } from './infra/event/event.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { StoreModule } from './infra/store/store.module';
 import { RequestMiddleware } from './common/middlewares/request.middleware';
+import { DeviceMiddleware } from './common/middlewares/device.middleware';
 
 @Module({
   imports: [
@@ -79,5 +80,6 @@ import { RequestMiddleware } from './common/middlewares/request.middleware';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestMiddleware).forRoutes('*');
+    consumer.apply(DeviceMiddleware).forRoutes('*');
   }
 }

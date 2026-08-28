@@ -35,19 +35,6 @@ export class StoreService {
     return resourceScope;
   }
 
-  // Client
-  // --------------------------------
-  isWebClient() {
-    return this.get('client')?.deviceType == 'web';
-  }
-
-  isMobileClient() {
-    return (
-      this.get('client')?.deviceType == 'android' ||
-      this.get('client')?.deviceType == 'ios'
-    );
-  }
-
   // Basic APIs
   // --------------------------------
   set<K extends keyof Store>(key: K, value: Store[K]) {
