@@ -15,7 +15,6 @@ import { LoggerModule } from './infra/logger/logger.module';
 import { CacheModule } from './infra/cache/cache.module';
 import { EventModule } from './infra/event/event.module';
 import { IdentityModule } from './modules/identity/identity.module';
-import { TrackerModule } from './modules/tracker/tracker.module';
 import { StoreModule } from './infra/store/store.module';
 import { RequestMiddleware } from './common/middlewares/request.middleware';
 
@@ -38,7 +37,6 @@ import { RequestMiddleware } from './common/middlewares/request.middleware';
     AuthModule,
     NotificationModule,
     AccessControlModule,
-    TrackerModule,
   ],
   providers: [
     // Guard providers

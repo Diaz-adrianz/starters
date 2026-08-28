@@ -233,24 +233,4 @@ export const PermissionsData: {
       },
     ],
   },
-  {
-    name: 'tracker',
-    entries: [
-      {
-        description: 'Read activity',
-        permission: 'activity:read',
-        roles: [
-          { name: RolesData.SUPERADMIN },
-          { name: RolesData.ADMIN },
-          {
-            name: RolesData.USER,
-            scope: [
-              { field: 'actorType', op: 'where', value: 'user' },
-              { field: 'actorId', op: 'where', value: '{{actor.id}}' },
-            ],
-          },
-        ],
-      },
-    ],
-  },
 ];

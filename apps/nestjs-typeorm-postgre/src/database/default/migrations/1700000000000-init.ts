@@ -62,15 +62,6 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "notification"."templates" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "key" character varying NOT NULL, "channel" "notification"."templates_channel_enum" NOT NULL, "title" character varying NOT NULL, "body" text NOT NULL, "available_keys" text array NOT NULL, "sensitive_keys" text array NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, CONSTRAINT "UQ_a0262f833ae847bd105f6895762" UNIQUE ("key", "channel"), CONSTRAINT "PK_515948649ce0bbbe391de702ae5" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "tracker"."activities_level_enum" AS ENUM('normal', 'sensitive', 'critical')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "tracker"."activities_actor_type_enum" AS ENUM('system', 'user')`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "tracker"."activities" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "level" "tracker"."activities_level_enum" NOT NULL, "module" character varying NOT NULL, "description" character varying, "actor_type" "tracker"."activities_actor_type_enum" NOT NULL, "actor_id" character varying, "actor_name" character varying, "target_type" character varying, "target_id" character varying, "target_name" character varying, "action" character varying NOT NULL, "metadata" jsonb, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_7f4004429f731ffb9c88eb486a8" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "identity"."verification_tokens" ADD CONSTRAINT "FK_31d2079dc4079b80517d31cf4f2" FOREIGN KEY ("user_id") REFERENCES "identity"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
@@ -115,9 +106,6 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "identity"."verification_tokens" DROP CONSTRAINT "FK_31d2079dc4079b80517d31cf4f2"`,
     );
-    await queryRunner.query(`DROP TABLE "tracker"."activities"`);
-    await queryRunner.query(`DROP TYPE "tracker"."activities_actor_type_enum"`);
-    await queryRunner.query(`DROP TYPE "tracker"."activities_level_enum"`);
     await queryRunner.query(`DROP TABLE "notification"."templates"`);
     await queryRunner.query(
       `DROP TYPE "notification"."templates_channel_enum"`,
