@@ -1,17 +1,14 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
 import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { AppDataSource } from '../../../database/typeorm/app-data-source';
-import { DatabaseKeys } from '../../../database/database-keys.constant';
-import { User } from '../../identity/entities/user.entity';
 import {
   JwtAccessAuthResult,
   JwtAccessPayload,
 } from '../interfaces/jwt-access.interface';
+import { AuthService } from '../auth.service';
 
 type UserCache = {
   id: string;
@@ -28,7 +25,7 @@ export class JwtAccessStrategy extends PassportStrategy(
 ) {
   constructor(
     @Inject(AUTH_CONFIG_KEY) authConfig: AuthConfig,
-    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
+    private authService: AuthService,
     private cache: CacheService,
     private logger: LoggerService,
   ) {
@@ -49,18 +46,9 @@ export class JwtAccessStrategy extends PassportStrategy(
 
     if (!userCache) {
       this.logger.log('User cache missed', this.constructor.name);
-      const userRepo = this.dataSource.getRepository(User);
-
-      const user = await userRepo.findOneOrFail({
-        where: { id: payload.sub },
-        relations: { roles: { role: true } },
-        select: {
-          ...userRepo.select('*'),
-          roles: { id: true, role: { id: true, name: true } },
-        },
-      });
-      if (!user.isActive())
-        throw new ForbiddenException('Account suspended or not verified yet');
+      const user = await this.authService.validateJwtAccessStrategy(
+        payload.sub,
+      );
 
       userCache = {
         id: user.id,

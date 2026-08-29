@@ -23,8 +23,43 @@ export class UserService {
     private event: EventService,
   ) {}
 
-  // ================================================================
-  // Basic CRUD
+  // Misc / Shared with other modules
+  // ----------------------------------------------------------------
+  findById(id: string) {
+    return this.userRepo.findOneOrFail({
+      where: { id },
+      relations: { roles: { role: true } },
+    });
+  }
+
+  findByUsernameOrEmail(value: string) {
+    return this.userRepo.findOneOrFail({
+      where: [{ username: value }, { email: value }],
+    });
+  }
+
+  async updatePasswordById(id: string, password: string) {
+    const salt = await bcrypt.genSalt(10),
+      hashed = await bcrypt.hash(password, salt);
+    const result = await this.userRepo.update(
+      id,
+      { password: hashed },
+      { returning: ['id'] },
+    );
+    this.event.emit('identity.user.updated', {
+      users: result.raw as Pick<User, 'id'>[],
+    });
+    return result;
+  }
+
+  // Base extensions
+  // ----------------------------------------------------------------
+  updateById(id: string, updateUserDto: UpdateUserDto) {
+    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
+    return this.update(scope, updateUserDto);
+  }
+
+  // Base
   // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
     const { email, username, password } = createUserDto;
@@ -76,19 +111,6 @@ export class UserService {
     });
   }
 
-  findById(id: string) {
-    return this.userRepo.findOneOrFail({
-      where: { id },
-      relations: { roles: { role: true } },
-    });
-  }
-
-  findByUsernameOrEmail(value: string) {
-    return this.userRepo.findOneOrFail({
-      where: [{ username: value }, { email: value }],
-    });
-  }
-
   async update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
     const { roles, ...payload } = updateUserDto;
 
@@ -129,25 +151,6 @@ export class UserService {
 
       return result;
     });
-    this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
-    });
-    return result;
-  }
-
-  updateById(id: string, updateUserDto: UpdateUserDto) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.update(scope, updateUserDto);
-  }
-
-  async updatePassword(id: string, password: string) {
-    const salt = await bcrypt.genSalt(10),
-      hashed = await bcrypt.hash(password, salt);
-    const result = await this.userRepo.update(
-      id,
-      { password: hashed },
-      { returning: ['id'] },
-    );
     this.event.emit('identity.user.updated', {
       users: result.raw as Pick<User, 'id'>[],
     });

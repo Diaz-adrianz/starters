@@ -1,10 +1,8 @@
 import {
   BadGatewayException,
   BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '../identity/entities/user.entity';
@@ -38,6 +36,11 @@ import {
 } from './interfaces/jwt-refresh.interface';
 import { randomUUID } from 'crypto';
 import { JwtAccessPayload } from './interfaces/jwt-access.interface';
+import {
+  UserDisabledException,
+  UserNoPasswordException,
+  UserNotVerifiedException,
+} from '../identity/classes/exceptions/user.exception';
 
 @Injectable()
 export class AuthService {
@@ -284,7 +287,7 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const token = await this.resetPasswordCheck(resetPasswordDto);
-    await this.userService.updatePassword(
+    await this.userService.updatePasswordById(
       token.userId,
       resetPasswordDto.password,
     );
@@ -300,16 +303,24 @@ export class AuthService {
   async validateLocalStrategy(username: string, password: string) {
     const user = await this.userService.findByUsernameOrEmail(username);
 
-    if (!user.password)
-      throw new UnauthorizedException(
-        'This account is not registered with a password. Please try using another method.',
-      );
+    if (!user.password) throw new UserNoPasswordException();
 
     const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) return null;
 
-    this.checkUserActive(user);
+    this.validateUser(user);
     return user;
+  }
+
+  async validateJwtAccessStrategy(userId: string) {
+    const user = await this.userService.findById(userId);
+    this.validateUser(user);
+    return user;
+  }
+
+  private validateUser(user: User) {
+    if (!user.enabled) throw new UserDisabledException();
+    if (!user.verifiedAt) throw new UserNotVerifiedException();
   }
 
   // ================================================================
@@ -411,11 +422,6 @@ export class AuthService {
     await this.verificationTokenService.updateById(token.id, {
       sentAt: new Date(),
     });
-  }
-
-  public checkUserActive(user: User) {
-    if (!user.isActive())
-      throw new ForbiddenException('Account suspended or not verified yet');
   }
 
   private signAccessToken(payload: JwtAccessPayload) {
