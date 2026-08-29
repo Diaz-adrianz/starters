@@ -24,11 +24,12 @@ import {
   Not,
 } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
-
-export const CONDITION_SEPARATOR = ':';
-export const SCOPE_SEPARATOR = ';';
-export const FIELDS_SEPARATOR = '.';
-export const VALUES_SEPARATOR = ',';
+import {
+  CONDITION_SEPARATOR,
+  FIELDS_SEPARATOR,
+  SCOPE_SEPARATOR,
+  VALUES_SEPARATOR,
+} from '../constants/resource-scope.constant';
 
 // ================================================================
 // TypeORM FindOptions

@@ -14,7 +14,7 @@ import {
   CONDITION_SEPARATOR,
   SCOPE_SEPARATOR,
   FIELDS_SEPARATOR,
-} from '../classes/resource-scope.class';
+} from '../constants/resource-scope.constant';
 import { escapeRegex } from '../utils/transformer.util';
 
 export const DEFAULT_PAGE = 1;
