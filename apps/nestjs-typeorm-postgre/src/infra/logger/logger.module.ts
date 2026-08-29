@@ -10,23 +10,20 @@ import {
   loggerConfig,
 } from '../../config/logger.config';
 
-const { combine, timestamp, printf, colorize, errors } = format;
+const { combine, timestamp, printf, colorize, errors, json } = format;
 
 const consoleFormat = combine(
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  errors({ stack: true }),
   colorize(),
-  printf(({ level, message, timestamp, context, stack }) => {
-    return `${timestamp} [${context ?? 'App'}] ${level}: ${message}${stack ? ` - ${stack}` : ''}`;
+  printf(({ level, message, timestamp, context, requestId }) => {
+    return `${timestamp} [${context}]${requestId ? ` [${requestId}]` : ''} ${level}: ${message}`;
   }),
 );
 
 const fileFormat = combine(
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
-  printf(({ level, message, timestamp, context, stack }) => {
-    return `${timestamp} [${context ?? 'App'}] ${level}: ${message}${stack ? ` - ${stack}` : ''}`;
-  }),
+  json(),
 );
 
 @Global()

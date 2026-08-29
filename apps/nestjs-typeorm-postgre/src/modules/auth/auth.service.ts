@@ -182,6 +182,7 @@ export class AuthService {
     if (!result.affected)
       this.logger.debug(
         `Session ${sessionId} signOut not found or already revoked`,
+        this.constructor.name,
       );
   }
 
@@ -197,6 +198,7 @@ export class AuthService {
 
     this.logger.debug(
       `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,
+      this.constructor.name,
     );
   }
 
@@ -364,7 +366,7 @@ export class AuthService {
         ],
       });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, this.constructor.name);
     }
 
     await this.verificationTokenService.updateById(token.id, {
@@ -413,7 +415,7 @@ export class AuthService {
         ],
       });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, this.constructor.name);
       throw new BadGatewayException(
         "We couldn't send verification email right now. Please try again",
       );
