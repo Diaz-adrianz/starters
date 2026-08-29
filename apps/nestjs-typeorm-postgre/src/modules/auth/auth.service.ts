@@ -102,7 +102,7 @@ export class AuthService {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  async signIn(user: User, device?: Store['device']) {
+  async signIn(user: User, device: NonNullable<Store['device']>) {
     const sessionId = randomUUID();
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -114,13 +114,13 @@ export class AuthService {
       id: sessionId,
       userId: user.id,
       refreshTokenHash: this.sessionService.hashRefreshToken(refreshToken),
-      deviceId: device?.id,
-      deviceLabel: device?.label,
-      deviceType: device?.type,
-      browser: device?.browser,
-      os: device?.os,
-      ipAddress: device?.ipAddress,
-      userAgent: device?.userAgent,
+      deviceId: device.id,
+      deviceLabel: device.label,
+      deviceType: device.type,
+      browser: device.browser,
+      os: device.os,
+      ipAddress: device.ipAddress,
+      userAgent: device.userAgent,
       expiresAt: new Date(
         Date.now() + this.authConfig.jwt.refresh.expire * 1000,
       ),
@@ -130,6 +130,13 @@ export class AuthService {
     this.event.emit('auth.signIn', {
       userId: session.userId,
       email: user.email,
+      device: {
+        label: device.label,
+        type: device.type,
+        browser: device.browser,
+        os: device.os,
+        ipAddress: device.ipAddress,
+      },
     });
 
     return {

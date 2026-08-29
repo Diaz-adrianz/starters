@@ -33,10 +33,12 @@ export class AuthEventSubscriber {
           {
             email: payload.email,
             payload: {
-              deviceName: payload.deviceName,
-              deviceType: payload.deviceType,
-              ip: payload.ip,
-              userAgent: payload.userAgent,
+              email: payload.email,
+              deviceLabel: payload.device.label,
+              deviceType: payload.device.type,
+              browser: payload.device.browser,
+              os: payload.device.os,
+              ipAddress: payload.device.ipAddress,
             },
           },
         ],

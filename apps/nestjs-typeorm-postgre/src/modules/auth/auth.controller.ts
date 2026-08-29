@@ -55,7 +55,7 @@ export class AuthController {
   async signInLocal(@ReqUser() user: User) {
     const result = await this.authService.signIn(
       user,
-      this.store.get('device'),
+      this.store.getOrThrow('device'),
     );
     return result;
   }
