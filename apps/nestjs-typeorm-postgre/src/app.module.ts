@@ -5,7 +5,6 @@ import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
-import { JwtGuard } from './common/guards/jwt.guard';
 import { S3Filter } from './common/filters/s3.filter';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AccessControlModule } from './modules/access-control/access-control.module';
@@ -18,6 +17,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { StoreModule } from './infra/store/store.module';
 import { RequestMiddleware } from './common/middlewares/request.middleware';
 import { DeviceMiddleware } from './common/middlewares/device.middleware';
+import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
 
 @Module({
   imports: [
@@ -44,7 +44,7 @@ import { DeviceMiddleware } from './common/middlewares/device.middleware';
     // ---------------------------------
     {
       provide: APP_GUARD,
-      useClass: JwtGuard,
+      useClass: JwtAccessGuard,
     },
 
     // Pipe providers

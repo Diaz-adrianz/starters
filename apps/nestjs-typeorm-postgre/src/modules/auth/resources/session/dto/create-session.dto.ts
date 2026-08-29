@@ -2,7 +2,7 @@ import { Exclude } from 'class-transformer';
 
 export class CreateSessionDto {
   @Exclude()
-  id: string;
+  id?: string;
 
   @Exclude()
   userId: string;

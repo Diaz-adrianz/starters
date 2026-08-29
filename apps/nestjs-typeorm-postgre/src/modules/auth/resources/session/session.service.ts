@@ -6,7 +6,7 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
-import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class SessionService {
@@ -29,19 +29,17 @@ export class SessionService {
       throw new UnauthorizedException('Session has expired');
     }
 
-    const isMatch = await bcrypt.compare(
-      refreshToken,
-      session.refreshTokenHash,
-    );
+    const isMatch =
+      this.hashRefreshToken(refreshToken) === session.refreshTokenHash;
     if (!isMatch) throw new UnauthorizedException('Session does not match');
 
     return session;
   }
 
-  async rotate(id: string, newRefreshToken: string) {
+  rotate(id: string, newRefreshToken: string) {
     const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
     return this.update(scope, {
-      refreshTokenHash: await bcrypt.hash(newRefreshToken, 10),
+      refreshTokenHash: this.hashRefreshToken(newRefreshToken),
       lastUsedAt: new Date(),
     });
   }
@@ -88,5 +86,11 @@ export class SessionService {
 
   delete(scope: ResourceScope) {
     return this.sessionRepo.delete(scope.toFindOptions().where);
+  }
+
+  // Base
+  // ----------------------------------------------------------------
+  hashRefreshToken(token: string) {
+    return createHash('sha256').update(token).digest('hex');
   }
 }

@@ -8,12 +8,8 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '../identity/entities/user.entity';
-import { JwtTokenPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { DefaultRedisService } from '../../lib/redis/default/default-redis.service';
-import { generateRandomString, sha256 } from '../../shared/utils/string.util';
-import { Session } from '../../shared/classes/session.class';
-import { plainToInstance } from 'class-transformer';
+import { sha256 } from '../../shared/utils/string.util';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -22,7 +18,6 @@ import {
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
-import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
 import { EventService } from '../../infra/event/event.service';
 import { UserService } from '../identity/resources/user/user.service';
 import { VerificationTokenService } from '../identity/resources/verification-token/verification-token.service';
@@ -35,21 +30,26 @@ import { DeliveryType } from '../notification/enums/delivery-type.enum';
 import { DeliveryPriority } from '../notification/enums/delivery-priority.enum';
 import { Channel } from '../notification/enums/channel.enum';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
-import { StoreService } from '../../infra/store/store.service';
+import { Store } from '../../infra/store/store.interface';
+import { SessionService } from './resources/session/session.service';
+import {
+  JwtRefreshAuthResult,
+  JwtRefreshPayload,
+} from './interfaces/jwt-refresh.interface';
+import { randomUUID } from 'crypto';
+import { JwtAccessPayload } from './interfaces/jwt-access.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
-    private store: StoreService,
     private event: EventService,
     private logger: LoggerService,
     private jwtService: JwtService,
     private userService: UserService,
     private verificationTokenService: VerificationTokenService,
     private deliveryService: DeliveryService,
-    private redisService: DefaultRedisService,
+    private sessionService: SessionService,
   ) {}
 
   // ================================================================
@@ -102,70 +102,92 @@ export class AuthService {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  async signIn(user: User) {
-    const sessionId = generateRandomString(16);
+  async signIn(user: User, device?: Store['device']) {
+    const sessionId = randomUUID();
 
-    const tokenPayload: JwtTokenPayload = { sub: user.id, sid: sessionId };
-    const [at, rt] = await Promise.all([
-      this.signAccessToken(tokenPayload),
-      this.signRefreshToken(tokenPayload),
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signAccessToken({ sid: sessionId, sub: user.id }),
+      this.signRefreshToken({ sid: sessionId, sub: user.id }),
     ]);
 
-    const client = this.store.get('client');
-
-    const session: Session = {
+    const session = await this.sessionService.create({
       id: sessionId,
       userId: user.id,
-      rtHash: sha256(rt),
-      deviceId: client?.deviceId,
-      deviceType: client?.deviceType,
-      deviceName: client?.deviceName,
-      ip: client?.ip,
-      userAgent: client?.userAgent,
-      createdAt: new Date().toISOString(),
-      lastUsedAt: new Date().toISOString(),
-    };
-
-    await this.saveSession(sessionId, session);
+      refreshTokenHash: this.sessionService.hashRefreshToken(refreshToken),
+      deviceId: device?.id,
+      deviceLabel: device?.label,
+      deviceType: device?.type,
+      browser: device?.browser,
+      os: device?.os,
+      ipAddress: device?.ipAddress,
+      userAgent: device?.userAgent,
+      expiresAt: new Date(
+        Date.now() + this.authConfig.jwt.refresh.expire * 1000,
+      ),
+      isActive: true,
+    });
 
     this.event.emit('auth.signIn', {
       userId: session.userId,
       email: user.email,
-      deviceId: session.deviceId,
-      deviceType: session.deviceType,
-      deviceName: session.deviceName,
-      ip: session.ip,
     });
 
-    return { user, at, rt };
+    return {
+      user,
+      tokens: { access: accessToken, refresh: refreshToken },
+    };
+  }
+
+  // ================================================================
+  // Refresh
+  // ----------------------------------------------------------------
+  async refresh({ token, payload }: JwtRefreshAuthResult, _?: Store['device']) {
+    const session = await this.sessionService.validate(
+      payload.session.id,
+      token,
+    );
+
+    // TODO: detect missmatch device as malicious activity
+
+    const [accessToken, newRefreshToken] = await Promise.all([
+      this.signAccessToken({ sid: session.id, sub: payload.user.id }),
+      this.signRefreshToken({ sid: session.id, sub: payload.user.id }),
+    ]);
+
+    await this.sessionService.rotate(session.id, newRefreshToken);
+
+    return {
+      tokens: { access: accessToken, refresh: newRefreshToken },
+    };
   }
 
   // ================================================================
   // Sign out
   // ----------------------------------------------------------------
-  async signOut(rt: string) {
-    const rtPayload = await this.verifyRefreshToken(rt, true);
-    await this.redisService.del((k) => k.session(rtPayload.sid));
-    await this.redisService.srem(
-      (k) => k.userSessions(rtPayload.sub),
-      [rtPayload.sid],
+  async signOut(sessionId: string) {
+    const result = await this.sessionService.revoke(
+      new ResourceScope([{ field: 'id', op: 'where', value: sessionId }]),
     );
+
+    if (!result.affected)
+      this.logger.debug(
+        `Session ${sessionId} signOut not found or already revoked`,
+      );
   }
 
-  async signOutAll(userId: string, excepts: string[] = []) {
-    const sessionIds = await this.redisService.smembers((k) =>
-      k.userSessions(userId),
-    );
-    const revokeIds = excepts.length
-      ? sessionIds.filter((sessionId) => !excepts.includes(sessionId))
-      : sessionIds;
+  async signOutAll(userId: string, excludedSessionIds: string[] = []) {
+    const scope = new ResourceScope([
+      { field: 'userId', op: 'where', value: userId },
+    ]);
 
-    if (!revokeIds.length) return;
+    if (excludedSessionIds.length)
+      scope.add([{ field: 'id', op: 'nin', value: excludedSessionIds }]);
 
-    await this.redisService.delMany((k) =>
-      revokeIds.map((id) => k.session(id)),
+    const result = await this.sessionService.revoke(scope);
+
+    this.logger.debug(
+      `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,
     );
-    await this.redisService.srem((k) => k.userSessions(userId), revokeIds);
   }
 
   // ================================================================
@@ -284,68 +306,6 @@ export class AuthService {
   }
 
   // ================================================================
-  // Session handlers
-  // ----------------------------------------------------------------
-  private async saveSession(sessionId: string, payload: Session) {
-    await this.redisService.set((k) => k.session(sessionId), payload, {
-      EX: this.authConfig.jwt.refresh.expire,
-    });
-    await this.redisService.sadd(
-      (k) => k.userSessions(payload.userId),
-      sessionId,
-    );
-  }
-
-  async findSession(sessionId: string) {
-    const session = await this.redisService.get<Session>((k) =>
-      k.session(sessionId),
-    );
-    if (session) return plainToInstance(Session, session);
-  }
-
-  async findSessions(userId: string) {
-    const sessionIds = await this.redisService.smembers((k) =>
-      k.userSessions(userId),
-    );
-    const sessions = await this.redisService.getMany<Session>((k) =>
-      sessionIds.map((sid) => k.session(sid)),
-    );
-
-    if (sessions) {
-      const cleanSessions = sessions.filter((session) => !!session);
-      return plainToInstance(Session, cleanSessions);
-    } else return [];
-  }
-
-  // TODO: handle race condition + handle sliding RT expire
-  async refreshSession(rt: string) {
-    const tokenPayload = await this.verifyRefreshToken(rt);
-
-    const session = await this.findSession(tokenPayload.sid);
-    if (!session) throw new UnauthorizedException('Expired session');
-
-    // TODO: log missmatch as suspicious activity
-    const rtHash = sha256(rt);
-    if (rtHash != session.rtHash)
-      throw new UnauthorizedException('Expired session');
-
-    const [at, newRt] = await Promise.all([
-      this.signAccessToken(tokenPayload),
-      this.signRefreshToken(tokenPayload),
-    ]);
-
-    const newRtHash = sha256(newRt);
-    const newSession: Session = {
-      ...session,
-      rtHash: newRtHash,
-      lastUsedAt: new Date().toISOString(),
-    };
-
-    await this.saveSession(tokenPayload.sid, newSession);
-    return { at, newRt };
-  }
-
-  // ================================================================
   // Utils
   // ----------------------------------------------------------------
   private async sendEmailPasswordReset(
@@ -451,36 +411,19 @@ export class AuthService {
       throw new ForbiddenException('Account suspended or not verified yet');
   }
 
-  private signAccessToken(payload: JwtTokenPayload) {
-    return this.jwtService.signAsync(
-      { sub: payload.sub, sid: payload.sid },
-      {
-        secret: this.authConfig.jwt.access.secret,
-        expiresIn: this.authConfig.jwt.access.expire,
-        issuer: this.authConfig.jwt.issuer,
-      },
-    );
+  private signAccessToken(payload: JwtAccessPayload) {
+    return this.jwtService.signAsync(payload, {
+      secret: this.authConfig.jwt.access.secret,
+      expiresIn: this.authConfig.jwt.access.expire,
+      issuer: this.authConfig.jwt.issuer,
+    });
   }
 
-  private signRefreshToken(payload: JwtTokenPayload) {
-    return this.jwtService.signAsync(
-      { sub: payload.sub, sid: payload.sid },
-      {
-        secret: this.authConfig.jwt.refresh.secret,
-        expiresIn: this.authConfig.jwt.refresh.expire,
-        issuer: this.authConfig.jwt.issuer,
-      },
-    );
-  }
-
-  private verifyRefreshToken(token: string, ignoreExpiration: boolean = false) {
-    try {
-      return this.jwtService.verifyAsync<JwtTokenPayload>(token, {
-        secret: this.authConfig.jwt.refresh.secret,
-        ignoreExpiration,
-      });
-    } catch {
-      throw new UnauthorizedException('Expired session');
-    }
+  private signRefreshToken(payload: JwtRefreshPayload) {
+    return this.jwtService.signAsync(payload, {
+      secret: this.authConfig.jwt.refresh.secret,
+      expiresIn: this.authConfig.jwt.refresh.expire,
+      issuer: this.authConfig.jwt.issuer,
+    });
   }
 }

@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { IS_OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
-import { JwtUser } from '../../modules/auth/strategies/jwt.strategy';
-import { StoreService } from '../../infra/store/store.service';
+import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
+import { IS_OPTIONAL_AUTH_KEY } from '../../../common/decorators/optional-auth.decorator';
+import { StoreService } from '../../../infra/store/store.service';
+import { JwtAccessAuthResult } from '../interfaces/jwt-access.interface';
 
 @Injectable()
-export class JwtGuard extends AuthGuard('jwt') {
+export class JwtAccessGuard extends AuthGuard('jwt-access') {
   constructor(
     private reflector: Reflector,
     private store: StoreService,
@@ -29,9 +29,9 @@ export class JwtGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = JwtUser>(
+  handleRequest<TUser = JwtAccessAuthResult>(
     err: any,
-    user: TUser | false | null | undefined,
+    authResult: TUser | false | null | undefined,
     _info: any,
     context: ExecutionContext,
   ): TUser | undefined {
@@ -40,20 +40,20 @@ export class JwtGuard extends AuthGuard('jwt') {
       [context.getHandler(), context.getClass()],
     );
 
-    if ((err || !user) && !isOptional)
+    if ((err || !authResult) && !isOptional)
       throw err || new UnauthorizedException('Session expired');
 
-    if (user) {
-      const actor = user as unknown as JwtUser;
+    if (authResult) {
+      const { payload } = authResult as unknown as JwtAccessAuthResult;
       this.store.set('actor', {
         type: 'user',
-        id: actor.id,
-        name: actor.name,
-        roles: actor.roles,
+        id: payload.user.id,
+        name: payload.user.name,
+        roles: payload.roles,
       });
-      this.store.set('session', { id: actor.session.id });
+      this.store.set('session', { id: payload.session.id });
     }
 
-    return user || undefined;
+    return authResult || undefined;
   }
 }

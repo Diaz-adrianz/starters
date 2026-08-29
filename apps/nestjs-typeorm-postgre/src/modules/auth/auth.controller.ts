@@ -3,12 +3,9 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
-  Inject,
   ParseBoolPipe,
   Post,
   Query,
-  Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
@@ -16,11 +13,6 @@ import { AuthService } from './auth.service';
 import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
-import type { Response } from 'express';
-import {
-  CookieKeys,
-  CookiePath,
-} from '../../shared/constants/cookie-keys.constant';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -30,14 +22,15 @@ import {
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { ResourceScope } from '../../shared/classes/resource-scope.class';
-import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { UserService } from '../identity/resources/user/user.service';
 import { StoreService } from '../../infra/store/store.service';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { type JwtRefreshAuthResult } from './interfaces/jwt-refresh.interface';
+import { type JwtAccessAuthResult } from './interfaces/jwt-access.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private authService: AuthService,
     private userService: UserService,
     private store: StoreService,
@@ -47,7 +40,7 @@ export class AuthController {
   // Sign up handlers per strategy
   // ----------------------------------------------------------------
   @Public()
-  @ResSuccess({ message: 'Check your inbox to verify your account' })
+  @ResSuccess({ message: 'Verification email sent' })
   @Post('sign-up')
   async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
     return this.authService.signUpLocal(signUpLocalDto);
@@ -59,71 +52,49 @@ export class AuthController {
   @Public()
   @UseGuards(LocalGuard)
   @Post('sign-in')
-  async signInLocal(
-    @ReqUser() user: User,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const result = await this.authService.signIn(user);
-    if (this.store.isWebClient()) this.saveRefreshToken(res, result.rt);
-    return {
-      user: result.user,
-      tokens: {
-        access: result.at,
-        refresh: this.store.isMobileClient() ? result.rt : undefined,
-      },
-    };
+  async signInLocal(@ReqUser() user: User) {
+    const result = await this.authService.signIn(
+      user,
+      this.store.get('device'),
+    );
+    return result;
   }
 
   // ================================================================
   // Access and refresh tokens rotation
   // ----------------------------------------------------------------
   @Public()
+  @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
-  async refreshSession(@Res({ passthrough: true }) res: Response) {
-    const rt = this.store.get('client')?.refreshToken;
-    if (!rt) throw new UnauthorizedException('Missing token');
-    const result = await this.authService.refreshSession(rt);
-    if (this.store.isWebClient()) this.saveRefreshToken(res, result.newRt);
-    return {
-      tokens: {
-        access: result.at,
-        refresh: this.store.isMobileClient() ? result.newRt : undefined,
-      },
-    };
+  async refresh(@ReqUser() refreshAuthResult: JwtRefreshAuthResult) {
+    const result = await this.authService.refresh(
+      refreshAuthResult,
+      this.store.get('device'),
+    );
+    return result;
   }
 
   // ================================================================
   // Sign out handlers
   // ----------------------------------------------------------------
-  @Public()
   @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
-  async signOut(@Res({ passthrough: true }) res: Response) {
-    const rt = this.store.get('client')?.refreshToken;
-    if (rt) await this.authService.signOut(rt);
-
-    if (this.store.isWebClient())
-      res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-        path: CookiePath.REFRESH_TOKEN,
-      });
+  async signOut(@ReqUser() { payload }: JwtAccessAuthResult) {
+    await this.authService.signOut(payload.session.id);
     return;
   }
 
-  @ResSuccess({ message: 'Signed out all sessions' })
+  @ResSuccess({ message: 'Signed out from all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
-    @Res({ passthrough: true }) res: Response,
+    @ReqUser() { payload }: JwtAccessAuthResult,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
   ) {
     await this.authService.signOutAll(
-      this.store.actor.id,
-      keepCurrent ? [this.store.session.id] : [],
+      payload.user.id,
+      keepCurrent ? [payload.session.id] : [],
     );
-    if (!keepCurrent && this.store.isWebClient())
-      res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-        path: CookiePath.REFRESH_TOKEN,
-      });
     return;
   }
 
@@ -131,20 +102,18 @@ export class AuthController {
   // Actor info
   // ----------------------------------------------------------------
   @Get('/me')
-  async me() {
-    const scope = new ResourceScope([
-      { field: 'id', op: 'where', value: this.store.actor.id },
-    ]);
-    const user = await this.userService.findOne(scope);
-    const sessions = await this.authService.findSessions(this.store.actor.id);
-    return { user, sessions };
+  async me(@ReqUser() { payload }: JwtAccessAuthResult) {
+    const user = await this.userService.findOne(
+      new ResourceScope([{ field: 'id', op: 'where', value: payload.user.id }]),
+    );
+    return { user };
   }
 
   // ================================================================
   // User verification
   // ----------------------------------------------------------------
   @Public()
-  @ResSuccess({ message: 'Your email has been verified' })
+  @ResSuccess({ message: 'Email verified' })
   @Post('/verify-email')
   verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(dto);
@@ -161,7 +130,7 @@ export class AuthController {
   }
 
   @Public()
-  @ResSuccess({ message: 'Code is valid' })
+  @ResSuccess({ message: 'Code verified' })
   @Post('/reset-password-check')
   async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
     const { expiresAt } = await this.authService.resetPasswordCheck(dto);
@@ -169,22 +138,9 @@ export class AuthController {
   }
 
   @Public()
-  @ResSuccess({ message: 'Your password has been reset' })
+  @ResSuccess({ message: 'Password reset' })
   @Post('/reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
-  }
-
-  // ================================================================
-  // Local utils
-  // ----------------------------------------------------------------
-  private saveRefreshToken(res: Response, token: string) {
-    res.cookie(CookieKeys.REFRESH_TOKEN, token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: this.authConfig.jwt.refresh.expire * 1000,
-      path: CookiePath.REFRESH_TOKEN,
-    });
   }
 }

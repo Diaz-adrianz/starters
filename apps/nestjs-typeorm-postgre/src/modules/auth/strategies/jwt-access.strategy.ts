@@ -1,7 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { JwtTokenPayload } from '../interfaces/jwt-payload.interface';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
 import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
@@ -9,6 +8,10 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../../database/typeorm/app-data-source';
 import { DatabaseKeys } from '../../../database/database-keys.constant';
 import { User } from '../../identity/entities/user.entity';
+import {
+  JwtAccessAuthResult,
+  JwtAccessPayload,
+} from '../interfaces/jwt-access.interface';
 
 type UserCache = {
   id: string;
@@ -16,26 +19,32 @@ type UserCache = {
   roles: { id: string; name: string }[];
 };
 
-export type JwtUser = UserCache & {
-  session: { id: string };
-};
+const extractor = ExtractJwt.fromAuthHeaderAsBearerToken();
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtAccessStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-access',
+) {
   constructor(
-    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
+    @Inject(AUTH_CONFIG_KEY) authConfig: AuthConfig,
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     private cache: CacheService,
     private logger: LoggerService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractor,
       ignoreExpiration: false,
       secretOrKey: authConfig.jwt.access.secret,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: JwtTokenPayload): Promise<JwtUser | undefined> {
+  async validate(
+    req: Request,
+    payload: JwtAccessPayload,
+  ): Promise<JwtAccessAuthResult> {
+    const token = extractor(req)!;
     let userCache = await this.cache.get<UserCache>((k) => k.user(payload.sub));
 
     if (!userCache) {
@@ -63,10 +72,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     return {
-      id: userCache.id,
-      name: userCache.name,
-      roles: userCache.roles,
-      session: { id: payload.sid },
+      token,
+      payload: {
+        user: { id: userCache.id, name: userCache.name },
+        roles: userCache.roles,
+        session: { id: payload.sid },
+      },
     };
   }
 }
