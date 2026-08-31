@@ -29,6 +29,7 @@ import {
   EMAIL_DELIVERY_QUEUE,
   EmailDeliveryJobOptions,
 } from './queue/email-delivery/email-delivery.config';
+import { NotificationGateway } from './notification.gateway';
 
 @Module({
   imports: [
@@ -73,6 +74,9 @@ import {
     // processors
     EmailDeliveryProcessor,
     PushDeliveryProcessor,
+
+    // websocket
+    NotificationGateway,
   ],
   exports: [DeliveryService],
 })

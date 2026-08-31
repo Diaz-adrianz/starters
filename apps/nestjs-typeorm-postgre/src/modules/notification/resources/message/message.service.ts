@@ -6,6 +6,7 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { TemplateService } from '../template/template.service';
 import { Channel } from '../../enums/channel.enum';
+import { NotificationGateway } from '../../notification.gateway';
 
 @Injectable()
 export class MessageService {
@@ -13,6 +14,7 @@ export class MessageService {
     @InjectRepository(Message, DatabaseKeys.DEFAULT)
     private messageRepo: AppRepository<Message>,
     private templateService: TemplateService,
+    private gateway: NotificationGateway,
   ) {}
 
   markRead(scope: ResourceScope) {
@@ -27,7 +29,7 @@ export class MessageService {
     templateKey: string,
     recipients: { userId: string; payload: Record<string, any> }[],
   ) {
-    const messages = await this.messageRepo.insert(
+    const messages = this.messageRepo.create(
       await Promise.all(
         recipients.map(async (r) => {
           const rendered = await this.templateService.render(
@@ -45,7 +47,14 @@ export class MessageService {
       ),
     );
 
-    // TODO: notify users via WS
+    await this.messageRepo.save(messages);
+
+    messages.forEach((message) =>
+      this.gateway.emitToUser(message.userId, 'message.created', {
+        title: message.title,
+        body: message.body,
+      }),
+    );
 
     return messages;
   }

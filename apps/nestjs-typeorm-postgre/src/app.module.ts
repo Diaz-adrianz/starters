@@ -18,6 +18,7 @@ import { StoreModule } from './infra/store/store.module';
 import { RequestMiddleware } from './common/middlewares/request.middleware';
 import { DeviceMiddleware } from './common/middlewares/device.middleware';
 import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
+import { WebsocketModule } from './infra/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
     LoggerModule,
     EventModule,
     StoreModule,
+    WebsocketModule,
 
     // App modules
     // ---------------------------------
