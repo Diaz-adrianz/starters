@@ -44,7 +44,11 @@ export class AuthEventSubscriber {
         ],
       });
     } catch (error) {
-      this.logger.error(error, this.constructor.name);
+      this.logger.error(
+        `Failed to send sign-in alert email: `,
+        error,
+        this.constructor.name,
+      );
     }
   }
 }

@@ -43,7 +43,11 @@ export class S3Filter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception, 'Storage');
+      this.logger.error(
+        'Unhandled exception: ',
+        exception,
+        this.constructor.name,
+      );
 
     res.status(body.statusCode).json(body);
   }

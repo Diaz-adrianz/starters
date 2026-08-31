@@ -70,7 +70,11 @@ export class TypeormFilter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception, 'Database');
+      this.logger.error(
+        'Unhandled exception: ',
+        exception,
+        this.constructor.name,
+      );
 
     res.status(body.statusCode).json(body);
   }

@@ -45,7 +45,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     let userCache = await this.cache.get<UserCache>((k) => k.user(payload.sub));
 
     if (!userCache) {
-      this.logger.log('User cache missed', this.constructor.name);
+      this.logger.debug('User cache missed', this.constructor.name);
       const user = await this.authService.validateJwtAccessStrategy(
         payload.sub,
       );

@@ -245,7 +245,8 @@ export class PushDeliveryProcessor extends WorkerHost {
   onFailed(job: Job, err: Error) {
     // TODO: send dev alert event after reached max attempts
     this.logger.error(
-      `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): ${err.message}`,
+      `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): `,
+      err,
       this.constructor.name,
     );
   }

@@ -136,7 +136,8 @@ export class DeliveryService {
 
     if (failed.length) {
       this.logger.warn(
-        `Dispatch partially failed for delivery ${delivery.id}: ${failed.map((f) => `- ${f?.channel}: ${f?.reason}`).join('\n')}`,
+        `Dispatch partially failed for delivery ${delivery.id} (${failed.length} channel(s)): `,
+        { failed },
         this.constructor.name,
       );
     }

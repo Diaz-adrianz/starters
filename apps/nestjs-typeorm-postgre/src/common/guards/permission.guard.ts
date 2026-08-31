@@ -55,7 +55,7 @@ export class PermissionGuard implements CanActivate {
         );
 
         if (!cached || !cached.length) {
-          this.logger.log('Permissions cache missed', this.constructor.name);
+          this.logger.debug('Permissions cache missed', this.constructor.name);
 
           const rolePermissions = await rolePermissionRepo.find({
             where: { role: { id: role.id }, permission: { enabled: true } },
@@ -79,7 +79,11 @@ export class PermissionGuard implements CanActivate {
           permissions.set(p[0], [...existing, p[1]]);
         });
       } catch (error) {
-        this.logger.error(error, this.constructor.name);
+        this.logger.warn(
+          `Failed to load permissions for role "${role.name}"`,
+          error,
+          this.constructor.name,
+        );
       }
     }
 

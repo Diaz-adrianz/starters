@@ -48,7 +48,11 @@ export class ExceptionFilter implements NestExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception, this.constructor.name);
+      this.logger.error(
+        'Unhandled exception: ',
+        exception,
+        this.constructor.name,
+      );
 
     httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
   }

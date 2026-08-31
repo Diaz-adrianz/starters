@@ -39,10 +39,14 @@ export class DefaultFirebaseService implements OnModuleInit {
 
       this.logger.log(
         `Firebase initialized with projectId: ${serviceAccount.project_id}`,
-        'Firebase',
+        this.constructor.name,
       );
     } catch (error) {
-      this.logger.error(error, 'Firebase');
+      this.logger.error(
+        `Failed to connect to Firebase: `,
+        error,
+        this.constructor.name,
+      );
     }
   }
 

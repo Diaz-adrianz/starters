@@ -366,7 +366,11 @@ export class AuthService {
         ],
       });
     } catch (error) {
-      this.logger.error(error, this.constructor.name);
+      this.logger.error(
+        'Failed to send password reset email: ',
+        error,
+        this.constructor.name,
+      );
     }
 
     await this.verificationTokenService.updateById(token.id, {
@@ -415,7 +419,11 @@ export class AuthService {
         ],
       });
     } catch (error) {
-      this.logger.error(error, this.constructor.name);
+      this.logger.error(
+        'Failed to send verification email: ',
+        error,
+        this.constructor.name,
+      );
       throw new BadGatewayException(
         "We couldn't send verification email right now. Please try again",
       );
