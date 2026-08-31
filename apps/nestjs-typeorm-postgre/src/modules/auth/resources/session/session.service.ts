@@ -7,12 +7,15 @@ import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { createHash } from 'crypto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { LoggerService } from '../../../../infra/logger/logger.service';
 
 @Injectable()
 export class SessionService {
   constructor(
     @InjectRepository(Session, DatabaseKeys.DEFAULT)
     private sessionRepo: AppRepository<Session>,
+    private logger: LoggerService,
   ) {}
 
   async validate(id: string, refreshToken: string) {
@@ -88,9 +91,23 @@ export class SessionService {
     return this.sessionRepo.delete(scope.toFindOptions().where);
   }
 
-  // Base
+  // Utils
   // ----------------------------------------------------------------
   hashRefreshToken(token: string) {
     return createHash('sha256').update(token).digest('hex');
+  }
+
+  // Cron
+  // ----------------------------------------------------------------
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async cleanupExpired() {
+    const scope = new ResourceScope([
+      { field: 'expiresAt', op: 'lte', value: new Date() },
+    ]);
+    const result = await this.delete(scope);
+    this.logger.log(
+      `Cleaned up ${result.affected ?? 0} expired session(s)`,
+      this.constructor.name,
+    );
   }
 }
