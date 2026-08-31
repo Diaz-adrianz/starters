@@ -5,28 +5,18 @@ import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
-// import { StoreService } from '../../../../infra/store/store.service';
 
 @Injectable()
 export class PushTokenService {
   constructor(
     @InjectRepository(PushToken, DatabaseKeys.DEFAULT)
     private pushTokenRepo: AppRepository<PushToken>,
-    // private store: StoreService,
   ) {}
 
-  register(userId: string | undefined, dto: RegisterPushTokenDto) {
-    // const device = this.store.get('device');
-    return this.pushTokenRepo.upsert(
-      {
-        ...dto,
-        userId,
-        // deviceId: device?.id,
-        // deviceType: device?.type,
-        // deviceName: device?.deviceName,
-      },
-      { conflictPaths: ['provider', 'token'] },
-    );
+  register(dto: RegisterPushTokenDto) {
+    return this.pushTokenRepo.upsert(dto, {
+      conflictPaths: ['provider', 'token'],
+    });
   }
 
   revoke(id: string) {

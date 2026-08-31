@@ -6,7 +6,6 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { DeviceType } from '../../../shared/constants/device-types.constant';
 import { PushProvider } from '../enums/push-provider.enum';
 
 @Entity({ schema: 'notification', name: 'push_tokens' })
@@ -31,10 +30,13 @@ export class PushToken {
   deviceId: string | null;
 
   @Column('varchar', { nullable: true })
-  deviceType: DeviceType | null;
+  deviceLabel: string | null;
 
   @Column('varchar', { nullable: true })
-  deviceName: string | null;
+  deviceType: string | null;
+
+  @Column('varchar', { nullable: true })
+  os: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

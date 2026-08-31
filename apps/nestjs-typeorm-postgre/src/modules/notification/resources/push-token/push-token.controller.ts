@@ -25,7 +25,15 @@ export class PushTokenController {
   @OptionalAuth()
   @Post('register')
   register(@Body() dto: RegisterPushTokenDto) {
-    return this.pushTokenService.register(this.store.get('actor')?.id, dto);
+    dto.userId = this.store.get('actor')?.id;
+
+    const device = this.store.get('device');
+    dto.deviceId = device?.id;
+    dto.deviceLabel = device?.label;
+    dto.deviceType = device?.type;
+    dto.os = device?.os;
+
+    return this.pushTokenService.register(dto);
   }
 
   @Public()
