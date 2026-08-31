@@ -3,9 +3,11 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  Inject,
   ParseBoolPipe,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
@@ -27,10 +29,17 @@ import { StoreService } from '../../infra/store/store.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { type JwtRefreshAuthResult } from './interfaces/jwt-refresh.interface';
 import { type JwtAccessAuthResult } from './interfaces/jwt-access.interface';
+import { type Response } from 'express';
+import {
+  CookieKeys,
+  CookiePath,
+} from '../../shared/constants/cookie-keys.constant';
+import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private authService: AuthService,
     private userService: UserService,
     private store: StoreService,
@@ -52,11 +61,15 @@ export class AuthController {
   @Public()
   @UseGuards(LocalGuard)
   @Post('sign-in')
-  async signInLocal(@ReqUser() user: User) {
+  async signInLocal(
+    @ReqUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.signIn(
       user,
       this.store.getOrThrow('device'),
     );
+    this.setRefreshTokenCookie(res, result.tokens.refresh);
     return result;
   }
 
@@ -66,11 +79,15 @@ export class AuthController {
   @Public()
   @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
-  async refresh(@ReqUser() refreshAuthResult: JwtRefreshAuthResult) {
+  async refresh(
+    @ReqUser() refreshAuthResult: JwtRefreshAuthResult,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.refresh(
       refreshAuthResult,
       this.store.get('device'),
     );
+    this.setRefreshTokenCookie(res, result.tokens.refresh);
     return result;
   }
 
@@ -79,8 +96,12 @@ export class AuthController {
   // ----------------------------------------------------------------
   @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
-  async signOut(@ReqUser() { payload }: JwtAccessAuthResult) {
+  async signOut(
+    @ReqUser() { payload }: JwtAccessAuthResult,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     await this.authService.signOut(payload.session.id);
+    this.clearRefreshTokenCookie(res);
     return;
   }
 
@@ -90,11 +111,13 @@ export class AuthController {
     @ReqUser() { payload }: JwtAccessAuthResult,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
+    @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.signOutAll(
       payload.user.id,
       keepCurrent ? [payload.session.id] : [],
     );
+    if (!keepCurrent) this.clearRefreshTokenCookie(res);
     return;
   }
 
@@ -142,5 +165,24 @@ export class AuthController {
   @Post('/reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  // ================================================================
+  // Local utils
+  // ----------------------------------------------------------------
+  private setRefreshTokenCookie(res: Response, token: string) {
+    res.cookie(CookieKeys.REFRESH_TOKEN, token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: this.authConfig.jwt.refresh.expire * 1000,
+      path: CookiePath.REFRESH_TOKEN,
+    });
+  }
+
+  private clearRefreshTokenCookie(res: Response) {
+    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
+      path: CookiePath.REFRESH_TOKEN,
+    });
   }
 }

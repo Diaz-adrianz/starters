@@ -7,8 +7,16 @@ import {
   JwtRefreshPayload,
 } from '../interfaces/jwt-refresh.interface';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
+import { CookieKeys } from '../../../shared/constants/cookie-keys.constant';
 
-const extractor = ExtractJwt.fromAuthHeaderAsBearerToken();
+const extractFromCookie = (req: Request): string | null => {
+  return req.cookies?.[CookieKeys.REFRESH_TOKEN] ?? null;
+};
+
+const extractor = ExtractJwt.fromExtractors([
+  ExtractJwt.fromAuthHeaderAsBearerToken(),
+  extractFromCookie,
+]);
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
