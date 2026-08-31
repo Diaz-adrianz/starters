@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { type DataSourceOptions, DataSource } from 'typeorm';
 import { type PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions.js';
-import { SnakeNamingStrategy } from '../../shared/utils/typeorm/naming-strategy.util';
+import { SnakeNamingStrategy } from '../typeorm/utils/naming-strategy.util';
 import { join } from 'path';
 import { SeederOptions } from 'typeorm-extension';
 import { DatabaseConfig } from '../../config/database.config';
