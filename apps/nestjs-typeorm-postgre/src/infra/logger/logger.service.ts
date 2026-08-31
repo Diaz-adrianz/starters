@@ -41,7 +41,7 @@ export class LoggerService implements NestLoggerService {
     const context = isErrorObj ? arg3! : (arg2 as string);
     const text = err
       ? isErrorObj
-        ? `${arg1}${err.message}`
+        ? `${arg1} ${err.message}`
         : err.message
       : (arg1?.message ?? arg1);
 

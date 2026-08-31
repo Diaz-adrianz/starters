@@ -16,7 +16,7 @@ const consoleFormat = combine(
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   colorize(),
   printf(({ level, message, timestamp, context, requestId }) => {
-    return `${timestamp} [${context}]${requestId ? ` [${requestId}]` : ''} ${level}: ${message}`;
+    return `${timestamp} [${context}]${requestId ? `[${requestId}]` : ''} ${level}: ${message}`;
   }),
 );
 
