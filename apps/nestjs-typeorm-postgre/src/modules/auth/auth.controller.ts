@@ -1,147 +1,187 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Get,
+  Inject,
   ParseBoolPipe,
   Post,
   Query,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
-import { User } from '../users/entities/user.entity';
+import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
-import { ReqClient } from '../../common/decorators/req-client.decorator';
-import type { Session } from '../../common/classes/session.class';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
+import { ResSuccess } from '../../common/decorators/res-success.decorator';
+import { SignUpLocalDto } from './dto/sign-up-local.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import {
-  generateDeviceId,
-  signDeviceId,
-  verifyDeviceId,
-} from '../../common/utils/device-id.util';
-import type { Response } from 'express';
-import { CookieKeys, CookiePath } from '../../common/constants/cookie-keys';
-import { ResponseSuccess } from '../../common/decorators/response-success.decorator';
-import { Client } from '../../common/classes/client.class';
-import { UsersService } from '../users/users.service';
+  ResetPasswordCheckDto,
+  ResetPasswordDto,
+} from './dto/reset-password.dto';
+import { ResourceScope } from '../../shared/classes/resource-scope.class';
+import { UserService } from '../identity/resources/user/user.service';
+import { StoreService } from '../../infra/store/store.service';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { type JwtRefreshAuthResult } from './interfaces/jwt-refresh.interface';
+import { type JwtAccessAuthResult } from './interfaces/jwt-access.interface';
+import { type Response } from 'express';
+import {
+  CookieKeys,
+  CookiePath,
+} from '../../shared/constants/cookie-keys.constant';
+import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private authService: AuthService,
-    private userService: UsersService,
-    private configService: ConfigService<EnvConfig>,
+    private userService: UserService,
+    private store: StoreService,
   ) {}
 
-  // sign in methods
+  // ================================================================
+  // Sign up handlers per strategy
+  // ----------------------------------------------------------------
+  @Public()
+  @ResSuccess({ message: 'Verification email sent' })
+  @Post('sign-up')
+  async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
+    return this.authService.signUpLocal(signUpLocalDto);
+  }
+
+  // ================================================================
+  // Sign in
+  // ----------------------------------------------------------------
   @Public()
   @UseGuards(LocalGuard)
   @Post('sign-in')
   async signInLocal(
-    @ReqClient() client: Client,
     @ReqUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const deviceIdSecret = this.configService.getOrThrow('deviceId.secret', {
-      infer: true,
-    });
-    client.deviceId =
-      client.deviceId && client.deviceIdSignature
-        ? verifyDeviceId(
-            deviceIdSecret,
-            client.deviceId,
-            client.deviceIdSignature,
-          )
-        : null;
-
-    if (!client.deviceId) {
-      client.deviceId = generateDeviceId();
-      res.cookie(
-        CookieKeys.DEVICE_ID,
-        signDeviceId(deviceIdSecret, client.deviceId),
-        {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge:
-            this.configService.getOrThrow('deviceId.expire', { infer: true }) *
-            1000,
-          path: '/',
-        },
-      );
-    }
-
-    const result = await this.authService.signIn(user, client);
-    this.saveRefreshToken(res, result.rt);
-    return { user: result.user, tokens: { access: result.at } };
+    const result = await this.authService.signIn(
+      user,
+      this.store.getOrThrow('device'),
+    );
+    this.setRefreshTokenCookie(res, result.tokens.refresh);
+    return result;
   }
 
+  // ================================================================
+  // Access and refresh tokens rotation
+  // ----------------------------------------------------------------
   @Public()
+  @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
-  async refreshSession(
-    @ReqClient() client: Client,
+  async refresh(
+    @ReqUser() refreshAuthResult: JwtRefreshAuthResult,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!client.refreshToken) throw new UnauthorizedException('Missing token');
-    const result = await this.authService.refreshSession(client.refreshToken);
-    this.saveRefreshToken(res, result.newRt);
-    return { tokens: { access: result.at } };
+    const result = await this.authService.refresh(
+      refreshAuthResult,
+      this.store.get('device'),
+    );
+    this.setRefreshTokenCookie(res, result.tokens.refresh);
+    return result;
   }
 
-  @Public()
-  @ResponseSuccess({ message: 'Signed out' })
+  // ================================================================
+  // Sign out handlers
+  // ----------------------------------------------------------------
+  @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
   async signOut(
-    @ReqClient() client: Client,
+    @ReqUser() { payload }: JwtAccessAuthResult,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (client.refreshToken)
-      await this.authService.signOut(client.refreshToken);
-    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-      path: CookiePath.REFRESH_TOKEN,
-    });
+    await this.authService.signOut(payload.session.id);
+    this.clearRefreshTokenCookie(res);
     return;
   }
 
-  @ResponseSuccess({ message: 'Signed out all sessions' })
+  @ResSuccess({ message: 'Signed out from all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
-    @ReqUser() session: Session,
-    @Res({ passthrough: true }) res: Response,
+    @ReqUser() { payload }: JwtAccessAuthResult,
     @Query('keepCurrent', new DefaultValuePipe(false), ParseBoolPipe)
     keepCurrent: boolean,
+    @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.signOutAll(
-      session.userId,
-      keepCurrent ? [session.id] : [],
+      payload.user.id,
+      keepCurrent ? [payload.session.id] : [],
     );
-    if (!keepCurrent)
-      res.clearCookie(CookieKeys.REFRESH_TOKEN, {
-        path: CookiePath.REFRESH_TOKEN,
-      });
+    if (!keepCurrent) this.clearRefreshTokenCookie(res);
     return;
   }
 
+  // ================================================================
+  // Actor info
+  // ----------------------------------------------------------------
   @Get('/me')
-  async me(@ReqUser() session: Session) {
-    const user = await this.userService.findOne(session.userId);
-    const sessions = await this.authService.findSessions(session.userId);
-    return { user, sessions };
+  async me(@ReqUser() { payload }: JwtAccessAuthResult) {
+    const user = await this.userService.findOne(
+      new ResourceScope([{ field: 'id', op: 'where', value: payload.user.id }]),
+    );
+    return { user };
   }
 
-  // utils
-  private saveRefreshToken(res: Response, token: string) {
+  // ================================================================
+  // User verification
+  // ----------------------------------------------------------------
+  @Public()
+  @ResSuccess({ message: 'Email verified' })
+  @Post('/verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  // ================================================================
+  // Reset password
+  // ----------------------------------------------------------------
+  @Public()
+  @ResSuccess({ message: "If that email exists, we've sent a reset code" })
+  @Post('/forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @ResSuccess({ message: 'Code verified' })
+  @Post('/reset-password-check')
+  async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
+    const { expiresAt } = await this.authService.resetPasswordCheck(dto);
+    return { expiresAt };
+  }
+
+  @Public()
+  @ResSuccess({ message: 'Password reset' })
+  @Post('/reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  // ================================================================
+  // Local utils
+  // ----------------------------------------------------------------
+  private setRefreshTokenCookie(res: Response, token: string) {
     res.cookie(CookieKeys.REFRESH_TOKEN, token, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
-      maxAge:
-        this.configService.getOrThrow('jwt.refresh.expire', { infer: true }) *
-        1000,
+      maxAge: this.authConfig.jwt.refresh.expire * 1000,
+      path: CookiePath.REFRESH_TOKEN,
+    });
+  }
+
+  private clearRefreshTokenCookie(res: Response) {
+    res.clearCookie(CookieKeys.REFRESH_TOKEN, {
       path: CookiePath.REFRESH_TOKEN,
     });
   }

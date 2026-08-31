@@ -4,6 +4,7 @@ import {
   Injectable,
   NestInterceptor,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { Request, Response } from 'express';
@@ -12,23 +13,30 @@ import { ResponseDto } from '../../shared/dto/response.dto';
 import { DeleteResult, InsertResult, UpdateResult } from 'typeorm';
 import { Reflector } from '@nestjs/core';
 import {
-  RESPONSE_SUCCESS_METADATA,
-  ResponseSuccessMetadata,
-} from '../decorators/response-success.decorator';
+  RES_SUCCESS_METADATA,
+  ResSuccessMetadata,
+} from '../decorators/res-success.decorator';
 import { PaginationResponseDto } from '../../shared/dto/pagination-response.dto';
-import { FindAllQueryDto } from '../../shared/dto/findall-query.dto';
+import { ResourceQueryDto } from '../../shared/dto/resource-query.dto';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor<
   any,
   ResponseDto<any>
 > {
+  private successMetadata?: ResSuccessMetadata | null;
+
   constructor(private reflector: Reflector) {}
 
   intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<ResponseDto<any>> {
+    this.successMetadata = this.reflector.get<ResSuccessMetadata>(
+      RES_SUCCESS_METADATA,
+      context.getHandler(),
+    );
+
     return next
       .handle()
       .pipe(map((data) => this.responseHandler(data, context)));
@@ -38,11 +46,7 @@ export class ResponseInterceptor implements NestInterceptor<
     const response = context.switchToHttp().getResponse<Response>();
     const request = context.switchToHttp().getRequest<Request>();
     const statusCode = response.statusCode;
-    const message =
-      this.reflector.get<ResponseSuccessMetadata>(
-        RESPONSE_SUCCESS_METADATA,
-        context.getHandler(),
-      )?.message || 'success';
+    const message = this.successMetadata?.message || 'success';
 
     return {
       statusCode,
@@ -52,18 +56,16 @@ export class ResponseInterceptor implements NestInterceptor<
   }
 
   private resolveData(data: unknown, request: Request) {
-    if (
-      data instanceof InsertResult ||
-      data instanceof UpdateResult ||
-      data instanceof DeleteResult
-    ) {
-      if (
-        (data instanceof DeleteResult || data instanceof UpdateResult) &&
-        !data.affected
-      ) {
+    if (data instanceof DeleteResult || data instanceof UpdateResult) {
+      if (!data.affected && !this.successMetadata?.allowNoAffected)
         throw new NotFoundException('Entry not found');
-      }
-      return undefined;
+      return { affected: data.affected };
+    }
+
+    if (data instanceof InsertResult) {
+      if (!data.identifiers.length && !this.successMetadata?.allowNoAffected)
+        throw new UnprocessableEntityException('Entry could not be created');
+      return { affected: data.identifiers.length };
     }
 
     if (
@@ -73,7 +75,7 @@ export class ResponseInterceptor implements NestInterceptor<
       typeof data[1] === 'number'
     ) {
       const [items, total] = data as [unknown[], number];
-      const query = plainToInstance(FindAllQueryDto, request.query || {});
+      const query = plainToInstance(ResourceQueryDto, request.query || {});
 
       return new PaginationResponseDto(
         this.toPlain(items) as unknown[],

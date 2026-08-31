@@ -3,24 +3,23 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
 import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '../../config/env.config';
-import { LoggerService } from '../logger/logger.service';
+import { APP_CONFIG_KEY, type AppConfig } from '../../config/app.config';
+import { LoggerService } from '../../infra/logger/logger.service';
 
 @Catch(TypeORMError)
 export class TypeormFilter implements ExceptionFilter {
   constructor(
-    private configService: ConfigService<EnvConfig>,
+    @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private logger: LoggerService,
   ) {}
 
   catch(exception: TypeORMError, host: ArgumentsHost) {
-    const isProd =
-      this.configService.getOrThrow('mode', { infer: true }) == 'production';
+    const isProd = this.appConfig.mode == 'production';
 
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -71,7 +70,11 @@ export class TypeormFilter implements ExceptionFilter {
     }
 
     if (body.statusCode === HttpStatus.INTERNAL_SERVER_ERROR.valueOf())
-      this.logger.error(exception, 'Database');
+      this.logger.error(
+        'Unhandled exception: ',
+        exception,
+        this.constructor.name,
+      );
 
     res.status(body.statusCode).json(body);
   }

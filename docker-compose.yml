@@ -11,6 +11,7 @@ services:
       - ./apps/nestjs-typeorm-postgre/.env.production
     volumes:
       - ./apps/nestjs-typeorm-postgre/logs:/usr/src/app/logs
+      - ./apps/nestjs-typeorm-postgre/secrets:/usr/src/app/secrets
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,6 +71,22 @@ services:
     restart: unless-stopped
     ports:
       - ${SEAWEEDFS_ADMIN_PORT}:${SEAWEEDFS_ADMIN_PORT}
+
+  seaweedfs-init:
+    image: amazon/aws-cli
+    entrypoint: ['/bin/sh', '-c', 'for f in /init-scripts/*.sh; do sh "$$f"; done']
+    depends_on:
+      seaweedfs-s3:
+        condition: service_started
+    environment:
+      - S3_ENDPOINT=http://seaweedfs-s3:${SEAWEEDFS_S3_PORT}
+      - S3_BUCKETS=${SEAWEEDFS_BUCKETS}
+      - S3_TMP_EXPIRES=${SEAWEEDFS_TMP_EXPIRES}
+      - AWS_ACCESS_KEY_ID=${SEAWEEDFS_CLI_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${SEAWEEDFS_CLI_SECRET_ACCESS_KEY}
+    volumes:
+      - ./seaweedfs/init:/init-scripts:ro
+    restart: 'no'
 
   n8n:
     image: docker.n8n.io/n8nio/n8n

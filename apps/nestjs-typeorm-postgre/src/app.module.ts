@@ -1,71 +1,89 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EnvConfig, envConfig, envConfigSchema } from './config/env.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { defaultDataSourceFactory } from './database/default/datasource';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 import { TypeormFilter } from './common/filters/typeorm.filter';
 import { ExceptionFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { JwtGuard } from './common/guards/jwt.guard';
-import { DefaultCacheModule } from './cache/default/default-cache.module';
-import { LoggerModule } from './common/logger/logger.module';
+import { S3Filter } from './common/filters/s3.filter';
+import { NotificationModule } from './modules/notification/notification.module';
+import { AccessControlModule } from './modules/access-control/access-control.module';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from './config/app.config';
+import { LoggerModule } from './infra/logger/logger.module';
+import { CacheModule } from './infra/cache/cache.module';
+import { EventModule } from './infra/event/event.module';
+import { IdentityModule } from './modules/identity/identity.module';
+import { StoreModule } from './infra/store/store.module';
+import { RequestMiddleware } from './common/middlewares/request.middleware';
+import { DeviceMiddleware } from './common/middlewares/device.middleware';
+import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
+import { WebsocketModule } from './infra/websocket/websocket.module';
+import { HealthModule } from './infra/health/health.module';
 
 @Module({
   imports: [
-    // configs
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [envConfig],
-      validationSchema: envConfigSchema,
-    }),
+    // Used for global app providers
+    // ---------------------------------
+    ConfigModule.forFeature(appConfig),
 
-    // databases
-    TypeOrmModule.forRootAsync({
-      name: 'default',
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvConfig>) =>
-        defaultDataSourceFactory(configService),
-    }),
-
-    UsersModule,
-    AuthModule,
-    DefaultCacheModule,
+    // Infra
+    // ---------------------------------
+    CacheModule,
     LoggerModule,
+    EventModule,
+    StoreModule,
+    WebsocketModule,
+    HealthModule,
+
+    // App modules
+    // ---------------------------------
+    IdentityModule,
+    AuthModule,
+    NotificationModule,
+    AccessControlModule,
   ],
   providers: [
-    // auth guard
+    // Guard providers
+    // ---------------------------------
     {
       provide: APP_GUARD,
-      useClass: JwtGuard,
+      useClass: JwtAccessGuard,
     },
 
-    // request validation
+    // Pipe providers
+    // ---------------------------------
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
 
-    // any error handler
+    // Filter providers
+    // ---------------------------------
     {
       provide: APP_FILTER,
       useClass: ExceptionFilter,
     },
-
-    // typeorm error handler
     {
       provide: APP_FILTER,
       useClass: TypeormFilter,
     },
+    {
+      provide: APP_FILTER,
+      useClass: S3Filter,
+    },
 
-    // response format
+    // Interceptor providers
+    // ---------------------------------
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestMiddleware).forRoutes('*');
+    consumer.apply(DeviceMiddleware).forRoutes('*');
+  }
+}

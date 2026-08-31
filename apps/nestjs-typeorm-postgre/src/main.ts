@@ -1,23 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from './config/env.config';
 import cookieParser from 'cookie-parser';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { useContainer } from 'class-validator';
+import { HeaderKeys } from './shared/constants/header-keys.constant';
+import { APP_CONFIG_KEY, AppConfig } from './config/app.config';
+import { LoggerService } from './infra/logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule),
+    appConfig: AppConfig = app.get(APP_CONFIG_KEY);
 
-  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+  // Allow injection in validation
+  // ---------------------------------
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  // Logger
+  // ---------------------------------
+  const logger = app.get(LoggerService);
+  app.useLogger(logger);
+
+  // Cors
+  // ---------------------------------
   app.use(cookieParser());
   app.enableCors({
     origin: '*',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: Object.values(HeaderKeys),
   });
 
-  const configService: ConfigService<EnvConfig> = app.get(ConfigService);
-
-  await app.listen(configService.getOrThrow('port'));
+  await app.listen(appConfig.port);
 }
 
 void bootstrap();

@@ -10,7 +10,7 @@ export class ValidationPipe extends NestValidationPipe {
   constructor() {
     super({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false,
       transform: true,
       exceptionFactory: (errors: ValidationError[]) => {
         return new ValidationException(errors);
