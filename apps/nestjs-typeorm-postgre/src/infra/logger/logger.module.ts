@@ -9,6 +9,7 @@ import {
   LoggerConfig,
   loggerConfig,
 } from '../../config/logger.config';
+import { APP_CONFIG_KEY, AppConfig, appConfig } from '../../config/app.config';
 
 const { combine, timestamp, printf, colorize, errors, json } = format;
 
@@ -30,22 +31,32 @@ const fileFormat = combine(
 @Module({
   imports: [
     WinstonModule.forRootAsync({
-      imports: [ConfigModule.forFeature(loggerConfig)],
-      inject: [LOGGER_CONFIG_KEY],
-      useFactory: (loggerConfig: LoggerConfig) => ({
+      imports: [
+        ConfigModule.forFeature(appConfig),
+        ConfigModule.forFeature(loggerConfig),
+      ],
+      inject: [APP_CONFIG_KEY, LOGGER_CONFIG_KEY],
+      useFactory: (appConfig: AppConfig, loggerConfig: LoggerConfig) => ({
         transports: [
-          // Levels: debug + verbose + info + warn + error
-          new transports.Console({ format: consoleFormat, level: 'debug' }),
-          // Levels: warn + error
-          new DailyRotateFile({
-            format: fileFormat,
-            filename: loggerConfig.path + '%DATE%.log',
-            level: 'warn',
-            datePattern: 'YYYY-MM-DD',
-            zippedArchive: false,
-            maxFiles: '30d',
-            maxSize: '20m',
+          // Levels: debug + verbose + info + warn + error (dev) | info + warn + error (prod)
+          new transports.Console({
+            format: consoleFormat,
+            level: appConfig.mode === 'production' ? 'info' : 'debug',
           }),
+          // Levels: warn + error — disabled on dev
+          ...(appConfig.mode === 'production'
+            ? [
+                new DailyRotateFile({
+                  format: fileFormat,
+                  filename: loggerConfig.path + '%DATE%.log',
+                  level: 'warn',
+                  datePattern: 'YYYY-MM-DD',
+                  zippedArchive: false,
+                  maxFiles: '30d',
+                  maxSize: '20m',
+                }),
+              ]
+            : []),
         ],
       }),
     }),
