@@ -34,7 +34,9 @@ const fileFormat = combine(
       inject: [LOGGER_CONFIG_KEY],
       useFactory: (loggerConfig: LoggerConfig) => ({
         transports: [
-          new transports.Console({ format: consoleFormat }),
+          // Levels: debug + verbose + info + warn + error
+          new transports.Console({ format: consoleFormat, level: 'debug' }),
+          // Levels: warn + error
           new DailyRotateFile({
             format: fileFormat,
             filename: loggerConfig.path + '%DATE%.log',
