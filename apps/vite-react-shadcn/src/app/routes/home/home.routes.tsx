@@ -1,11 +1,11 @@
 import type { RouteObject } from 'react-router-dom';
-import HomePage from './home/home.page';
+import HomePage from './index/index.page';
 
-const globalRoutes: RouteObject[] = [
+const homeRoutes: RouteObject[] = [
   {
     path: '',
     element: <HomePage />,
   },
 ];
 
-export default globalRoutes;
+export default homeRoutes;

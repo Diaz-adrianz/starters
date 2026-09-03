@@ -6,9 +6,9 @@ import {
 } from 'react-router-dom';
 import AuthLayout from './auth/auth.layout';
 import authRoutes from './auth/auth.routes';
-import GlobalLayout from './global/global.layout';
-import globalRoutes from './global/global.routes';
 import NotFoundPage from './not-found/not-found.page';
+import HomeLayout from './home/home.layout';
+import homeRoutes from './home/home.routes';
 
 const routes: RouteObject[] = [
   {
@@ -22,8 +22,8 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',
-        element: <GlobalLayout />,
-        children: globalRoutes,
+        element: <HomeLayout />,
+        children: homeRoutes,
       },
       {
         path: 'auth',
