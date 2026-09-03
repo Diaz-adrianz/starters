@@ -5,6 +5,7 @@ import { useContainer } from 'class-validator';
 import { HeaderKeys } from './shared/constants/header-keys.constant';
 import { APP_CONFIG_KEY, AppConfig } from './config/app.config';
 import { LoggerService } from './infra/logger/logger.service';
+import { CorsOptions } from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule),
@@ -19,15 +20,23 @@ async function bootstrap() {
   const logger = app.get(LoggerService);
   app.useLogger(logger);
 
-  // Cors
+  // Cookie
   // ---------------------------------
   app.use(cookieParser());
-  app.enableCors({
-    origin: '*',
+
+  // Cors
+  // ---------------------------------
+  const corsOptions: CorsOptions = {
+    origin: (origin, callback) => {
+      if (!origin || appConfig.clientOrigins.includes(origin))
+        callback(null, true);
+      else callback(new Error(`Blocked CORS request from origin "${origin}"`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: Object.values(HeaderKeys),
-  });
+  };
+  app.enableCors(corsOptions);
 
   await app.listen(appConfig.port);
 }
