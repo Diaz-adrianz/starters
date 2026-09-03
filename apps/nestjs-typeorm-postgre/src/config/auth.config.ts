@@ -1,49 +1,43 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  AUTH_TOKEN_VERIFICATION_EXPIRE: yup.number().required(),
-  AUTH_TOKEN_RESETPASSWORD_EXPIRE: yup.number().required(),
-  AUTH_JWT_ACCESS_SECRET: yup.string().required(),
-  AUTH_JWT_ACCESS_EXPIRE: yup.number().required(),
-  AUTH_JWT_REFRESH_SECRET: yup.string().required(),
-  AUTH_JWT_REFRESH_EXPIRE: yup.number().required(),
-  AUTH_JWT_ISSUER: yup.string().required(),
+const schema = z.object({
+  AUTH_TOKEN_VERIFICATION_EXPIRE: z.coerce.number(),
+  AUTH_TOKEN_RESETPASSWORD_EXPIRE: z.coerce.number(),
+  AUTH_JWT_ACCESS_SECRET: z.string(),
+  AUTH_JWT_ACCESS_EXPIRE: z.coerce.number(),
+  AUTH_JWT_REFRESH_SECRET: z.string(),
+  AUTH_JWT_REFRESH_EXPIRE: z.coerce.number(),
+  AUTH_JWT_ISSUER: z.string(),
 });
 
 export const authConfig = registerAs('auth', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      token: {
-        verification: {
-          expire: value.AUTH_TOKEN_VERIFICATION_EXPIRE,
-        },
-        resetPassword: {
-          expire: value.AUTH_TOKEN_RESETPASSWORD_EXPIRE,
-        },
+  if (!success)
+    throw new Error(`[auth.config] validation failed:\n- ${error.message}`);
+
+  return {
+    token: {
+      verification: {
+        expire: data.AUTH_TOKEN_VERIFICATION_EXPIRE,
       },
-      jwt: {
-        access: {
-          secret: value.AUTH_JWT_ACCESS_SECRET,
-          expire: value.AUTH_JWT_ACCESS_EXPIRE,
-        },
-        refresh: {
-          secret: value.AUTH_JWT_REFRESH_SECRET,
-          expire: value.AUTH_JWT_REFRESH_EXPIRE,
-        },
-        issuer: value.AUTH_JWT_ISSUER,
+      resetPassword: {
+        expire: data.AUTH_TOKEN_RESETPASSWORD_EXPIRE,
       },
-    };
-  } catch (error) {
-    throw new Error(
-      `[auth.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+    },
+    jwt: {
+      access: {
+        secret: data.AUTH_JWT_ACCESS_SECRET,
+        expire: data.AUTH_JWT_ACCESS_EXPIRE,
+      },
+      refresh: {
+        secret: data.AUTH_JWT_REFRESH_SECRET,
+        expire: data.AUTH_JWT_REFRESH_EXPIRE,
+      },
+      issuer: data.AUTH_JWT_ISSUER,
+    },
+  };
 });
 
 export const AUTH_CONFIG_KEY = authConfig.KEY;

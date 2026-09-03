@@ -1,27 +1,21 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  CACHE_TTL: yup.string().required(),
-  CACHE_MAX: yup.number().required(),
+const schema = z.object({
+  CACHE_TTL: z.string(),
+  CACHE_MAX: z.coerce.number(),
 });
 
 export const cacheConfig = registerAs('cache', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      ttl: value.CACHE_TTL,
-      max: value.CACHE_MAX,
-    };
-  } catch (error) {
-    throw new Error(
-      `[cache.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[cache.config] validation failed:\n- ${error.message}`);
+
+  return {
+    ttl: data.CACHE_TTL,
+    max: data.CACHE_MAX,
+  };
 });
 
 export const CACHE_CONFIG_KEY = cacheConfig.KEY;

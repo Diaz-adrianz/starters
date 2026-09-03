@@ -1,35 +1,29 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  DATABASE_DEFAULT_HOST: yup.string().required(),
-  DATABASE_DEFAULT_PORT: yup.number().required(),
-  DATABASE_DEFAULT_USERNAME: yup.string().required(),
-  DATABASE_DEFAULT_PASSWORD: yup.string().required(),
-  DATABASE_DEFAULT_NAME: yup.string().required(),
+const schema = z.object({
+  DATABASE_DEFAULT_HOST: z.string(),
+  DATABASE_DEFAULT_PORT: z.coerce.number(),
+  DATABASE_DEFAULT_USERNAME: z.string(),
+  DATABASE_DEFAULT_PASSWORD: z.string(),
+  DATABASE_DEFAULT_NAME: z.string(),
 });
 
 export const databaseConfig = registerAs('database', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      default: {
-        host: value.DATABASE_DEFAULT_HOST,
-        port: value.DATABASE_DEFAULT_PORT,
-        username: value.DATABASE_DEFAULT_USERNAME,
-        password: value.DATABASE_DEFAULT_PASSWORD,
-        name: value.DATABASE_DEFAULT_NAME,
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `[database.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[database.config] validation failed:\n- ${error.message}`);
+
+  return {
+    default: {
+      host: data.DATABASE_DEFAULT_HOST,
+      port: data.DATABASE_DEFAULT_PORT,
+      username: data.DATABASE_DEFAULT_USERNAME,
+      password: data.DATABASE_DEFAULT_PASSWORD,
+      name: data.DATABASE_DEFAULT_NAME,
+    },
+  };
 });
 
 export const DATABASE_CONFIG_KEY = databaseConfig.KEY;

@@ -1,37 +1,33 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  STORAGE_DEFAULT_ENDPOINT: yup.string().required(),
-  STORAGE_DEFAULT_REGION: yup.string().required(),
-  STORAGE_DEFAULT_ACCESS_KEY_ID: yup.string().required(),
-  STORAGE_DEFAULT_SECRET_ACCESS_KEY: yup.string().required(),
-  STORAGE_DEFAULT_FORCE_PATH_STYLE: yup.bool().required(),
-  STORAGE_DEFAULT_BUCKET: yup.string().required(),
+const schema = z.object({
+  STORAGE_DEFAULT_ENDPOINT: z.string(),
+  STORAGE_DEFAULT_REGION: z.string(),
+  STORAGE_DEFAULT_ACCESS_KEY_ID: z.string(),
+  STORAGE_DEFAULT_SECRET_ACCESS_KEY: z.string(),
+  STORAGE_DEFAULT_FORCE_PATH_STYLE: z
+    .enum(['true', 'false'])
+    .transform((v) => v === 'true'),
+  STORAGE_DEFAULT_BUCKET: z.string(),
 });
 
 export const storageConfig = registerAs('storage', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      default: {
-        endpoint: value.STORAGE_DEFAULT_ENDPOINT,
-        region: value.STORAGE_DEFAULT_REGION,
-        accessKeyId: value.STORAGE_DEFAULT_ACCESS_KEY_ID,
-        secretAccessKey: value.STORAGE_DEFAULT_SECRET_ACCESS_KEY,
-        forcePathStyle: value.STORAGE_DEFAULT_FORCE_PATH_STYLE,
-        bucket: value.STORAGE_DEFAULT_BUCKET,
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `[storage.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[storage.config] validation failed:\n- ${error.message}`);
+
+  return {
+    default: {
+      endpoint: data.STORAGE_DEFAULT_ENDPOINT,
+      region: data.STORAGE_DEFAULT_REGION,
+      accessKeyId: data.STORAGE_DEFAULT_ACCESS_KEY_ID,
+      secretAccessKey: data.STORAGE_DEFAULT_SECRET_ACCESS_KEY,
+      forcePathStyle: data.STORAGE_DEFAULT_FORCE_PATH_STYLE,
+      bucket: data.STORAGE_DEFAULT_BUCKET,
+    },
+  };
 });
 
 export const STORAGE_CONFIG_KEY = storageConfig.KEY;

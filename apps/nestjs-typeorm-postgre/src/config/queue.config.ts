@@ -1,31 +1,25 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  QUEUE_DEFAULT_REDIS_HOST: yup.string().required(),
-  QUEUE_DEFAULT_REDIS_PORT: yup.number().required(),
+const schema = z.object({
+  QUEUE_DEFAULT_REDIS_HOST: z.string(),
+  QUEUE_DEFAULT_REDIS_PORT: z.coerce.number(),
 });
 
 export const queueConfig = registerAs('queue', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      default: {
-        redis: {
-          host: value.QUEUE_DEFAULT_REDIS_HOST,
-          port: value.QUEUE_DEFAULT_REDIS_PORT,
-        },
+  if (!success)
+    throw new Error(`[queue.config] validation failed:\n- ${error.message}`);
+
+  return {
+    default: {
+      redis: {
+        host: data.QUEUE_DEFAULT_REDIS_HOST,
+        port: data.QUEUE_DEFAULT_REDIS_PORT,
       },
-    };
-  } catch (error) {
-    throw new Error(
-      `[queue.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+    },
+  };
 });
 
 export const QUEUE_CONFIG_KEY = queueConfig.KEY;

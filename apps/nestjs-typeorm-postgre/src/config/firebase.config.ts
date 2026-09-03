@@ -1,27 +1,21 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  FIREBASE_DEFAULT_SERVICEACCOUNT_PATH: yup.string().required(),
+const schema = z.object({
+  FIREBASE_DEFAULT_SERVICEACCOUNT_PATH: z.string(),
 });
 
 export const firebaseConfig = registerAs('firebase', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      default: {
-        serviceAccountPath: value.FIREBASE_DEFAULT_SERVICEACCOUNT_PATH,
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `[firebase.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[firebase.config] validation failed:\n- ${error.message}`);
+
+  return {
+    default: {
+      serviceAccountPath: data.FIREBASE_DEFAULT_SERVICEACCOUNT_PATH,
+    },
+  };
 });
 
 export const FIREBASE_CONFIG_KEY = firebaseConfig.KEY;

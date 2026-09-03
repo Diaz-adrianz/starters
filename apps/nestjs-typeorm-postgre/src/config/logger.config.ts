@@ -1,25 +1,19 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  LOGGER_PATH: yup.string().matches(/\/$/).required(),
+const schema = z.object({
+  LOGGER_PATH: z.string().regex(/\/$/),
 });
 
 export const loggerConfig = registerAs('logger', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      path: value.LOGGER_PATH,
-    };
-  } catch (error) {
-    throw new Error(
-      `[logger.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[logger.config] validation failed:\n- ${error.message}`);
+
+  return {
+    path: data.LOGGER_PATH,
+  };
 });
 
 export const LOGGER_CONFIG_KEY = loggerConfig.KEY;
