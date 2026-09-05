@@ -9,6 +9,8 @@ const PRE = '/auth';
 export const AuthApi = {
   me: () => apiClient.get<ApiResponse<{ user: User }>>(PRE + '/me'),
   signIn: (values: SignInValues) =>
-    apiClient.post<SignApiResponse>(PRE + '/sign-in', values),
+    apiClient.post<SignApiResponse>(PRE + '/sign-in', values, {
+      skipRefresh: true,
+    }),
   signOut: () => apiClient.post(PRE + '/sign-out'),
 };

@@ -7,6 +7,11 @@ import axios, {
   type AxiosResponse,
 } from 'axios';
 
+type ApiRequestConfig = AxiosRequestConfig & {
+  refreshed?: boolean;
+  skipRefresh?: boolean;
+};
+
 class ApiClient {
   private client: AxiosInstance;
 
@@ -43,10 +48,14 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
-        const originalRequest = error.config;
+        const originalRequest = error.config as ApiRequestConfig;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
+        if (
+          error.response?.status === 401 &&
+          !originalRequest.refreshed &&
+          !originalRequest.skipRefresh
+        ) {
+          originalRequest.refreshed = true;
 
           if (this.isRefreshing) {
             return new Promise((resolve) => {
@@ -80,7 +89,10 @@ class ApiClient {
             const { tokens } = response.data.data;
             authStore.getState().setAccessToken(tokens.access);
 
-            originalRequest.headers.Authorization = `Bearer ${tokens.access}`;
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${tokens.access}`,
+            };
 
             this.processQueue(tokens.access);
             return this.client(originalRequest);
@@ -100,7 +112,7 @@ class ApiClient {
 
   async get<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: ApiRequestConfig
   ): Promise<AxiosResponse<T>> {
     return this.client.get<T>(url, config);
   }
@@ -108,7 +120,7 @@ class ApiClient {
   async post<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: ApiRequestConfig
   ): Promise<AxiosResponse<T>> {
     return this.client.post<T>(url, data, config);
   }
@@ -116,7 +128,7 @@ class ApiClient {
   async put<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: ApiRequestConfig
   ): Promise<AxiosResponse<T>> {
     return this.client.put<T>(url, data, config);
   }
@@ -124,14 +136,14 @@ class ApiClient {
   async patch<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: ApiRequestConfig
   ): Promise<AxiosResponse<T>> {
     return this.client.patch<T>(url, data, config);
   }
 
   async delete<T>(
     url: string,
-    config?: AxiosRequestConfig
+    config?: ApiRequestConfig
   ): Promise<AxiosResponse<T>> {
     return this.client.delete<T>(url, config);
   }
