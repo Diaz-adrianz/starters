@@ -12,25 +12,21 @@ import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { RiAccountCircleLine, RiLogoutCircleLine } from '@remixicon/react';
 import { getInitials } from '@/utils';
-import { Skeleton } from '../ui/skeleton';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignOut } from '@/features/auth';
 
-export const HeaderActor = () => {
-  const authActor = authStore((s) => s.actor),
+export const HeaderUser = () => {
+  const authUser = authStore((s) => s.user),
     authStatus = authStore((s) => s.status),
-    authClear = authStore((s) => s.clear);
+    authSignOut = authStore((s) => s.signOut);
 
   const signOut = useSignOut({
     silent: true,
     onSuccess: () => {
-      authClear();
+      authSignOut();
     },
   });
-
-  if (authStatus === 'loading')
-    return <Skeleton className="size-10 rounded-full" />;
 
   if (authStatus === 'unauthenticated')
     return (
@@ -50,9 +46,9 @@ export const HeaderActor = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size={'icon'} className="rounded-full">
           <Avatar>
-            <AvatarImage src={authActor?.avatar ?? ''} alt="shadcn" />
+            <AvatarImage src={authUser?.avatar ?? ''} alt="shadcn" />
             <AvatarFallback>
-              {getInitials(authActor?.name ?? '-')}
+              {getInitials(authUser?.name ?? '-')}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -61,7 +57,7 @@ export const HeaderActor = () => {
         <DropdownMenuLabel>
           <div className="grid gap-px">
             <span className="truncate text-base font-medium">
-              {authActor?.name}
+              {authUser?.name}
             </span>
             <span className="truncate text-xs">-</span>
           </div>

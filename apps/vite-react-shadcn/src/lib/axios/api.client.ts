@@ -63,10 +63,18 @@ class ApiClient {
           this.isRefreshing = true;
 
           try {
+            const refreshToken = authStore.getState().refreshToken;
             const response = await axios.post<RefreshApiResponse>(
               `${EnvConfig.API_URL}/auth/refresh`,
               {},
-              { withCredentials: true }
+              {
+                withCredentials: true,
+                headers: {
+                  Authorization: refreshToken
+                    ? `Bearer ${refreshToken}`
+                    : undefined,
+                },
+              }
             );
 
             const { tokens } = response.data.data;
@@ -77,6 +85,7 @@ class ApiClient {
             this.processQueue(tokens.access);
             return this.client(originalRequest);
           } catch (err) {
+            authStore.getState().signOut();
             this.queue = [];
             return Promise.reject(err);
           } finally {

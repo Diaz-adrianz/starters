@@ -1,46 +1,63 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-type AuthActor = {
+type AuthUser = {
   id: string;
   name: string;
   avatar?: string | null;
 };
 
-type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+type AuthStatus = 'authenticated' | 'unauthenticated';
 
 type AuthState = {
-  actor: AuthActor | null;
+  user: AuthUser | null;
   status: AuthStatus;
   accessToken: string | null;
+  refreshToken: string | null;
 };
 
 type AuthAction = {
-  setActor: (actor: AuthState['actor']) => void;
-  setStatus: (status: AuthState['status']) => void;
-  setAccessToken: (token: AuthState['accessToken']) => void;
-  clear: () => void;
+  setAccessToken: (accessToken: string) => void;
+  signIn: (user: AuthUser, accessToken: string, refreshToken: string) => void;
+  signOut: () => void;
 };
 
-const authStoreInit: AuthState = {
-  actor: null,
-  status: 'loading',
-  accessToken: null,
-};
-
-const authStore = create<AuthState & AuthAction>((set) => ({
-  ...authStoreInit,
-  setActor: (actor) => {
-    set({ actor });
-  },
-  setStatus: (status) => {
-    set({ status });
-  },
-  setAccessToken: (token) => {
-    set({ accessToken: token });
-  },
-  clear: () => {
-    set({ ...authStoreInit });
-  },
-}));
+const authStore = create<AuthState & AuthAction>()(
+  persist(
+    (set) => ({
+      user: null,
+      status: 'unauthenticated',
+      accessToken: null,
+      refreshToken: null,
+      setAccessToken(accessToken) {
+        set({ accessToken });
+      },
+      signIn(user, accessToken, refreshToken) {
+        set({
+          user,
+          status: 'authenticated',
+          accessToken,
+          refreshToken,
+        });
+      },
+      signOut() {
+        set({
+          user: null,
+          status: 'unauthenticated',
+          accessToken: null,
+          refreshToken: null,
+        });
+      },
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        status: state.status,
+        accessToken: state.accessToken,
+      }),
+    }
+  )
+);
 
 export default authStore;

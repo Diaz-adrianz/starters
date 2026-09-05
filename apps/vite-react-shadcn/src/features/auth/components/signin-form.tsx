@@ -16,8 +16,8 @@ import authStore from '@/stores/auth.store';
 import { toast } from 'sonner';
 
 export const SignInForm = () => {
-  const setActor = authStore((s) => s.setActor),
-    setAccessToken = authStore((s) => s.setAccessToken);
+  const authSignIn = authStore((s) => s.signIn);
+
   const signIn = useSignIn();
 
   const form = useForm<SignInValues>({
@@ -31,12 +31,15 @@ export const SignInForm = () => {
 
   const onSubmit = async (values: SignInValues) => {
     const { data } = await signIn.mutateAsync(values);
-    setActor({
-      id: data.data.user.id,
-      name: data.data.user.username,
-      avatar: data.data.user.avatar,
-    });
-    setAccessToken(data.data.tokens.access);
+    authSignIn(
+      {
+        id: data.data.user.id,
+        name: data.data.user.username,
+        avatar: data.data.user.avatar,
+      },
+      data.data.tokens.access,
+      data.data.tokens.refresh
+    );
     toast.success('Sign in successful');
   };
 
