@@ -10,7 +10,7 @@ import {
 } from '../ui/dropdown-menu';
 import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { RiAccountBoxLine, RiLogoutBoxLine } from '@remixicon/react';
+import { RiAccountCircleLine, RiLogoutCircleLine } from '@remixicon/react';
 import { getInitials } from '@/utils';
 import { Skeleton } from '../ui/skeleton';
 import { Link } from 'react-router-dom';
@@ -63,23 +63,24 @@ export const HeaderActor = () => {
             <span className="truncate text-base font-medium">
               {authActor?.name}
             </span>
-            <span className="truncate text-xs text-muted-foreground/60">-</span>
+            <span className="truncate text-xs">-</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link to={'/profile'}>
-              <RiAccountBoxLine />
+              <RiAccountCircleLine />
               Profile
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onSignOut}>
-          <RiLogoutBoxLine />
-          Sign Out
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={onSignOut} variant="destructive">
+            <RiLogoutCircleLine />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

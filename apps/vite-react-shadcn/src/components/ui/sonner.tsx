@@ -9,7 +9,7 @@ import {
 } from '@remixicon/react';
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme } = useTheme();
+  const { theme = 'system' } = useTheme();
 
   return (
     <Sonner
