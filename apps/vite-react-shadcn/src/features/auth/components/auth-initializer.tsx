@@ -3,7 +3,7 @@ import { useMe } from '../api/auth.queries';
 import authStore from '@/stores/auth.store';
 
 export const AuthInitializer = ({ children }: { children: ReactNode }) => {
-  const { data, isError, isSuccess } = useMe();
+  const { data, isError, isSuccess } = useMe({ silent: true });
   const setActor = authStore((s) => s.setActor);
   const setStatus = authStore((s) => s.setStatus);
 

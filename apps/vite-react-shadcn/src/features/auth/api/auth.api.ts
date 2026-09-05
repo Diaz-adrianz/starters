@@ -10,4 +10,5 @@ export const AuthApi = {
   me: () => apiClient.get<ApiResponse<{ user: User }>>(PRE + '/me'),
   signIn: (values: SignInValues) =>
     apiClient.post<SignApiResponse>(PRE + '/sign-in', values),
+  signOut: () => apiClient.post(PRE + '/sign-out'),
 };

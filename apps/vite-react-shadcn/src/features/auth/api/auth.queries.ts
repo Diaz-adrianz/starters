@@ -6,12 +6,16 @@ export const keys = {
   detail: (id: string) => [...keys.all, 'detail', id] as const,
 };
 
-export function useMe(enabled = true) {
+export function useMe({
+  enabled = true,
+  silent,
+}: { enabled?: boolean; silent?: boolean } = {}) {
   return useQuery({
     queryKey: keys.detail('me'),
     queryFn: () => AuthApi.me(),
     staleTime: Infinity,
     gcTime: Infinity,
     enabled,
+    meta: { silent },
   });
 }

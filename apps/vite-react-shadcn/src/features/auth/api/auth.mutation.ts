@@ -11,3 +11,18 @@ export function useSignIn() {
     },
   });
 }
+
+export function useSignOut({
+  silent,
+  onSuccess,
+}: { silent?: boolean; onSuccess?: () => void } = {}) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: AuthApi.signOut,
+    meta: { silent },
+    onSuccess: () => {
+      onSuccess?.();
+      qc.invalidateQueries({ queryKey: keys.all });
+    },
+  });
+}
