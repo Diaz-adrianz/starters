@@ -64,7 +64,9 @@ class ApiClient {
 
           try {
             const response = await axios.post<RefreshApiResponse>(
-              `${EnvConfig.API_URL}/auth/refresh`
+              `${EnvConfig.API_URL}/auth/refresh`,
+              {},
+              { withCredentials: true }
             );
 
             const { tokens } = response.data.data;

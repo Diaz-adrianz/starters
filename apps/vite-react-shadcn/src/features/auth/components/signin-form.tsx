@@ -12,8 +12,12 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signInSchema, type SignInValues } from '../schemas/auth.schema';
 import { useSignIn } from '../api/auth.mutation';
+import authStore from '@/stores/auth.store';
+import { toast } from 'sonner';
 
 export const SignInForm = () => {
+  const setActor = authStore((s) => s.setActor),
+    setAccessToken = authStore((s) => s.setAccessToken);
   const signIn = useSignIn();
 
   const form = useForm<SignInValues>({
@@ -26,7 +30,14 @@ export const SignInForm = () => {
   });
 
   const onSubmit = async (values: SignInValues) => {
-    const res = await signIn.mutateAsync(values);
+    const { data } = await signIn.mutateAsync(values);
+    setActor({
+      id: data.data.user.id,
+      name: data.data.user.username,
+      avatar: data.data.user.avatar,
+    });
+    setAccessToken(data.data.tokens.access);
+    toast.success('Sign in successful');
   };
 
   return (
@@ -70,6 +81,7 @@ export const SignInForm = () => {
               <Input
                 id="password"
                 type="password"
+                placeholder="********"
                 {...field}
                 aria-invalid={fieldState.invalid}
               />
