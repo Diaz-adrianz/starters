@@ -8,7 +8,7 @@ export function App() {
     <QueryProvider>
       <ThemeProvider defaultTheme="light">
         <RouterProvider router={router} />
-        <Toaster position="top-center" expand richColors />
+        <Toaster position="top-center" richColors />
       </ThemeProvider>
     </QueryProvider>
   );

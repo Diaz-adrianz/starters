@@ -1,10 +1,16 @@
 import { Container } from '@/components/layout/container';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  SessionItem,
+  SessionItemActionMenu,
   SessionList,
-  SessionListItem,
   SessionListItemGroup,
-  SessionListRowDropdownMenu,
 } from '@/features/auth';
 import { useUser, UserCard, UserCardSkeleton } from '@/features/identity';
 import authStore from '@/stores/auth.store';
@@ -24,15 +30,18 @@ const ProfilePage = () => {
         <Card>
           <CardHeader>
             <CardTitle>Sessions</CardTitle>
+            <CardDescription>
+              Manage devices where you're signed in
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <SessionList>
               <SessionListItemGroup>
                 {(s) => (
-                  <SessionListItem
+                  <SessionItem
                     key={s.id}
                     session={s}
-                    slotRight={<SessionListRowDropdownMenu session={s} />}
+                    slotRight={<SessionItemActionMenu session={s} />}
                   />
                 )}
               </SessionListItemGroup>

@@ -1,36 +1,13 @@
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemSeparator,
-  ItemTitle,
-} from '@/components/ui/item';
+import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import {
   createContext,
+  Fragment,
   useContext,
   type ComponentProps,
   type ReactNode,
 } from 'react';
 import type { Session } from '../types/session.type';
 import { useSessions } from '../api/session.query';
-import { Badge } from '@/components/ui/badge';
-import { dateToNow } from '@/utils/date';
-import { cn } from 'cn';
-import {
-  RiComputerLine,
-  RiMore2Line,
-  RiSmartphoneLine,
-  RiTabletLine,
-} from '@remixicon/react';
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenu,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 // ======================================
 // Context
@@ -63,16 +40,18 @@ export const SessionList = ({
   const { data, isLoading } = useSessions();
 
   return (
-    <SessionListContext value={{ sessions: data?.items ?? [], isLoading }}>
+    <SessionListContext.Provider
+      value={{ sessions: data?.items ?? [], isLoading }}
+    >
       <div className={className} {...props}>
         {children}
       </div>
-    </SessionListContext>
+    </SessionListContext.Provider>
   );
 };
 
 // ======================================
-// Item view
+// Content
 // --------------------------------------
 export const SessionListItemGroup = ({
   children,
@@ -88,84 +67,12 @@ export const SessionListItemGroup = ({
     <ItemGroup {...props}>
       {sessions.map((s, i) => {
         return (
-          <>
+          <Fragment key={`SessionListItemGroup${i}`}>
             {children(s)}
             {separator && i < sessions.length - 1 && <ItemSeparator />}
-          </>
+          </Fragment>
         );
       })}
     </ItemGroup>
-  );
-};
-
-export const SessionListItem = ({
-  session,
-  slotRight,
-  className,
-  ...props
-}: ComponentProps<typeof Item> & {
-  session: Session;
-  slotRight?: ReactNode;
-}) => {
-  return (
-    <Item variant={'default'} className={cn('py-0', className)} {...props}>
-      <ItemMedia variant={'icon'}>
-        {session.deviceType === 'mobile' ? (
-          <RiSmartphoneLine className="size-6" />
-        ) : session.deviceType === 'tablet' ? (
-          <RiTabletLine className="size-6" />
-        ) : (
-          <RiComputerLine className="size-6" />
-        )}
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>{session.deviceLabel || 'Unknown'}</ItemTitle>
-        <ItemDescription>
-          {session.os} · {session.browser}
-        </ItemDescription>
-        <ItemDescription>
-          Last used {dateToNow(session.lastUsedAt)}
-        </ItemDescription>
-      </ItemContent>
-      <ItemContent className="flex-row items-center gap-4">
-        {session.isActive ? (
-          <Badge>Active</Badge>
-        ) : (
-          <Badge variant={'secondary'}>Inactive</Badge>
-        )}
-        {slotRight}
-      </ItemContent>
-    </Item>
-  );
-};
-
-// ======================================
-// Row menu actions
-// --------------------------------------
-export const SessionListRowDropdownMenu = ({
-  session,
-  trigger,
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  session: Pick<Session, 'id' | 'isActive'>;
-  trigger?: ReactNode;
-}) => {
-  return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? (
-          <Button variant="ghost" size={'icon'}>
-            <RiMore2Line />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {session.isActive ? (
-          <DropdownMenuItem variant="destructive">Terminate</DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 };

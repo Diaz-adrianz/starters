@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { SessionApi } from './session.api';
 
-export const querykeys = {
+export const queryKeys = {
   all: ['auth', 'sessions'] as const,
+  detail: (id: string) => [...queryKeys.all, 'detail', id] as const,
 };
 
 export function useSessions({
@@ -10,8 +11,8 @@ export function useSessions({
   silent,
 }: { enabled?: boolean; silent?: boolean } = {}) {
   return useQuery({
-    queryKey: querykeys.all,
-    queryFn: SessionApi.findAll,
+    queryKey: queryKeys.all,
+    queryFn: SessionApi.findMany,
     select: (d) => d.data.data,
     enabled,
     meta: { silent },
