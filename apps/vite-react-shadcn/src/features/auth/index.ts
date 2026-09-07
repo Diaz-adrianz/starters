@@ -8,3 +8,6 @@ export { SignInForm } from './components/signin-form';
 
 // types
 export * from './types/auth.type';
+
+// sub features
+export * from './sessions';
