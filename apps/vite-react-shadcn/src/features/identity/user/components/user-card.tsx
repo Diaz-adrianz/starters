@@ -8,18 +8,22 @@ import {
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
-import { getInitials } from '@/utils';
+import { getInitials } from '@/utils/string';
 import { RiEditLine } from '@remixicon/react';
 import type { ComponentProps } from 'react';
 import type { User } from '../types/user.type';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDate } from '@/utils/date';
 
 export const UserCard = ({
   className,
   user,
   ...props
 }: ComponentProps<typeof Card> & {
-  user: Pick<User, 'id' | 'avatar' | 'email' | 'username'>;
+  user: Pick<
+    User,
+    'id' | 'avatar' | 'email' | 'username' | 'roles' | 'createdAt'
+  >;
 }) => {
   return (
     <Card className={className} {...props}>
@@ -58,8 +62,11 @@ export const UserCard = ({
               <ItemTitle>Roles</ItemTitle>
             </ItemContent>
             <ItemContent className="max-w-60 flex-row flex-wrap justify-end">
-              <Badge>Superadmin</Badge>
-              <Badge>User</Badge>
+              {user.roles?.map((r) => (
+                <Badge key={r.id} variant={'secondary'}>
+                  {r.role.name}
+                </Badge>
+              ))}
             </ItemContent>
           </Item>
           <Item>
@@ -67,7 +74,9 @@ export const UserCard = ({
               <ItemTitle>Joined at</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>29 Aug 2026</ItemDescription>
+              <ItemDescription>
+                {formatDate(user.createdAt, 'dd MMMM yyyy')}
+              </ItemDescription>
             </ItemContent>
           </Item>
         </div>

@@ -11,7 +11,7 @@ import {
 import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { RiAccountCircleLine, RiLogoutCircleLine } from '@remixicon/react';
-import { getInitials } from '@/utils';
+import { getInitials } from '@/utils/string';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignOut } from '@/features/auth';
