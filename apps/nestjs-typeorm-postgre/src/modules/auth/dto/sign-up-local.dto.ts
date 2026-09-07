@@ -22,6 +22,8 @@ export class SignUpLocalDto {
   @IsEmail()
   email: string;
 
+  // Note: IsStrongPassword default options
+  // https://github.com/validatorjs/validator.js/blob/master/README.md
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;

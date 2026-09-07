@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  NotFoundException,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ExceptionResponseDto } from '../../shared/dto/exception-response.dto';
@@ -35,6 +36,14 @@ export class ExceptionFilter implements NestExceptionFilter {
     if (exception instanceof HttpException) {
       body.statusCode = exception.getStatus();
       body.message = exception.message;
+
+      // Controller handler not found
+      if (
+        exception instanceof NotFoundException &&
+        exception.message.startsWith('Cannot')
+      ) {
+        body.message = 'Requested resource not found';
+      }
     }
 
     if (exception instanceof ValidationException) {
