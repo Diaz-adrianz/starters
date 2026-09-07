@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
@@ -36,5 +36,13 @@ export class SessionController {
     const scope = this.store.buildResourceScope();
     scope.add([{ field: 'id', op: 'where', value: id }]);
     return this.sessionService.findOne(scope);
+  }
+
+  @Permission('auth:session:delete')
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    const scope = this.store.buildResourceScope();
+    scope.add([{ field: 'id', op: 'where', value: id }]);
+    return this.sessionService.delete(scope);
   }
 }

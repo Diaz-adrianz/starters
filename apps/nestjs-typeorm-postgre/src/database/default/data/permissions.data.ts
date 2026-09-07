@@ -43,6 +43,24 @@ export const PermissionsData: {
           },
         ],
       },
+      {
+        description: 'Delete session',
+        permission: 'session:delete',
+        roles: [
+          {
+            name: RolesData.SUPERADMIN,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+          {
+            name: RolesData.ADMIN,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+          {
+            name: RolesData.USER,
+            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+          },
+        ],
+      },
     ],
   },
   {
