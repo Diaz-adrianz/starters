@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import HomePage from './index/index.page';
 import ProfilePage from './profile/profile.page';
 import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
+import ProfileLayout from './profile/profile.layout';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -12,9 +13,15 @@ const homeRoutes: RouteObject[] = [
     path: 'profile',
     element: (
       <AuthenticatedRoute>
-        <ProfilePage />
+        <ProfileLayout />
       </AuthenticatedRoute>
     ),
+    children: [
+      {
+        path: '',
+        element: <ProfilePage />,
+      },
+    ],
   },
 ];
 

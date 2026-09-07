@@ -41,7 +41,7 @@ export const HeaderShell = ({
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 flex h-16 w-screen border-b bg-background shadow-md transition-transform duration-300',
+        'sticky top-0 left-0 z-50 flex h-16 w-full border-b-2 border-foreground/10 bg-background shadow-md transition-transform duration-300',
         className,
         scrollPos === 'start' && 'translate-y-0 shadow-none',
         scrollPos === 'up' && 'translate-y-0',
@@ -50,7 +50,7 @@ export const HeaderShell = ({
       )}
       {...props}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
+      <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
         {slotLeft}
         {slotRight}
       </div>
