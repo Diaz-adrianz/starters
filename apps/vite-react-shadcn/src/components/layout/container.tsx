@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
-const containerVariants = cva('flex flex-col gap-4 px-4 pt-4 md:px-6 lg:px-8', {
+const containerVariants = cva('flex flex-col gap-4 px-4 md:px-6 lg:px-8', {
   variants: {
     width: {
       contained: 'container mx-auto',

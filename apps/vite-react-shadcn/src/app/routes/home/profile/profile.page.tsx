@@ -1,56 +1,12 @@
-import { Container } from '@/components/layout/container';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  SessionItem,
-  SessionItemActionMenu,
-  SessionList,
-  SessionListItemGroup,
-  SessionListPagination,
-} from '@/features/auth';
-import { useUser, UserCard, UserCardSkeleton } from '@/features/identity';
-import authStore from '@/stores/auth.store';
+import { PageHeading } from '@/components/shared/page-heading';
 
 const ProfilePage = () => {
-  const authUser = authStore((s) => s.user);
-  const user = useUser(authUser?.id ?? '');
-
   return (
     <>
-      <Container id="account">
-        {user.isLoading && <UserCardSkeleton />}
-        {user.data?.data.data && <UserCard user={user.data.data.data} />}
-      </Container>
-
-      <Container id="sessions" className="pb-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sessions</CardTitle>
-            <CardDescription>
-              Manage devices where you're signed in
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SessionList>
-              <SessionListItemGroup separator>
-                {(s) => (
-                  <SessionItem
-                    key={s.id}
-                    session={s}
-                    slotRight={<SessionItemActionMenu session={s} />}
-                  />
-                )}
-              </SessionListItemGroup>
-              <SessionListPagination />
-            </SessionList>
-          </CardContent>
-        </Card>
-      </Container>
+      <PageHeading
+        title="Profile"
+        description="View and update your personal information"
+      />
     </>
   );
 };

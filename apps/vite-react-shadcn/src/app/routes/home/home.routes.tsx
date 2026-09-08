@@ -3,6 +3,8 @@ import HomePage from './index/index.page';
 import ProfilePage from './profile/profile.page';
 import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import ProfileLayout from './profile/profile.layout';
+import AccountsPage from './profile/accounts/accounts.page';
+import SessionsPage from './profile/sessions/sessions.page';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -20,6 +22,14 @@ const homeRoutes: RouteObject[] = [
       {
         path: '',
         element: <ProfilePage />,
+      },
+      {
+        path: 'accounts',
+        element: <AccountsPage />,
+      },
+      {
+        path: 'sessions',
+        element: <SessionsPage />,
       },
     ],
   },
