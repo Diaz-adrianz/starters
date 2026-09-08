@@ -1,5 +1,9 @@
 // components
-export { SessionList, SessionListItemGroup } from './components/session-list';
+export {
+  SessionList,
+  SessionListItemGroup,
+  SessionListPagination,
+} from './components/session-list';
 export { SessionItem, SessionItemActionMenu } from './components/session-item';
 
 // api

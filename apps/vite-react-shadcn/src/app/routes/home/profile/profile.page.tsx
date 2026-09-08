@@ -11,6 +11,7 @@ import {
   SessionItemActionMenu,
   SessionList,
   SessionListItemGroup,
+  SessionListPagination,
 } from '@/features/auth';
 import { useUser, UserCard, UserCardSkeleton } from '@/features/identity';
 import authStore from '@/stores/auth.store';
@@ -45,6 +46,7 @@ const ProfilePage = () => {
                   />
                 )}
               </SessionListItemGroup>
+              <SessionListPagination />
             </SessionList>
           </CardContent>
         </Card>

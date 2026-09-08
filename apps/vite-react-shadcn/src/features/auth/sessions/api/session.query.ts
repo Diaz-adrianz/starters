@@ -13,7 +13,7 @@ export function useSessions(
   { enabled = true, silent }: { enabled?: boolean; silent?: boolean } = {}
 ) {
   return useQuery({
-    queryKey: queryKeys.all,
+    queryKey: queryKeys.list(params),
     queryFn: () => SessionApi.findMany(params),
     select: (d) => d.data.data,
     enabled,
