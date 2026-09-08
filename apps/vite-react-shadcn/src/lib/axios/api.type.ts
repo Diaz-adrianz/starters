@@ -1,3 +1,5 @@
+export type ApiParams = Record<string, string | number | boolean>;
+
 export type ApiResponse<T = undefined> = {
   statusCode: number;
   message: string;

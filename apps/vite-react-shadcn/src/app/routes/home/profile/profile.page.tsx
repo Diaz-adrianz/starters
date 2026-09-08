@@ -26,7 +26,7 @@ const ProfilePage = () => {
         {user.data?.data.data && <UserCard user={user.data.data.data} />}
       </Container>
 
-      <Container id="sessions">
+      <Container id="sessions" className="pb-4">
         <Card>
           <CardHeader>
             <CardTitle>Sessions</CardTitle>
@@ -36,7 +36,7 @@ const ProfilePage = () => {
           </CardHeader>
           <CardContent>
             <SessionList>
-              <SessionListItemGroup>
+              <SessionListItemGroup separator>
                 {(s) => (
                   <SessionItem
                     key={s.id}

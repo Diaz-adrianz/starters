@@ -8,6 +8,7 @@ import {
 } from 'react';
 import type { Session } from '../types/session.type';
 import { useSessions } from '../api/session.query';
+import { useResourceQuery } from '@/hooks/use-resource-query';
 
 // ======================================
 // Context
@@ -37,7 +38,12 @@ export const SessionList = ({
   children,
   ...props
 }: ComponentProps<'div'>) => {
-  const { data, isLoading } = useSessions();
+  const { params } = useResourceQuery({
+    page: 1,
+    limit: 10,
+    order: { lastUsedAt: 'desc' },
+  });
+  const { data, isLoading } = useSessions(params);
 
   return (
     <SessionListContext.Provider
@@ -55,7 +61,7 @@ export const SessionList = ({
 // --------------------------------------
 export const SessionListItemGroup = ({
   children,
-  separator = true,
+  separator,
   ...props
 }: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
   children: (session: Session) => ReactNode;
