@@ -24,7 +24,7 @@ const Menu = [
   {
     Icon: RiComputerLine,
     path: '/profile/sessions',
-    label: 'Session',
+    label: 'Sessions',
   },
 ];
 

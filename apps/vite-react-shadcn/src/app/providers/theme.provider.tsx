@@ -1,6 +1,6 @@
+import type { Theme } from '@/constants/theme.constant';
 import * as React from 'react';
 
-type Theme = 'dark' | 'light' | 'system';
 type ResolvedTheme = 'dark' | 'light';
 
 type ThemeProviderProps = {

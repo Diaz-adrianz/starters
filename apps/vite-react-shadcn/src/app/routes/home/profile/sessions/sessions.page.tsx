@@ -17,7 +17,7 @@ const SessionsPage = () => {
         description="Manage devices where you're signed in"
       />
 
-      <Container className="mb-4">
+      <Container>
         <Card>
           <CardContent>
             <SessionList>

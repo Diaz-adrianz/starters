@@ -5,6 +5,8 @@ import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import ProfileLayout from './profile/profile.layout';
 import AccountsPage from './profile/accounts/accounts.page';
 import SessionsPage from './profile/sessions/sessions.page';
+import SettingsLayout from './settings/settings.layout';
+import SettingsPage from './settings/settings.page';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -30,6 +32,20 @@ const homeRoutes: RouteObject[] = [
       {
         path: 'sessions',
         element: <SessionsPage />,
+      },
+    ],
+  },
+  {
+    path: 'settings',
+    element: (
+      <AuthenticatedRoute>
+        <SettingsLayout />
+      </AuthenticatedRoute>
+    ),
+    children: [
+      {
+        path: '',
+        element: <SettingsPage />,
       },
     ],
   },

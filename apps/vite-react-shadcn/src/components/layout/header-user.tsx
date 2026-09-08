@@ -10,7 +10,11 @@ import {
 } from '../ui/dropdown-menu';
 import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { RiAccountCircleLine, RiLogoutCircleLine } from '@remixicon/react';
+import {
+  RiAccountCircleLine,
+  RiLogoutCircleLine,
+  RiSettings4Line,
+} from '@remixicon/react';
 import { getInitials } from '@/utils/string';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -68,6 +72,14 @@ export const HeaderUser = () => {
             <Link to={'/profile'}>
               <RiAccountCircleLine />
               Profile
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to={'/settings'}>
+              <RiSettings4Line />
+              Settings
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

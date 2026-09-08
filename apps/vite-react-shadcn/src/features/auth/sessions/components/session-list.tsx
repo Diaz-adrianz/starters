@@ -83,7 +83,9 @@ export const SessionListItemGroup = ({
         return (
           <Fragment key={s.id}>
             {children(s)}
-            {separator && i < data.items.length - 1 && <ItemSeparator />}
+            {separator && i < data.items.length - 1 && (
+              <ItemSeparator className="m-0" />
+            )}
           </Fragment>
         );
       })}

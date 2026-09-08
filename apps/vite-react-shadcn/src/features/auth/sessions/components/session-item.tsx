@@ -36,7 +36,7 @@ export const SessionItem = ({
   slotRight?: ReactNode;
 }) => {
   return (
-    <Item variant={'default'} className={cn('py-0', className)} {...props}>
+    <Item variant={'default'} className={cn(className)} {...props}>
       <ItemMedia variant={'icon'}>
         {session.deviceType === 'mobile' ? (
           <RiSmartphoneLine className="size-6" />
