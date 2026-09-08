@@ -19,6 +19,7 @@ import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import { usePagination } from '@/hooks/use-pagination';
 import { Button } from '@/components/ui/button';
 import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
+import { cn } from 'cn';
 
 // ======================================
 // Context
@@ -70,15 +71,24 @@ export const SessionList = ({
 export const SessionListItemGroup = ({
   children,
   separator,
+  skeleton,
+  skeletonCount = 5,
+  className,
   ...props
 }: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
   children: (session: Session) => ReactNode;
   separator?: boolean;
+  skeleton?: ReactNode;
+  skeletonCount?: number;
 }) => {
-  const { data } = useSessionList();
+  const { data, isLoading } = useSessionList();
 
   return (
-    <ItemGroup {...props}>
+    <ItemGroup className={cn('relative', className)} {...props}>
+      {!!skeleton &&
+        isLoading &&
+        Array.from({ length: skeletonCount }).map((_) => skeleton)}
+
       {data?.items.map((s, i) => {
         return (
           <Fragment key={s.id}>
@@ -97,7 +107,7 @@ export const SessionListItemGroup = ({
 // Pagination
 // --------------------------------------
 export const SessionListPagination = () => {
-  const { query, data } = useSessionList();
+  const { query, isLoading, data } = useSessionList();
   const {
     page,
     hasPrevPage,
@@ -117,7 +127,11 @@ export const SessionListPagination = () => {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <Button variant={'ghost'} disabled={!hasPrevPage} onClick={prevPage}>
+          <Button
+            variant={'ghost'}
+            disabled={!hasPrevPage || isLoading}
+            onClick={prevPage}
+          >
             <RiArrowLeftSLine /> Previous
           </Button>
         </PaginationItem>
@@ -127,6 +141,7 @@ export const SessionListPagination = () => {
               <PaginationEllipsis />
             ) : (
               <Button
+                disabled={isLoading}
                 size={'icon-sm'}
                 variant={page === p ? 'default' : 'ghost'}
                 onClick={() => jumpToPage(p)}
@@ -137,7 +152,11 @@ export const SessionListPagination = () => {
           </PaginationItem>
         ))}
         <PaginationItem>
-          <Button variant={'ghost'} disabled={!hasNextPage} onClick={nextPage}>
+          <Button
+            variant={'ghost'}
+            disabled={!hasNextPage || isLoading}
+            onClick={nextPage}
+          >
             Next <RiArrowRightSLine />
           </Button>
         </PaginationItem>

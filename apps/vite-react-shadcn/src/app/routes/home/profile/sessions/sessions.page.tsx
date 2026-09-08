@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   SessionItem,
   SessionItemActionMenu,
+  SessionItemSkeleton,
   SessionList,
   SessionListItemGroup,
   SessionListPagination,
@@ -21,7 +22,10 @@ const SessionsPage = () => {
         <Card>
           <CardContent>
             <SessionList>
-              <SessionListItemGroup separator>
+              <SessionListItemGroup
+                skeleton={<SessionItemSkeleton />}
+                separator
+              >
                 {(s) => (
                   <SessionItem
                     key={s.id}

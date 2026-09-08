@@ -4,7 +4,11 @@ export {
   SessionListItemGroup,
   SessionListPagination,
 } from './components/session-list';
-export { SessionItem, SessionItemActionMenu } from './components/session-item';
+export {
+  SessionItem,
+  SessionItemSkeleton,
+  SessionItemActionMenu,
+} from './components/session-item';
 
 // api
 export { useSessions } from './api/session.query';
