@@ -38,7 +38,7 @@ const ProfileLayout = () => {
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="w-full pt-4 md:w-1/4">
             <Tabs
-              defaultValue={activeMenu}
+              value={activeMenu}
               orientation={isMobile ? 'horizontal' : 'vertical'}
             >
               <TabsList variant={'line'} className="w-full">
