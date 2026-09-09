@@ -45,22 +45,20 @@ export const useSessionList = () => {
 // Provider
 // --------------------------------------
 export const SessionList = ({
-  className,
   children,
-  ...props
-}: ComponentProps<'div'>) => {
-  const query = useResourceQuery({
-    page: 1,
-    limit: 10,
-    order: { lastUsedAt: 'desc' },
-  });
+  query: controlledQuery,
+}: {
+  children: ReactNode;
+  query?: ReturnType<typeof useResourceQuery>;
+}) => {
+  const internalQuery = useResourceQuery(),
+    query = controlledQuery ?? internalQuery;
+
   const { data, isLoading } = useSessions(query.params);
 
   return (
     <SessionListContext.Provider value={{ query, data, isLoading }}>
-      <div className={className} {...props}>
-        {children}
-      </div>
+      {children}
     </SessionListContext.Provider>
   );
 };
@@ -87,7 +85,9 @@ export const SessionListItemGroup = ({
     <ItemGroup className={cn('relative', className)} {...props}>
       {!!skeleton &&
         isLoading &&
-        Array.from({ length: skeletonCount }).map((_) => skeleton)}
+        Array.from({ length: skeletonCount }).map((_, i) => (
+          <Fragment key={i}>{skeleton}</Fragment>
+        ))}
 
       {data?.items.map((s, i) => {
         return (
