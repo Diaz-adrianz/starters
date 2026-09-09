@@ -128,6 +128,7 @@ export class AuthService {
         Date.now() + this.authConfig.jwt.refresh.expire * 1000,
       ),
       isActive: true,
+      lastUsedAt: new Date(),
     });
 
     this.event.emit('auth.signIn', {
