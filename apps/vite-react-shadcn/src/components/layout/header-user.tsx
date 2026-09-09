@@ -74,16 +74,12 @@ export const HeaderUser = () => {
               Profile
             </Link>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link to={'/settings'}>
               <RiSettings4Line />
               Settings
             </Link>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
           <DropdownMenuItem onClick={onSignOut} variant="destructive">
             <RiLogoutCircleLine />
             Sign Out
