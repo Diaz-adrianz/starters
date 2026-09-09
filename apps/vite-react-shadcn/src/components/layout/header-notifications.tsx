@@ -1,4 +1,4 @@
-import { RiNotification3Line } from '@remixicon/react';
+import { RiArrowRightLine, RiNotification3Line } from '@remixicon/react';
 import { Button } from '../ui/button';
 import {
   Popover,
@@ -15,36 +15,63 @@ import {
   MessageItemUnreadIndicator,
   MessageList,
   MessageListItemGroup,
+  useMessagesCount,
 } from '@/features/notification';
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
+import { buildParams } from '@/lib/resource-query/resource-query.util';
+import type { ResourceQueryState } from '@/lib/resource-query/resource-query.type';
+import { Badge } from '../ui/badge';
+
+const MAX_MESSAGES = 10;
 
 export const HeaderNotifications = () => {
   const authUser = authStore((s) => s.user),
     authStatus = authStore((s) => s.status);
+
+  const unreadQuery: ResourceQueryState = useMemo(
+      () => ({
+        page: 1,
+        limit: MAX_MESSAGES,
+        isnull: ['readAt'],
+        order: { createdAt: 'desc' },
+      }),
+      [authUser]
+    ),
+    unreadParam = useMemo(() => buildParams(unreadQuery), [unreadQuery]);
+
+  const unreadCount = useMessagesCount(unreadParam),
+    unreadCountText = unreadCount.data
+      ? unreadCount.data > 99
+        ? '99+'
+        : String(unreadCount.data)
+      : '';
 
   if (authStatus === 'unauthenticated' || !authUser) return null;
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size={'icon'}>
+        <Button variant="ghost" size={'icon'} className="relative">
           <RiNotification3Line />
+          {unreadCountText && (
+            <Badge
+              variant={'destructive'}
+              className="absolute -top-1.5 -right-2"
+            >
+              {unreadCountText}
+            </Badge>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-full max-w-sm min-w-72">
         <PopoverHeader>
           <PopoverTitle>Notifications</PopoverTitle>
-          <PopoverDescription>10 unread messages</PopoverDescription>
+          <PopoverDescription>
+            {unreadCountText} unread messages
+          </PopoverDescription>
         </PopoverHeader>
-
-        <MessageList
-          initQuery={{
-            page: 1,
-            limit: 10,
-            isnull: ['readAt'],
-            order: { createdAt: 'desc' },
-          }}
-        >
+        <MessageList initQuery={unreadQuery}>
           <MessageListItemGroup
             skeleton={<MessageItemSkeleton />}
             className="gap-0"
@@ -58,8 +85,16 @@ export const HeaderNotifications = () => {
           </MessageListItemGroup>
         </MessageList>
 
-        <Button variant={'ghost'}>
-          <Link to={'/notifications'}>View all</Link>
+        <Button
+          variant={(unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'ghost'}
+          asChild
+        >
+          <Link to={'/notifications'}>
+            {(unreadCount.data ?? 0) > MAX_MESSAGES
+              ? 'View all'
+              : 'Go to notifications'}
+            <RiArrowRightLine />
+          </Link>
         </Button>
       </PopoverContent>
     </Popover>
