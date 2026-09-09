@@ -11,6 +11,7 @@ import {
 import authStore from '@/stores/auth.store';
 import {
   MessageItem,
+  MessageItemCreatedDate,
   MessageItemSkeleton,
   MessageItemUnreadIndicator,
   MessageList,
@@ -18,7 +19,7 @@ import {
   useMessagesCount,
 } from '@/features/notification';
 import { Link } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { buildParams } from '@/lib/resource-query/resource-query.util';
 import type { ResourceQueryState } from '@/lib/resource-query/resource-query.type';
 import { Badge } from '../ui/badge';
@@ -26,6 +27,8 @@ import { Badge } from '../ui/badge';
 const MAX_MESSAGES = 10;
 
 export const HeaderNotifications = () => {
+  const [open, setOpen] = useState(false);
+
   const authUser = authStore((s) => s.user),
     authStatus = authStore((s) => s.status);
 
@@ -50,7 +53,7 @@ export const HeaderNotifications = () => {
   if (authStatus === 'unauthenticated' || !authUser) return null;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size={'icon'} className="relative">
           <RiNotification3Line />
@@ -78,8 +81,10 @@ export const HeaderNotifications = () => {
           >
             {(m) => (
               <MessageItem
+                key={m.id}
                 message={m}
-                slotLeft={<MessageItemUnreadIndicator readAt={m.readAt} />}
+                slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
+                slotBottom={<MessageItemCreatedDate createdAt={m.createdAt} />}
               />
             )}
           </MessageListItemGroup>
@@ -89,7 +94,7 @@ export const HeaderNotifications = () => {
           variant={(unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'ghost'}
           asChild
         >
-          <Link to={'/notifications'}>
+          <Link to={'/notifications'} onClick={() => setOpen(false)}>
             {(unreadCount.data ?? 0) > MAX_MESSAGES
               ? 'View all'
               : 'Go to notifications'}

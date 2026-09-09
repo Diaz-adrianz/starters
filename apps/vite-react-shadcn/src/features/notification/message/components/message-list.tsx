@@ -6,10 +6,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from 'react';
-import {
-  useResourceQuery,
-  type ResourceQueryState,
-} from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/hooks/use-resource-query';
 import {
   Pagination,
   PaginationContent,
@@ -23,6 +20,7 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
 import { cn } from 'cn';
 import type { Message } from '../types/message.type';
 import { useMessages } from '../api/message.query';
+import type { ResourceQueryState } from '@/lib/resource-query/resource-query.type';
 
 // ======================================
 // Context
@@ -48,25 +46,26 @@ export const useMessageList = () => {
 // Provider
 // --------------------------------------
 export const MessageList = ({
+  children,
+  query: controlledQuery,
   initQuery = {
     page: 1,
     limit: 10,
     order: { createdAt: 'desc' },
   },
-  className,
-  children,
-  ...props
-}: ComponentProps<'div'> & {
+}: {
+  children: ReactNode;
+  query?: ReturnType<typeof useResourceQuery>;
   initQuery?: ResourceQueryState;
 }) => {
-  const query = useResourceQuery(initQuery);
+  const internalQuery = useResourceQuery(initQuery),
+    query = controlledQuery ?? internalQuery;
+
   const { data, isLoading } = useMessages(query.params);
 
   return (
     <MessageListContext.Provider value={{ query, data, isLoading }}>
-      <div className={className} {...props}>
-        {children}
-      </div>
+      {children}
     </MessageListContext.Provider>
   );
 };
@@ -93,7 +92,9 @@ export const MessageListItemGroup = ({
     <ItemGroup className={cn('relative', className)} {...props}>
       {!!skeleton &&
         isLoading &&
-        Array.from({ length: skeletonCount }).map((_) => skeleton)}
+        Array.from({ length: skeletonCount }).map((_, i) => (
+          <Fragment key={i}>{skeleton}</Fragment>
+        ))}
 
       {data?.items.map((d, i) => {
         return (

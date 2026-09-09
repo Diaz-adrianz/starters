@@ -7,6 +7,7 @@ import AccountsPage from './profile/accounts/accounts.page';
 import SessionsPage from './profile/sessions/sessions.page';
 import SettingsLayout from './settings/settings.layout';
 import SettingsPage from './settings/settings.page';
+import NotificationsPage from './notifications/notifications.page';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -48,6 +49,14 @@ const homeRoutes: RouteObject[] = [
         element: <SettingsPage />,
       },
     ],
+  },
+  {
+    path: 'notifications',
+    element: (
+      <AuthenticatedRoute>
+        <NotificationsPage />
+      </AuthenticatedRoute>
+    ),
   },
 ];
 

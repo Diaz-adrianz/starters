@@ -1,5 +1,6 @@
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemDescription,
   ItemMedia,
@@ -9,23 +10,33 @@ import { type ComponentProps, type ReactNode } from 'react';
 import type { Message } from '../types/message.type';
 import { RiCircleFill } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { dateToNow } from '@/utils/date';
 
 export const MessageItem = ({
   message,
-  slotLeft,
+  slotMedia,
+  slotBottom,
+  slotRight,
+  slotActions,
   ...props
 }: ComponentProps<typeof Item> & {
   message: Pick<Message, 'id' | 'title' | 'body' | 'readAt'>;
-  slotLeft?: ReactNode;
+  slotMedia?: ReactNode;
+  slotBottom?: ReactNode;
+  slotRight?: ReactNode;
+  slotActions?: ReactNode;
 }) => {
   return (
     <Item {...props} asChild>
       <a href="#">
-        {slotLeft}
+        {slotMedia}
         <ItemContent>
           <ItemTitle>{message.title}</ItemTitle>
           <ItemDescription>{message.body}</ItemDescription>
+          {slotBottom}
         </ItemContent>
+        {!!slotRight && <ItemContent>{slotRight}</ItemContent>}
+        {!!slotActions && <ItemActions>{slotActions}</ItemActions>}
       </a>
     </Item>
   );
@@ -57,4 +68,13 @@ export const MessageItemUnreadIndicator = ({
       )}
     </ItemMedia>
   );
+};
+
+export const MessageItemCreatedDate = ({
+  createdAt,
+  ...props
+}: ComponentProps<typeof ItemDescription> & {
+  createdAt: Message['createdAt'];
+}) => {
+  return <ItemDescription {...props}>{dateToNow(createdAt)}</ItemDescription>;
 };
