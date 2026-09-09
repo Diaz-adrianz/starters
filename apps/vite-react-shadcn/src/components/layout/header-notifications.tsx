@@ -1,4 +1,8 @@
-import { RiArrowRightLine, RiNotification3Line } from '@remixicon/react';
+import {
+  RiArrowRightLine,
+  RiInbox2Line,
+  RiNotification3Line,
+} from '@remixicon/react';
 import { Button } from '../ui/button';
 import {
   Popover,
@@ -22,6 +26,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Badge } from '../ui/badge';
 import { useResourceQuery } from '@/hooks/use-resource-query';
+import { Empty, EmptyHeader, EmptyMedia } from '../ui/empty';
 
 const MAX_MESSAGES = 10;
 
@@ -67,12 +72,21 @@ export const HeaderNotifications = () => {
         <PopoverHeader>
           <PopoverTitle>Notifications</PopoverTitle>
           <PopoverDescription>
-            {unreadCountText} unread messages
+            {unreadCountText || 'No'} unread messages
           </PopoverDescription>
         </PopoverHeader>
         <MessageList query={query}>
           <MessageListItemGroup
             skeleton={<MessageItemSkeleton />}
+            empty={
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant={'icon'}>
+                    <RiInbox2Line />
+                  </EmptyMedia>
+                </EmptyHeader>
+              </Empty>
+            }
             className="gap-0"
           >
             {(m) => (

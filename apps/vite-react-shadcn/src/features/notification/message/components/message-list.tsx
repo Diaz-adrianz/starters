@@ -71,6 +71,7 @@ export const MessageListItemGroup = ({
   separator,
   skeleton,
   skeletonCount = 5,
+  empty,
   className,
   ...props
 }: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
@@ -78,6 +79,7 @@ export const MessageListItemGroup = ({
   separator?: boolean;
   skeleton?: ReactNode;
   skeletonCount?: number;
+  empty?: ReactNode;
 }) => {
   const { data, isLoading } = useMessageList();
 
@@ -88,6 +90,8 @@ export const MessageListItemGroup = ({
         Array.from({ length: skeletonCount }).map((_, i) => (
           <Fragment key={i}>{skeleton}</Fragment>
         ))}
+
+      {(data?.items.length ?? 0) <= 0 && !isLoading && empty}
 
       {data?.items.map((d, i) => {
         return (

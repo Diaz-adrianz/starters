@@ -1,6 +1,12 @@
 import { Container } from '@/components/layout/container';
 import { PageHeading } from '@/components/shared/page-heading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   MessageItem,
@@ -16,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
 import { getOption, type Option } from '@/utils/option';
+import { RiInbox2Line } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 
 type MenuValue = 'unread' | 'all';
@@ -91,6 +98,16 @@ const NotificationsPage = () => {
                   <CardContent>
                     <MessageListItemGroup
                       skeleton={<MessageItemSkeleton />}
+                      empty={
+                        <Empty>
+                          <EmptyHeader>
+                            <EmptyMedia variant={'icon'}>
+                              <RiInbox2Line />
+                            </EmptyMedia>
+                            <EmptyTitle>No messages yet</EmptyTitle>
+                          </EmptyHeader>
+                        </Empty>
+                      }
                       className="mb-4"
                       separator
                     >
