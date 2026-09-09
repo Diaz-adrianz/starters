@@ -6,7 +6,21 @@ export const queryKeys = {
   all: ['notification', 'messages'] as const,
   list: (params: ApiParams) => [...queryKeys.all, 'list', params] as const,
   detail: (id: string) => [...queryKeys.all, 'detail', id] as const,
+  count: (params: ApiParams) => [...queryKeys.all, 'list', params] as const,
 };
+
+export function useMessagesCount(
+  params: ApiParams = {},
+  { enabled = true, silent }: { enabled?: boolean; silent?: boolean } = {}
+) {
+  return useQuery({
+    queryKey: queryKeys.count(params),
+    queryFn: () => MessageApi.count(params),
+    select: (d) => d.data.data,
+    enabled,
+    meta: { silent },
+  });
+}
 
 export function useMessages(
   params: ApiParams = {},

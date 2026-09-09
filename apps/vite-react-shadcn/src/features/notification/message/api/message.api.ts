@@ -5,6 +5,8 @@ import type { Message } from '../types/message.type';
 const PRE = '/notification/messages/';
 
 export const MessageApi = {
+  count: (params: ApiParams) =>
+    apiClient.get<ApiPaginatedResponse<number>>(PRE + 'count', { params }),
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<Message>>(PRE, { params }),
 };
