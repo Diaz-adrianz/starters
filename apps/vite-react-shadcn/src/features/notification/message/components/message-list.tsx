@@ -20,7 +20,6 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
 import { cn } from 'cn';
 import type { Message } from '../types/message.type';
 import { useMessages } from '../api/message.query';
-import type { ResourceQueryState } from '@/lib/resource-query/resource-query.type';
 
 // ======================================
 // Context
@@ -48,17 +47,11 @@ export const useMessageList = () => {
 export const MessageList = ({
   children,
   query: controlledQuery,
-  initQuery = {
-    page: 1,
-    limit: 10,
-    order: { createdAt: 'desc' },
-  },
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-  initQuery?: ResourceQueryState;
 }) => {
-  const internalQuery = useResourceQuery(initQuery),
+  const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
   const { data, isLoading } = useMessages(query.params);

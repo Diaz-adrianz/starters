@@ -19,10 +19,9 @@ import {
   useMessagesCount,
 } from '@/features/notification';
 import { Link } from 'react-router-dom';
-import { useMemo, useState } from 'react';
-import { buildParams } from '@/lib/resource-query/resource-query.util';
-import type { ResourceQueryState } from '@/lib/resource-query/resource-query.type';
+import { useState } from 'react';
 import { Badge } from '../ui/badge';
+import { useResourceQuery } from '@/hooks/use-resource-query';
 
 const MAX_MESSAGES = 10;
 
@@ -32,18 +31,15 @@ export const HeaderNotifications = () => {
   const authUser = authStore((s) => s.user),
     authStatus = authStore((s) => s.status);
 
-  const unreadQuery: ResourceQueryState = useMemo(
-      () => ({
-        page: 1,
-        limit: MAX_MESSAGES,
-        isnull: ['readAt'],
-        order: { createdAt: 'desc' },
-      }),
-      [authUser]
-    ),
-    unreadParam = useMemo(() => buildParams(unreadQuery), [unreadQuery]);
+  const query = useResourceQuery({
+    page: 1,
+    limit: MAX_MESSAGES,
+    where: { userId: authUser?.id ?? '' },
+    isnull: ['readAt'],
+    order: { createdAt: 'desc' },
+  });
 
-  const unreadCount = useMessagesCount(unreadParam),
+  const unreadCount = useMessagesCount(query.params),
     unreadCountText = unreadCount.data
       ? unreadCount.data > 99
         ? '99+'
@@ -74,7 +70,7 @@ export const HeaderNotifications = () => {
             {unreadCountText} unread messages
           </PopoverDescription>
         </PopoverHeader>
-        <MessageList initQuery={unreadQuery}>
+        <MessageList query={query}>
           <MessageListItemGroup
             skeleton={<MessageItemSkeleton />}
             className="gap-0"
