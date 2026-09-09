@@ -17,6 +17,10 @@ export class MessageService {
     private gateway: NotificationGateway,
   ) {}
 
+  count(scope: ResourceScope) {
+    return this.messageRepo.count(scope.toFindOptions());
+  }
+
   markRead(scope: ResourceScope) {
     scope.add([{ field: 'readAt', op: 'isnull' }]);
     return this.messageRepo.update(scope.toFindOptions().where, {

@@ -11,6 +11,14 @@ export class MessageController {
     private store: StoreService,
   ) {}
 
+  @Permission('notification:message:read')
+  @Get('/count')
+  count(@Query() query: ResourceQueryDto) {
+    const scope = this.store.buildResourceScope();
+    scope.addQuery(query);
+    return this.messageService.count(scope);
+  }
+
   @Permission('notification:message:mark-read')
   @Patch(':id/mark-read')
   markRead(@Param('id') id: string) {
