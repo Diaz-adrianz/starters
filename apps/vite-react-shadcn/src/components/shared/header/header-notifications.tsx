@@ -21,12 +21,14 @@ import {
   MessageList,
   MessageListItemGroup,
   useMessagesCount,
+  useNotificationSocket,
 } from '@/features/notification';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Badge } from '../../ui/badge';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import { Empty, EmptyHeader, EmptyMedia } from '../../ui/empty';
+import { toast } from 'sonner';
 
 const MAX_MESSAGES = 10;
 
@@ -50,6 +52,17 @@ export const HeaderNotifications = () => {
         ? '99+'
         : String(unreadCount.data)
       : '';
+
+  useNotificationSocket({
+    onMessageCreated: (data) => {
+      unreadCount.refetch();
+      toast(data.title, {
+        description: data.body,
+        id: data.id,
+        duration: 5000,
+      });
+    },
+  });
 
   if (authStatus === 'unauthenticated' || !authUser) return null;
 
