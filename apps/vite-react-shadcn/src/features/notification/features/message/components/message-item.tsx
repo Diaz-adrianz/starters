@@ -11,6 +11,7 @@ import type { Message } from '../types/message.type';
 import { RiCircleFill } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dateToNow } from '@/utils/date';
+import { useMarkReadMessage } from '../api/message.mutation';
 
 export const MessageItem = ({
   message,
@@ -26,9 +27,15 @@ export const MessageItem = ({
   slotRight?: ReactNode;
   slotActions?: ReactNode;
 }) => {
+  const markRead = useMarkReadMessage();
+
+  const onClick = () => {
+    markRead.mutate({ id: message.id });
+  };
+
   return (
     <Item {...props} asChild>
-      <a href="#">
+      <a href="#" onClick={onClick}>
         {slotMedia}
         <ItemContent>
           <ItemTitle>{message.title}</ItemTitle>

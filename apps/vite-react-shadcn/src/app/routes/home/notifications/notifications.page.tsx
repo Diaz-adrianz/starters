@@ -91,7 +91,7 @@ const NotificationsPage = () => {
           <div className="w-full md:w-3/4">
             <PageHeading title="Notifications" />
 
-            <Container>
+            <Container className="mb-4">
               <MessageList query={query}>
                 <Card>
                   <MessageListHeader menu={menu} />
