@@ -6,6 +6,7 @@ import { HeaderKeys } from './shared/constants/header-keys.constant';
 import { APP_CONFIG_KEY, AppConfig } from './config/app.config';
 import { LoggerService } from './infra/logger/logger.service';
 import { CorsOptions } from 'cors';
+import { SocketIoAdapter } from './infra/websocket/adapters/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule),
@@ -37,6 +38,10 @@ async function bootstrap() {
     allowedHeaders: Object.values(HeaderKeys),
   };
   app.enableCors(corsOptions);
+
+  // Socket
+  // ---------------------------------
+  app.useWebSocketAdapter(new SocketIoAdapter(app, appConfig));
 
   await app.listen(appConfig.port);
 }
