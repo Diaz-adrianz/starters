@@ -39,6 +39,6 @@ export class Delivery {
   @OneToMany(() => Message, (m) => m.delivery)
   messages: Message[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

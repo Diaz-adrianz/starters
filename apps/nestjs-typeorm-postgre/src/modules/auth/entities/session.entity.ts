@@ -48,6 +48,6 @@ export class Session {
   @Column('bool', { default: true })
   isActive: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

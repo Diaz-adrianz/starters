@@ -39,7 +39,7 @@ export class VerificationToken {
   @ManyToOne(() => User, (u) => u.verificationTokens, { onDelete: 'CASCADE' })
   user: User;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   isWithinCooldown(span: number) {

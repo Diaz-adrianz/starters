@@ -29,6 +29,6 @@ export class UserRole {
   @ManyToOne(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   role: Role;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

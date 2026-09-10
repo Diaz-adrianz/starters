@@ -36,6 +36,6 @@ export class Message {
   @ManyToOne(() => Delivery, (d) => d.messages, { onDelete: 'CASCADE' })
   delivery: Delivery;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }
