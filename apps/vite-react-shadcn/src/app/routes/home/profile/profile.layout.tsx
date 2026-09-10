@@ -36,7 +36,7 @@ const ProfileLayout = () => {
     <div className="min-h-svh bg-muted">
       <Container>
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="w-full pt-4 md:w-1/4">
+          <div className="w-full pt-4 md:sticky md:top-0 md:h-fit md:w-1/4">
             <Tabs
               value={activeMenu}
               orientation={isMobile ? 'horizontal' : 'vertical'}
