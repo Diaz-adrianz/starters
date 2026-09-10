@@ -14,15 +14,17 @@ export function useSignIn() {
 
 export function useSignOut({
   silent,
-  onSuccess,
-}: { silent?: boolean; onSuccess?: () => void } = {}) {
+  onSettled,
+}: { silent?: boolean; onSettled?: () => void } = {}) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: AuthApi.signOut,
     meta: { silent },
     onSuccess: () => {
-      onSuccess?.();
       qc.invalidateQueries({ queryKey: queryKeys.all });
+    },
+    onSettled: () => {
+      onSettled?.();
     },
   });
 }

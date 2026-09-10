@@ -27,7 +27,7 @@ export const HeaderUser = () => {
 
   const signOut = useSignOut({
     silent: true,
-    onSuccess: () => {
+    onSettled: () => {
       authSignOut();
     },
   });
