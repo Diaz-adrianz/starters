@@ -9,6 +9,8 @@ import { DefaultDatabaseModule } from '../../database/default/default-database.m
 import { RoleController } from './resources/role/role.controller';
 import { PermissionService } from './resources/permission/permission.service';
 import { AccessControlEventSubscriber } from './subscribers/access-control-event.subscriber';
+import { Page } from './entities/page.entity';
+import { RolePage } from './entities/role-page.entity';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AccessControlEventSubscriber } from './subscribers/access-control-event
       RolePermission,
       Role,
       UserRole,
+      Page,
+      RolePage,
     ]),
   ],
   controllers: [PermissionController, RoleController],
