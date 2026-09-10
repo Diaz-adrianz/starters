@@ -1,1 +1,2 @@
-export * from './user';
+// sub features
+export * from './features/user';

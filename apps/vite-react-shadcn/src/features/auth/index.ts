@@ -8,4 +8,4 @@ export { SignInForm } from './components/signin-form';
 export { type RefreshApiResponse } from './types/auth.type';
 
 // sub features
-export * from './sessions';
+export * from './features/sessions';

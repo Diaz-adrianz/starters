@@ -1,4 +1,5 @@
 // hooks
 export { useNotificationSocket } from './hooks/use-notification-socket';
 
-export * from './message';
+// sub features
+export * from './features/message';
