@@ -1,4 +1,4 @@
-import { Container } from '@/components/layout/container';
+import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
 import { ThemeSelect } from '@/components/shared/theme-select';
 import { Card, CardContent } from '@/components/ui/card';

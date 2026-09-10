@@ -7,9 +7,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
-import { Button } from '../ui/button';
+} from '../../ui/dropdown-menu';
+import { AvatarImage, AvatarFallback, Avatar } from '../../ui/avatar';
+import { Button } from '../../ui/button';
 import {
   RiAccountCircleLine,
   RiLogoutCircleLine,

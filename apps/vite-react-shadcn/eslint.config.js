@@ -43,6 +43,14 @@ export default defineConfig([
               message:
                 'Import from feature barrel (@/features/<name>) instead of internal path.',
             },
+            {
+              group: [
+                '@/components/shared/*/*',
+                '!@/components/shared/*/index',
+              ],
+              message:
+                'Import from folder barrel (@/components/shared/<folder>) instead of internal path.',
+            },
           ],
         },
       ],

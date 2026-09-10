@@ -1,4 +1,4 @@
-import { Container } from '@/components/layout/container';
+import { Container } from '@/components/shared/container';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActiveMenuPath } from '@/hooks/use-active-menu-path';
 import { useIsMobile } from '@/hooks/use-mobile';

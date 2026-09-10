@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AuthApi } from './auth.api';
-import { keys } from './auth.queries';
+import { queryKeys } from './auth.query';
 
 export function useSignIn() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: AuthApi.signIn,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: keys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.all });
     },
   });
 }
@@ -22,7 +22,7 @@ export function useSignOut({
     meta: { silent },
     onSuccess: () => {
       onSuccess?.();
-      qc.invalidateQueries({ queryKey: keys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.all });
     },
   });
 }

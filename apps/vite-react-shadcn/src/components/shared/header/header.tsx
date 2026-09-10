@@ -2,7 +2,7 @@ import { cn } from 'cn';
 import type React from 'react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-export const HeaderShell = ({
+export const Header = ({
   slotLeft,
   slotRight,
   className,

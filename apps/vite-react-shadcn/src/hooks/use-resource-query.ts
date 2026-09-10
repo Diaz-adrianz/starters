@@ -7,9 +7,6 @@ import type {
 import { buildParams } from '@/lib/resource-query/resource-query.util';
 import { useMemo, useState, useCallback } from 'react';
 
-// ======================================
-// Hook
-// --------------------------------------
 export const useResourceQuery = (initial: ResourceQueryState = {}) => {
   const [state, setState] = useState<ResourceQueryState>(initial);
 

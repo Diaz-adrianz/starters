@@ -3,7 +3,7 @@ import {
   RiInbox2Line,
   RiNotification3Line,
 } from '@remixicon/react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import {
   Popover,
   PopoverContent,
@@ -11,7 +11,7 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from '../ui/popover';
+} from '../../ui/popover';
 import authStore from '@/stores/auth.store';
 import {
   MessageItem,
@@ -24,9 +24,9 @@ import {
 } from '@/features/notification';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { Badge } from '../ui/badge';
+import { Badge } from '../../ui/badge';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import { Empty, EmptyHeader, EmptyMedia } from '../ui/empty';
+import { Empty, EmptyHeader, EmptyMedia } from '../../ui/empty';
 
 const MAX_MESSAGES = 10;
 

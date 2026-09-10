@@ -4,4 +4,4 @@ export { useUser } from './api/user.query';
 export { UserCard, UserCardSkeleton } from './components/user-card';
 
 // types
-export * from './types/user.type';
+export { type User } from './types/user.type';

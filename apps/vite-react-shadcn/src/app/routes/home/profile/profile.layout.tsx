@@ -1,4 +1,4 @@
-import { Container } from '@/components/layout/container';
+import { Container } from '@/components/shared/container';
 import { Outlet } from 'react-router-dom';
 import {
   RiAccountCircleLine,

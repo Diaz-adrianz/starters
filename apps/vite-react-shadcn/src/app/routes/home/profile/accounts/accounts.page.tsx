@@ -1,4 +1,4 @@
-import { Container } from '@/components/layout/container';
+import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
 import { UserCard, UserCardSkeleton, useUser } from '@/features/identity';
 import authStore from '@/stores/auth.store';

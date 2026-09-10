@@ -1,5 +1,4 @@
 import type { RouteObject } from 'react-router-dom';
-import HomePage from './index/index.page';
 import ProfilePage from './profile/profile.page';
 import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import ProfileLayout from './profile/profile.layout';
@@ -8,6 +7,7 @@ import SessionsPage from './profile/sessions/sessions.page';
 import SettingsLayout from './settings/settings.layout';
 import SettingsPage from './settings/settings.page';
 import NotificationsPage from './notifications/notifications.page';
+import HomePage from './home.page';
 
 const homeRoutes: RouteObject[] = [
   {
