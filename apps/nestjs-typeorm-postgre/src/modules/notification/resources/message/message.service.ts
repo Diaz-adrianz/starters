@@ -55,6 +55,7 @@ export class MessageService {
 
     messages.forEach((message) =>
       this.gateway.emitToUser(message.userId, 'message.created', {
+        id: message.id,
         title: message.title,
         body: message.body,
       }),

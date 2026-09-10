@@ -6,6 +6,7 @@ export type GatewayEvent = (typeof GatewayEvents)[keyof typeof GatewayEvents];
 
 export interface GatewayEventPayload {
   [GatewayEvents.MESSAGE_CREATED]: {
+    id: string;
     title: string;
     body: string;
   };
