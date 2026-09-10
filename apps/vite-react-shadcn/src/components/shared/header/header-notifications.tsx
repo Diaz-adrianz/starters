@@ -20,6 +20,7 @@ import {
   MessageItemUnreadIndicator,
   MessageList,
   MessageListItemGroup,
+  messageQueryKeys,
   useMessagesCount,
   useNotificationSocket,
 } from '@/features/notification';
@@ -29,10 +30,14 @@ import { Badge } from '../../ui/badge';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import { Empty, EmptyHeader, EmptyMedia } from '../../ui/empty';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const MAX_MESSAGES = 10;
 
 export const HeaderNotifications = () => {
+  const qc = useQueryClient();
+
   const [open, setOpen] = useState(false);
 
   const authUser = authStore((s) => s.user),
@@ -55,7 +60,7 @@ export const HeaderNotifications = () => {
 
   useNotificationSocket({
     onMessageCreated: (data) => {
-      unreadCount.refetch();
+      qc.invalidateQueries({ queryKey: messageQueryKeys.all });
       toast(data.title, {
         description: data.body,
         id: data.id,
@@ -81,40 +86,47 @@ export const HeaderNotifications = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-full max-w-sm min-w-72">
+      <PopoverContent align="end" className="w-full max-w-sm min-w-72 pb-0">
         <PopoverHeader>
           <PopoverTitle>Notifications</PopoverTitle>
           <PopoverDescription>
             {unreadCountText || 'No'} unread messages
           </PopoverDescription>
         </PopoverHeader>
-        <MessageList query={query}>
-          <MessageListItemGroup
-            skeleton={<MessageItemSkeleton />}
-            empty={
-              <Empty>
-                <EmptyHeader>
-                  <EmptyMedia variant={'icon'}>
-                    <RiInbox2Line />
-                  </EmptyMedia>
-                </EmptyHeader>
-              </Empty>
-            }
-            className="gap-0"
-          >
-            {(m) => (
-              <MessageItem
-                key={m.id}
-                message={m}
-                slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
-                slotBottom={<MessageItemCreatedDate createdAt={m.createdAt} />}
-              />
-            )}
-          </MessageListItemGroup>
-        </MessageList>
+        <ScrollArea className="max-h-96 overflow-auto pb-16">
+          <MessageList query={query}>
+            <MessageListItemGroup
+              skeleton={<MessageItemSkeleton />}
+              empty={
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant={'icon'}>
+                      <RiInbox2Line />
+                    </EmptyMedia>
+                  </EmptyHeader>
+                </Empty>
+              }
+              className="gap-0"
+            >
+              {(m) => (
+                <MessageItem
+                  key={m.id}
+                  message={m}
+                  slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
+                  slotBottom={
+                    <MessageItemCreatedDate createdAt={m.createdAt} />
+                  }
+                />
+              )}
+            </MessageListItemGroup>
+          </MessageList>
+        </ScrollArea>
 
         <Button
-          variant={(unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'ghost'}
+          className="absolute right-4 bottom-4 left-4"
+          variant={
+            (unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'secondary'
+          }
           asChild
         >
           <Link to={'/notifications'} onClick={() => setOpen(false)}>
