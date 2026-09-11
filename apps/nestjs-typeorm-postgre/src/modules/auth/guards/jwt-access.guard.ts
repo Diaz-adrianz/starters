@@ -49,7 +49,6 @@ export class JwtAccessGuard extends AuthGuard('jwt-access') {
         type: 'user',
         id: payload.user.id,
         name: payload.user.name,
-        roles: payload.roles,
       });
       this.store.set('session', { id: payload.session.id });
     }

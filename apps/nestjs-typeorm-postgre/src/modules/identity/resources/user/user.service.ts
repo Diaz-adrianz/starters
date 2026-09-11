@@ -21,14 +21,8 @@ export class UserService {
     private event: EventService,
   ) {}
 
-  // Misc / Shared with other modules
+  // Misc / Used by other modules
   // ----------------------------------------------------------------
-  findById(id: string) {
-    return this.userRepo.findOneOrFail({
-      where: { id },
-    });
-  }
-
   findByUsernameOrEmail(value: string) {
     return this.userRepo.findOneOrFail({
       where: [{ username: value }, { email: value }],
@@ -51,6 +45,11 @@ export class UserService {
 
   // Base extensions
   // ----------------------------------------------------------------
+  findById(id: string) {
+    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
+    return this.findOne(scope);
+  }
+
   updateById(id: string, updateUserDto: UpdateUserDto) {
     const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
     return this.update(scope, updateUserDto);

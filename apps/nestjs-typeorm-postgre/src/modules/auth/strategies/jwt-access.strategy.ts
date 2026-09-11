@@ -13,7 +13,6 @@ import { AuthService } from '../auth.service';
 type UserCache = {
   id: string;
   name: string;
-  roles: { id: string; name: string }[];
 };
 
 const extractor = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -53,7 +52,6 @@ export class JwtAccessStrategy extends PassportStrategy(
       userCache = {
         id: user.id,
         name: user.username,
-        roles: [],
       };
 
       await this.cache.set((k) => k.user(payload.sub), userCache, 0);
@@ -63,7 +61,6 @@ export class JwtAccessStrategy extends PassportStrategy(
       token,
       payload: {
         user: { id: userCache.id, name: userCache.name },
-        roles: userCache.roles,
         session: { id: payload.sid },
       },
     };

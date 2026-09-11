@@ -7,7 +7,6 @@ export interface Store extends ClsStore {
     type: 'user';
     id: string;
     name: string;
-    roles: { id: string; name: string }[];
   } | null;
   permission: {
     module: string;
