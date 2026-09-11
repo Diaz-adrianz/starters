@@ -20,6 +20,7 @@ import { DeviceMiddleware } from './common/middlewares/device.middleware';
 import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
 import { WebsocketModule } from './infra/websocket/websocket.module';
 import { HealthModule } from './infra/health/health.module';
+import { RolesGuard } from './modules/access-control/guards/roles.guard';
 
 @Module({
   imports: [
@@ -49,6 +50,10 @@ import { HealthModule } from './infra/health/health.module';
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
 
     // Pipe providers

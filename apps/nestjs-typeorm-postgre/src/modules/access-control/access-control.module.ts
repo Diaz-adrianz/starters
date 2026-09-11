@@ -13,6 +13,7 @@ import { Page } from './entities/page.entity';
 import { RolePage } from './entities/role-page.entity';
 import { PageService } from './resources/page/page.service';
 import { PageController } from './resources/page/page.controller';
+import { AccessControlService } from './access-control.service';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PageController } from './resources/page/page.controller';
   ],
   controllers: [PermissionController, RoleController, PageController],
   providers: [
+    AccessControlService,
     PermissionService,
     RoleService,
     PageService,
@@ -34,5 +36,6 @@ import { PageController } from './resources/page/page.controller';
     // subscribers
     AccessControlEventSubscriber,
   ],
+  exports: [AccessControlService],
 })
 export class AccessControlModule {}
