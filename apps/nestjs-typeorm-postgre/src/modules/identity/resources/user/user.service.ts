@@ -1,23 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
-import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { CacheService } from '../../../../infra/cache/cache.service';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(User, DatabaseKeys.DEFAULT)
     private userRepo: AppRepository<User>,
-    private cache: CacheService,
     private event: EventService,
   ) {}
 
