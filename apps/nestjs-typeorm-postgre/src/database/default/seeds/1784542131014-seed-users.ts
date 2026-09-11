@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { User } from '../../../modules/identity/entities/user.entity';
 import { Role } from '../../../modules/access-control/entities/role.entity';
-import { UserRole } from '../../../modules/access-control/entities/user-role.entity';
+import { RoleUser } from '../../../modules/access-control/entities/role-user.entity';
 import { UsersData } from '../data/users.data';
 
 export class SeedUsers1784544001014 implements Seeder {
@@ -19,7 +19,7 @@ export class SeedUsers1784544001014 implements Seeder {
     }
     const userRepo = dataSource.getRepository(User);
     const roleRepo = dataSource.getRepository(Role);
-    const userRoleRepo = dataSource.getRepository(UserRole);
+    const roleUserRepo = dataSource.getRepository(RoleUser);
 
     const password = await hash(process.env.SEED_USERS_PASSWORD, 10);
 
@@ -57,12 +57,13 @@ export class SeedUsers1784544001014 implements Seeder {
           return {
             userId: user.id,
             roleId: role.id,
+            username: user.username,
           };
         })
         .filter((value) => !!value),
     );
 
-    const roleAssignResult = await userRoleRepo
+    const roleAssignResult = await roleUserRepo
       .createQueryBuilder()
       .insert()
       .values(userRoleValues)

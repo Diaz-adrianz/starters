@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { Permission } from './entities/permission.entity';
 import { RolePermission } from './entities/role-permission.entity';
 import { Role } from './entities/role.entity';
-import { UserRole } from './entities/user-role.entity';
+import { RoleUser } from './entities/role-user.entity';
 import { RoleService } from './resources/role/role.service';
 import { PermissionController } from './resources/permission/permission.controller';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
@@ -18,11 +18,11 @@ import { PageController } from './resources/page/page.controller';
   imports: [
     DefaultDatabaseModule.forFeature([
       Permission,
-      RolePermission,
-      Role,
-      UserRole,
       Page,
+      Role,
+      RolePermission,
       RolePage,
+      RoleUser,
     ]),
   ],
   controllers: [PermissionController, RoleController, PageController],

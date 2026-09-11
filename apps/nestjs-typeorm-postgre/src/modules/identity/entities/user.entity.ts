@@ -10,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../../access-control/entities/user-role.entity';
 import { VerificationToken } from './verification-token.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
@@ -37,13 +36,8 @@ export class User {
   @Column('timestamptz', { nullable: true })
   verifiedAt?: Date | null;
 
-  @OneToMany(() => VerificationToken, (ur) => ur.user)
+  @OneToMany(() => VerificationToken, (vt) => vt.user)
   verificationTokens: VerificationToken[];
-
-  // Access control
-  @OneToMany(() => UserRole, (ur) => ur.user)
-  roles: UserRole[];
-  // ---------------------------------
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

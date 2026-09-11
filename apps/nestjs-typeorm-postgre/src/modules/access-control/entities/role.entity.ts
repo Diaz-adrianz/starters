@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from './user-role.entity';
+import { RoleUser } from './role-user.entity';
 import { RolePermission } from './role-permission.entity';
 import { RolePage } from './role-page.entity';
 
@@ -22,10 +22,10 @@ export class Role {
   @Column('bool', { default: false })
   isDefault: boolean;
 
-  @OneToMany(() => UserRole, (ur) => ur.role)
-  users: UserRole[];
+  @OneToMany(() => RoleUser, (ru) => ru.role)
+  users: RoleUser[];
 
-  @OneToMany(() => RolePermission, (ur) => ur.role)
+  @OneToMany(() => RolePermission, (rp) => rp.role)
   permissions: RolePermission[];
 
   @OneToMany(() => RolePage, (rp) => rp.role)

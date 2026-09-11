@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
@@ -10,7 +9,6 @@ import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CacheService } from '../../../../infra/cache/cache.service';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
-import { UserRole } from '../../../access-control/entities/user-role.entity';
 import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
@@ -28,7 +26,6 @@ export class UserService {
   findById(id: string) {
     return this.userRepo.findOneOrFail({
       where: { id },
-      relations: { roles: { role: true } },
     });
   }
 
@@ -86,7 +83,6 @@ export class UserService {
   findMany(scope: ResourceScope) {
     return this.userRepo.findAndCount({
       ...scope.toFindOptions(),
-      relations: { roles: { role: true } },
       select: {
         ...this.userRepo.select([
           'id',
@@ -95,7 +91,6 @@ export class UserService {
           'enabled',
           'avatar',
         ]),
-        roles: { id: true, role: { id: true, name: true } },
       },
     });
   }
@@ -103,54 +98,15 @@ export class UserService {
   findOne(scope: ResourceScope) {
     return this.userRepo.findOneOrFail({
       ...scope.toFindOptions(),
-      relations: { roles: { role: true } },
-      select: {
-        ...this.userRepo.select('*'),
-        roles: { id: true, role: { id: true, name: true } },
-      },
     });
   }
 
   async update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
-    const { roles, ...payload } = updateUserDto;
-
-    const result = await this.dataSource.transaction(async (manager) => {
-      const options = scope.toFindOptions();
-      const data = await manager.findOneOrFail(User, options);
-      const result = await manager.update(User, options.where, payload, {
-        returning: ['id'],
-      });
-
-      if (roles) {
-        const { items, action } = roles;
-
-        if (action === UpdateUserRolesAction.SET) {
-          await manager.delete(UserRole, { userId: data.id });
-          await manager.insert(
-            UserRole,
-            items.map((i) => ({
-              userId: data.id,
-              roleId: i.roleId,
-            })),
-          );
-        } else if (action === UpdateUserRolesAction.ADD)
-          await manager.upsert(
-            UserRole,
-            items.map((i) => ({
-              userId: data.id,
-              roleId: i.roleId,
-            })),
-            ['userId', 'roleId'],
-          );
-        else if (action === UpdateUserRolesAction.REM)
-          await manager.delete(UserRole, {
-            userId: data.id,
-            roleId: In(items.map((i) => i.roleId)),
-          });
-      }
-
-      return result;
-    });
+    const result = await this.userRepo.update(
+      scope.toFindOptions().where,
+      updateUserDto,
+      { returning: ['id'] },
+    );
     this.event.emit('identity.user.updated', {
       users: result.raw as Pick<User, 'id'>[],
     });

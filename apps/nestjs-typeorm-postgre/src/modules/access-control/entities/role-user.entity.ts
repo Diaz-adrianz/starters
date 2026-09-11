@@ -6,25 +6,22 @@ import {
   Unique,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../identity/entities/user.entity';
 import { Role } from './role.entity';
 
-@Entity({ schema: 'access_control', name: 'user_roles' })
-@Unique(['userId', 'roleId'])
-export class UserRole {
+@Entity({ schema: 'access_control', name: 'role_users' })
+@Unique(['roleId', 'userId'])
+export class RoleUser {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column('uuid')
-  userId: string;
-
-  @Column('uuid')
   roleId: string;
 
-  // Identity
-  @ManyToOne(() => User, (user) => user.roles, { onDelete: 'CASCADE' })
-  user: User;
-  // ---------------------------------
+  @Column('uuid')
+  userId: string;
+
+  @Column('varchar')
+  username: string;
 
   @ManyToOne(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
   role: Role;

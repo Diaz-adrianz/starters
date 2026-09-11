@@ -53,7 +53,7 @@ export class JwtAccessStrategy extends PassportStrategy(
       userCache = {
         id: user.id,
         name: user.username,
-        roles: user.roles.map((r) => ({ id: r.role.id, name: r.role.name })),
+        roles: [],
       };
 
       await this.cache.set((k) => k.user(payload.sub), userCache, 0);
