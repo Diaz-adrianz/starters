@@ -14,7 +14,8 @@ export class SeedRoles1784542342404 implements Seeder {
 
     const values = Object.values(RolesData).map((name) => ({
       name,
-      isDefault: true,
+      default: true,
+      enabled: true,
     }));
 
     const result = await roleRepo

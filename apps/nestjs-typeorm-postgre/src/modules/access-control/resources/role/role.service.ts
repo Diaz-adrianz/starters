@@ -33,7 +33,7 @@ export class RoleService {
   findMany(scope: ResourceScope) {
     return this.roleRepo.findAndCount({
       ...scope.toFindOptions(),
-      select: { id: true, name: true, isDefault: true },
+      select: { id: true, name: true, default: true },
     });
   }
 

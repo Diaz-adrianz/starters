@@ -20,7 +20,10 @@ export class Role {
   name: string;
 
   @Column('bool', { default: false })
-  isDefault: boolean;
+  default: boolean;
+
+  @Column('bool', { default: false })
+  enabled: boolean;
 
   @OneToMany(() => RoleUser, (ru) => ru.role)
   users: RoleUser[];
