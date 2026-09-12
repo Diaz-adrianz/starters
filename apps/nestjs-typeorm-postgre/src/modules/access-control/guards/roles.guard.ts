@@ -28,18 +28,19 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const metadata = this.reflector.getAllAndOverride<
-        RolesMetadata | undefined
-      >(ROLES_METADATA_KEY, [context.getHandler(), context.getClass()]),
-      message = metadata?.forbiddenMessage || 'Access denied';
+    const actor = this.store.get('actor'),
+      metadata = this.reflector.getAllAndOverride<RolesMetadata | undefined>(
+        ROLES_METADATA_KEY,
+        [context.getHandler(), context.getClass()],
+      );
 
-    const actor = this.store.get('actor');
-    if (!actor) throw new ForbiddenException(message);
+    if (!actor || !metadata) return true;
+
+    const forbiddenMessage = metadata.forbiddenMessage ?? 'Access denied';
 
     let rolesCache = await this.cache.get<UserRolesCache>((k) =>
       k.userRoles(actor.id),
     );
-
     if (!rolesCache) {
       this.logger.debug('User roles cache missed', this.constructor.name);
       const roles = await this.accessControlService.findRolesByUser(actor.id);
@@ -52,13 +53,13 @@ export class RolesGuard implements CanActivate {
       await this.cache.set((k) => k.userRoles(actor.id), rolesCache, 1 * HOUR);
     }
 
-    this.store.set('actor', { ...actor, roles: rolesCache });
-
     if (
       metadata &&
       !rolesCache.some((role) => metadata.roles.includes(role.name))
     )
-      throw new ForbiddenException(message);
+      throw new ForbiddenException(forbiddenMessage);
+
+    this.store.set('actor', { ...actor, roles: rolesCache });
 
     return true;
   }
