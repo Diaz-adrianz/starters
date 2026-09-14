@@ -1,16 +1,16 @@
 import { SetMetadata } from '@nestjs/common';
 
 export interface RolesMetadata {
-  roles: string[];
+  roleNames: string[];
   forbiddenMessage?: string;
 }
 
 export const ROLES_METADATA_KEY = 'Roles';
 
 export const Roles = (
-  roles: RolesMetadata['roles'],
-  options: Omit<RolesMetadata, 'roles'> = {},
+  roleNames: RolesMetadata['roleNames'],
+  options: Omit<RolesMetadata, 'roleNames'> = {},
 ) => {
-  const metadata: RolesMetadata = { roles, ...options };
+  const metadata: RolesMetadata = { roleNames, ...options };
   return SetMetadata(ROLES_METADATA_KEY, metadata);
 };
