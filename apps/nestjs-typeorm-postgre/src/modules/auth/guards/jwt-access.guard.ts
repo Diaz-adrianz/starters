@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
-import { IS_OPTIONAL_AUTH_KEY } from '../../../common/decorators/optional-auth.decorator';
+import { OPTIONAL_AUTH_KEY } from '../../../common/decorators/optional-auth.decorator';
 import { StoreService } from '../../../infra/store/store.service';
 import { JwtAccessAuthResult } from '../interfaces/jwt-access.interface';
+import { NO_AUTH_KEY } from '../../../common/decorators/no-auth.decorator';
 
 @Injectable()
 export class JwtAccessGuard extends AuthGuard('jwt-access') {
@@ -20,11 +20,11 @@ export class JwtAccessGuard extends AuthGuard('jwt-access') {
   }
 
   canActivate(context: ExecutionContext) {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const noAuth = this.reflector.getAllAndOverride<boolean>(NO_AUTH_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (noAuth) return true;
 
     return super.canActivate(context);
   }
@@ -35,12 +35,12 @@ export class JwtAccessGuard extends AuthGuard('jwt-access') {
     _info: any,
     context: ExecutionContext,
   ): TUser | undefined {
-    const isOptional = this.reflector.getAllAndOverride<boolean>(
-      IS_OPTIONAL_AUTH_KEY,
+    const optionalAuth = this.reflector.getAllAndOverride<boolean>(
+      OPTIONAL_AUTH_KEY,
       [context.getHandler(), context.getClass()],
     );
 
-    if ((err || !authResult) && !isOptional)
+    if ((err || !authResult) && !optionalAuth)
       throw err || new UnauthorizedException('Session expired');
 
     if (authResult) {

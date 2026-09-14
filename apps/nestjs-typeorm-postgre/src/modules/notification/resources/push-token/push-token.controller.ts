@@ -8,12 +8,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { OptionalAuth } from '../../../../common/decorators/optional-auth.decorator';
-import { Public } from '../../../../common/decorators/public.decorator';
 import { Permission } from '../../../../common/decorators/permission.decorator';
 import { PushTokenService } from './push-token.service';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { NoAuth } from '../../../../common/decorators/no-auth.decorator';
 
 @Controller('notification/push-tokens')
 export class PushTokenController {
@@ -36,13 +36,13 @@ export class PushTokenController {
     return this.pushTokenService.register(dto);
   }
 
-  @Public()
+  @NoAuth()
   @Patch(':id/revoke')
   revoke(@Param('id') id: string) {
     return this.pushTokenService.revoke(id);
   }
 
-  @Public()
+  @NoAuth()
   @Patch(':token/revoke-by-token')
   revokeByToken(@Param('token') token: string) {
     return this.pushTokenService.revokeByToken(token);

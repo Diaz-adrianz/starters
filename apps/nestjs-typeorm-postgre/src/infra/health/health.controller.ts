@@ -6,10 +6,10 @@ import {
   MemoryHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
-import { Public } from '../../common/decorators/public.decorator';
 import { DatabaseKeys } from '../../database/database-keys.constant';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AppDataSource } from '../../database/typeorm/app-data-source';
+import { NoAuth } from '../../common/decorators/no-auth.decorator';
 
 @Controller('health')
 export class HealthController {
@@ -26,7 +26,7 @@ export class HealthController {
     private disk: DiskHealthIndicator,
   ) {}
 
-  @Public()
+  @NoAuth()
   @Get()
   @HealthCheck()
   check() {

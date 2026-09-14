@@ -14,7 +14,6 @@ import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
 import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { SignUpLocalDto } from './dto/sign-up-local.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -35,6 +34,7 @@ import {
   CookiePath,
 } from '../../shared/constants/cookie-keys.constant';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
+import { NoAuth } from '../../common/decorators/no-auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -48,7 +48,7 @@ export class AuthController {
   // ================================================================
   // Sign up handlers per strategy
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @ResSuccess({ message: 'Verification email sent' })
   @Post('sign-up')
   async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
@@ -58,7 +58,7 @@ export class AuthController {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @UseGuards(LocalGuard)
   @Post('sign-in')
   async signInLocal(
@@ -76,7 +76,7 @@ export class AuthController {
   // ================================================================
   // Access and refresh tokens rotation
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
   async refresh(
@@ -135,7 +135,7 @@ export class AuthController {
   // ================================================================
   // User verification
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @ResSuccess({ message: 'Email verified' })
   @Post('/verify-email')
   verifyEmail(@Body() dto: VerifyEmailDto) {
@@ -145,14 +145,14 @@ export class AuthController {
   // ================================================================
   // Reset password
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @ResSuccess({ message: "If that email exists, we've sent a reset code" })
   @Post('/forgot-password')
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
 
-  @Public()
+  @NoAuth()
   @ResSuccess({ message: 'Code verified' })
   @Post('/reset-password-check')
   async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
@@ -160,7 +160,7 @@ export class AuthController {
     return { expiresAt };
   }
 
-  @Public()
+  @NoAuth()
   @ResSuccess({ message: 'Password reset' })
   @Post('/reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
