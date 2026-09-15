@@ -21,6 +21,7 @@ import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
 import { WebsocketModule } from './infra/websocket/websocket.module';
 import { HealthModule } from './infra/health/health.module';
 import { RolesGuard } from './modules/access-control/guards/roles.guard';
+import { PermissionGuard } from './modules/access-control/guards/permission.guard';
 
 @Module({
   imports: [
@@ -54,6 +55,10 @@ import { RolesGuard } from './modules/access-control/guards/roles.guard';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
 
     // Pipe providers

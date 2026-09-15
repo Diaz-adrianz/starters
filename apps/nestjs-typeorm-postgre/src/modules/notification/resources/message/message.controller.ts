@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { MessageService } from './message.service';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
 
 @Controller('notification/messages')
 export class MessageController {

@@ -9,11 +9,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { TemplateService } from './template.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
 
 @Controller('notification/templates')
 export class TemplateController {

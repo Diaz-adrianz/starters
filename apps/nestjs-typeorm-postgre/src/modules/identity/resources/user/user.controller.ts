@@ -17,9 +17,9 @@ import {
   UserAvatarMaxBytes,
 } from './dto/update-user-avatar.dto';
 import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
 
 @Controller('identity/users')
 export class UserController {

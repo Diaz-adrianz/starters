@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { SessionService } from './session.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
 
 @Controller('auth/sessions')
 export class SessionController {

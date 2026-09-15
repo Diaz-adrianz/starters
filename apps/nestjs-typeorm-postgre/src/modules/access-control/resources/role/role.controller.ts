@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { RoleService } from './role.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../decorators/permission.decorator';
 
 @Controller('access-control/roles')
 export class RoleController {

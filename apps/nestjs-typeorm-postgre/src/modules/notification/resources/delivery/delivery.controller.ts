@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { DeliveryService } from './delivery.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
 
 @Controller('notification/deliveries')
 export class DeliveryController {

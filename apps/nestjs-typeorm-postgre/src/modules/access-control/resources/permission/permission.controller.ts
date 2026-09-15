@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionService } from './permission.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../decorators/permission.decorator';
 
 @Controller('access-control/permissions')
 export class PermissionController {

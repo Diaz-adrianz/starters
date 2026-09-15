@@ -9,9 +9,7 @@ export interface Store extends ClsStore {
     name: string;
   } | null;
   permission: {
-    module: string;
-    resource: string;
-    action: string;
+    key: string;
     scopes: Scope[];
   } | null;
   session: {

@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { PageService } from './page.service';
 import { StoreService } from '../../../../infra/store/store.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreatePageDto } from './dto/create-page.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
+import { Permission } from '../../decorators/permission.decorator';
 
 @Controller('access-control/pages')
 export class PageController {
