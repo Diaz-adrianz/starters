@@ -14,6 +14,7 @@ import { RolePage } from './entities/role-page.entity';
 import { PageService } from './resources/page/page.service';
 import { PageController } from './resources/page/page.controller';
 import { AccessControlService } from './access-control.service';
+import { AccessControlController } from './access-control.controller';
 
 @Module({
   imports: [
@@ -26,7 +27,12 @@ import { AccessControlService } from './access-control.service';
       RoleUser,
     ]),
   ],
-  controllers: [PermissionController, RoleController, PageController],
+  controllers: [
+    AccessControlController,
+    PermissionController,
+    RoleController,
+    PageController,
+  ],
   providers: [
     AccessControlService,
     PermissionService,
