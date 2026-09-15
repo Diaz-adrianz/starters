@@ -19,6 +19,7 @@ export class SeedAccesscontrolPages1789024776663 implements Seeder {
     const pageValues = PagesData.map(({ name, description }) => ({
       name,
       description,
+      enabled: true,
     }));
 
     const pageResult = await pageRepo

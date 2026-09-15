@@ -20,6 +20,9 @@ export class Page {
   @Column('varchar', { nullable: true })
   description: string | null;
 
+  @Column('bool', { default: false })
+  enabled: boolean;
+
   @OneToMany(() => RolePage, (rp) => rp.page)
   roles: RolePage[];
 

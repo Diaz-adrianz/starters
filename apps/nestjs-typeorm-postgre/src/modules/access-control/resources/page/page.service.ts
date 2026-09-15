@@ -24,7 +24,7 @@ export class PageService {
   findMany(scope: ResourceScope) {
     return this.pageRepo.findAndCount({
       ...scope.toFindOptions(),
-      select: this.pageRepo.select(['id', 'name', 'description']),
+      select: this.pageRepo.select(['id', 'name', 'description', 'enabled']),
     });
   }
 

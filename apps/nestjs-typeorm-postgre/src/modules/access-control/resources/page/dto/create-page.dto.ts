@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePageDto {
   @IsNotEmpty()
@@ -8,4 +8,8 @@ export class CreatePageDto {
   @IsOptional()
   @IsString()
   description: string;
+
+  @IsOptional()
+  @IsBoolean()
+  enabled: boolean;
 }
