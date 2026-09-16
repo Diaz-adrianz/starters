@@ -9,6 +9,9 @@ import authRoutes from './auth/auth.routes';
 import NotFoundPage from './not-found/not-found.page';
 import HomeLayout from './home/home.layout';
 import homeRoutes from './home/home.routes';
+import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
+import adminRoutes from './admin/admin.routes';
+import AdminLayout from './admin/admin.layout';
 
 const routes: RouteObject[] = [
   {
@@ -29,6 +32,15 @@ const routes: RouteObject[] = [
         path: 'auth',
         element: <AuthLayout />,
         children: authRoutes,
+      },
+      {
+        path: 'admin',
+        element: (
+          <AuthenticatedRoute>
+            <AdminLayout />
+          </AuthenticatedRoute>
+        ),
+        children: adminRoutes,
       },
       {
         path: '*',
