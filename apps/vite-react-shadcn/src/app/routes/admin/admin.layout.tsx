@@ -1,3 +1,4 @@
+import { useAbility } from '@/app/providers';
 import {
   Header,
   HeaderLogo,
@@ -79,6 +80,7 @@ const Menu: {
 ];
 
 const AdminLayout = () => {
+  const ability = useAbility();
   const activeMenu = useActiveMenuPath(Menu.flatMap((m) => m.items));
 
   return (
@@ -103,28 +105,32 @@ const AdminLayout = () => {
 
           {Menu.map((menu) => {
             return (
-              <SidebarGroup>
-                <SidebarGroupLabel key={menu.group}>
-                  {menu.group}
-                </SidebarGroupLabel>
+              <SidebarGroup key={menu.group}>
+                <SidebarGroupLabel>{menu.group}</SidebarGroupLabel>
                 <SidebarMenu>
-                  {menu.items.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton
-                        isActive={activeMenu === item.path}
-                        asChild
-                      >
-                        <Link to={item.path}>
-                          {activeMenu === item.path ? (
-                            <item.IconActive />
-                          ) : (
-                            <item.Icon />
-                          )}{' '}
-                          {item.label}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {menu.items.map((item) => {
+                    if (
+                      !item.ability ||
+                      ability.can(item.ability.action, item.ability.subject)
+                    )
+                      return (
+                        <SidebarMenuItem key={item.path}>
+                          <SidebarMenuButton
+                            isActive={activeMenu === item.path}
+                            asChild
+                          >
+                            <Link to={item.path}>
+                              {activeMenu === item.path ? (
+                                <item.IconActive />
+                              ) : (
+                                <item.Icon />
+                              )}{' '}
+                              {item.label}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                  })}
                 </SidebarMenu>
               </SidebarGroup>
             );
