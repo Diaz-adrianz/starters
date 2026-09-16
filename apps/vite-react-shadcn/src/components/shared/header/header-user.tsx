@@ -14,11 +14,13 @@ import {
   RiAccountCircleLine,
   RiLogoutCircleLine,
   RiSettings4Line,
+  RiShieldUserLine,
 } from '@remixicon/react';
 import { getInitials } from '@/utils/string';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignOut } from '@/features/auth';
+import { Can } from '../can';
 
 export const HeaderUser = () => {
   const authUser = authStore((s) => s.user),
@@ -68,6 +70,14 @@ export const HeaderUser = () => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <Can I={'visit'} a={'admin-dashboard'}>
+            <DropdownMenuItem asChild>
+              <Link to={'/admin'}>
+                <RiShieldUserLine />
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          </Can>
           <DropdownMenuItem asChild>
             <Link to={'/profile'}>
               <RiAccountCircleLine />
