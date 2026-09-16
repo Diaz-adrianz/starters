@@ -8,6 +8,6 @@ export const PagesData: {
   {
     name: 'admin-dashboard',
     description: 'Admin dashboard page',
-    roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.USER }],
+    roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
   },
 ];
