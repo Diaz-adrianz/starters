@@ -3,6 +3,8 @@ import {
   createContext,
   Fragment,
   useContext,
+  useEffect,
+  useState,
   type ComponentProps,
   type ReactNode,
 } from 'react';
@@ -16,10 +18,21 @@ import {
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import { usePagination } from '@/hooks/use-pagination';
 import { Button } from '@/components/ui/button';
-import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
+import {
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiLoaderLine,
+  RiSearchLine,
+} from '@remixicon/react';
 import { cn } from 'cn';
 import type { User } from '../types/user.type';
 import { useUsers } from '../api/user.query';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
+import { useDebounce } from '@/hooks/use-debounce';
 
 // ======================================
 // Context
@@ -105,6 +118,48 @@ export const UserListItemGroup = ({
 // ======================================
 // Pagination
 // --------------------------------------
+export const UserListSearchBox = ({
+  ...props
+}: ComponentProps<typeof InputGroup>) => {
+  const { isLoading, data, query } = useUserList();
+
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
+
+  useEffect(() => {
+    query.setField(
+      'search',
+      debouncedSearch ? { username: debouncedSearch } : undefined
+    );
+  }, [debouncedSearch]);
+
+  return (
+    <InputGroup {...props}>
+      <InputGroupInput
+        placeholder="Search username..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <InputGroupAddon>
+        <RiSearchLine />
+      </InputGroupAddon>
+
+      {isLoading ? (
+        <InputGroupAddon align={'inline-end'}>
+          <RiLoaderLine className="animate-spin" />
+        </InputGroupAddon>
+      ) : search ? (
+        <InputGroupAddon align="inline-end">
+          {data?.totalItems ?? 0} results
+        </InputGroupAddon>
+      ) : null}
+    </InputGroup>
+  );
+};
+
+// ======================================
+// Pagination
+// --------------------------------------
 export const UserListPagination = () => {
   const { query, isLoading, data } = useUserList();
   const {
@@ -123,43 +178,50 @@ export const UserListPagination = () => {
   });
 
   return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <Button
-            variant={'ghost'}
-            disabled={!hasPrevPage || isLoading}
-            onClick={prevPage}
-          >
-            <RiArrowLeftSLine /> Previous
-          </Button>
-        </PaginationItem>
-        {pages.map((p, i) => (
-          <PaginationItem key={i}>
-            {p === null ? (
-              <PaginationEllipsis />
-            ) : (
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-xs text-muted-foreground">
+        {data?.totalItems ?? 0} results
+      </p>
+      <div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
               <Button
-                disabled={isLoading}
-                size={'icon-sm'}
-                variant={page === p ? 'default' : 'ghost'}
-                onClick={() => jumpToPage(p)}
+                variant={'ghost'}
+                disabled={!hasPrevPage || isLoading}
+                onClick={prevPage}
               >
-                {p}
+                <RiArrowLeftSLine /> Previous
               </Button>
-            )}
-          </PaginationItem>
-        ))}
-        <PaginationItem>
-          <Button
-            variant={'ghost'}
-            disabled={!hasNextPage || isLoading}
-            onClick={nextPage}
-          >
-            Next <RiArrowRightSLine />
-          </Button>
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+            </PaginationItem>
+            {pages.map((p, i) => (
+              <PaginationItem key={i}>
+                {p === null ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <Button
+                    disabled={isLoading}
+                    size={'icon-sm'}
+                    variant={page === p ? 'default' : 'ghost'}
+                    onClick={() => jumpToPage(p)}
+                  >
+                    {p}
+                  </Button>
+                )}
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <Button
+                variant={'ghost'}
+                disabled={!hasNextPage || isLoading}
+                onClick={nextPage}
+              >
+                Next <RiArrowRightSLine />
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
   );
 };

@@ -5,6 +5,7 @@ export { UserCard, UserCardSkeleton } from './components/user-card';
 export {
   UserList,
   UserListItemGroup,
+  UserListSearchBox,
   UserListPagination,
 } from './components/user-list';
 export {
