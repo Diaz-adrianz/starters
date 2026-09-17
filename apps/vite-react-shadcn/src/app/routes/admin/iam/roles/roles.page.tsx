@@ -1,5 +1,6 @@
 import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   RoleList,
@@ -11,6 +12,7 @@ import {
   RoleListPagination,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
+import { RiAddLine } from '@remixicon/react';
 
 const RolesPage = () => {
   const query = useResourceQuery({
@@ -26,6 +28,9 @@ const RolesPage = () => {
       <RoleList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>
           <RoleListSearchBox />
+          <Button>
+            <RiAddLine /> Create role
+          </Button>
         </Container>
 
         <Container className="mb-4">
