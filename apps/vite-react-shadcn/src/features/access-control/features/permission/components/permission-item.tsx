@@ -10,19 +10,21 @@ import type { Permission } from '../types/permission.type';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 export const PermissionItem = ({
   permission,
   slotActions,
   ...props
 }: ComponentProps<typeof Item> & {
-  permission: Pick<Permission, 'id' | 'module' | 'description'>;
+  permission: Pick<Permission, 'id' | 'module' | 'description' | 'enabled'>;
   slotActions?: ReactNode;
 }) => {
   return (
@@ -30,6 +32,13 @@ export const PermissionItem = ({
       <ItemContent>
         <ItemTitle>{permission.description}</ItemTitle>
         <ItemDescription>{permission.module}</ItemDescription>
+      </ItemContent>
+      <ItemContent className="flex-row items-center gap-4">
+        {permission.enabled ? (
+          <Badge>Active</Badge>
+        ) : (
+          <Badge variant={'secondary'}>Inactive</Badge>
+        )}
       </ItemContent>
       {slotActions && <ItemActions>{slotActions}</ItemActions>}
     </Item>
@@ -53,6 +62,7 @@ export const PermissionItemSkeleton = ({
 // Actions
 // --------------------------------------
 export const PermissionItemActionMenu = ({
+  permission,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
@@ -69,8 +79,17 @@ export const PermissionItemActionMenu = ({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant={permission.enabled ? 'destructive' : 'default'}
+          >
+            {permission.enabled ? 'Deactivate' : 'Activate'}
+          </DropdownMenuItem>
+          <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
