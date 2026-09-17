@@ -1,3 +1,4 @@
+import { Can } from '@/components/shared/can';
 import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
 import { Button } from '@/components/ui/button';
@@ -28,9 +29,11 @@ const RolesPage = () => {
       <RoleList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>
           <RoleListSearchBox />
-          <Button>
-            <RiAddLine /> Create role
-          </Button>
+          <Can I={'create'} a={'identity:role'}>
+            <Button>
+              <RiAddLine /> Create role
+            </Button>
+          </Can>
         </Container>
 
         <Container className="mb-4">

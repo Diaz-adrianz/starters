@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Can } from '@/components/shared/can';
 
 export const PageItem = ({
   page,
@@ -51,7 +52,6 @@ export const PageItemSkeleton = ({ ...props }: ComponentProps<typeof Item>) => {
 // Actions
 // --------------------------------------
 export const PageItemActionMenu = ({
-  page,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
@@ -68,8 +68,18 @@ export const PageItemActionMenu = ({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+        <Can I={'update'} a={'access-control:page'} passThrough>
+          {({ isAllowed }) => (
+            <DropdownMenuItem disabled={!isAllowed}>Edit</DropdownMenuItem>
+          )}
+        </Can>
+        <Can I={'archive'} a={'access-control:page'} passThrough>
+          {({ isAllowed }) => (
+            <DropdownMenuItem disabled={!isAllowed} variant="destructive">
+              Remove
+            </DropdownMenuItem>
+          )}
+        </Can>
       </DropdownMenuContent>
     </DropdownMenu>
   );

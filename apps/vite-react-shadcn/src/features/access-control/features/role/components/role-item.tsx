@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Can } from '@/components/shared/can';
 
 export const RoleItem = ({
   role,
@@ -87,14 +88,28 @@ export const RoleItemActionMenu = ({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem variant={role.enabled ? 'destructive' : 'default'}>
-            {role.enabled ? 'Deactivate' : 'Activate'}
-          </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+          <Can I={'update'} a={'access-control:role'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem disabled={!isAllowed}>Edit</DropdownMenuItem>
+            )}
+          </Can>
+          <Can I={'update'} a={'access-control:role'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem
+                disabled={!isAllowed}
+                variant={role.enabled ? 'destructive' : 'default'}
+              >
+                {role.enabled ? 'Deactivate' : 'Activate'}
+              </DropdownMenuItem>
+            )}
+          </Can>
+          <Can I={'archive'} a={'access-control:role'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem variant="destructive" disabled={!isAllowed}>
+                Remove
+              </DropdownMenuItem>
+            )}
+          </Can>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

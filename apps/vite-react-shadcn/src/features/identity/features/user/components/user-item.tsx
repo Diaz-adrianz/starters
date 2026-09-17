@@ -33,6 +33,7 @@ import {
   RiMore2Line,
 } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Can } from '@/components/shared/can';
 
 export const UserItem = ({
   user,
@@ -153,10 +154,23 @@ export const UserItemActionMenu = ({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant={user.enabled ? 'destructive' : 'default'}>
-            {user.enabled ? 'Deactivate' : 'Activate'}
-          </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+          <Can I={'update'} a={'identity:user'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem
+                disabled={!isAllowed}
+                variant={user.enabled ? 'destructive' : 'default'}
+              >
+                {user.enabled ? 'Deactivate' : 'Activate'}
+              </DropdownMenuItem>
+            )}
+          </Can>
+          <Can I={'archive'} a={'identity:user'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem disabled={!isAllowed} variant="destructive">
+                Remove
+              </DropdownMenuItem>
+            )}
+          </Can>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,3 +1,4 @@
+import { Can } from '@/components/shared/can';
 import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
 import { Button } from '@/components/ui/button';
@@ -30,9 +31,11 @@ const AccountsPage = () => {
       <UserList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>
           <UserListSearchBox />
-          <Button>
-            <RiAddLine /> Create account
-          </Button>
+          <Can I={'create'} a={'identity:user'}>
+            <Button>
+              <RiAddLine /> Create account
+            </Button>
+          </Can>
         </Container>
 
         <Container className="mb-4">

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Can } from '@/components/shared/can';
 
 export const PermissionItem = ({
   permission,
@@ -80,15 +81,23 @@ export const PermissionItemActionMenu = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuGroup>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <Can I={'update'} a={'access-control:permission'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem disabled={!isAllowed}>Edit</DropdownMenuItem>
+            )}
+          </Can>
         </DropdownMenuGroup>
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            variant={permission.enabled ? 'destructive' : 'default'}
-          >
-            {permission.enabled ? 'Deactivate' : 'Activate'}
-          </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+          <Can I={'update'} a={'access-control:permission'} passThrough>
+            {({ isAllowed }) => (
+              <DropdownMenuItem
+                variant={permission.enabled ? 'destructive' : 'default'}
+                disabled={!isAllowed}
+              >
+                {permission.enabled ? 'Deactivate' : 'Activate'}
+              </DropdownMenuItem>
+            )}
+          </Can>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
