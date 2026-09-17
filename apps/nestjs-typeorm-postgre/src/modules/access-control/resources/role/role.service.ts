@@ -1,17 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
-import { RolePermission } from '../../entities/role-permission.entity';
 import { Role } from '../../entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
-import {
-  UpdateRoleDto,
-  UpdateRolePermissionsAction,
-} from './dto/update-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
@@ -54,47 +49,11 @@ export class RoleService {
   }
 
   async update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
-    const { permissions, ...payload } = updateRoleDto;
-
-    const result = await this.dataSource.transaction(async (manager) => {
-      const options = scope.toFindOptions();
-      const data = await manager.findOneOrFail(Role, options);
-      const result = await manager.update(Role, options.where, payload, {
-        returning: ['id'],
-      });
-
-      if (permissions) {
-        const { items, action } = permissions;
-
-        if (action === UpdateRolePermissionsAction.SET) {
-          await manager.delete(RolePermission, { roleId: data.id });
-          await manager.insert(
-            RolePermission,
-            items.map((i) => ({
-              roleId: data.id,
-              permissionId: i.permissionId,
-              scope: i.scope,
-            })),
-          );
-        } else if (action === UpdateRolePermissionsAction.ADD)
-          await manager.upsert(
-            RolePermission,
-            items.map((i) => ({
-              roleId: data.id,
-              permissionId: i.permissionId,
-              scope: i.scope,
-            })),
-            ['roleId', 'permissionId'],
-          );
-        else if (action === UpdateRolePermissionsAction.REM)
-          await manager.delete(RolePermission, {
-            roleId: data.id,
-            permissionId: In(items.map((i) => i.permissionId)),
-          });
-      }
-
-      return result;
-    });
+    const result = await this.roleRepo.update(
+      scope.toFindOptions().where,
+      updateRoleDto,
+      { returning: ['id'] },
+    );
     this.event.emit('accessControl.role.updated', {
       roles: result.raw as Pick<Role, 'id'>[],
     });
