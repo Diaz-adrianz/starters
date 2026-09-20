@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Template } from '../../../modules/notification/entities/template.entity';
-import { NotificationTemplatesData } from '../data/notification-templates.data';
+import { TemplatesData } from '../data/notification/templates.data';
 
-export class SeedNotificationTemplates1786935003826 implements Seeder {
+export class NotificationTemplates1789876629755 implements Seeder {
   track = false;
 
   public async run(
@@ -12,7 +12,7 @@ export class SeedNotificationTemplates1786935003826 implements Seeder {
   ): Promise<any> {
     const templateRepo = dataSource.getRepository(Template);
 
-    const values = Object.values(NotificationTemplatesData).map((template) => ({
+    const values = Object.values(TemplatesData).map((template) => ({
       ...template,
     }));
 
@@ -24,7 +24,7 @@ export class SeedNotificationTemplates1786935003826 implements Seeder {
       .execute();
 
     console.log(
-      `🌱 Templates: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
+      `🌱 [notification] templates: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
     );
   }
 }

@@ -1,4 +1,4 @@
-import { Scope } from '../../../shared/interfaces/resource-scope.interface';
+import { Condition } from '../../../../modules/access-control/interfaces/condition.interface';
 import { RolesData } from './roles.data';
 
 export const PermissionsData: {
@@ -6,7 +6,7 @@ export const PermissionsData: {
   entries: {
     description: string;
     permission: string;
-    roles: { name: string; scope?: Scope }[];
+    roles: { name: string; condition?: Condition }[];
   }[];
 }[] = [
   {
@@ -20,11 +20,11 @@ export const PermissionsData: {
           { name: RolesData.SUPERADMIN },
           {
             name: RolesData.ADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -35,11 +35,11 @@ export const PermissionsData: {
           { name: RolesData.SUPERADMIN },
           {
             name: RolesData.ADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -49,15 +49,15 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.ADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -169,7 +169,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'id', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -186,7 +186,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'id', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -263,7 +263,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -273,15 +273,15 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.ADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -291,15 +291,15 @@ export const PermissionsData: {
         roles: [
           {
             name: RolesData.SUPERADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.ADMIN,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -313,7 +313,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            scope: [{ field: 'userId', op: 'where', value: '{{actor.id}}' }],
+            condition: { userId: { eq: '{{actor.id}}' } },
           },
         ],
       },

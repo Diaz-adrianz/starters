@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Permission } from '../../../modules/access-control/entities/permission.entity';
-import { PermissionsData } from '../data/permissions.data';
+import { PermissionsData } from '../data/access-control/permissions.data';
 
-export class SeedPermissions1784542135178 implements Seeder {
+export class AccesscontrolPermissions1789875498899 implements Seeder {
   track = false;
 
   public async run(
@@ -34,7 +34,7 @@ export class SeedPermissions1784542135178 implements Seeder {
       .execute();
 
     console.log(
-      `🌱 Permissions: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
+      `🌱 [access_control] permissions: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
     );
   }
 }

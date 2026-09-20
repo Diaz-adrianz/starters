@@ -1,7 +1,7 @@
-import { Template } from '../../../modules/notification/entities/template.entity';
-import { Channel } from '../../../modules/notification/enums/channel.enum';
+import { Template } from '../../../../modules/notification/entities/template.entity';
+import { Channel } from '../../../../modules/notification/enums/channel.enum';
 
-export const NotificationTemplatesData: Pick<
+export const TemplatesData: Pick<
   Template,
   'key' | 'channel' | 'title' | 'body' | 'availableKeys' | 'sensitiveKeys'
 >[] = [

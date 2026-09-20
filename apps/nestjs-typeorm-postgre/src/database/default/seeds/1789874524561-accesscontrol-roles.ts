@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Role } from '../../../modules/access-control/entities/role.entity';
-import { RolesData } from '../data/roles.data';
+import { RolesData } from '../data/access-control/roles.data';
 
-export class SeedRoles1784542342404 implements Seeder {
+export class AccesscontrolRoles1789874524561 implements Seeder {
   track = false;
 
   public async run(
@@ -26,7 +26,7 @@ export class SeedRoles1784542342404 implements Seeder {
       .execute();
 
     console.log(
-      `🌱 Roles: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
+      `🌱 [access_control] roles: ${(result.raw as any[]).length ?? 0}/${values.length} inserted`,
     );
   }
 }

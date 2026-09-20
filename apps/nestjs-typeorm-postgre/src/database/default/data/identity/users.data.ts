@@ -1,4 +1,4 @@
-import { RolesData } from './roles.data';
+import { RolesData } from '../access-control/roles.data';
 
 export const UsersData = [
   {
