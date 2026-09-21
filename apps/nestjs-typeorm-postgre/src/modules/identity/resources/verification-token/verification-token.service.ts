@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { VerificationToken } from '../../entities/verification-token.entity';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdateVerificationTokenDto } from './dto/update-verification-token.dto';
 import { CreateVerificationTokenDto } from './dto/create-verification-token.dto';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class VerificationTokenService {
@@ -21,9 +21,9 @@ export class VerificationTokenService {
     return this.verificationTokenRepo.save(dto);
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.verificationTokenRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       relations: { user: true },
       select: {
         ...this.verificationTokenRepo.select('*'),
@@ -32,22 +32,22 @@ export class VerificationTokenService {
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.verificationTokenRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  update(scope: ResourceScope, dto: UpdateVerificationTokenDto) {
-    return this.verificationTokenRepo.update(scope.toFindOptions().where, dto);
+  update(rq: ResourceQuery, dto: UpdateVerificationTokenDto) {
+    return this.verificationTokenRepo.update(rq.toFindOptions().where, dto);
   }
 
   updateById(id: string, dto: UpdateVerificationTokenDto) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.update(scope, dto);
+    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
+    return this.update(rq, dto);
   }
 
-  delete(scope: ResourceScope) {
-    return this.verificationTokenRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.verificationTokenRepo.delete(rq.toFindOptions().where);
   }
 }

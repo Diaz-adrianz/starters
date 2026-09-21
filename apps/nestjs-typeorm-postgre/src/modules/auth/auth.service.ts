@@ -27,7 +27,6 @@ import { DeliveryService } from '../notification/resources/delivery/delivery.ser
 import { DeliveryType } from '../notification/enums/delivery-type.enum';
 import { DeliveryPriority } from '../notification/enums/delivery-priority.enum';
 import { Channel } from '../notification/enums/channel.enum';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { Store } from '../../infra/store/store.interface';
 import { SessionService } from './resources/session/session.service';
 import {
@@ -41,6 +40,7 @@ import {
   UserNoPasswordException,
   UserNotVerifiedException,
 } from '../identity/classes/exceptions/user.exception';
+import { ResourceQuery } from '../../shared/classes/resource-query.class';
 
 @Injectable()
 export class AuthService {
@@ -66,14 +66,14 @@ export class AuthService {
     if (existUser && existUser.verifiedAt === null) {
       const existingToken = await this.verificationTokenService
         .findOne(
-          new ResourceScope([
-            { field: 'userId', op: 'where', value: existUser.id },
+          new ResourceQuery([
+            { field: 'userId', op: 'eq', value: existUser.id },
             {
               field: 'type',
-              op: 'where',
+              op: 'eq',
               value: VerificationTokenType.EMAIL_VERIFICATION,
             },
-            { field: 'consumedAt', op: 'isnull' },
+            { field: 'consumedAt', op: 'eq', value: null },
           ]),
         )
         .catch(() => undefined);
@@ -177,7 +177,7 @@ export class AuthService {
   // ----------------------------------------------------------------
   async signOut(sessionId: string) {
     const result = await this.sessionService.revoke(
-      new ResourceScope([{ field: 'id', op: 'where', value: sessionId }]),
+      new ResourceQuery([{ field: 'id', op: 'eq', value: sessionId }]),
     );
 
     if (!result.affected)
@@ -188,14 +188,14 @@ export class AuthService {
   }
 
   async signOutAll(userId: string, excludedSessionIds: string[] = []) {
-    const scope = new ResourceScope([
-      { field: 'userId', op: 'where', value: userId },
+    const rq = new ResourceQuery([
+      { field: 'userId', op: 'eq', value: userId },
     ]);
 
     if (excludedSessionIds.length)
-      scope.add([{ field: 'id', op: 'nin', value: excludedSessionIds }]);
+      rq.add([{ field: 'id', op: 'nin', value: excludedSessionIds }]);
 
-    const result = await this.sessionService.revoke(scope);
+    const result = await this.sessionService.revoke(rq);
 
     this.logger.debug(
       `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,
@@ -211,14 +211,14 @@ export class AuthService {
 
     const token = await this.verificationTokenService
       .findOne(
-        new ResourceScope([
-          { field: 'tokenHash', op: 'where', value: otpHash },
+        new ResourceQuery([
+          { field: 'tokenHash', op: 'eq', value: otpHash },
           {
             field: 'type',
-            op: 'where',
+            op: 'eq',
             value: VerificationTokenType.EMAIL_VERIFICATION,
           },
-          { field: 'consumedAt', op: 'isnull' },
+          { field: 'consumedAt', op: 'eq', value: null },
         ]),
       )
       .catch(() => null);
@@ -243,14 +243,14 @@ export class AuthService {
     if (user) {
       const token = await this.verificationTokenService
         .findOne(
-          new ResourceScope([
-            { field: 'userId', op: 'where', value: user.id },
+          new ResourceQuery([
+            { field: 'userId', op: 'eq', value: user.id },
             {
               field: 'type',
-              op: 'where',
+              op: 'eq',
               value: VerificationTokenType.PASSWORD_RESET,
             },
-            { field: 'consumedAt', op: 'isnull' },
+            { field: 'consumedAt', op: 'eq', value: null },
           ]),
         )
         .catch(() => undefined);
@@ -270,14 +270,14 @@ export class AuthService {
 
     const token = await this.verificationTokenService
       .findOne(
-        new ResourceScope([
-          { field: 'tokenHash', op: 'where', value: otpHash },
+        new ResourceQuery([
+          { field: 'tokenHash', op: 'eq', value: otpHash },
           {
             field: 'type',
-            op: 'where',
+            op: 'eq',
             value: VerificationTokenType.PASSWORD_RESET,
           },
-          { field: 'consumedAt', op: 'isnull' },
+          { field: 'consumedAt', op: 'eq', value: null },
         ]),
       )
       .catch(() => null);

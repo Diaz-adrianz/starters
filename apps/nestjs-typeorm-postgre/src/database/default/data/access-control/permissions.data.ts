@@ -169,7 +169,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            condition: { userId: { eq: '{{actor.id}}' } },
+            condition: { id: { eq: '{{actor.id}}' } },
           },
         ],
       },
@@ -186,7 +186,7 @@ export const PermissionsData: {
           { name: RolesData.ADMIN },
           {
             name: RolesData.USER,
-            condition: { userId: { eq: '{{actor.id}}' } },
+            condition: { id: { eq: '{{actor.id}}' } },
           },
         ],
       },

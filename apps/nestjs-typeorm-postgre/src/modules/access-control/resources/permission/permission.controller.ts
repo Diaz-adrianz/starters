@@ -24,17 +24,17 @@ export class PermissionController {
   @Permission('access-control:permission:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.permissionService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.permissionService.findMany(rq);
   }
 
   @Permission('access-control:permission:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.permissionService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.permissionService.findOne(rq);
   }
 
   @Permission('access-control:permission:update')
@@ -43,8 +43,9 @@ export class PermissionController {
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.permissionService.update(scope, updatePermissionDto);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.permissionService.update(rq, updatePermissionDto);
   }
 }

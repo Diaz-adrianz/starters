@@ -3,11 +3,11 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { Role } from '../../entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { EventService } from '../../../../infra/event/event.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class RoleService {
@@ -25,32 +25,32 @@ export class RoleService {
     return this.roleRepo.insert(createRoleDto);
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.roleRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: { id: true, name: true, default: true, enabled: true },
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.roleRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       relations: { permissions: { permission: true } },
       select: {
         ...this.roleRepo.select('*'),
         permissions: {
           id: true,
           createdAt: true,
-          scope: true,
+          condition: true,
           permission: { id: true, module: true, description: true },
         },
       },
     });
   }
 
-  async update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
+  async update(rq: ResourceQuery, updateRoleDto: UpdateRoleDto) {
     const result = await this.roleRepo.update(
-      scope.toFindOptions().where,
+      rq.toFindOptions().where,
       updateRoleDto,
       { returning: ['id'] },
     );
@@ -60,8 +60,8 @@ export class RoleService {
     return result;
   }
 
-  async archive(scope: ResourceScope) {
-    const result = await this.roleRepo.softDelete(scope.toFindOptions().where, {
+  async archive(rq: ResourceQuery) {
+    const result = await this.roleRepo.softDelete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
@@ -70,8 +70,8 @@ export class RoleService {
     return result;
   }
 
-  async restore(scope: ResourceScope) {
-    const result = await this.roleRepo.restore(scope.toFindOptions().where, {
+  async restore(rq: ResourceQuery) {
+    const result = await this.roleRepo.restore(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
@@ -80,8 +80,8 @@ export class RoleService {
     return result;
   }
 
-  async delete(scope: ResourceScope) {
-    const result = await this.roleRepo.delete(scope.toFindOptions().where, {
+  async delete(rq: ResourceQuery) {
+    const result = await this.roleRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.deleted', {

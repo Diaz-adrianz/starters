@@ -22,7 +22,6 @@ import {
   ResetPasswordCheckDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { UserService } from '../identity/resources/user/user.service';
 import { StoreService } from '../../infra/store/store.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
@@ -35,6 +34,7 @@ import {
 } from '../../shared/constants/cookie-keys.constant';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { NoAuth } from '../../common/decorators/no-auth.decorator';
+import { ResourceQuery } from '../../shared/classes/resource-query.class';
 
 @Controller('auth')
 export class AuthController {
@@ -127,7 +127,7 @@ export class AuthController {
   @Get('/me')
   async me(@ReqUser() { payload }: JwtAccessAuthResult) {
     const user = await this.userService.findOne(
-      new ResourceScope([{ field: 'id', op: 'where', value: payload.user.id }]),
+      new ResourceQuery([{ field: 'id', op: 'eq', value: payload.user.id }]),
     );
     return { user };
   }

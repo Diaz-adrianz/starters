@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from '../../entities/permission.entity';
 import { EventService } from '../../../../infra/event/event.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class PermissionService {
@@ -33,9 +33,9 @@ export class PermissionService {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.permissionRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: this.permissionRepo.select([
         'id',
         'module',
@@ -45,13 +45,13 @@ export class PermissionService {
     });
   }
 
-  findOne(scope: ResourceScope) {
-    return this.permissionRepo.findOneOrFail({ ...scope.toFindOptions() });
+  findOne(rq: ResourceQuery) {
+    return this.permissionRepo.findOneOrFail({ ...rq.toFindOptions() });
   }
 
-  async update(scope: ResourceScope, updatePermissionDto: UpdatePermissionDto) {
+  async update(rq: ResourceQuery, updatePermissionDto: UpdatePermissionDto) {
     const result = await this.permissionRepo.update(
-      scope.toFindOptions().where,
+      rq.toFindOptions().where,
       updatePermissionDto,
       { returning: ['id'] },
     );

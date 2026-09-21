@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { Page } from '../../entities/page.entity';
 import { CreatePageDto } from './dto/create-page.dto';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { UpdatePageDto } from './dto/update-page.dto';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class PageService {
@@ -21,32 +21,32 @@ export class PageService {
     return this.pageRepo.insert(dto);
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.pageRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: this.pageRepo.select(['id', 'name', 'description', 'enabled']),
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.pageRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  update(scope: ResourceScope, dto: UpdatePageDto) {
-    return this.pageRepo.update(scope.toFindOptions().where, dto);
+  update(rq: ResourceQuery, dto: UpdatePageDto) {
+    return this.pageRepo.update(rq.toFindOptions().where, dto);
   }
 
-  archive(scope: ResourceScope) {
-    return this.pageRepo.softDelete(scope.toFindOptions().where);
+  archive(rq: ResourceQuery) {
+    return this.pageRepo.softDelete(rq.toFindOptions().where);
   }
 
-  restore(scope: ResourceScope) {
-    return this.pageRepo.restore(scope.toFindOptions().where);
+  restore(rq: ResourceQuery) {
+    return this.pageRepo.restore(rq.toFindOptions().where);
   }
 
-  delete(scope: ResourceScope) {
-    return this.pageRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.pageRepo.delete(rq.toFindOptions().where);
   }
 }

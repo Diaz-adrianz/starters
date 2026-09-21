@@ -6,8 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { EventService } from '../../../../infra/event/event.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class UserService {
@@ -42,13 +42,13 @@ export class UserService {
   // Base extensions
   // ----------------------------------------------------------------
   findById(id: string) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.findOne(scope);
+    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
+    return this.findOne(rq);
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.update(scope, updateUserDto);
+    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
+    return this.update(rq, updateUserDto);
   }
 
   // Base
@@ -75,9 +75,9 @@ export class UserService {
     return user;
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(q: ResourceQuery) {
     return this.userRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...q.toFindOptions(),
       select: {
         ...this.userRepo.select([
           'id',
@@ -91,15 +91,15 @@ export class UserService {
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.userRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  async update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
+  async update(rq: ResourceQuery, updateUserDto: UpdateUserDto) {
     const result = await this.userRepo.update(
-      scope.toFindOptions().where,
+      rq.toFindOptions().where,
       updateUserDto,
       { returning: ['id'] },
     );
@@ -109,8 +109,8 @@ export class UserService {
     return result;
   }
 
-  async archive(scope: ResourceScope) {
-    const result = await this.userRepo.softDelete(scope.toFindOptions().where, {
+  async archive(rq: ResourceQuery) {
+    const result = await this.userRepo.softDelete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
@@ -119,8 +119,8 @@ export class UserService {
     return result;
   }
 
-  async restore(scope: ResourceScope) {
-    const result = await this.userRepo.restore(scope.toFindOptions().where, {
+  async restore(rq: ResourceQuery) {
+    const result = await this.userRepo.restore(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
@@ -129,8 +129,8 @@ export class UserService {
     return result;
   }
 
-  async delete(scope: ResourceScope) {
-    const result = await this.userRepo.delete(scope.toFindOptions().where, {
+  async delete(rq: ResourceQuery) {
+    const result = await this.userRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.deleted', {

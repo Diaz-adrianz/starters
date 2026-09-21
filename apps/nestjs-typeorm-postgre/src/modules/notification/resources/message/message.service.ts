@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from '../../entities/message.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { TemplateService } from '../template/template.service';
 import { Channel } from '../../enums/channel.enum';
 import { NotificationGateway } from '../../notification.gateway';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class MessageService {
@@ -17,13 +17,13 @@ export class MessageService {
     private gateway: NotificationGateway,
   ) {}
 
-  count(scope: ResourceScope) {
-    return this.messageRepo.count(scope.toFindOptions());
+  count(rq: ResourceQuery) {
+    return this.messageRepo.count(rq.toFindOptions());
   }
 
-  markRead(scope: ResourceScope) {
-    scope.add([{ field: 'readAt', op: 'isnull' }]);
-    return this.messageRepo.update(scope.toFindOptions().where, {
+  markRead(rq: ResourceQuery) {
+    rq.add([{ field: 'readAt', op: 'eq', value: null }]);
+    return this.messageRepo.update(rq.toFindOptions().where, {
       readAt: new Date(),
     });
   }
@@ -67,9 +67,9 @@ export class MessageService {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.messageRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       relations: { delivery: true },
       select: {
         ...this.messageRepo.select('*'),
@@ -81,7 +81,7 @@ export class MessageService {
     });
   }
 
-  delete(scope: ResourceScope) {
-    return this.messageRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.messageRepo.delete(rq.toFindOptions().where);
   }
 }

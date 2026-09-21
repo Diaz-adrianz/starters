@@ -39,7 +39,7 @@ export class PermissionGuard implements CanActivate {
 
       this.store.set('permission', {
         key: metadata.key,
-        scopes: valid.some((s) => s === null)
+        conditions: valid.some((s) => s === null)
           ? []
           : valid.filter((s) => s !== null),
       });

@@ -24,16 +24,16 @@ export class DeliveryController {
   @Permission('notification:delivery:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.deliveryService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.deliveryService.findMany(rq);
   }
 
   @Permission('notification:delivery:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.deliveryService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.deliveryService.findOne(rq);
   }
 }

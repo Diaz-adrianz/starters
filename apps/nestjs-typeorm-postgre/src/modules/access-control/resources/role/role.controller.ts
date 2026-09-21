@@ -34,48 +34,52 @@ export class RoleController {
   @Permission('access-control:role:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.roleService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.roleService.findMany(rq);
   }
 
   @Permission('access-control:role:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.roleService.findOne(rq);
   }
 
   @Permission('access-control:role:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.update(scope, updateRoleDto);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.roleService.update(rq, updateRoleDto);
   }
 
   @Permission('access-control:role:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.archive(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.roleService.archive(rq);
   }
 
   @Permission('access-control:role:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.restore(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.roleService.restore(rq);
   }
 
   @Permission('access-control:role:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.roleService.delete(rq);
   }
 }

@@ -4,10 +4,10 @@ import { Template } from '../../entities/template.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { Channel } from '../../enums/channel.enum';
 import * as Handlebars from 'handlebars';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class TemplateService {
@@ -51,9 +51,9 @@ export class TemplateService {
     return this.templateRepo.insert(dto);
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.templateRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: this.templateRepo.select([
         'id',
         'key',
@@ -64,25 +64,25 @@ export class TemplateService {
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.templateRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  update(scope: ResourceScope, dto: UpdateTemplateDto) {
-    return this.templateRepo.update(scope.toFindOptions().where, dto);
+  update(rq: ResourceQuery, dto: UpdateTemplateDto) {
+    return this.templateRepo.update(rq.toFindOptions().where, dto);
   }
 
-  archive(scope: ResourceScope) {
-    return this.templateRepo.softDelete(scope.toFindOptions().where);
+  archive(rq: ResourceQuery) {
+    return this.templateRepo.softDelete(rq.toFindOptions().where);
   }
 
-  restore(scope: ResourceScope) {
-    return this.templateRepo.restore(scope.toFindOptions().where);
+  restore(rq: ResourceQuery) {
+    return this.templateRepo.restore(rq.toFindOptions().where);
   }
 
-  delete(scope: ResourceScope) {
-    return this.templateRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.templateRepo.delete(rq.toFindOptions().where);
   }
 }

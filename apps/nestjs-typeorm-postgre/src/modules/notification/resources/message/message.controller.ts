@@ -14,17 +14,17 @@ export class MessageController {
   @Permission('notification:message:read')
   @Get('/count')
   count(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.messageService.count(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.messageService.count(rq);
   }
 
   @Permission('notification:message:mark-read')
   @Patch(':id/mark-read')
   markRead(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.messageService.markRead(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.messageService.markRead(rq);
   }
 
   // ================================================================
@@ -33,16 +33,18 @@ export class MessageController {
   @Permission('notification:message:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query, 'and', ['delivery.*']);
-    return this.messageService.findMany(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .addFromDto(query, 'and', ['delivery.*']);
+    return this.messageService.findMany(rq);
   }
 
   @Permission('notification:message:delete')
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.messageService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.messageService.delete(rq);
   }
 }

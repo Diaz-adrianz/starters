@@ -38,9 +38,10 @@ export class UserController {
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    const data = await this.userService.findOne(rq);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
       mimeType,
@@ -54,9 +55,10 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    const data = await this.userService.findOne(rq);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
       (k) => k.avatar(data.id),
@@ -78,48 +80,52 @@ export class UserController {
   @Permission('identity:user:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.userService.findMany(scope);
+    const q = this.store.buildResourceQuery().addFromDto(query);
+    return this.userService.findMany(q);
   }
 
   @Permission('identity:user:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.userService.findOne(rq);
   }
 
   @Permission('identity:user:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.update(scope, updateUserDto);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.userService.update(rq, updateUserDto);
   }
 
   @Permission('identity:user:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.archive(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.userService.archive(rq);
   }
 
   @Permission('identity:user:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.restore(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.userService.restore(rq);
   }
 
   @Permission('identity:user:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.userService.delete(rq);
   }
 }

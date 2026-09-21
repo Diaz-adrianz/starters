@@ -34,48 +34,52 @@ export class TemplateController {
   @Permission('notification:template:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.templateService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.templateService.findMany(rq);
   }
 
   @Permission('notification:template:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.templateService.findOne(rq);
   }
 
   @Permission('notification:template:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateTemplateDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.update(scope, dto);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.templateService.update(rq, dto);
   }
 
   @Permission('notification:template:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.archive(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.templateService.archive(rq);
   }
 
   @Permission('notification:template:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.restore(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.templateService.restore(rq);
   }
 
   @Permission('notification:template:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.templateService.delete(rq);
   }
 }

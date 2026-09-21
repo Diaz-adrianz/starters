@@ -34,48 +34,52 @@ export class PageController {
   @Permission('access-control:page:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.pageService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.pageService.findMany(rq);
   }
 
   @Permission('access-control:page:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.pageService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.pageService.findOne(rq);
   }
 
   @Permission('access-control:page:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdatePageDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.pageService.update(scope, dto);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.pageService.update(rq, dto);
   }
 
   @Permission('access-control:page:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.pageService.archive(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.pageService.archive(rq);
   }
 
   @Permission('access-control:page:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.pageService.restore(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.pageService.restore(rq);
   }
 
   @Permission('access-control:page:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.pageService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.pageService.delete(rq);
   }
 }

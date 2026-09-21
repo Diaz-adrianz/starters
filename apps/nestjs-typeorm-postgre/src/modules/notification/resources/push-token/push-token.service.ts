@@ -4,9 +4,9 @@ import { PushToken } from '../../entities/push-token.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { LoggerService } from '../../../../infra/logger/logger.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class PushTokenService {
@@ -33,17 +33,17 @@ export class PushTokenService {
   // ================================================================
   // Base
   // ----------------------------------------------------------------
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.pushTokenRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: {
         ...this.pushTokenRepo.select(['token'], 'omit'),
       },
     });
   }
 
-  delete(scope: ResourceScope) {
-    return this.pushTokenRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.pushTokenRepo.delete(rq.toFindOptions().where);
   }
 
   // ================================================================
@@ -51,10 +51,10 @@ export class PushTokenService {
   // ----------------------------------------------------------------
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupDisabled() {
-    const scope = new ResourceScope([
-      { field: 'enabled', op: 'where', value: false },
+    const rq = new ResourceQuery([
+      { field: 'enabled', op: 'eq', value: false },
     ]);
-    const result = await this.delete(scope);
+    const result = await this.delete(rq);
     this.logger.log(
       `Cleaned up ${result.affected ?? 0} disabled push token(s)`,
       this.constructor.name,

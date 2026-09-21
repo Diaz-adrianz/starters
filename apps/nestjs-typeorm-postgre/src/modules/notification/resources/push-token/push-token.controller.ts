@@ -54,8 +54,7 @@ export class PushTokenController {
   @Permission('notification:push-token:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.pushTokenService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.pushTokenService.findMany(rq);
   }
 }

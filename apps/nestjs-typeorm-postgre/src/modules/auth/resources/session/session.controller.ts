@@ -14,9 +14,10 @@ export class SessionController {
   @Permission('auth:session:revoke')
   @Patch(':id/revoke')
   revokeOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.sessionService.revoke(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.sessionService.revoke(rq);
   }
 
   // ================================================================
@@ -25,24 +26,25 @@ export class SessionController {
   @Permission('auth:session:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.sessionService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.sessionService.findMany(rq);
   }
 
   @Permission('auth:session:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.sessionService.findOne(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.sessionService.findOne(rq);
   }
 
   @Permission('auth:session:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.sessionService.delete(scope);
+    const rq = this.store
+      .buildResourceQuery()
+      .add([{ field: 'id', op: 'eq', value: id }]);
+    return this.sessionService.delete(rq);
   }
 }
