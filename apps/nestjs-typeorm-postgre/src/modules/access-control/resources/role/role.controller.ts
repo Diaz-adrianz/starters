@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
@@ -14,6 +15,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
+import { SetRoleUserDto } from './dto/set-role-user.dto';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -21,6 +23,19 @@ export class RoleController {
     private readonly roleService: RoleService,
     private store: StoreService,
   ) {}
+
+  @Permission('access-control:role:read')
+  @Get(':id/users')
+  findManyUser(@Param('id') id: string, @Query() query: ResourceQueryDto) {
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.roleService.findManyUser(id, rq);
+  }
+
+  @Permission('access-control:role:update')
+  @Put(':id/users')
+  setUser(@Param('id') id: string, @Body() dto: SetRoleUserDto) {
+    return this.roleService.setUser(id, dto);
+  }
 
   // ================================================================
   // Basic CRUD

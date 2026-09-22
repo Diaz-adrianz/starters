@@ -8,6 +8,8 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { SetRoleUserDto } from './dto/set-role-user.dto';
+import { RoleUser } from '../../entities/role-user.entity';
 
 @Injectable()
 export class RoleService {
@@ -15,8 +17,26 @@ export class RoleService {
     @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
+    @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
+    private roleUserRepo: AppRepository<RoleUser>,
     private event: EventService,
   ) {}
+
+  setUser(id: string, dto: SetRoleUserDto) {
+    // TODO: emit event user.assigned and user.unassigned
+    if (dto.assign)
+      return this.roleUserRepo.insert({
+        roleId: id,
+        userId: dto.userId,
+        username: dto.username,
+      });
+    else return this.roleUserRepo.delete({ roleId: id, userId: dto.userId });
+  }
+
+  findManyUser(id: string, rq: ResourceQuery) {
+    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    return this.roleUserRepo.findAndCount(rq.toFindOptions());
+  }
 
   // ================================================================
   // Basic CRUD
