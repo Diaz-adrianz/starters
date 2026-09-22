@@ -16,6 +16,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
 import { SetRoleUserDto } from './dto/set-role-user.dto';
+import { SetRolePermissionDto } from './dto/set-role-permission.dto';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -23,6 +24,24 @@ export class RoleController {
     private readonly roleService: RoleService,
     private store: StoreService,
   ) {}
+
+  @Permission('access-control:role:read')
+  @Get(':id/permissions')
+  findManyPermission(
+    @Param('id') id: string,
+    @Query() query: ResourceQueryDto,
+  ) {
+    const rq = this.store
+      .buildResourceQuery()
+      .addFromDto(query, 'and', ['permission.description']);
+    return this.roleService.findManyPermission(id, rq);
+  }
+
+  @Permission('access-control:role:update')
+  @Put(':id/permissions')
+  setPermission(@Param('id') id: string, @Body() dto: SetRolePermissionDto) {
+    return this.roleService.setPermission(id, dto);
+  }
 
   @Permission('access-control:role:read')
   @Get(':id/users')

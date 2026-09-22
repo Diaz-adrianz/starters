@@ -1,7 +1,17 @@
-export type Operator =
-  'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte' | 'in' | 'nin';
+export const OPERATORS = [
+  'eq',
+  'neq',
+  'lt',
+  'lte',
+  'gt',
+  'gte',
+  'in',
+  'nin',
+] as const;
 
-type Scalar = string | number | boolean | Date | null;
+export type Operator = (typeof OPERATORS)[number];
+
+export type Scalar = string | number | boolean | Date | null;
 
 export type Condition = Record<
   string,

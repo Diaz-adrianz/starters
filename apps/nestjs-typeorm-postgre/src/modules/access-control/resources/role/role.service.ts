@@ -10,6 +10,8 @@ import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { SetRoleUserDto } from './dto/set-role-user.dto';
 import { RoleUser } from '../../entities/role-user.entity';
+import { RolePermission } from '../../entities/role-permission.entity';
+import { SetRolePermissionDto } from './dto/set-role-permission.dto';
 
 @Injectable()
 export class RoleService {
@@ -19,11 +21,43 @@ export class RoleService {
     private roleRepo: AppRepository<Role>,
     @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
     private roleUserRepo: AppRepository<RoleUser>,
+    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
+    private rolePermissionRepo: AppRepository<RolePermission>,
     private event: EventService,
   ) {}
 
+  setPermission(id: string, dto: SetRolePermissionDto) {
+    // TODO: emit event role.permissionGranted and role.permissionRevoked
+    if (dto.grant)
+      return this.rolePermissionRepo.upsert(
+        {
+          roleId: id,
+          permissionId: dto.permissionId,
+          condition: dto.condition,
+        },
+        { conflictPaths: ['roleId', 'permissionId'] },
+      );
+    else
+      return this.rolePermissionRepo.delete({
+        roleId: id,
+        permissionId: dto.permissionId,
+      });
+  }
+
+  findManyPermission(id: string, rq: ResourceQuery) {
+    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    return this.rolePermissionRepo.findAndCount({
+      ...rq.toFindOptions(),
+      relations: { permission: true },
+      select: {
+        ...this.rolePermissionRepo.select('*'),
+        permission: { description: true },
+      },
+    });
+  }
+
   setUser(id: string, dto: SetRoleUserDto) {
-    // TODO: emit event user.assigned and user.unassigned
+    // TODO: emit event role.userAssigned and role.userUnassigned
     if (dto.assign)
       return this.roleUserRepo.insert({
         roleId: id,
