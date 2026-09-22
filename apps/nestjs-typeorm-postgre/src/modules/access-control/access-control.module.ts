@@ -15,6 +15,7 @@ import { PageService } from './resources/page/page.service';
 import { PageController } from './resources/page/page.controller';
 import { AccessControlService } from './access-control.service';
 import { AccessControlController } from './access-control.controller';
+import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AccessControlController } from './access-control.controller';
 
     // subscribers
     AccessControlEventSubscriber,
+    IdentityEventSubscriber,
   ],
   exports: [AccessControlService],
 })

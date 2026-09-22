@@ -30,6 +30,9 @@ export class RoleService {
     private event: EventService,
   ) {}
 
+  // ================================================================
+  // RolePage
+  // ----------------------------------------------------------------
   async setPage(id: string, dto: SetRolePageDto) {
     const res = await (dto.assign
       ? this.rolePageRepo.insert({ roleId: id, pageId: dto.pageId })
@@ -53,6 +56,9 @@ export class RoleService {
     });
   }
 
+  // ================================================================
+  // RolePermission
+  // ----------------------------------------------------------------
   async setPermission(id: string, dto: SetRolePermissionDto) {
     const res = await (dto.grant
       ? this.rolePermissionRepo.upsert(
@@ -86,6 +92,9 @@ export class RoleService {
     });
   }
 
+  // ================================================================
+  // RoleUser
+  // ----------------------------------------------------------------
   async setUser(id: string, dto: SetRoleUserDto) {
     const res = await (dto.assign
       ? this.roleUserRepo.insert({
@@ -104,6 +113,17 @@ export class RoleService {
   findManyUser(id: string, rq: ResourceQuery) {
     rq.add([{ field: 'roleId', op: 'eq', value: id }]);
     return this.roleUserRepo.findAndCount(rq.toFindOptions());
+  }
+
+  updateUserByUserId(
+    userId: string,
+    payload: Partial<Pick<RoleUser, 'username'>>,
+  ) {
+    return this.roleUserRepo.update({ userId }, payload);
+  }
+
+  deleteUserByUserId(userId: string) {
+    return this.roleUserRepo.delete({ userId });
   }
 
   // ================================================================
