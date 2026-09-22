@@ -6,7 +6,6 @@ import { UserController } from './resources/user/user.controller';
 import { UserService } from './resources/user/user.service';
 import { VerificationToken } from './entities/verification-token.entity';
 import { VerificationTokenService } from './resources/verification-token/verification-token.service';
-import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
 
 @Module({
   imports: [
@@ -14,13 +13,7 @@ import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber
     DefaultStorageModule,
   ],
   controllers: [UserController],
-  providers: [
-    UserService,
-    VerificationTokenService,
-
-    // subscribers
-    IdentityEventSubscriber,
-  ],
+  providers: [UserService, VerificationTokenService],
   exports: [UserService, VerificationTokenService],
 })
 export class IdentityModule {}

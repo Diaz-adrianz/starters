@@ -30,11 +30,15 @@ export class RoleService {
     private event: EventService,
   ) {}
 
-  setPage(id: string, dto: SetRolePageDto) {
-    // TODO: emit event role.pageAssigned and role.pageUnassigned
-    if (dto.assign)
-      return this.rolePageRepo.insert({ roleId: id, pageId: dto.pageId });
-    else return this.rolePageRepo.delete({ roleId: id, pageId: dto.pageId });
+  async setPage(id: string, dto: SetRolePageDto) {
+    const res = await (dto.assign
+      ? this.rolePageRepo.insert({ roleId: id, pageId: dto.pageId })
+      : this.rolePageRepo.delete({ roleId: id, pageId: dto.pageId }));
+    this.event.emit('accessControl.role.page_set', {
+      target: [{ id }],
+      payload: { pageId: dto.pageId },
+    });
+    return res;
   }
 
   findManyPage(id: string, rq: ResourceQuery) {
@@ -49,22 +53,25 @@ export class RoleService {
     });
   }
 
-  setPermission(id: string, dto: SetRolePermissionDto) {
-    // TODO: emit event role.permissionGranted and role.permissionRevoked
-    if (dto.grant)
-      return this.rolePermissionRepo.upsert(
-        {
+  async setPermission(id: string, dto: SetRolePermissionDto) {
+    const res = await (dto.grant
+      ? this.rolePermissionRepo.upsert(
+          {
+            roleId: id,
+            permissionId: dto.permissionId,
+            condition: dto.condition,
+          },
+          { conflictPaths: ['roleId', 'permissionId'] },
+        )
+      : this.rolePermissionRepo.delete({
           roleId: id,
           permissionId: dto.permissionId,
-          condition: dto.condition,
-        },
-        { conflictPaths: ['roleId', 'permissionId'] },
-      );
-    else
-      return this.rolePermissionRepo.delete({
-        roleId: id,
-        permissionId: dto.permissionId,
-      });
+        }));
+    this.event.emit('accessControl.role.permission_set', {
+      target: [{ id }],
+      payload: { permissionId: dto.permissionId },
+    });
+    return res;
   }
 
   findManyPermission(id: string, rq: ResourceQuery) {
@@ -79,15 +86,19 @@ export class RoleService {
     });
   }
 
-  setUser(id: string, dto: SetRoleUserDto) {
-    // TODO: emit event role.userAssigned and role.userUnassigned
-    if (dto.assign)
-      return this.roleUserRepo.insert({
-        roleId: id,
-        userId: dto.userId,
-        username: dto.username,
-      });
-    else return this.roleUserRepo.delete({ roleId: id, userId: dto.userId });
+  async setUser(id: string, dto: SetRoleUserDto) {
+    const res = await (dto.assign
+      ? this.roleUserRepo.insert({
+          roleId: id,
+          userId: dto.userId,
+          username: dto.username,
+        })
+      : this.roleUserRepo.delete({ roleId: id, userId: dto.userId }));
+    this.event.emit('accessControl.role.user_set', {
+      target: [{ id }],
+      payload: { userId: dto.userId },
+    });
+    return res;
   }
 
   findManyUser(id: string, rq: ResourceQuery) {
@@ -132,7 +143,7 @@ export class RoleService {
       { returning: ['id'] },
     );
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
@@ -142,7 +153,7 @@ export class RoleService {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
@@ -152,7 +163,7 @@ export class RoleService {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
@@ -166,7 +177,7 @@ export class RoleService {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.deleted', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }

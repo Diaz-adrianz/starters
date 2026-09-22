@@ -6,12 +6,14 @@ import { CreatePageDto } from './dto/create-page.dto';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { EventService } from '../../../../infra/event/event.service';
 
 @Injectable()
 export class PageService {
   constructor(
     @InjectRepository(Page, DatabaseKeys.DEFAULT)
     private pageRepo: AppRepository<Page>,
+    private event: EventService,
   ) {}
 
   // ================================================================
@@ -34,19 +36,43 @@ export class PageService {
     });
   }
 
-  update(rq: ResourceQuery, dto: UpdatePageDto) {
-    return this.pageRepo.update(rq.toFindOptions().where, dto);
+  async update(rq: ResourceQuery, dto: UpdatePageDto) {
+    const result = await this.pageRepo.update(rq.toFindOptions().where, dto, {
+      returning: ['id'],
+    });
+    this.event.emit('accessControl.page.updated', {
+      target: result.raw as Pick<Page, 'id'>[],
+    });
+    return result;
   }
 
-  archive(rq: ResourceQuery) {
-    return this.pageRepo.softDelete(rq.toFindOptions().where);
+  async archive(rq: ResourceQuery) {
+    const result = await this.pageRepo.softDelete(rq.toFindOptions().where, {
+      returning: ['id'],
+    });
+    this.event.emit('accessControl.page.updated', {
+      target: result.raw as Pick<Page, 'id'>[],
+    });
+    return result;
   }
 
-  restore(rq: ResourceQuery) {
-    return this.pageRepo.restore(rq.toFindOptions().where);
+  async restore(rq: ResourceQuery) {
+    const result = await this.pageRepo.restore(rq.toFindOptions().where, {
+      returning: ['id'],
+    });
+    this.event.emit('accessControl.page.updated', {
+      target: result.raw as Pick<Page, 'id'>[],
+    });
+    return result;
   }
 
-  delete(rq: ResourceQuery) {
-    return this.pageRepo.delete(rq.toFindOptions().where);
+  async delete(rq: ResourceQuery) {
+    const result = await this.pageRepo.delete(rq.toFindOptions().where, {
+      returning: ['id'],
+    });
+    this.event.emit('accessControl.page.deleted', {
+      target: result.raw as Pick<Page, 'id'>[],
+    });
+    return result;
   }
 }

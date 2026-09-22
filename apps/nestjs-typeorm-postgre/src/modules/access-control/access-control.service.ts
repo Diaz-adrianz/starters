@@ -72,7 +72,10 @@ export class AccessControlService {
     );
 
     if (!roles) {
-      this.logger.debug('User roles cache missed', this.constructor.name);
+      this.logger.debug(
+        `Roles cache missed for user "${userId}"`,
+        this.constructor.name,
+      );
       const userRoles = await this.roleUserRepo.find({
         where: { userId, role: { enabled: true } },
         relations: { role: true },
@@ -94,7 +97,10 @@ export class AccessControlService {
     );
 
     if (!permissions) {
-      this.logger.debug('Role permissions cache missed', this.constructor.name);
+      this.logger.debug(
+        `Permissions cache missed for role "${roleId}"`,
+        this.constructor.name,
+      );
       const rolePermissions = await this.rolePermissionRepo.find({
         where: { roleId, permission: { enabled: true } },
         relations: { permission: true },
@@ -120,7 +126,10 @@ export class AccessControlService {
     );
 
     if (!pages) {
-      this.logger.debug('Role pages cache missed', this.constructor.name);
+      this.logger.debug(
+        `Pages cache missed for role "${roleId}"`,
+        this.constructor.name,
+      );
       const rolePages = await this.rolePagesRepo.find({
         where: { roleId, page: { enabled: true } },
         relations: { page: true },

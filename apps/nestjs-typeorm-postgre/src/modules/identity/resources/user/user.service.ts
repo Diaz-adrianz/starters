@@ -34,7 +34,7 @@ export class UserService {
       { returning: ['id'] },
     );
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }
@@ -104,7 +104,8 @@ export class UserService {
       { returning: ['id'] },
     );
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
+      payload: { username: updateUserDto.username },
     });
     return result;
   }
@@ -114,7 +115,7 @@ export class UserService {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }
@@ -124,7 +125,7 @@ export class UserService {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }
@@ -134,7 +135,7 @@ export class UserService {
       returning: ['id'],
     });
     this.event.emit('identity.user.deleted', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }

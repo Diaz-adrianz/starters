@@ -14,6 +14,7 @@ import { DefaultDatabaseModule } from '../../database/default/default-database.m
 import { Session } from './entities/session.entity';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
+import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
 
 @Module({
   imports: [
@@ -34,6 +35,9 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
     LocalStrategy,
     JwtAccessStrategy,
     JwtRefreshStrategy,
+
+    // subscribers
+    IdentityEventSubscriber,
   ],
   controllers: [AuthController, SessionController],
 })

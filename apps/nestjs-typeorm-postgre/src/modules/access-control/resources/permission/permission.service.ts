@@ -57,7 +57,7 @@ export class PermissionService {
     );
 
     this.event.emit('accessControl.permission.updated', {
-      permissions: result.raw as Pick<Permission, 'id'>[],
+      target: result.raw as Pick<Permission, 'id'>[],
     });
     return;
   }
