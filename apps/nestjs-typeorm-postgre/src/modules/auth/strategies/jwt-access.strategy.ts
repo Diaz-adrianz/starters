@@ -10,11 +10,6 @@ import {
 } from '../interfaces/jwt-access.interface';
 import { AuthService } from '../auth.service';
 
-type UserCache = {
-  id: string;
-  name: string;
-};
-
 const extractor = ExtractJwt.fromAuthHeaderAsBearerToken();
 
 @Injectable()
@@ -41,26 +36,12 @@ export class JwtAccessStrategy extends PassportStrategy(
     payload: JwtAccessPayload,
   ): Promise<JwtAccessAuthResult> {
     const token = extractor(req)!;
-    let userCache = await this.cache.get<UserCache>((k) => k.user(payload.sub));
-
-    if (!userCache) {
-      this.logger.debug('User cache missed', this.constructor.name);
-      const user = await this.authService.validateJwtAccessStrategy(
-        payload.sub,
-      );
-
-      userCache = {
-        id: user.id,
-        name: user.username,
-      };
-
-      await this.cache.set((k) => k.user(payload.sub), userCache, 0);
-    }
+    const user = await this.authService.validateJwtAccessStrategy(payload.sub);
 
     return {
       token,
       payload: {
-        user: { id: userCache.id, name: userCache.name },
+        user: { id: user.id, name: user.name },
         session: { id: payload.sid },
       },
     };

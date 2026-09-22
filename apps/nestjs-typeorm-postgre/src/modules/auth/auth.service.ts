@@ -20,7 +20,7 @@ import { EventService } from '../../infra/event/event.service';
 import { UserService } from '../identity/resources/user/user.service';
 import { VerificationTokenService } from '../identity/resources/verification-token/verification-token.service';
 import { VerificationToken } from '../identity/entities/verification-token.entity';
-import { generateOtp } from '../../shared/utils/number.util';
+import { generateOtp, HOUR } from '../../shared/utils/number.util';
 import { VerificationTokenType } from '../identity/enums/verification-token-type.enum';
 import { LoggerService } from '../../infra/logger/logger.service';
 import { DeliveryService } from '../notification/resources/delivery/delivery.service';
@@ -41,12 +41,19 @@ import {
   UserNotVerifiedException,
 } from '../identity/classes/exceptions/user.exception';
 import { ResourceQuery } from '../../shared/classes/resource-query.class';
+import { CacheService } from '../../infra/cache/cache.service';
+
+type UserCache = {
+  id: string;
+  name: string;
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(AUTH_CONFIG_KEY) private authConfig: AuthConfig,
     private event: EventService,
+    private cache: CacheService,
     private logger: LoggerService,
     private jwtService: JwtService,
     private userService: UserService,
@@ -316,9 +323,21 @@ export class AuthService {
   }
 
   async validateJwtAccessStrategy(userId: string) {
-    const user = await this.userService.findById(userId);
-    this.validateUser(user);
-    return user;
+    let userCache = await this.cache.get<UserCache>((k) => k.user(userId));
+
+    if (!userCache) {
+      this.logger.debug(
+        `User cache missed for "${userId}"`,
+        this.constructor.name,
+      );
+      const user = await this.userService.findById(userId);
+      this.validateUser(user);
+
+      userCache = { id: user.id, name: user.username };
+      await this.cache.set((k) => k.user(userId), userCache, 1 * HOUR);
+    }
+
+    return userCache;
   }
 
   private validateUser(user: User) {
