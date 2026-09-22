@@ -36,5 +36,6 @@ export interface AccessControlEventPayload {
   };
   [AccessControlEventName.PAGE_DELETED]: {
     target: { id: string }[];
+    affected: { roles: { id: string }[] };
   };
 }

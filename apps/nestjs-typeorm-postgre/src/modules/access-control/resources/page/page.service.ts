@@ -7,12 +7,15 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { EventService } from '../../../../infra/event/event.service';
+import { RolePage } from '../../entities/role-page.entity';
 
 @Injectable()
 export class PageService {
   constructor(
     @InjectRepository(Page, DatabaseKeys.DEFAULT)
     private pageRepo: AppRepository<Page>,
+    @InjectRepository(RolePage, DatabaseKeys.DEFAULT)
+    private rolepageRepo: AppRepository<RolePage>,
     private event: EventService,
   ) {}
 
@@ -67,12 +70,29 @@ export class PageService {
   }
 
   async delete(rq: ResourceQuery) {
-    const result = await this.pageRepo.delete(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
+    const where = rq.toFindOptions().where;
+    const roles = await this.findRoles(where),
+      result = await this.pageRepo.delete(where, {
+        returning: ['id'],
+      });
     this.event.emit('accessControl.page.deleted', {
       target: result.raw as Pick<Page, 'id'>[],
+      affected: { roles },
     });
     return result;
+  }
+
+  // ================================================================
+  // Utils
+  // ----------------------------------------------------------------
+  private async findRoles(
+    where: ReturnType<ResourceQuery['toFindOptions']>['where'],
+  ) {
+    return (
+      await this.rolepageRepo.find({
+        where: { page: where },
+        relations: { role: true },
+      })
+    ).map((rp) => rp.role);
   }
 }

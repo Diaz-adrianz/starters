@@ -87,12 +87,9 @@ export class AccessControlEventSubscriber {
   async pageDeleted(
     payload: AccessControlEventPayload['accessControl.page.deleted'],
   ) {
-    const rolePages = await this.rolePageRepo.find({
-      where: { page: In(payload.target.map((p) => p.id)) },
-      select: { roleId: true },
-      withDeleted: true,
-    });
-    await this.invalidateRoles(rolePages.map((rp) => ({ id: rp.roleId })));
+    await this.invalidateRoles(
+      payload.affected.roles.map((r) => ({ id: r.id })),
+    );
   }
 
   // Utils
