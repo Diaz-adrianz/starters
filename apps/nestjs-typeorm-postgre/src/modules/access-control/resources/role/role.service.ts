@@ -12,6 +12,8 @@ import { SetRoleUserDto } from './dto/set-role-user.dto';
 import { RoleUser } from '../../entities/role-user.entity';
 import { RolePermission } from '../../entities/role-permission.entity';
 import { SetRolePermissionDto } from './dto/set-role-permission.dto';
+import { RolePage } from '../../entities/role-page.entity';
+import { SetRolePageDto } from './dto/set-role-page.dto';
 
 @Injectable()
 export class RoleService {
@@ -23,8 +25,29 @@ export class RoleService {
     private roleUserRepo: AppRepository<RoleUser>,
     @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
     private rolePermissionRepo: AppRepository<RolePermission>,
+    @InjectRepository(RolePage, DatabaseKeys.DEFAULT)
+    private rolePageRepo: AppRepository<RolePage>,
     private event: EventService,
   ) {}
+
+  setPage(id: string, dto: SetRolePageDto) {
+    // TODO: emit event role.pageAssigned and role.pageUnassigned
+    if (dto.assign)
+      return this.rolePageRepo.insert({ roleId: id, pageId: dto.pageId });
+    else return this.rolePageRepo.delete({ roleId: id, pageId: dto.pageId });
+  }
+
+  findManyPage(id: string, rq: ResourceQuery) {
+    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    return this.rolePageRepo.findAndCount({
+      ...rq.toFindOptions(),
+      relations: { page: true },
+      select: {
+        ...this.rolePageRepo.select('*'),
+        page: { description: true },
+      },
+    });
+  }
 
   setPermission(id: string, dto: SetRolePermissionDto) {
     // TODO: emit event role.permissionGranted and role.permissionRevoked
@@ -73,7 +96,7 @@ export class RoleService {
   }
 
   // ================================================================
-  // Basic CRUD
+  // Base
   // ----------------------------------------------------------------
   create(createRoleDto: CreateRoleDto) {
     return this.roleRepo.insert(createRoleDto);
