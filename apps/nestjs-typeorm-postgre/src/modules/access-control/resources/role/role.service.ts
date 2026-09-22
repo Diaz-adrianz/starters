@@ -158,6 +158,10 @@ export class RoleService {
   }
 
   async delete(rq: ResourceQuery) {
+    rq.add([
+      { field: 'default', op: 'eq', value: false },
+      { field: 'deletedAt', op: 'neq', value: null },
+    ]);
     const result = await this.roleRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],
     });
