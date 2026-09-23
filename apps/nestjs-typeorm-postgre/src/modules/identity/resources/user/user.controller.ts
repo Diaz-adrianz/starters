@@ -38,9 +38,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     const data = await this.userService.findOne(rq);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
@@ -55,9 +53,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     const data = await this.userService.findOne(rq);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
@@ -87,45 +83,35 @@ export class UserController {
   @Permission('identity:user:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.userService.findOne(rq);
   }
 
   @Permission('identity:user:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.userService.update(rq, updateUserDto);
   }
 
   @Permission('identity:user:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.userService.archive(rq);
   }
 
   @Permission('identity:user:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.userService.restore(rq);
   }
 
   @Permission('identity:user:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.userService.delete(rq);
   }
 }

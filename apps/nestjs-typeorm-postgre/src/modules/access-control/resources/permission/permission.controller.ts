@@ -31,9 +31,7 @@ export class PermissionController {
   @Permission('access-control:permission:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.permissionService.findOne(rq);
   }
 
@@ -43,9 +41,7 @@ export class PermissionController {
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.permissionService.update(rq, updatePermissionDto);
   }
 }

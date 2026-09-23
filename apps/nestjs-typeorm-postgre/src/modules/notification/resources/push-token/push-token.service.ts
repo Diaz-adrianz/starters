@@ -51,9 +51,7 @@ export class PushTokenService {
   // ----------------------------------------------------------------
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupDisabled() {
-    const rq = new ResourceQuery([
-      { field: 'enabled', op: 'eq', value: false },
-    ]);
+    const rq = new ResourceQuery([['enabled', 'eq', false]]);
     const result = await this.delete(rq);
     this.logger.log(
       `Cleaned up ${result.affected ?? 0} disabled push token(s)`,

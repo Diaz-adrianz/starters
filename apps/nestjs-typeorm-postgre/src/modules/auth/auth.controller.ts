@@ -127,7 +127,7 @@ export class AuthController {
   @Get('/me')
   async me(@ReqUser() { payload }: JwtAccessAuthResult) {
     const user = await this.userService.findOne(
-      new ResourceQuery([{ field: 'id', op: 'eq', value: payload.user.id }]),
+      new ResourceQuery([['id', 'eq', payload.user.id]]),
     );
     return { user };
   }

@@ -112,9 +112,7 @@ export class SessionService {
   // ----------------------------------------------------------------
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupExpired() {
-    const rq = new ResourceQuery([
-      { field: 'expiresAt', op: 'lte', value: new Date() },
-    ]);
+    const rq = new ResourceQuery([['expiresAt', 'lte', new Date()]]);
     const result = await this.delete(rq);
     this.logger.log(
       `Cleaned up ${result.affected ?? 0} expired session(s)`,

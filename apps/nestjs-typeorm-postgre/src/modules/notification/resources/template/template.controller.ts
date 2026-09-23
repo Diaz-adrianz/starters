@@ -41,45 +41,35 @@ export class TemplateController {
   @Permission('notification:template:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.templateService.findOne(rq);
   }
 
   @Permission('notification:template:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateTemplateDto) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.templateService.update(rq, dto);
   }
 
   @Permission('notification:template:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.templateService.archive(rq);
   }
 
   @Permission('notification:template:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.templateService.restore(rq);
   }
 
   @Permission('notification:template:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.templateService.delete(rq);
   }
 }

@@ -19,22 +19,20 @@ export const OPERATORS = [
 // ------------------------------------
 export type Operator = (typeof OPERATORS)[number];
 
+type Field = string;
+
 export type Condition =
-  | {
-      field: string;
-      op: 'eq' | 'neq';
-      value: string | number | boolean | Date | null;
-    }
-  | {
-      field: string;
-      op: 'lt' | 'lte' | 'gt' | 'gte';
-      value: string | number | Date;
-    }
-  | {
-      field: string;
-      op: 'in' | 'nin';
-      value: (string | number | Date)[];
-    };
+  | [
+      field: Field,
+      op: 'eq' | 'neq',
+      value: string | number | boolean | Date | null,
+    ]
+  | [
+      field: Field,
+      op: 'lt' | 'lte' | 'gt' | 'gte',
+      value: string | number | Date,
+    ]
+  | [field: Field, op: 'in' | 'nin', value: (string | number | Date)[]];
 
 export type Query = Condition[];
 

@@ -42,12 +42,12 @@ export class UserService {
   // Base extensions
   // ----------------------------------------------------------------
   findById(id: string) {
-    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
+    const rq = new ResourceQuery([['id', 'eq', id]]);
     return this.findOne(rq);
   }
 
   updateById(id: string, updateUserDto: UpdateUserDto) {
-    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
+    const rq = new ResourceQuery([['id', 'eq', id]]);
     return this.update(rq, updateUserDto);
   }
 

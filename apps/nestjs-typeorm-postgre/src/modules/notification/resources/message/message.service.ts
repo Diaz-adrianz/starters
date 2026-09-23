@@ -22,7 +22,7 @@ export class MessageService {
   }
 
   markRead(rq: ResourceQuery) {
-    rq.add([{ field: 'readAt', op: 'eq', value: null }]);
+    rq.add([['readAt', 'eq', null]]);
     return this.messageRepo.update(rq.toFindOptions().where, {
       readAt: new Date(),
     });

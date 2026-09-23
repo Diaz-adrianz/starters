@@ -45,7 +45,7 @@ export class RoleService {
   }
 
   findManyPage(id: string, rq: ResourceQuery) {
-    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    rq.add([['roleId', 'eq', id]]);
     return this.rolePageRepo.findAndCount({
       ...rq.toFindOptions(),
       relations: { page: true },
@@ -81,7 +81,7 @@ export class RoleService {
   }
 
   findManyPermission(id: string, rq: ResourceQuery) {
-    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    rq.add([['roleId', 'eq', id]]);
     return this.rolePermissionRepo.findAndCount({
       ...rq.toFindOptions(),
       relations: { permission: true },
@@ -111,7 +111,7 @@ export class RoleService {
   }
 
   findManyUser(id: string, rq: ResourceQuery) {
-    rq.add([{ field: 'roleId', op: 'eq', value: id }]);
+    rq.add([['roleId', 'eq', id]]);
     return this.roleUserRepo.findAndCount(rq.toFindOptions());
   }
 
@@ -197,8 +197,8 @@ export class RoleService {
 
   async delete(rq: ResourceQuery) {
     rq.add([
-      { field: 'default', op: 'eq', value: false },
-      { field: 'deletedAt', op: 'neq', value: null },
+      ['default', 'eq', false],
+      ['deletedAt', 'neq', null],
     ]);
     const result = await this.roleRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],

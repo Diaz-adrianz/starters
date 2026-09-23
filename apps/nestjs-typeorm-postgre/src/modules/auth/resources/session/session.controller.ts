@@ -30,18 +30,14 @@ export class SessionController {
   @Permission('auth:session:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.sessionService.findOne(rq);
   }
 
   @Permission('auth:session:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.sessionService.delete(rq);
   }
 }

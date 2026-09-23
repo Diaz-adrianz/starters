@@ -31,9 +31,7 @@ export class DeliveryController {
   @Permission('notification:delivery:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.deliveryService.findOne(rq);
   }
 }

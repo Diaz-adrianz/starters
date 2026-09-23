@@ -21,9 +21,7 @@ export class MessageController {
   @Permission('notification:message:mark-read')
   @Patch(':id/mark-read')
   markRead(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.messageService.markRead(rq);
   }
 
@@ -42,9 +40,7 @@ export class MessageController {
   @Permission('notification:message:delete')
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
     return this.messageService.delete(rq);
   }
 }

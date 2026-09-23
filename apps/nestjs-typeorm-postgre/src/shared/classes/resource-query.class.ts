@@ -145,31 +145,25 @@ export class ResourceQuery {
       dto[op].split(QUERY_SEPARATOR).forEach((condition) => {
         const [field, value] = condition.split(CONDITION_SEPARATOR);
         if (op === 'eq' || op === 'neq')
-          query.push({
+          query.push([
             field,
             op,
-            value: castValue(value, [
-              'string',
-              'number',
-              'boolean',
-              'date',
-              'null',
-            ]),
-          });
+            castValue(value, ['string', 'number', 'boolean', 'date', 'null']),
+          ]);
         else if (op === 'lt' || op === 'lte' || op === 'gt' || op === 'gte')
-          query.push({
+          query.push([
             field,
             op,
-            value: castValue(value, ['string', 'number', 'date']),
-          });
+            castValue(value, ['string', 'number', 'date']),
+          ]);
         else if (op === 'in' || op === 'nin')
-          query.push({
+          query.push([
             field,
             op,
-            value: value
+            value
               .split(VALUES_SEPARATOR)
               .map((v) => castValue(v, ['string', 'number', 'date'])),
-          });
+          ]);
       });
     });
 
@@ -177,8 +171,7 @@ export class ResourceQuery {
   }
 
   public toFindOptions(): TypeOrmFindOptions {
-    if (this.withDeleted)
-      this.add([{ field: 'deletedAt', op: 'neq', value: null }], 'and', '*');
+    if (this.withDeleted) this.add([['deletedAt', 'neq', null]], 'and', '*');
 
     const buildSubWhere = (
       subWhere: TypeOrmFindOptions['where'][number],
@@ -214,19 +207,19 @@ export class ResourceQuery {
       const subWhere: TypeOrmFindOptions['where'][number] = {};
 
       query.forEach((c) => {
-        const fields = c.field.split(FIELDS_SEPARATOR);
+        const fields = c[0].split(FIELDS_SEPARATOR);
 
         let value: FindOperator<any> | null = null;
 
-        if (c.op === 'eq') value = c.value === null ? IsNull() : Equal(c.value);
-        else if (c.op === 'neq')
-          value = Not(c.value === null ? IsNull() : Equal(c.value));
-        else if (c.op === 'lt') value = LessThan(c.value);
-        else if (c.op === 'lte') value = LessThanOrEqual(c.value);
-        else if (c.op === 'gt') value = MoreThan(c.value);
-        else if (c.op === 'gte') value = MoreThanOrEqual(c.value);
-        else if (c.op === 'in') value = In(c.value);
-        else if (c.op === 'nin') value = Not(In(c.value));
+        if (c[1] === 'eq') value = c[2] === null ? IsNull() : Equal(c[2]);
+        else if (c[1] === 'neq')
+          value = Not(c[2] === null ? IsNull() : Equal(c[2]));
+        else if (c[1] === 'lt') value = LessThan(c[2]);
+        else if (c[1] === 'lte') value = LessThanOrEqual(c[2]);
+        else if (c[1] === 'gt') value = MoreThan(c[2]);
+        else if (c[1] === 'gte') value = MoreThanOrEqual(c[2]);
+        else if (c[1] === 'in') value = In(c[2]);
+        else if (c[1] === 'nin') value = Not(In(c[2]));
 
         if (value) buildSubWhere(subWhere, fields, value);
       });
@@ -294,9 +287,7 @@ export class ResourceQuery {
   private resolveFields(query: Query, allowedFields: QueryAllowedFields) {
     if (allowedFields == '*') return query;
 
-    return query.filter(({ field }) =>
-      this.isFieldAllowed(field, allowedFields),
-    );
+    return query.filter(([field]) => this.isFieldAllowed(field, allowedFields));
   }
 
   private isFieldAllowed(field: string, allowedFields: QueryAllowedFields) {
@@ -322,10 +313,10 @@ export class ResourceQuery {
   }
 
   private resolveConditionContext(condition: Condition, context: QueryContext) {
-    if (isString(condition.value))
-      condition.value = this.resolveValueContext(condition.value, context);
-    else if (isArray(condition.value))
-      condition.value = condition.value.map((v) =>
+    if (isString(condition[2]))
+      condition[2] = this.resolveValueContext(condition[2], context);
+    else if (isArray(condition[2]))
+      condition[2] = condition[2].map((v) =>
         isString(v) ? this.resolveValueContext(v, context) : v,
       );
 

@@ -48,18 +48,18 @@ export class StoreService {
                 isDate(value) ||
                 value === null)
             )
-              query.push({ field, op, value });
+              query.push([field, op, value]);
             else if (
               (op === 'lt' || op === 'lte' || op === 'gt' || op === 'gte') &&
               (isString(value) || isNumber(value) || isDate(value))
             )
-              query.push({ field, op, value });
+              query.push([field, op, value]);
             else if (
               (op === 'in' || op === 'nin') &&
               isArray(value) &&
               value.every((v) => isString(v) || isNumber(v) || isDate(v))
             )
-              query.push({ field, op, value });
+              query.push([field, op, value]);
           });
 
           if (query.length)
