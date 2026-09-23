@@ -294,6 +294,10 @@ export class AuthService {
     if (!user.verifiedAt) throw new UserNotVerifiedException();
   }
 
+  invalidateUsers(users: { id: string }[]) {
+    return this.cache.delMany((k) => users.map((user) => k.user(user.id)));
+  }
+
   // ================================================================
   // Utils
   // ----------------------------------------------------------------

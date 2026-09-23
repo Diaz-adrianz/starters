@@ -64,6 +64,18 @@ export class AccessControlService {
     return conditions.length ? conditions : null;
   }
 
+  invalidateRoles(roles: { id: string }[]) {
+    return this.cache.delMany((k) =>
+      roles
+        .map((role) => [k.rolePermissions(role.id), k.rolePages(role.id)])
+        .flat(),
+    );
+  }
+
+  invalidateUsers(users: { id: string }[]) {
+    return this.cache.delMany((k) => users.map((user) => k.userRoles(user.id)));
+  }
+
   // Utils
   // ----------------------------------------------------------------
   private async findUserActiveRoles(userId: string) {

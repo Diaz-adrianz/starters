@@ -2,8 +2,6 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../../config/auth.config';
-import { CacheService } from '../../../infra/cache/cache.service';
-import { LoggerService } from '../../../infra/logger/logger.service';
 import {
   JwtAccessAuthResult,
   JwtAccessPayload,
@@ -20,8 +18,6 @@ export class JwtAccessStrategy extends PassportStrategy(
   constructor(
     @Inject(AUTH_CONFIG_KEY) authConfig: AuthConfig,
     private authService: AuthService,
-    private cache: CacheService,
-    private logger: LoggerService,
   ) {
     super({
       jwtFromRequest: extractor,

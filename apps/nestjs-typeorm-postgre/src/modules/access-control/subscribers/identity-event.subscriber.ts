@@ -5,15 +5,15 @@ import {
   IdentityEventPayload,
 } from '../../../infra/event/interfaces/identity-event.interface';
 import { RoleService } from '../resources/role/role.service';
-import { CacheService } from '../../../infra/cache/cache.service';
 import { LoggerService } from '../../../infra/logger/logger.service';
+import { AccessControlService } from '../access-control.service';
 
 @Injectable()
 export class IdentityEventSubscriber {
   constructor(
     private roleService: RoleService,
-    private cache: CacheService,
     private logger: LoggerService,
+    private accessControlService: AccessControlService,
   ) {}
 
   @OnEvent(IdentityEventName.USER_CREATED)
@@ -48,7 +48,7 @@ export class IdentityEventSubscriber {
     payload,
   }: IdentityEventPayload['identity.user.updated']) {
     for (const t of target) {
-      await this.invalidateUsers([{ id: t.id }]);
+      await this.accessControlService.invalidateUsers([{ id: t.id }]);
       await this.roleService.updateUserByUserId(t.id, {
         username: payload?.username,
       });
@@ -58,14 +58,8 @@ export class IdentityEventSubscriber {
   @OnEvent(IdentityEventName.USER_DELETED)
   async userDeleted(payload: IdentityEventPayload['identity.user.deleted']) {
     for (const t of payload.target) {
-      await this.invalidateUsers([{ id: t.id }]);
+      await this.accessControlService.invalidateUsers([{ id: t.id }]);
       await this.roleService.deleteUserByUserId(t.id);
     }
-  }
-
-  // Utils
-  // ----------------------------------------------------------------
-  private invalidateUsers(users: { id: string }[]) {
-    return this.cache.delMany((k) => users.map((user) => k.user(user.id)));
   }
 }
