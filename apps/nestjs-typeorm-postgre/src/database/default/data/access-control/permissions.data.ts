@@ -156,6 +156,7 @@ export const PermissionsData: {
   {
     name: 'identity',
     entries: [
+      // user
       {
         description: 'Create user',
         permission: 'user:create',
@@ -203,6 +204,47 @@ export const PermissionsData: {
       {
         description: 'Delete user',
         permission: 'user:delete',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+
+      // profile
+      {
+        description: 'Read profile',
+        permission: 'profile:read',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          { name: RolesData.ADMIN },
+          {
+            name: RolesData.USER,
+            condition: { userId: { eq: '{{actor.id}}' } },
+          },
+        ],
+      },
+      {
+        description: 'Update profile',
+        permission: 'profile:update',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          { name: RolesData.ADMIN },
+          {
+            name: RolesData.USER,
+            condition: { userId: { eq: '{{actor.id}}' } },
+          },
+        ],
+      },
+      {
+        description: 'Archive profile',
+        permission: 'profile:archive',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Restore profile',
+        permission: 'profile:restore',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Delete profile',
+        permission: 'profile:delete',
         roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
       },
     ],

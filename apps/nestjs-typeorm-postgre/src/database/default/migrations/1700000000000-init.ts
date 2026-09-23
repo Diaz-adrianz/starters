@@ -38,6 +38,12 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "identity"."users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "username" character varying NOT NULL, "email" character varying NOT NULL, "password" character varying, "enabled" boolean NOT NULL DEFAULT false, "avatar" character varying, "verified_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
+      `CREATE TYPE "identity"."profiles_gender_enum" AS ENUM('male', 'female', 'other')`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "identity"."profiles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "first_name" character varying, "last_name" character varying, "phone_number" character varying, "date_of_birth" date, "gender" "identity"."profiles_gender_enum", "bio" text, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_9e432b7df0d182f8d292902d1a2" UNIQUE ("user_id"), CONSTRAINT "PK_8e520eb4da7dc01d0e190447c8e" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
       `CREATE TABLE "notification"."messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "user_id" uuid NOT NULL, "title" character varying NOT NULL, "body" text NOT NULL, "action_url" character varying, "read_at" TIMESTAMP WITH TIME ZONE, "payload" jsonb, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_18325f38ae6de43878487eff986" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
@@ -142,6 +148,8 @@ export class Init1700000000000 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "notification"."deliveries_type_enum"`);
     await queryRunner.query(`DROP TABLE "notification"."messages"`);
+    await queryRunner.query(`DROP TABLE "identity"."profiles"`);
+    await queryRunner.query(`DROP TYPE "identity"."profiles_gender_enum"`);
     await queryRunner.query(`DROP TABLE "identity"."users"`);
     await queryRunner.query(`DROP INDEX "identity"."active_token_per_type"`);
     await queryRunner.query(`DROP TABLE "identity"."verification_tokens"`);
