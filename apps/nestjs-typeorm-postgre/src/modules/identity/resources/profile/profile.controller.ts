@@ -29,6 +29,14 @@ export class ProfileController {
     return this.profileService.create(this.store.actor.id, dto);
   }
 
+  @Get('me')
+  findMe() {
+    const rq = this.store
+      .buildResourceQuery()
+      .add([['userId', 'eq', this.store.actor.id]]);
+    return this.profileService.findOne(rq);
+  }
+
   @Permission('identity:profile:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
