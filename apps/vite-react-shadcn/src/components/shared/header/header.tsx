@@ -41,7 +41,7 @@ export const Header = ({
   return (
     <header
       className={cn(
-        'sticky top-0 left-0 z-50 flex h-16 w-full border-b-2 border-foreground/10 bg-background shadow-md transition-transform duration-300',
+        'sticky top-0 left-0 z-50 flex h-16 w-full border-b border-sidebar-border bg-background shadow-md transition-transform duration-300',
         className,
         scrollPos === 'start' && 'translate-y-0 shadow-none',
         scrollPos === 'up' && 'translate-y-0',
