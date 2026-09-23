@@ -6,8 +6,8 @@ export const PagesData: {
   roles: { name: string }[];
 }[] = [
   {
-    name: 'admin-dashboard',
-    description: 'Admin dashboard page',
+    name: 'admin-app',
+    description: 'Admin app',
     roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
   },
 ];
