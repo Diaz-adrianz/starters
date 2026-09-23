@@ -1,4 +1,3 @@
-// modules/identity/entities/profile.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Gender } from '../enums/gender.enum';
@@ -20,6 +20,7 @@ export class Profile {
   userId: string;
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column('varchar', { nullable: true })
