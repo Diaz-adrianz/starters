@@ -30,7 +30,7 @@ export const UserCard = ({
   return (
     <Card className={className} {...props}>
       <CardContent>
-        <div className="flex flex-col items-center gap-4 self-center py-8">
+        <div className="flex flex-col items-center gap-4 self-center pt-4 pb-8">
           <Avatar className="size-40">
             <AvatarImage src={user.avatar ?? ''} />
             <AvatarFallback className="text-5xl">
@@ -42,7 +42,7 @@ export const UserCard = ({
           </Button>
         </div>
         <ItemGroup>
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Username</ItemTitle>
             </ItemContent>
@@ -51,7 +51,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Email</ItemTitle>
             </ItemContent>
@@ -60,7 +60,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Roles</ItemTitle>
             </ItemContent>
@@ -73,7 +73,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Joined at</ItemTitle>
             </ItemContent>
@@ -96,12 +96,12 @@ export const UserCardSkeleton = ({
   return (
     <Card className={className} {...props}>
       <CardContent>
-        <div className="flex flex-col items-center gap-4 self-center py-8">
+        <div className="flex flex-col items-center gap-4 self-center pt-4 pb-8">
           <Skeleton className="size-40 rounded-full" />
           <Skeleton className="h-10 w-32" />
         </div>
         <ItemGroup>
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Username</ItemTitle>
             </ItemContent>
@@ -110,7 +110,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Email</ItemTitle>
             </ItemContent>
@@ -119,7 +119,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Roles</ItemTitle>
             </ItemContent>
@@ -128,7 +128,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item>
+          <Item className="py-0">
             <ItemContent>
               <ItemTitle>Joined at</ItemTitle>
             </ItemContent>
