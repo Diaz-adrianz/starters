@@ -9,6 +9,7 @@ import { createHash } from 'crypto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { LoggerService } from '../../../../infra/logger/logger.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { In, Not } from 'typeorm';
 
 @Injectable()
 export class SessionService {
@@ -26,9 +27,7 @@ export class SessionService {
 
     const isExpired = new Date() > session.expiresAt;
     if (isExpired) {
-      await this.revoke(
-        new ResourceQuery([{ field: 'id', op: 'eq', value: session.id }]),
-      );
+      await this.revokeById(session.id);
       throw new UnauthorizedException('Session has expired');
     }
 
@@ -40,18 +39,30 @@ export class SessionService {
   }
 
   rotate(id: string, newRefreshToken: string) {
-    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
-    return this.update(rq, {
-      refreshTokenHash: this.hashRefreshToken(newRefreshToken),
-      lastUsedAt: new Date(),
-    });
+    return this.sessionRepo.update(
+      { id },
+      {
+        refreshTokenHash: this.hashRefreshToken(newRefreshToken),
+        lastUsedAt: new Date(),
+      },
+    );
   }
 
-  // Base extensions
-  // ----------------------------------------------------------------
-  revoke(rq: ResourceQuery) {
-    rq.add([{ field: 'isActive', op: 'eq', value: true }]);
-    return this.update(rq, { isActive: false });
+  revokeById(id: string) {
+    return this.sessionRepo.update({ id, isActive: true }, { isActive: false });
+  }
+
+  revokeManyByUser(userId: string, excludedSessionIds: string[] = []) {
+    return this.sessionRepo.update(
+      {
+        userId,
+        isActive: true,
+        ...(excludedSessionIds.length && {
+          id: Not(In(excludedSessionIds)),
+        }),
+      },
+      { isActive: false },
+    );
   }
 
   // Base

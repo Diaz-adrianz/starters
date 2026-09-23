@@ -40,7 +40,6 @@ import {
   UserNoPasswordException,
   UserNotVerifiedException,
 } from '../identity/classes/exceptions/user.exception';
-import { ResourceQuery } from '../../shared/classes/resource-query.class';
 import { CacheService } from '../../infra/cache/cache.service';
 
 type UserCache = {
@@ -176,9 +175,7 @@ export class AuthService {
   // Sign out
   // ----------------------------------------------------------------
   async signOut(sessionId: string) {
-    const result = await this.sessionService.revoke(
-      new ResourceQuery([{ field: 'id', op: 'eq', value: sessionId }]),
-    );
+    const result = await this.sessionService.revokeById(sessionId);
 
     if (!result.affected)
       this.logger.debug(
@@ -188,14 +185,10 @@ export class AuthService {
   }
 
   async signOutAll(userId: string, excludedSessionIds: string[] = []) {
-    const rq = new ResourceQuery([
-      { field: 'userId', op: 'eq', value: userId },
-    ]);
-
-    if (excludedSessionIds.length)
-      rq.add([{ field: 'id', op: 'nin', value: excludedSessionIds }]);
-
-    const result = await this.sessionService.revoke(rq);
+    const result = await this.sessionService.revokeManyByUser(
+      userId,
+      excludedSessionIds,
+    );
 
     this.logger.debug(
       `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,

@@ -14,10 +14,7 @@ export class SessionController {
   @Permission('auth:session:revoke')
   @Patch(':id/revoke')
   revokeOne(@Param('id') id: string) {
-    const rq = this.store
-      .buildResourceQuery()
-      .add([{ field: 'id', op: 'eq', value: id }]);
-    return this.sessionService.revoke(rq);
+    return this.sessionService.revokeById(id);
   }
 
   // ================================================================
