@@ -72,16 +72,9 @@ export class AuthService {
 
     if (existUser && existUser.verifiedAt === null) {
       const existingToken = await this.verificationTokenService
-        .findOne(
-          new ResourceQuery([
-            { field: 'userId', op: 'eq', value: existUser.id },
-            {
-              field: 'type',
-              op: 'eq',
-              value: VerificationTokenType.EMAIL_VERIFICATION,
-            },
-            { field: 'consumedAt', op: 'eq', value: null },
-          ]),
+        .findActiveByUser(
+          existUser.id,
+          VerificationTokenType.EMAIL_VERIFICATION,
         )
         .catch(() => undefined);
 
@@ -90,9 +83,8 @@ export class AuthService {
         !existingToken.isWithinCooldown(
           this.authConfig.token.verification.expire * 1000,
         )
-      ) {
+      )
         await this.sendEmailVerification(existUser, existingToken);
-      }
 
       return existUser;
     }
@@ -218,26 +210,14 @@ export class AuthService {
     const otpHash = sha256(dto.otp);
 
     const token = await this.verificationTokenService
-      .findOne(
-        new ResourceQuery([
-          { field: 'tokenHash', op: 'eq', value: otpHash },
-          {
-            field: 'type',
-            op: 'eq',
-            value: VerificationTokenType.EMAIL_VERIFICATION,
-          },
-          { field: 'consumedAt', op: 'eq', value: null },
-        ]),
-      )
-      .catch(() => null);
+      .findActiveByHash(otpHash, VerificationTokenType.EMAIL_VERIFICATION)
+      .catch(() => undefined);
 
     if (!token || token.isExpired())
       throw new BadRequestException('Token invalid or expired');
 
     await this.userService.updateById(token.userId, { verifiedAt: new Date() });
-    await this.verificationTokenService.updateById(token.id, {
-      consumedAt: new Date(),
-    });
+    await this.verificationTokenService.markConsumed(token.id);
   }
 
   // ================================================================
@@ -247,48 +227,25 @@ export class AuthService {
     const user = await this.userService
       .findByUsernameOrEmail(dto.email)
       .catch(() => null);
+    if (!user) return;
 
-    if (user) {
-      const token = await this.verificationTokenService
-        .findOne(
-          new ResourceQuery([
-            { field: 'userId', op: 'eq', value: user.id },
-            {
-              field: 'type',
-              op: 'eq',
-              value: VerificationTokenType.PASSWORD_RESET,
-            },
-            { field: 'consumedAt', op: 'eq', value: null },
-          ]),
-        )
-        .catch(() => undefined);
+    const token = await this.verificationTokenService
+      .findActiveByUser(user.id, VerificationTokenType.PASSWORD_RESET)
+      .catch(() => undefined);
 
-      if (
-        !token ||
-        !token.isWithinCooldown(
-          this.authConfig.token.resetPassword.expire * 1000,
-        )
-      )
-        await this.sendEmailPasswordReset(user, token);
-    }
+    if (
+      !token ||
+      !token.isWithinCooldown(this.authConfig.token.resetPassword.expire * 1000)
+    )
+      await this.sendEmailPasswordReset(user, token);
   }
 
   async resetPasswordCheck(dto: ResetPasswordCheckDto) {
     const otpHash = sha256(dto.otp);
 
     const token = await this.verificationTokenService
-      .findOne(
-        new ResourceQuery([
-          { field: 'tokenHash', op: 'eq', value: otpHash },
-          {
-            field: 'type',
-            op: 'eq',
-            value: VerificationTokenType.PASSWORD_RESET,
-          },
-          { field: 'consumedAt', op: 'eq', value: null },
-        ]),
-      )
-      .catch(() => null);
+      .findActiveByHash(otpHash, VerificationTokenType.PASSWORD_RESET)
+      .catch(() => undefined);
 
     if (!token || token.isExpired())
       throw new BadRequestException('Token invalid or expired');
@@ -302,9 +259,7 @@ export class AuthService {
       token.userId,
       resetPasswordDto.password,
     );
-    await this.verificationTokenService.updateById(token.id, {
-      consumedAt: new Date(),
-    });
+    await this.verificationTokenService.markConsumed(token.id);
     await this.signOutAll(token.userId);
   }
 
@@ -358,20 +313,13 @@ export class AuthService {
     const expire = this.authConfig.token.resetPassword.expire;
     const expiresAt = new Date(Date.now() + expire * 1000);
 
-    let token = existingToken;
-    if (token)
-      await this.verificationTokenService.updateById(token.id, {
-        ...token,
-        tokenHash: otpHash,
-        expiresAt,
-      });
-    else
-      token = await this.verificationTokenService.create({
-        userId: user.id,
-        type: VerificationTokenType.PASSWORD_RESET,
-        tokenHash: otpHash,
-        expiresAt,
-      });
+    const token = await this.verificationTokenService.issueOrRefresh(
+      user.id,
+      VerificationTokenType.PASSWORD_RESET,
+      otpHash,
+      expiresAt,
+      existingToken,
+    );
 
     try {
       await this.deliveryService.create({
@@ -394,9 +342,7 @@ export class AuthService {
       );
     }
 
-    await this.verificationTokenService.updateById(token.id, {
-      sentAt: new Date(),
-    });
+    await this.verificationTokenService.markSent(token.id);
   }
 
   private async sendEmailVerification(
@@ -411,20 +357,13 @@ export class AuthService {
     const expire = this.authConfig.token.verification.expire;
     const expiresAt = new Date(Date.now() + expire * 1000);
 
-    let token = existingToken;
-    if (token)
-      await this.verificationTokenService.updateById(token.id, {
-        ...token,
-        tokenHash: otpHash,
-        expiresAt,
-      });
-    else
-      token = await this.verificationTokenService.create({
-        userId: user.id,
-        type: VerificationTokenType.EMAIL_VERIFICATION,
-        tokenHash: otpHash,
-        expiresAt,
-      });
+    const token = await this.verificationTokenService.issueOrRefresh(
+      user.id,
+      VerificationTokenType.EMAIL_VERIFICATION,
+      otpHash,
+      expiresAt,
+      existingToken,
+    );
 
     try {
       await this.deliveryService.create({
@@ -450,9 +389,7 @@ export class AuthService {
       );
     }
 
-    await this.verificationTokenService.updateById(token.id, {
-      sentAt: new Date(),
-    });
+    await this.verificationTokenService.markSent(token.id);
   }
 
   private signAccessToken(payload: JwtAccessPayload) {

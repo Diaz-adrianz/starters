@@ -6,6 +6,8 @@ import { VerificationToken } from '../../entities/verification-token.entity';
 import { UpdateVerificationTokenDto } from './dto/update-verification-token.dto';
 import { CreateVerificationTokenDto } from './dto/create-verification-token.dto';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { VerificationTokenType } from '../../enums/verification-token-type.enum';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class VerificationTokenService {
@@ -15,7 +17,50 @@ export class VerificationTokenService {
   ) {}
 
   // ================================================================
-  // Basic CRUD
+  // Misc / Shared
+  // ----------------------------------------------------------------
+  async findActiveByUser(userId: string, type: VerificationTokenType) {
+    return this.verificationTokenRepo.findOneOrFail({
+      where: { userId, type, consumedAt: IsNull() },
+    });
+  }
+
+  async findActiveByHash(tokenHash: string, type: VerificationTokenType) {
+    return this.verificationTokenRepo.findOneOrFail({
+      where: { tokenHash, type, consumedAt: IsNull() },
+    });
+  }
+
+  async issueOrRefresh(
+    userId: string,
+    type: VerificationTokenType,
+    tokenHash: string,
+    expiresAt: Date,
+    existing?: VerificationToken,
+  ) {
+    if (existing) {
+      await this.verificationTokenRepo.update(
+        { id: existing.id },
+        { tokenHash, expiresAt },
+      );
+      return existing;
+    }
+    return this.create({ userId, type, tokenHash, expiresAt });
+  }
+
+  async markConsumed(id: string) {
+    return this.verificationTokenRepo.update(
+      { id },
+      { consumedAt: new Date() },
+    );
+  }
+
+  async markSent(id: string) {
+    return this.verificationTokenRepo.update({ id }, { sentAt: new Date() });
+  }
+
+  // ================================================================
+  // Base
   // ----------------------------------------------------------------
   create(dto: CreateVerificationTokenDto) {
     return this.verificationTokenRepo.save(dto);
@@ -40,11 +85,6 @@ export class VerificationTokenService {
 
   update(rq: ResourceQuery, dto: UpdateVerificationTokenDto) {
     return this.verificationTokenRepo.update(rq.toFindOptions().where, dto);
-  }
-
-  updateById(id: string, dto: UpdateVerificationTokenDto) {
-    const rq = new ResourceQuery([{ field: 'id', op: 'eq', value: id }]);
-    return this.update(rq, dto);
   }
 
   delete(rq: ResourceQuery) {
