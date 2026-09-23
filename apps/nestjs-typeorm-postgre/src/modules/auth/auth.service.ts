@@ -102,6 +102,7 @@ export class AuthService {
       email: signUpLocalDto.email,
       password: signUpLocalDto.password,
       matchPassword: signUpLocalDto.matchPassword,
+      roleName: signUpLocalDto.roleName,
     });
 
     await this.sendEmailVerification(user);

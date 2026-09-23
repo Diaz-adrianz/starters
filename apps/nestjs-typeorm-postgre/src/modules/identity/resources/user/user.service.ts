@@ -54,7 +54,7 @@ export class UserService {
   // Base
   // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
-    const { email, username, password } = createUserDto;
+    const { email, username, password, roleName } = createUserDto;
     const sameEmail = await this.userRepo.count({
       where: { email: email },
     });
@@ -72,6 +72,14 @@ export class UserService {
       enabled: true,
     });
     await this.userRepo.save(user);
+    this.event.emit('identity.user.created', {
+      target: { id: user.id },
+      payload: {
+        id: user.id,
+        username: username,
+        roleName: roleName,
+      },
+    });
     return user;
   }
 

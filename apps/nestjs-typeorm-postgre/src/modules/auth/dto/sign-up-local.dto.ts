@@ -1,6 +1,8 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
+  IsOptional,
   IsStrongPassword,
   Matches,
   MaxLength,
@@ -31,4 +33,8 @@ export class SignUpLocalDto {
   @IsNotEmpty()
   @MatchWith('password')
   matchPassword: string;
+
+  @IsOptional()
+  @IsIn(['User'])
+  roleName: string = 'User';
 }

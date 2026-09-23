@@ -1,6 +1,8 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
+  IsString,
   IsStrongPassword,
   Matches,
   MaxLength,
@@ -29,4 +31,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MatchWith('password')
   matchPassword: string;
+
+  @IsOptional()
+  @IsString()
+  roleName?: string;
 }
