@@ -1,5 +1,3 @@
-import type { UserRole } from '@/features/access-control';
-
 export type User = {
   id: string;
   username: string;
@@ -8,6 +6,4 @@ export type User = {
   avatar?: string | null;
   verifiedAt?: string | null;
   createdAt?: string | null;
-
-  roles?: UserRole[];
 };

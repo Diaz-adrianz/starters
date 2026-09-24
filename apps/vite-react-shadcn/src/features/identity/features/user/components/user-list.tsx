@@ -129,14 +129,16 @@ export const UserListSearchBox = ({
   useEffect(() => {
     query.setField(
       'search',
-      debouncedSearch ? { username: debouncedSearch } : undefined
+      debouncedSearch
+        ? { username: debouncedSearch, email: debouncedSearch }
+        : undefined
     );
   }, [debouncedSearch]);
 
   return (
     <InputGroup {...props}>
       <InputGroupInput
-        placeholder="Search username..."
+        placeholder="Search username, email..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />

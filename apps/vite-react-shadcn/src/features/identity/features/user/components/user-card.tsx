@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -22,10 +21,7 @@ export const UserCard = ({
   user,
   ...props
 }: ComponentProps<typeof Card> & {
-  user: Pick<
-    User,
-    'id' | 'avatar' | 'email' | 'username' | 'roles' | 'createdAt'
-  >;
+  user: Pick<User, 'id' | 'avatar' | 'email' | 'username' | 'createdAt'>;
 }) => {
   return (
     <Card className={className} {...props}>
@@ -57,19 +53,6 @@ export const UserCard = ({
             </ItemContent>
             <ItemContent>
               <ItemDescription>{user.email}</ItemDescription>
-            </ItemContent>
-          </Item>
-          <ItemSeparator className="m-0" />
-          <Item size={'xs'}>
-            <ItemContent>
-              <ItemTitle>Roles</ItemTitle>
-            </ItemContent>
-            <ItemContent className="max-w-60 flex-row flex-wrap justify-end">
-              {user.roles?.map((r) => (
-                <Badge key={r.id} variant={'secondary'}>
-                  {r.role.name}
-                </Badge>
-              ))}
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
@@ -116,15 +99,6 @@ export const UserCardSkeleton = ({
             </ItemContent>
             <ItemContent>
               <Skeleton className="h-6 w-24" />
-            </ItemContent>
-          </Item>
-          <ItemSeparator className="m-0" />
-          <Item size={'xs'}>
-            <ItemContent>
-              <ItemTitle>Roles</ItemTitle>
-            </ItemContent>
-            <ItemContent className="max-w-60 flex-row flex-wrap justify-end">
-              <Skeleton className="h-6 w-16" />
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
