@@ -1,4 +1,5 @@
-export type ConditionValue = string | number | boolean | Array<string | number>;
+export type ConditionValue =
+  string | number | boolean | null | Array<string | number>;
 
 export interface ConditionMap {
   [field: string]: ConditionValue;
@@ -6,15 +7,14 @@ export interface ConditionMap {
 
 export interface ResourceQueryState {
   search?: ConditionMap;
-  starts?: ConditionMap;
-  where?: ConditionMap;
+  eq?: ConditionMap;
+  neq?: ConditionMap;
+  lt?: ConditionMap;
+  lte?: ConditionMap;
+  gt?: ConditionMap;
+  gte?: ConditionMap;
   in?: ConditionMap;
   nin?: ConditionMap;
-  gte?: ConditionMap;
-  lte?: ConditionMap;
-  between?: ConditionMap;
-  isnull?: string[];
-  notnull?: string[];
   order?: Record<string, 'asc' | 'desc'>;
   limit?: number;
   page?: number;
@@ -23,6 +23,5 @@ export interface ResourceQueryState {
 
 export type ConditionKey = Extract<
   keyof ResourceQueryState,
-  'search' | 'starts' | 'where' | 'in' | 'nin' | 'gte' | 'lte' | 'between'
+  'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte' | 'in' | 'nin'
 >;
-export type ListKey = Extract<keyof ResourceQueryState, 'isnull' | 'notnull'>;

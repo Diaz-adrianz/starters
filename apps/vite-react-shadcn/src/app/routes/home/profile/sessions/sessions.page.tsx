@@ -18,7 +18,7 @@ const SessionsPage = () => {
   const query = useResourceQuery({
     page: 1,
     limit: 10,
-    where: { userId: authUser?.id ?? '' },
+    eq: { userId: authUser?.id ?? '' },
     order: { lastUsedAt: 'desc' },
   });
 

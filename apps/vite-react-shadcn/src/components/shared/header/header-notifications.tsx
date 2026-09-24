@@ -47,8 +47,7 @@ export const HeaderNotifications = () => {
   const query = useResourceQuery({
     page: 1,
     limit: MAX_MESSAGES,
-    where: { userId: authUser?.id ?? '' },
-    isnull: ['readAt'],
+    eq: { userId: authUser?.id ?? '', readAt: null },
     order: { createdAt: 'desc' },
   });
 

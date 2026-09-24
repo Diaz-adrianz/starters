@@ -59,14 +59,13 @@ const NotificationsPage = () => {
   const query = useResourceQuery({
     page: 1,
     limit: 10,
-    where: { userId: authUser?.id ?? '' },
-    isnull: ['readAt'],
+    eq: { userId: authUser?.id ?? '', readAt: null },
     order: { createdAt: 'desc' },
   });
 
   useEffect(() => {
-    if (menu == 'unread') query.addListItem('isnull', 'readAt');
-    else query.remListItem('isnull', 'readAt');
+    if (menu == 'unread') query.addCondition('eq', 'readAt', null);
+    else query.remCondition('eq', 'readAt');
   }, [menu]);
 
   return (

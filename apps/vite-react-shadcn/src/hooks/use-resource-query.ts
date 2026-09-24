@@ -1,7 +1,6 @@
 import type {
   ConditionKey,
   ConditionValue,
-  ListKey,
   ResourceQueryState,
 } from '@/lib/resource-query/resource-query.type';
 import { buildParams } from '@/lib/resource-query/resource-query.util';
@@ -38,21 +37,6 @@ export const useResourceQuery = (initial: ResourceQueryState = {}) => {
     });
   }, []);
 
-  const addListItem = useCallback((key: ListKey, field: string) => {
-    setState((prev) => {
-      const list = prev[key] ?? [];
-      if (list.includes(field)) return prev;
-      return { ...prev, [key]: [...list, field] };
-    });
-  }, []);
-
-  const remListItem = useCallback((key: ListKey, field: string) => {
-    setState((prev) => ({
-      ...prev,
-      [key]: (prev[key] ?? []).filter((f) => f !== field),
-    }));
-  }, []);
-
   const addOrder = useCallback((field: string, dir: 'asc' | 'desc') => {
     setState((prev) => ({
       ...prev,
@@ -79,8 +63,6 @@ export const useResourceQuery = (initial: ResourceQueryState = {}) => {
     setField,
     addCondition,
     remCondition,
-    addListItem,
-    remListItem,
     addOrder,
     remOrder,
     reset,
