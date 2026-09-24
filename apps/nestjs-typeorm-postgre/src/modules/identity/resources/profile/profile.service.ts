@@ -25,8 +25,14 @@ export class ProfileService {
       ...rq.toFindOptions(),
       relations: { user: true },
       select: {
-        ...this.profileRepo.select(['id', 'firstName', 'lastName', 'gender']),
-        user: { id: true, username: true, avatar: true },
+        ...this.profileRepo.select([
+          'id',
+          'userId',
+          'firstName',
+          'lastName',
+          'gender',
+          'createdAt',
+        ]),
       },
     });
   }
