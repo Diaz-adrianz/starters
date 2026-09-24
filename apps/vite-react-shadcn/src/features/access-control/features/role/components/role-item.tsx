@@ -95,7 +95,7 @@ export const RoleItemActionMenu = ({
         <DropdownMenuGroup>
           <DropdownMenuLabel>View</DropdownMenuLabel>
           <DropdownMenuItem asChild>
-            <Link to={`/admin/access/roles/${role.id}`}>Accounts</Link>
+            <Link to={`/admin/access/roles/${role.id}/accounts`}>Accounts</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to={`/admin/access/roles/${role.id}/permissions`}>

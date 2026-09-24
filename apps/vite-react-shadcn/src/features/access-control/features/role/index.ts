@@ -1,3 +1,6 @@
+// api
+export { useRole } from './api/role.query';
+
 // components
 export {
   RoleList,

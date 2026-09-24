@@ -27,6 +27,7 @@ export function useRole(
   return useQuery({
     queryKey: queryKeys.detail(id),
     queryFn: () => RoleApi.findOne(id),
+    select: (d) => d.data.data,
     enabled: !!id && enabled,
   });
 }

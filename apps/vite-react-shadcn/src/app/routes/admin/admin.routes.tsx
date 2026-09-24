@@ -9,6 +9,7 @@ import RoleLayout from './access/roles/role/role.layout';
 import RolePagesPage from './access/roles/role/pages/role-pages.page';
 import RolePermissionsPage from './access/roles/role/permissions/role-permissions.page';
 import RoleAccountsPage from './access/roles/role/accounts/role-accounts.page';
+import RolePage from './access/roles/role/role.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -30,7 +31,8 @@ const adminRoutes: RouteObject[] = [
         path: 'roles/:id',
         element: <RoleLayout />,
         children: [
-          { path: '', element: <RoleAccountsPage /> },
+          { path: '', element: <RolePage /> },
+          { path: 'accounts', element: <RoleAccountsPage /> },
           { path: 'permissions', element: <RolePermissionsPage /> },
           { path: 'pages', element: <RolePagesPage /> },
         ],
