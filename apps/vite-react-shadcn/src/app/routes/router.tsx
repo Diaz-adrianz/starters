@@ -12,6 +12,7 @@ import homeRoutes from './home/home.routes';
 import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import adminRoutes from './admin/admin.routes';
 import AdminLayout from './admin/admin.layout';
+import { CanRoute } from '@/components/shared/can-route';
 
 const routes: RouteObject[] = [
   {
@@ -37,7 +38,9 @@ const routes: RouteObject[] = [
         path: 'admin',
         element: (
           <AuthenticatedRoute>
-            <AdminLayout />
+            <CanRoute I={'visit'} a={'admin-app'} redirectTo="/">
+              <AdminLayout />
+            </CanRoute>
           </AuthenticatedRoute>
         ),
         children: adminRoutes,

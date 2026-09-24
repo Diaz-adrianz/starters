@@ -1,6 +1,7 @@
 import { useAbility } from '@/app/providers';
 import {
   Header,
+  HeaderApps,
   HeaderLogo,
   HeaderNotifications,
   HeaderUser,
@@ -144,6 +145,7 @@ const AdminLayout = () => {
           slotRight={
             <>
               <HeaderNotifications />
+              <HeaderApps />
               <HeaderUser />
             </>
           }
