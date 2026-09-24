@@ -33,14 +33,13 @@ const PermissionsPage = () => {
             <CardContent>
               <PermissionListItemGroup
                 separator
-                skeleton={<PermissionItemSkeleton className="p-0" />}
+                skeleton={<PermissionItemSkeleton />}
                 className="mb-8"
               >
                 {(permission) => (
                   <PermissionItem
                     key={permission.id}
                     permission={permission}
-                    className="p-0"
                     slotActions={
                       <PermissionItemActionMenu permission={permission} />
                     }

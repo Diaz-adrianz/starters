@@ -48,7 +48,7 @@ export const UserItem = ({
   slotActions?: ReactNode;
 }) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemMedia variant={'image'}>
         <Avatar>
           <AvatarImage src={user.avatar ?? ''} />
@@ -74,7 +74,7 @@ export const UserItem = ({
 
 export const UserItemSkeleton = ({ ...props }: ComponentProps<typeof Item>) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemMedia>
         <Skeleton className="size-10 rounded-full" />
       </ItemMedia>

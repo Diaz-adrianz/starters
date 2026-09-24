@@ -32,7 +32,7 @@ export const ProfileCard = ({
     <Card className={className} {...props}>
       <CardContent>
         <ItemGroup>
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>First name</ItemTitle>
             </ItemContent>
@@ -41,7 +41,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Last name</ItemTitle>
             </ItemContent>
@@ -50,7 +50,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Phone number</ItemTitle>
             </ItemContent>
@@ -59,7 +59,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Birth date</ItemTitle>
             </ItemContent>
@@ -70,7 +70,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Gender</ItemTitle>
             </ItemContent>
@@ -79,7 +79,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Bio</ItemTitle>
             </ItemContent>
@@ -88,7 +88,7 @@ export const ProfileCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Updated</ItemTitle>
             </ItemContent>
@@ -112,7 +112,7 @@ export const ProfileCardSkeleton = ({
     <Card className={className} {...props}>
       <CardContent>
         <ItemGroup>
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>First name</ItemTitle>
             </ItemContent>
@@ -121,7 +121,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Last name</ItemTitle>
             </ItemContent>
@@ -130,7 +130,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Phone number</ItemTitle>
             </ItemContent>
@@ -139,7 +139,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Birth date</ItemTitle>
             </ItemContent>
@@ -148,7 +148,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Gender</ItemTitle>
             </ItemContent>
@@ -157,7 +157,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Bio</ItemTitle>
             </ItemContent>
@@ -167,7 +167,7 @@ export const ProfileCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Updated</ItemTitle>
             </ItemContent>

@@ -34,7 +34,7 @@ export const MessageItem = ({
   };
 
   return (
-    <Item {...props} asChild>
+    <Item size={'xs'} {...props} asChild>
       <a href="#" onClick={onClick}>
         {slotMedia}
         <ItemContent>

@@ -41,14 +41,13 @@ const PagesPage = () => {
             <CardContent>
               <PageListItemGroup
                 separator
-                skeleton={<PageItemSkeleton className="p-0" />}
+                skeleton={<PageItemSkeleton />}
                 className="mb-8"
               >
                 {(page) => (
                   <PageItem
                     key={page.id}
                     page={page}
-                    className="p-0"
                     slotActions={<PageItemActionMenu page={page} />}
                   />
                 )}

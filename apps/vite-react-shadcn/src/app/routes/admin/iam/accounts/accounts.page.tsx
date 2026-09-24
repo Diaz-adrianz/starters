@@ -43,14 +43,13 @@ const AccountsPage = () => {
             <CardContent>
               <UserListItemGroup
                 separator
-                skeleton={<UserItemSkeleton className="p-0" />}
+                skeleton={<UserItemSkeleton />}
                 className="mb-8"
               >
                 {(user) => (
                   <UserItem
                     key={user.id}
                     user={user}
-                    className="p-0"
                     slotBottom={<UserItemEmail email={user.email} />}
                     slotRight={
                       <UserItemVerifiedBadge verifiedAt={user.verifiedAt} />

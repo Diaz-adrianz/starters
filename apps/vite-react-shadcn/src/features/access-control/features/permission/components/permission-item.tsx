@@ -29,7 +29,7 @@ export const PermissionItem = ({
   slotActions?: ReactNode;
 }) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemContent>
         <ItemTitle>{permission.description}</ItemTitle>
         <ItemDescription>{permission.module}</ItemDescription>
@@ -50,7 +50,7 @@ export const PermissionItemSkeleton = ({
   ...props
 }: ComponentProps<typeof Item>) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemContent>
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-4 w-24" />

@@ -37,7 +37,7 @@ export const SessionItem = ({
   slotRight?: ReactNode;
 }) => {
   return (
-    <Item variant={'default'} className={cn(className)} {...props}>
+    <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia variant={'icon'}>
         {session.deviceType === 'mobile' ? (
           <RiSmartphoneLine className="size-6" />
@@ -73,7 +73,7 @@ export const SessionItemSkeleton = ({
   ...props
 }: ComponentProps<typeof Item>) => {
   return (
-    <Item variant={'default'} className={cn(className)} {...props}>
+    <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia>
         <Skeleton className="size-6" />
       </ItemMedia>

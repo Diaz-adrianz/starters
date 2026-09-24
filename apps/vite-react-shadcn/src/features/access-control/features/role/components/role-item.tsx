@@ -30,7 +30,7 @@ export const RoleItem = ({
   slotActions?: ReactNode;
 }) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemContent>
         <ItemTitle>{role.name}</ItemTitle>
       </ItemContent>
@@ -48,7 +48,7 @@ export const RoleItem = ({
 
 export const RoleItemSkeleton = ({ ...props }: ComponentProps<typeof Item>) => {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemContent>
         <Skeleton className="h-6 w-32" />
       </ItemContent>

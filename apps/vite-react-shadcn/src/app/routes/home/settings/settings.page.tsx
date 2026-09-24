@@ -20,7 +20,7 @@ const SettingsPage = () => {
         <Card>
           <CardContent>
             <ItemGroup>
-              <Item>
+              <Item size={'xs'}>
                 <ItemContent>
                   <ItemTitle>Theme</ItemTitle>
                   <ItemDescription>

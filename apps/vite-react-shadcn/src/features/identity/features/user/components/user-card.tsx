@@ -42,7 +42,7 @@ export const UserCard = ({
           </Button>
         </div>
         <ItemGroup>
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Username</ItemTitle>
             </ItemContent>
@@ -51,7 +51,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Email</ItemTitle>
             </ItemContent>
@@ -60,7 +60,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Roles</ItemTitle>
             </ItemContent>
@@ -73,7 +73,7 @@ export const UserCard = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Joined at</ItemTitle>
             </ItemContent>
@@ -101,7 +101,7 @@ export const UserCardSkeleton = ({
           <Skeleton className="h-10 w-32" />
         </div>
         <ItemGroup>
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Username</ItemTitle>
             </ItemContent>
@@ -110,7 +110,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Email</ItemTitle>
             </ItemContent>
@@ -119,7 +119,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Roles</ItemTitle>
             </ItemContent>
@@ -128,7 +128,7 @@ export const UserCardSkeleton = ({
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
-          <Item className="py-0">
+          <Item size={'xs'}>
             <ItemContent>
               <ItemTitle>Joined at</ItemTitle>
             </ItemContent>

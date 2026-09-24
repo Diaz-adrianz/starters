@@ -41,14 +41,13 @@ const RolesPage = () => {
             <CardContent>
               <RoleListItemGroup
                 separator
-                skeleton={<RoleItemSkeleton className="p-0" />}
+                skeleton={<RoleItemSkeleton />}
                 className="mb-8"
               >
                 {(role) => (
                   <RoleItem
                     key={role.id}
                     role={role}
-                    className="p-0"
                     slotActions={<RoleItemActionMenu role={role} />}
                   />
                 )}
