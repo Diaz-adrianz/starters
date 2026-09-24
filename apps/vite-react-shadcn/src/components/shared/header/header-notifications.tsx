@@ -1,6 +1,7 @@
 import {
   RiArrowRightLine,
   RiInbox2Line,
+  RiNotification3Fill,
   RiNotification3Line,
 } from '@remixicon/react';
 import { Button } from '../../ui/button';
@@ -75,7 +76,7 @@ export const HeaderNotifications = () => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size={'icon'} className="relative">
-          <RiNotification3Line />
+          {open ? <RiNotification3Fill /> : <RiNotification3Line />}
           {unreadCountText && (
             <Badge
               variant={'destructive'}

@@ -52,7 +52,7 @@ export const Header = ({
     >
       <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-4">{slotLeft}</div>
-        <div className="flex items-center gap-4">{slotRight}</div>
+        <div className="flex items-center gap-2">{slotRight}</div>
       </div>
     </header>
   );

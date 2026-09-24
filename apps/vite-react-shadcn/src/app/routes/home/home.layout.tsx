@@ -1,5 +1,6 @@
 import {
   Header,
+  HeaderApps,
   HeaderLogo,
   HeaderNotifications,
   HeaderUser,
@@ -14,6 +15,7 @@ const HomeLayout = () => {
         slotRight={
           <>
             <HeaderNotifications />
+            <HeaderApps />
             <HeaderUser />
           </>
         }
