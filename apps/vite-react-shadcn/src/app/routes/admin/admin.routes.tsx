@@ -4,6 +4,7 @@ import AccountsPage from './identity/accounts/accounts.page';
 import RolesPage from './access/roles/roles.page';
 import PermissionsPage from './access/permissions/permissions.page';
 import PagesPage from './access/pages/pages.page';
+import ProfilesPage from './identity/profiles/profiles.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -12,7 +13,10 @@ const adminRoutes: RouteObject[] = [
   },
   {
     path: 'identity',
-    children: [{ path: 'accounts', element: <AccountsPage /> }],
+    children: [
+      { path: 'accounts', element: <AccountsPage /> },
+      { path: 'profiles', element: <ProfilesPage /> },
+    ],
   },
   {
     path: 'access',
