@@ -48,6 +48,7 @@ const RolesPage = () => {
                   <RoleItem
                     key={role.id}
                     role={role}
+                    titleTo={'/admin/access/roles/' + role.id}
                     slotActions={<RoleItemActionMenu role={role} />}
                   />
                 )}

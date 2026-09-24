@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, matchPath } from 'react-router-dom';
 
 export const useActiveMenuPath = (
   menu: { path: string }[]
@@ -6,6 +6,6 @@ export const useActiveMenuPath = (
   const { pathname } = useLocation();
 
   return menu
-    .filter((m) => pathname === m.path || pathname.startsWith(`${m.path}/`))
+    .filter((m) => matchPath({ path: m.path, end: false }, pathname))
     .sort((a, b) => b.path.length - a.path.length)[0]?.path;
 };

@@ -20,19 +20,31 @@ import { RiMore2Line } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Can } from '@/components/shared/can';
+import { InlineLink } from '@/components/shared/inline-link';
+import { Link } from 'react-router-dom';
 
 export const RoleItem = ({
   role,
   slotActions,
+  titleTo,
   ...props
 }: Omit<ComponentProps<typeof Item>, 'role'> & {
   role: Pick<Role, 'id' | 'name' | 'enabled'>;
   slotActions?: ReactNode;
+  titleTo?: string;
 }) => {
   return (
     <Item size={'xs'} {...props}>
       <ItemContent>
-        <ItemTitle>{role.name}</ItemTitle>
+        <ItemTitle>
+          {titleTo ? (
+            <InlineLink to={titleTo} className="hover:underline">
+              {role.name}
+            </InlineLink>
+          ) : (
+            role.name
+          )}
+        </ItemTitle>
       </ItemContent>
       <ItemContent className="flex-row items-center gap-4">
         {role.enabled ? (
@@ -82,9 +94,17 @@ export const RoleItemActionMenu = ({
       <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuLabel>View</DropdownMenuLabel>
-          <DropdownMenuItem>Accounts</DropdownMenuItem>
-          <DropdownMenuItem>Permissions</DropdownMenuItem>
-          <DropdownMenuItem>Pages</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/admin/access/roles/${role.id}`}>Accounts</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/admin/access/roles/${role.id}/permissions`}>
+              Permissions
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/admin/access/roles/${role.id}/pages`}>Pages</Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
