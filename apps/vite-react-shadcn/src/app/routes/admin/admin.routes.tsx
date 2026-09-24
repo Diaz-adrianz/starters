@@ -1,9 +1,9 @@
 import type { RouteObject } from 'react-router-dom';
 import AdminPage from './admin.page';
-import AccountsPage from './iam/accounts/accounts.page';
-import RolesPage from './iam/roles/roles.page';
-import PermissionsPage from './iam/permissions/permissions.page';
-import PagesPage from './iam/pages/pages.page';
+import AccountsPage from './identity/accounts/accounts.page';
+import RolesPage from './access/roles/roles.page';
+import PermissionsPage from './access/permissions/permissions.page';
+import PagesPage from './access/pages/pages.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -11,9 +11,12 @@ const adminRoutes: RouteObject[] = [
     element: <AdminPage />,
   },
   {
-    path: 'iam',
+    path: 'identity',
+    children: [{ path: 'accounts', element: <AccountsPage /> }],
+  },
+  {
+    path: 'access',
     children: [
-      { path: 'accounts', element: <AccountsPage /> },
       { path: 'roles', element: <RolesPage /> },
       { path: 'permissions', element: <PermissionsPage /> },
       { path: 'pages', element: <PagesPage /> },

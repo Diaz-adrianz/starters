@@ -31,6 +31,8 @@ import {
   RiPagesLine,
   RiShieldFill,
   RiShieldLine,
+  RiUserSmileFill,
+  RiUserSmileLine,
   type RemixiconComponentType,
 } from '@remixicon/react';
 import { Link, Outlet } from 'react-router-dom';
@@ -46,33 +48,45 @@ const Menu: {
   }[];
 }[] = [
   {
-    group: 'IAM',
+    group: 'Identity',
     items: [
       {
         Icon: RiAccountCircleLine,
         IconActive: RiAccountCircleFill,
-        path: '/admin/iam/accounts',
+        path: '/admin/identity/accounts',
         label: 'Accounts',
         ability: { action: 'read', subject: 'identity:user' },
       },
       {
+        Icon: RiUserSmileLine,
+        IconActive: RiUserSmileFill,
+        path: '/admin/identity/profiles',
+        label: 'Profiles',
+        ability: { action: 'read', subject: 'identity:profile' },
+      },
+    ],
+  },
+  {
+    group: 'Access',
+    items: [
+      {
         Icon: RiShieldLine,
         IconActive: RiShieldFill,
-        path: '/admin/iam/roles',
+        path: '/admin/access/roles',
         label: 'Roles',
         ability: { action: 'read', subject: 'access-control:role' },
       },
       {
         Icon: RiKeyLine,
         IconActive: RiKeyFill,
-        path: '/admin/iam/permissions',
+        path: '/admin/access/permissions',
         label: 'Permissions',
         ability: { action: 'read', subject: 'access-control:permission' },
       },
       {
         Icon: RiPagesLine,
         IconActive: RiPagesFill,
-        path: '/admin/iam/pages',
+        path: '/admin/access/pages',
         label: 'Pages',
         ability: { action: 'read', subject: 'access-control:page' },
       },
