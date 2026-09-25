@@ -13,6 +13,7 @@ export {
   RoleItemSkeleton,
   RoleItemActionMenu,
 } from './components/role-item';
+export { RoleCard, RoleCardSkeleton } from './components/role-card';
 
 // types
 export { type Role } from './types/role.type';
