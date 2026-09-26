@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   RoleUserItem,
+  RoleUserItemActionMenu,
+  RoleUserItemSkeleton,
   RoleUserList,
   RoleUserListItemGroup,
   RoleUserListPagination,
@@ -39,10 +41,18 @@ const RoleAccountsPage = () => {
         <Container className="mb-4">
           <Card>
             <CardContent>
-              <RoleUserListItemGroup>
-                {(roleUser) => <RoleUserItem roleUser={roleUser} />}
+              <RoleUserListItemGroup
+                separator
+                skeleton={<RoleUserItemSkeleton />}
+                className="mb-8"
+              >
+                {(roleUser) => (
+                  <RoleUserItem
+                    roleUser={roleUser}
+                    slotActions={<RoleUserItemActionMenu roleUser={roleUser} />}
+                  />
+                )}
               </RoleUserListItemGroup>
-
               <RoleUserListPagination />
             </CardContent>
           </Card>

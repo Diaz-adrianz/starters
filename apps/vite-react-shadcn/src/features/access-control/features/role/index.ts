@@ -21,7 +21,11 @@ export {
   RoleUserListSearchBox,
   useRoleUserList,
 } from './components/role-user-list';
-export { RoleUserItem } from './components/role-user-item';
+export {
+  RoleUserItem,
+  RoleUserItemSkeleton,
+  RoleUserItemActionMenu,
+} from './components/role-user-item';
 
 // types
 export { type Role } from './types/role.type';
