@@ -26,6 +26,18 @@ export {
   RoleUserItemSkeleton,
   RoleUserItemActionMenu,
 } from './components/role-user-item';
+export {
+  RolePermissionList,
+  RolePermissionListItemGroup,
+  RolePermissionListPagination,
+  RolePermissionListSearchBox,
+  useRolePermissionList,
+} from './components/role-permission-list';
+export {
+  RolePermissionItem,
+  RolePermissionItemSkeleton,
+  RolePermissionItemActionMenu,
+} from './components/role-permission-item';
 
 // types
 export { type Role } from './types/role.type';

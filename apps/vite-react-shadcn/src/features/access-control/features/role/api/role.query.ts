@@ -6,8 +6,10 @@ export const queryKeys = {
   all: ['access-control', 'role'] as const,
   list: (params: ApiParams) => [...queryKeys.all, 'list', params] as const,
   detail: (id: string) => [...queryKeys.all, 'detail', id] as const,
-  listUsers: (id: string, params: ApiParams) =>
+  listUser: (id: string, params: ApiParams) =>
     [...queryKeys.detail(id), 'users', params] as const,
+  listPermissions: (id: string, params: ApiParams) =>
+    [...queryKeys.detail(id), 'permission', params] as const,
 };
 
 export function useRoleUsers(
@@ -16,8 +18,21 @@ export function useRoleUsers(
   { enabled = true }: { enabled?: boolean } = {}
 ) {
   return useQuery({
-    queryKey: queryKeys.listUsers(id, params),
+    queryKey: queryKeys.listUser(id, params),
     queryFn: () => RoleApi.findManyUser(id, params),
+    select: (d) => d.data.data,
+    enabled: !!id && enabled,
+  });
+}
+
+export function useRolePermissions(
+  id: string,
+  params: ApiParams = {},
+  { enabled = true }: { enabled?: boolean } = {}
+) {
+  return useQuery({
+    queryKey: queryKeys.listPermissions(id, params),
+    queryFn: () => RoleApi.findManyPermission(id, params),
     select: (d) => d.data.data,
     enabled: !!id && enabled,
   });
