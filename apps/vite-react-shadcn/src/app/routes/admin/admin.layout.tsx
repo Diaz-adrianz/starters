@@ -6,6 +6,7 @@ import {
   HeaderNotifications,
   HeaderUser,
 } from '@/components/shared/header';
+import { MenuItemLink } from '@/components/shared/menu-item';
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +20,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { useActiveMenuPath } from '@/hooks/use-active-menu-path';
+import { useMenu } from '@/hooks/use-menu';
+import type { Menu } from '@/types/menu.type';
 import {
   RiAccountCircleFill,
   RiAccountCircleLine,
@@ -33,61 +35,54 @@ import {
   RiShieldLine,
   RiUserSmileFill,
   RiUserSmileLine,
-  type RemixiconComponentType,
 } from '@remixicon/react';
 import { Link, Outlet } from 'react-router-dom';
 
-const Menu: {
+const MenuGroup: {
   group: string;
-  items: {
-    Icon: RemixiconComponentType;
-    IconActive: RemixiconComponentType;
-    path: string;
-    label: string;
-    ability?: { action: string; subject: string };
-  }[];
+  menus: Menu[];
 }[] = [
   {
     group: 'Identity',
-    items: [
+    menus: [
       {
-        Icon: RiAccountCircleLine,
-        IconActive: RiAccountCircleFill,
         path: '/admin/identity/accounts',
         label: 'Accounts',
+        Icon: RiAccountCircleLine,
+        IconActive: RiAccountCircleFill,
         ability: { action: 'read', subject: 'identity:user' },
       },
       {
-        Icon: RiUserSmileLine,
-        IconActive: RiUserSmileFill,
         path: '/admin/identity/profiles',
         label: 'Profiles',
+        Icon: RiUserSmileLine,
+        IconActive: RiUserSmileFill,
         ability: { action: 'read', subject: 'identity:profile' },
       },
     ],
   },
   {
     group: 'Access',
-    items: [
+    menus: [
       {
-        Icon: RiShieldLine,
-        IconActive: RiShieldFill,
         path: '/admin/access/roles',
         label: 'Roles',
+        Icon: RiShieldLine,
+        IconActive: RiShieldFill,
         ability: { action: 'read', subject: 'access-control:role' },
       },
       {
-        Icon: RiKeyLine,
-        IconActive: RiKeyFill,
         path: '/admin/access/permissions',
         label: 'Permissions',
+        Icon: RiKeyLine,
+        IconActive: RiKeyFill,
         ability: { action: 'read', subject: 'access-control:permission' },
       },
       {
-        Icon: RiPagesLine,
-        IconActive: RiPagesFill,
         path: '/admin/access/pages',
         label: 'Pages',
+        Icon: RiPagesLine,
+        IconActive: RiPagesFill,
         ability: { action: 'read', subject: 'access-control:page' },
       },
     ],
@@ -96,7 +91,7 @@ const Menu: {
 
 const AdminLayout = () => {
   const ability = useAbility();
-  const activeMenu = useActiveMenuPath(Menu.flatMap((m) => m.items));
+  const { activeMenu } = useMenu(MenuGroup.flatMap((mg) => mg.menus));
 
   return (
     <SidebarProvider>
@@ -118,30 +113,26 @@ const AdminLayout = () => {
             </SidebarMenu>
           </SidebarGroup>
 
-          {Menu.map((menu) => {
+          {MenuGroup.map((mg) => {
             return (
-              <SidebarGroup key={menu.group}>
-                <SidebarGroupLabel>{menu.group}</SidebarGroupLabel>
+              <SidebarGroup key={mg.group}>
+                <SidebarGroupLabel>{mg.group}</SidebarGroupLabel>
                 <SidebarMenu>
-                  {menu.items.map((item) => {
+                  {mg.menus.map((menu) => {
                     if (
-                      !item.ability ||
-                      ability.can(item.ability.action, item.ability.subject)
+                      !menu.ability ||
+                      ability.can(menu.ability.action, menu.ability.subject)
                     )
                       return (
-                        <SidebarMenuItem key={item.path}>
+                        <SidebarMenuItem key={menu.path}>
                           <SidebarMenuButton
-                            isActive={activeMenu === item.path}
+                            isActive={activeMenu?.path === menu.path}
                             asChild
                           >
-                            <Link to={item.path}>
-                              {activeMenu === item.path ? (
-                                <item.IconActive />
-                              ) : (
-                                <item.Icon />
-                              )}{' '}
-                              {item.label}
-                            </Link>
+                            <MenuItemLink
+                              menu={menu}
+                              active={activeMenu?.path === menu.path}
+                            />
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       );

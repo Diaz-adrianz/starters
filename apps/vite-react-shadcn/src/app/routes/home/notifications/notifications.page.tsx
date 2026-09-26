@@ -1,13 +1,13 @@
 import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TabsStaticLayout } from '@/components/shared/tabs-layout';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Empty,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   MessageItem,
   MessageItemCreatedDate,
@@ -16,45 +16,28 @@ import {
   MessageList,
   MessageListItemGroup,
   MessageListPagination,
-  useMessageList,
 } from '@/features/notification';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
-import { getOption, type Option } from '@/utils/option';
+import type { Menu } from '@/types/menu.type';
 import { RiInbox2Line } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 
-type MenuValue = 'unread' | 'all';
-
-const Menu: Option<MenuValue>[] = [
+const Menu: Menu[] = [
   {
-    value: 'unread',
+    path: 'unread',
     label: 'Unread',
   },
   {
-    value: 'all',
+    path: 'all',
     label: 'All',
   },
 ];
 
-const MessageListHeader = ({ menu }: { menu: MenuValue }) => {
-  const { data } = useMessageList();
-  return (
-    <CardHeader>
-      <CardTitle>
-        {getOption(Menu, menu)?.label ?? ''} ({data?.totalItems ?? 0})
-      </CardTitle>
-    </CardHeader>
-  );
-};
-
 const NotificationsPage = () => {
-  const isMobile = useIsMobile();
-
   const authUser = authStore((s) => s.user);
 
-  const [menu, setMenu] = useState<MenuValue>('unread');
+  const [path, setPath] = useState<string>('unread');
 
   const query = useResourceQuery({
     page: 1,
@@ -64,72 +47,53 @@ const NotificationsPage = () => {
   });
 
   useEffect(() => {
-    if (menu == 'unread') query.addCondition('eq', 'readAt', null);
+    if (path == 'unread') query.addCondition('eq', 'readAt', null);
     else query.remCondition('eq', 'readAt');
-  }, [menu]);
+  }, [path]);
 
   return (
     <Container padding={'none'} className="min-h-svh bg-muted">
-      <div className="flex flex-col md:flex-row">
-        <div className="overflow-x-auto pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
-          <Tabs
-            value={menu}
-            onValueChange={(v) => setMenu(v as MenuValue)}
-            orientation={isMobile ? 'horizontal' : 'vertical'}
-            className="no-scrollbar overflow-x-auto border-b border-sidebar-border lg:border-r lg:border-b-0 lg:ps-4"
-          >
-            <TabsList variant={'line'} className="w-full justify-start">
-              {Menu.map((menu) => (
-                <TabsTrigger key={menu.value} value={menu.value}>
-                  {menu.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <div className="w-full md:w-3/4">
-          <PageHeading title="Notifications" />
+      <TabsStaticLayout menus={Menu} path={path} onPathChange={setPath}>
+        <PageHeading title="Notifications" />
 
-          <Container className="mb-4">
-            <MessageList query={query}>
-              <Card>
-                <MessageListHeader menu={menu} />
-                <CardContent>
-                  <MessageListItemGroup
-                    skeleton={<MessageItemSkeleton />}
-                    empty={
-                      <Empty>
-                        <EmptyHeader>
-                          <EmptyMedia variant={'icon'}>
-                            <RiInbox2Line />
-                          </EmptyMedia>
-                          <EmptyTitle>No messages yet</EmptyTitle>
-                        </EmptyHeader>
-                      </Empty>
-                    }
-                    className="mb-4"
-                    separator
-                  >
-                    {(m) => (
-                      <MessageItem
-                        key={m.id}
-                        message={m}
-                        slotMedia={
-                          <MessageItemUnreadIndicator readAt={m.readAt} />
-                        }
-                        slotRight={
-                          <MessageItemCreatedDate createdAt={m.createdAt} />
-                        }
-                      />
-                    )}
-                  </MessageListItemGroup>
-                  <MessageListPagination />
-                </CardContent>
-              </Card>
-            </MessageList>
-          </Container>
-        </div>
-      </div>
+        <Container className="mb-4">
+          <Card>
+            <CardContent>
+              <MessageList query={query}>
+                <MessageListItemGroup
+                  skeleton={<MessageItemSkeleton />}
+                  empty={
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant={'icon'}>
+                          <RiInbox2Line />
+                        </EmptyMedia>
+                        <EmptyTitle>No messages yet</EmptyTitle>
+                      </EmptyHeader>
+                    </Empty>
+                  }
+                  className="mb-4"
+                  separator
+                >
+                  {(m) => (
+                    <MessageItem
+                      key={m.id}
+                      message={m}
+                      slotMedia={
+                        <MessageItemUnreadIndicator readAt={m.readAt} />
+                      }
+                      slotRight={
+                        <MessageItemCreatedDate createdAt={m.createdAt} />
+                      }
+                    />
+                  )}
+                </MessageListItemGroup>
+                <MessageListPagination />
+              </MessageList>
+            </CardContent>
+          </Card>
+        </Container>
+      </TabsStaticLayout>
     </Container>
   );
 };

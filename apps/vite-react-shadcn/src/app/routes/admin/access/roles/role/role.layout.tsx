@@ -1,9 +1,9 @@
 import { Container } from '@/components/shared/container';
 import { PageHeading } from '@/components/shared/page-heading';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsLinkLayout } from '@/components/shared/tabs-layout';
 import { useRole } from '@/features/access-control';
-import { useActiveMenuPath } from '@/hooks/use-active-menu-path';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMenu } from '@/hooks/use-menu';
+import type { Menu } from '@/types/menu.type';
 import {
   RiAccountCircleFill,
   RiAccountCircleLine,
@@ -14,75 +14,60 @@ import {
   RiPagesFill,
   RiPagesLine,
 } from '@remixicon/react';
-import { Link, Outlet, useParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { Outlet, useParams } from 'react-router-dom';
 
-const Menu = [
+const Menu: Menu[] = [
   {
-    Icon: RiInformationLine,
-    IconActive: RiInformationFill,
     path: '/admin/access/roles/:id',
     label: 'Info',
+    Icon: RiInformationLine,
+    IconActive: RiInformationFill,
   },
   {
-    Icon: RiAccountCircleLine,
-    IconActive: RiAccountCircleFill,
     path: '/admin/access/roles/:id/accounts',
     label: 'Accounts',
+    Icon: RiAccountCircleLine,
+    IconActive: RiAccountCircleFill,
   },
   {
-    Icon: RiKeyLine,
-    IconActive: RiKeyFill,
     path: '/admin/access/roles/:id/permissions',
     label: 'Permissions',
+    Icon: RiKeyLine,
+    IconActive: RiKeyFill,
   },
   {
-    Icon: RiPagesLine,
-    IconActive: RiPagesFill,
     path: '/admin/access/roles/:id/pages',
     label: 'Pages',
+    Icon: RiPagesLine,
+    IconActive: RiPagesFill,
   },
 ];
 
 const RoleLayout = () => {
-  const params = useParams(),
-    isMobile = useIsMobile(1024),
-    activeMenu = useActiveMenuPath(Menu);
+  const params = useParams();
 
   const roleId = params.id!,
     role = useRole(roleId);
+
+  const menus = useMemo(
+      () => Menu.map((m) => ({ ...m, path: m.path.replace(':id', roleId) })),
+      [roleId]
+    ),
+    { activeMenu } = useMenu(menus);
 
   return (
     <>
       <PageHeading title={`Role "${role.data?.name}"`} />
 
       <Container padding={'none'}>
-        <div className="flex flex-col lg:flex-row">
-          <div className="pt-4 lg:sticky lg:top-16 lg:h-fit lg:w-1/4">
-            <Tabs
-              value={activeMenu}
-              orientation={isMobile ? 'horizontal' : 'vertical'}
-              className="no-scrollbar overflow-x-auto border-b border-sidebar-border lg:border-r lg:border-b-0 lg:ps-4"
-            >
-              <TabsList variant={'line'} className="w-full justify-start">
-                {Menu.map((menu) => (
-                  <TabsTrigger key={menu.path} value={menu.path} asChild>
-                    <Link to={menu.path.replace(':id', roleId)}>
-                      {menu.path == activeMenu ? (
-                        <menu.IconActive />
-                      ) : (
-                        <menu.Icon />
-                      )}{' '}
-                      {menu.label}
-                    </Link>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="w-full lg:w-3/4">
-            <Outlet />
-          </div>
-        </div>
+        <TabsLinkLayout
+          menus={menus}
+          activePath={activeMenu?.path}
+          breakpoint="lg"
+        >
+          <Outlet />
+        </TabsLinkLayout>
       </Container>
     </>
   );

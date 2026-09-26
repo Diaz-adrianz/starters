@@ -1,61 +1,46 @@
 import { Container } from '@/components/shared/container';
 import { Outlet } from 'react-router-dom';
 import {
+  RiAccountCircleFill,
   RiAccountCircleLine,
+  RiComputerFill,
   RiComputerLine,
+  RiKeyFill,
   RiKeyLine,
 } from '@remixicon/react';
-import { Link } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useActiveMenuPath } from '@/hooks/use-active-menu-path';
+import { useMenu } from '@/hooks/use-menu';
+import type { Menu } from '@/types/menu.type';
+import { TabsLinkLayout } from '@/components/shared/tabs-layout';
 
-const Menu = [
+const Menu: Menu[] = [
   {
-    Icon: RiAccountCircleLine,
     path: '/profile',
     label: 'Profile',
+    Icon: RiAccountCircleLine,
+    IconActive: RiAccountCircleFill,
   },
   {
-    Icon: RiKeyLine,
     path: '/profile/accounts',
     label: 'Accounts',
+    Icon: RiKeyLine,
+    IconActive: RiKeyFill,
   },
   {
-    Icon: RiComputerLine,
     path: '/profile/sessions',
     label: 'Sessions',
+    Icon: RiComputerLine,
+    IconActive: RiComputerFill,
   },
 ];
 
 const ProfileLayout = () => {
-  const isMobile = useIsMobile(),
-    activeMenu = useActiveMenuPath(Menu);
+  const { menus, activeMenu } = useMenu(Menu);
 
   return (
     <Container padding={'none'} className="min-h-svh bg-muted">
-      <div className="flex flex-col md:flex-row">
-        <div className="overflow-x-auto pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
-          <Tabs
-            value={activeMenu}
-            orientation={isMobile ? 'horizontal' : 'vertical'}
-            className="no-scrollbar overflow-x-auto border-b border-sidebar-border lg:border-r lg:border-b-0 lg:ps-4"
-          >
-            <TabsList variant={'line'} className="w-full justify-start">
-              {Menu.map((menu) => (
-                <TabsTrigger key={menu.path} value={menu.path} asChild>
-                  <Link to={menu.path}>
-                    <menu.Icon /> {menu.label}
-                  </Link>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <div className="w-full md:w-3/4">
-          <Outlet />
-        </div>
-      </div>
+      <TabsLinkLayout menus={menus} activePath={activeMenu?.path}>
+        <Outlet />
+      </TabsLinkLayout>
     </Container>
   );
 };
