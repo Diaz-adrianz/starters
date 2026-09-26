@@ -108,26 +108,21 @@ export const SessionListItemGroup = ({
 // --------------------------------------
 export const SessionListPagination = () => {
   const { query, isLoading, data } = useSessionList();
-  const {
-    page,
-    hasPrevPage,
-    prevPage,
-    hasNextPage,
-    nextPage,
-    pages,
-    jumpToPage,
-  } = usePagination({
-    initPage: query.state.page,
-    initLimit: query.state.limit,
-    totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.set('page', p),
-  });
+  const { hasPrevPage, prevPage, hasNextPage, nextPage, pages, jumpToPage } =
+    usePagination({
+      page: data?.page ?? 1,
+      limit: data?.limit ?? 10,
+      totalItems: data?.totalItems ?? 0,
+      onPageChange: (p) => query.set('page', p),
+      onLimitChange: (l) => query.set('limit', l),
+    });
 
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem>
           <Button
+            size={'xs'}
             variant={'ghost'}
             disabled={!hasPrevPage || isLoading}
             onClick={prevPage}
@@ -142,8 +137,9 @@ export const SessionListPagination = () => {
             ) : (
               <Button
                 disabled={isLoading}
-                size={'icon-sm'}
-                variant={page === p ? 'default' : 'ghost'}
+                size={'icon-xs'}
+                className="text-xs"
+                variant={data?.page === p ? 'default' : 'ghost'}
                 onClick={() => jumpToPage(p)}
               >
                 {p}
@@ -153,6 +149,7 @@ export const SessionListPagination = () => {
         ))}
         <PaginationItem>
           <Button
+            size={'xs'}
             variant={'ghost'}
             disabled={!hasNextPage || isLoading}
             onClick={nextPage}

@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 interface UsePaginationOptions {
+  page: number;
+  limit: number;
   totalItems: number;
-  initPage?: number;
-  initLimit?: number;
   siblingCount?: number;
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
@@ -12,16 +12,13 @@ interface UsePaginationOptions {
 const ELLIPSIS = null;
 
 export const usePagination = ({
-  initPage = 1,
-  initLimit = 10,
+  page,
+  limit,
   totalItems,
   siblingCount = 1,
   onPageChange,
   onLimitChange,
 }: UsePaginationOptions) => {
-  const [page, setPage] = useState(initPage);
-  const [limit, setLimit] = useState(initLimit);
-
   const totalPages =
     totalItems > 0 ? Math.max(1, Math.ceil(totalItems / limit)) : 0;
 
@@ -31,7 +28,6 @@ export const usePagination = ({
   const jumpToPage = useCallback(
     (target: number) => {
       const clamped = Math.min(Math.max(1, target), totalPages);
-      setPage(clamped);
       onPageChange?.(clamped);
     },
     [totalPages, onPageChange]
@@ -39,25 +35,20 @@ export const usePagination = ({
 
   const nextPage = useCallback(() => {
     if (!hasNextPage) return;
-    const target = page + 1;
-    setPage(target);
-    onPageChange?.(target);
+    onPageChange?.(page + 1);
   }, [hasNextPage, page, onPageChange]);
 
   const prevPage = useCallback(() => {
     if (!hasPrevPage) return;
-    const target = page - 1;
-    setPage(target);
-    onPageChange?.(target);
+    onPageChange?.(page - 1);
   }, [hasPrevPage, page, onPageChange]);
 
   const changeLimit = useCallback(
     (newLimit: number) => {
-      setLimit(newLimit);
-      setPage(1);
       onLimitChange?.(newLimit);
+      onPageChange?.(1);
     },
-    [onLimitChange]
+    [onLimitChange, onPageChange]
   );
 
   const pages = useMemo((): (number | null)[] => {

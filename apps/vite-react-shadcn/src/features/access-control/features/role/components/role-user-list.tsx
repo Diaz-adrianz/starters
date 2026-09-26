@@ -171,20 +171,14 @@ export const RoleUserListSearchBox = ({
 // --------------------------------------
 export const RoleUserListPagination = () => {
   const { query, isLoading, data } = useRoleUserList();
-  const {
-    page,
-    hasPrevPage,
-    prevPage,
-    hasNextPage,
-    nextPage,
-    pages,
-    jumpToPage,
-  } = usePagination({
-    initPage: query.state.page,
-    initLimit: query.state.limit,
-    totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.set('page', p),
-  });
+  const { hasPrevPage, prevPage, hasNextPage, nextPage, pages, jumpToPage } =
+    usePagination({
+      page: data?.page ?? 1,
+      limit: data?.limit ?? 10,
+      totalItems: data?.totalItems ?? 0,
+      onPageChange: (p) => query.set('page', p),
+      onLimitChange: (l) => query.set('limit', l),
+    });
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -213,7 +207,7 @@ export const RoleUserListPagination = () => {
                     disabled={isLoading}
                     size={'icon-xs'}
                     className="text-xs"
-                    variant={page === p ? 'default' : 'ghost'}
+                    variant={data?.page === p ? 'default' : 'ghost'}
                     onClick={() => jumpToPage(p)}
                   >
                     {p}
