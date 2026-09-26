@@ -14,7 +14,14 @@ export {
   RoleItemActionMenu,
 } from './components/role-item';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
+export {
+  RoleUserList,
+  RoleUserListItemGroup,
+  RoleUserListPagination,
+  RoleUserListSearchBox,
+  useRoleUserList,
+} from './components/role-user-list';
+export { RoleUserItem } from './components/role-user-item';
 
 // types
 export { type Role } from './types/role.type';
-export { type UserRole } from './types/user-role.type';
