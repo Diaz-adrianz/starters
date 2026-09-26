@@ -17,31 +17,30 @@ const SettingsLayout = () => {
     activeMenu = useActiveMenuPath(Menu);
 
   return (
-    <div className="min-h-svh bg-muted">
-      <Container>
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="w-full pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
-            <Tabs
-              value={activeMenu}
-              orientation={isMobile ? 'horizontal' : 'vertical'}
-            >
-              <TabsList variant={'line'} className="w-full">
-                {Menu.map((menu) => (
-                  <TabsTrigger key={menu.path} value={menu.path} asChild>
-                    <Link to={menu.path}>
-                      <menu.Icon /> {menu.label}
-                    </Link>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="w-full md:w-3/4">
-            <Outlet />
-          </div>
+    <Container padding={'none'} className="min-h-svh bg-muted">
+      <div className="flex flex-col md:flex-row">
+        <div className="overflow-x-auto pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
+          <Tabs
+            value={activeMenu}
+            orientation={isMobile ? 'horizontal' : 'vertical'}
+            className="border-b border-sidebar-border md:border-r md:border-b-0 md:ps-4"
+          >
+            <TabsList variant={'line'} className="w-full justify-start">
+              {Menu.map((menu) => (
+                <TabsTrigger key={menu.path} value={menu.path} asChild>
+                  <Link to={menu.path}>
+                    <menu.Icon /> {menu.label}
+                  </Link>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
-      </Container>
-    </div>
+        <div className="w-full md:w-3/4">
+          <Outlet />
+        </div>
+      </div>
+    </Container>
   );
 };
 

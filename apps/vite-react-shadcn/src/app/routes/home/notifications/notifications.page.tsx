@@ -69,69 +69,68 @@ const NotificationsPage = () => {
   }, [menu]);
 
   return (
-    <div className="min-h-svh bg-muted">
-      <Container>
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="w-full pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
-            <Tabs
-              value={menu}
-              onValueChange={(v) => setMenu(v as MenuValue)}
-              orientation={isMobile ? 'horizontal' : 'vertical'}
-            >
-              <TabsList variant={'line'} className="w-full">
-                {Menu.map((menu) => (
-                  <TabsTrigger key={menu.value} value={menu.value}>
-                    {menu.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="w-full md:w-3/4">
-            <PageHeading title="Notifications" />
-
-            <Container className="mb-4">
-              <MessageList query={query}>
-                <Card>
-                  <MessageListHeader menu={menu} />
-                  <CardContent>
-                    <MessageListItemGroup
-                      skeleton={<MessageItemSkeleton />}
-                      empty={
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia variant={'icon'}>
-                              <RiInbox2Line />
-                            </EmptyMedia>
-                            <EmptyTitle>No messages yet</EmptyTitle>
-                          </EmptyHeader>
-                        </Empty>
-                      }
-                      className="mb-4"
-                      separator
-                    >
-                      {(m) => (
-                        <MessageItem
-                          key={m.id}
-                          message={m}
-                          slotMedia={
-                            <MessageItemUnreadIndicator readAt={m.readAt} />
-                          }
-                          slotRight={
-                            <MessageItemCreatedDate createdAt={m.createdAt} />
-                          }
-                        />
-                      )}
-                    </MessageListItemGroup>
-                    <MessageListPagination />
-                  </CardContent>
-                </Card>
-              </MessageList>
-            </Container>
-          </div>
+    <Container padding={'none'} className="min-h-svh bg-muted">
+      <div className="flex flex-col md:flex-row">
+        <div className="overflow-x-auto pt-4 md:sticky md:top-16 md:h-fit md:w-1/4">
+          <Tabs
+            value={menu}
+            onValueChange={(v) => setMenu(v as MenuValue)}
+            orientation={isMobile ? 'horizontal' : 'vertical'}
+            className="no-scrollbar overflow-x-auto border-b border-sidebar-border lg:border-r lg:border-b-0 lg:ps-4"
+          >
+            <TabsList variant={'line'} className="w-full justify-start">
+              {Menu.map((menu) => (
+                <TabsTrigger key={menu.value} value={menu.value}>
+                  {menu.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
-      </Container>
-    </div>
+        <div className="w-full md:w-3/4">
+          <PageHeading title="Notifications" />
+
+          <Container className="mb-4">
+            <MessageList query={query}>
+              <Card>
+                <MessageListHeader menu={menu} />
+                <CardContent>
+                  <MessageListItemGroup
+                    skeleton={<MessageItemSkeleton />}
+                    empty={
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia variant={'icon'}>
+                            <RiInbox2Line />
+                          </EmptyMedia>
+                          <EmptyTitle>No messages yet</EmptyTitle>
+                        </EmptyHeader>
+                      </Empty>
+                    }
+                    className="mb-4"
+                    separator
+                  >
+                    {(m) => (
+                      <MessageItem
+                        key={m.id}
+                        message={m}
+                        slotMedia={
+                          <MessageItemUnreadIndicator readAt={m.readAt} />
+                        }
+                        slotRight={
+                          <MessageItemCreatedDate createdAt={m.createdAt} />
+                        }
+                      />
+                    )}
+                  </MessageListItemGroup>
+                  <MessageListPagination />
+                </CardContent>
+              </Card>
+            </MessageList>
+          </Container>
+        </div>
+      </div>
+    </Container>
   );
 };
 

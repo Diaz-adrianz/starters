@@ -10,7 +10,7 @@ const RolePage = () => {
 
   return (
     <>
-      <Container>
+      <Container className="mt-8 mb-4">
         {role.isLoading && <RoleCardSkeleton />}
         {role.data && <RoleCard role={role.data} />}
       </Container>

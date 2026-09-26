@@ -15,7 +15,7 @@ export const PageHeading = ({
   return (
     <div
       className={cn(
-        'container flex items-center justify-between gap-4 px-4 py-8 md:px-6 lg:px-8',
+        'container mx-auto flex items-center justify-between gap-4 px-4 py-8 md:px-6 lg:px-8',
         className
       )}
       {...props}

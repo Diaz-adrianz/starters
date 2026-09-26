@@ -26,7 +26,7 @@ const RoleAccountsPage = () => {
   return (
     <>
       <RoleUserList roleId={roleId} query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
+        <Container className="mt-8 mb-4" orientation={'horizontal'}>
           <RoleUserListSearchBox />
 
           <Can I={'update'} a={'access-control:role'}>

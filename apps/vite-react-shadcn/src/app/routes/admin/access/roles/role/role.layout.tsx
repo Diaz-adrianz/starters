@@ -55,14 +55,15 @@ const RoleLayout = () => {
     <>
       <PageHeading title={`Role "${role.data?.name}"`} />
 
-      <Container>
-        <div className="flex flex-col gap-4 lg:flex-row">
-          <div className="w-full overflow-hidden overflow-x-auto pt-4 lg:sticky lg:top-16 lg:h-fit lg:w-1/4">
+      <Container padding={'none'}>
+        <div className="flex flex-col lg:flex-row">
+          <div className="pt-4 lg:sticky lg:top-16 lg:h-fit lg:w-1/4">
             <Tabs
               value={activeMenu}
               orientation={isMobile ? 'horizontal' : 'vertical'}
+              className="no-scrollbar overflow-x-auto border-b border-sidebar-border lg:border-r lg:border-b-0 lg:ps-4"
             >
-              <TabsList variant={'line'} className="w-full">
+              <TabsList variant={'line'} className="w-full justify-start">
                 {Menu.map((menu) => (
                   <TabsTrigger key={menu.path} value={menu.path} asChild>
                     <Link to={menu.path.replace(':id', roleId)}>
