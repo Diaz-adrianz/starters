@@ -127,12 +127,16 @@ export const UserListSearchBox = ({
   const debouncedSearch = useDebounce(search);
 
   useEffect(() => {
-    query.setField(
-      'search',
-      debouncedSearch
-        ? { username: debouncedSearch, email: debouncedSearch }
-        : undefined
-    );
+    query.batch([
+      {
+        type: 'set',
+        key: 'search',
+        value: debouncedSearch
+          ? { username: debouncedSearch, email: debouncedSearch }
+          : undefined,
+      },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
   }, [debouncedSearch]);
 
   return (
@@ -176,7 +180,7 @@ export const UserListPagination = () => {
     initPage: query.state.page,
     initLimit: query.state.limit,
     totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.setField('page', p),
+    onPageChange: (p) => query.set('page', p),
   });
 
   return (

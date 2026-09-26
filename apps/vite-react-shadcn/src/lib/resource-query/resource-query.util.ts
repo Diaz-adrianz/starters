@@ -5,9 +5,7 @@ export const CONDITION_SEPARATOR = ':';
 export const SCOPE_SEPARATOR = ';';
 export const VALUES_SEPARATOR = ',';
 
-export const buildConditionString = (
-  map?: ConditionMap
-): string | undefined => {
+const buildConditionString = (map?: ConditionMap): string | undefined => {
   if (!map || Object.keys(map).length === 0) return undefined;
 
   return Object.entries(map)
@@ -15,16 +13,6 @@ export const buildConditionString = (
       const values = Array.isArray(value) ? value : [String(value)];
       return `${field}${CONDITION_SEPARATOR}${values.join(VALUES_SEPARATOR)}`;
     })
-    .join(SCOPE_SEPARATOR);
-};
-
-export const buildOrderString = (
-  order?: Record<string, 'asc' | 'desc'>
-): string | undefined => {
-  if (!order || Object.keys(order).length === 0) return undefined;
-
-  return Object.entries(order)
-    .map(([field, dir]) => `${field}${CONDITION_SEPARATOR}${dir}`)
     .join(SCOPE_SEPARATOR);
 };
 
@@ -40,7 +28,7 @@ export const buildParams = (state: ResourceQueryState) => {
   const gte = buildConditionString(state.gte);
   const in_ = buildConditionString(state.in);
   const nin = buildConditionString(state.nin);
-  const order = buildOrderString(state.order);
+  const order = buildConditionString(state.order);
 
   if (search) result.search = search;
   if (eq) result.eq = eq;

@@ -124,7 +124,7 @@ export const MessageListPagination = () => {
     initPage: query.state.page,
     initLimit: query.state.limit,
     totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.setField('page', p),
+    onPageChange: (p) => query.set('page', p),
   });
 
   return (

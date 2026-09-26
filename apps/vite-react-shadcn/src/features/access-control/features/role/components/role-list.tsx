@@ -3,7 +3,6 @@ import {
   createContext,
   Fragment,
   useContext,
-  useEffect,
   useState,
   type ComponentProps,
   type ReactNode,
@@ -126,12 +125,14 @@ export const RoleListSearchBox = ({
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
 
-  useEffect(() => {
-    query.setField(
-      'search',
-      debouncedSearch ? { name: debouncedSearch } : undefined
-    );
-  }, [debouncedSearch]);
+  query.batch([
+    {
+      type: 'set',
+      key: 'search',
+      value: debouncedSearch ? { name: debouncedSearch } : undefined,
+    },
+    { type: 'set', key: 'page', value: 1 },
+  ]);
 
   return (
     <InputGroup {...props}>
@@ -174,7 +175,7 @@ export const RoleListPagination = () => {
     initPage: query.state.page,
     initLimit: query.state.limit,
     totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.setField('page', p),
+    onPageChange: (p) => query.set('page', p),
   });
 
   return (

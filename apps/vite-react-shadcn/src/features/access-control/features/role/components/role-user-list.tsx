@@ -132,10 +132,14 @@ export const RoleUserListSearchBox = ({
   const debouncedSearch = useDebounce(search);
 
   useEffect(() => {
-    query.setField(
-      'search',
-      debouncedSearch ? { username: debouncedSearch } : undefined
-    );
+    query.batch([
+      {
+        type: 'set',
+        key: 'search',
+        value: debouncedSearch ? { username: debouncedSearch } : undefined,
+      },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
   }, [debouncedSearch]);
 
   return (
@@ -179,7 +183,7 @@ export const RoleUserListPagination = () => {
     initPage: query.state.page,
     initLimit: query.state.limit,
     totalItems: data?.totalItems ?? 0,
-    onPageChange: (p) => query.setField('page', p),
+    onPageChange: (p) => query.set('page', p),
   });
 
   return (

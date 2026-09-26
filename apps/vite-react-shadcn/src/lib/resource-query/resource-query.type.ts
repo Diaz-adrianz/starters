@@ -15,7 +15,7 @@ export interface ResourceQueryState {
   gte?: ConditionMap;
   in?: ConditionMap;
   nin?: ConditionMap;
-  order?: Record<string, 'asc' | 'desc'>;
+  order?: ConditionMap;
   limit?: number;
   page?: number;
   trash?: boolean;
@@ -23,5 +23,5 @@ export interface ResourceQueryState {
 
 export type ConditionKey = Extract<
   keyof ResourceQueryState,
-  'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte' | 'in' | 'nin'
+  'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte' | 'in' | 'nin' | 'order'
 >;

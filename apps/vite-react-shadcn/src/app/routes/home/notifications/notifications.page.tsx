@@ -47,8 +47,8 @@ const NotificationsPage = () => {
   });
 
   useEffect(() => {
-    if (path == 'unread') query.addCondition('eq', 'readAt', null);
-    else query.remCondition('eq', 'readAt');
+    if (path == 'unread') query.add('eq', 'readAt', null);
+    else query.del('eq', 'readAt');
   }, [path]);
 
   return (
