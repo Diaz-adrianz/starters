@@ -58,7 +58,15 @@ const RoleLayout = () => {
 
   return (
     <>
-      <PageHeading title={`Role "${role.data?.name}"`} />
+      <PageHeading
+        breadcrumb={[
+          { label: 'Dashboard', path: '/admin' },
+          { label: 'Access' },
+          { label: 'Roles', path: '/admin/access/roles' },
+          { label: role.data?.name ?? 'role' },
+        ]}
+        title={`Role ${role.data?.name}`}
+      />
 
       <Container padding={'none'}>
         <TabsLinkLayout

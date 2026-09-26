@@ -26,7 +26,14 @@ const AccountsPage = () => {
 
   return (
     <>
-      <PageHeading title="Accounts" />
+      <PageHeading
+        breadcrumb={[
+          { label: 'Dashboard', path: '/admin' },
+          { label: 'Identity' },
+          { label: 'Accounts' },
+        ]}
+        title="Accounts"
+      />
 
       <UserList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>

@@ -21,7 +21,14 @@ const PermissionsPage = () => {
 
   return (
     <>
-      <PageHeading title="Permissions" />
+      <PageHeading
+        breadcrumb={[
+          { label: 'Dashboard', path: '/admin' },
+          { label: 'Access' },
+          { label: 'Permissions' },
+        ]}
+        title="Permissions"
+      />
 
       <PermissionList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>

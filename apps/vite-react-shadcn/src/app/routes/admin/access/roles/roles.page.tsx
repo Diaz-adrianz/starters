@@ -24,7 +24,14 @@ const RolesPage = () => {
 
   return (
     <>
-      <PageHeading title="Roles" />
+      <PageHeading
+        breadcrumb={[
+          { label: 'Dashboard', path: '/admin' },
+          { label: 'Access' },
+          { label: 'Roles' },
+        ]}
+        title="Roles"
+      />
 
       <RoleList query={query}>
         <Container className="mb-4" orientation={'horizontal'}>

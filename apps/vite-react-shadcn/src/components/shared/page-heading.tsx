@@ -1,16 +1,27 @@
-import type { ComponentProps, ReactNode } from 'react';
+import { Fragment, type ComponentProps, type ReactNode } from 'react';
 import { cn } from 'cn';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Link } from 'react-router-dom';
 
 export const PageHeading = ({
   title,
   description,
   slotRight,
+  breadcrumb,
   className,
   ...props
 }: ComponentProps<'div'> & {
   title: ReactNode;
   description?: ReactNode;
   slotRight?: ReactNode;
+  breadcrumb?: { label: string; path?: string }[];
 }) => {
   return (
     <div
@@ -21,7 +32,28 @@ export const PageHeading = ({
       {...props}
     >
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+        {breadcrumb && (
+          <Breadcrumb className="mb-1">
+            <BreadcrumbList>
+              {breadcrumb.map((crumb, i) => (
+                <Fragment key={i}>
+                  <BreadcrumbItem>
+                    {crumb.path ? (
+                      <BreadcrumbLink asChild>
+                        <Link to={crumb.path}>{crumb.label}</Link>
+                      </BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                    )}
+                  </BreadcrumbItem>
+                  {i < breadcrumb.length - 1 && <BreadcrumbSeparator />}
+                </Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        )}
+
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
