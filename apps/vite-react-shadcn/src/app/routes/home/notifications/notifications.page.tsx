@@ -17,25 +17,14 @@ import {
 } from '@/features/notification';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
-import type { Menu } from '@/types/menu.type';
 import { RiInbox2Line } from '@remixicon/react';
 import { useEffect, useState } from 'react';
-
-const Menus: Menu[] = [
-  {
-    path: 'unread',
-    label: 'Unread',
-  },
-  {
-    path: 'all',
-    label: 'All',
-  },
-];
+import { Chip, ChipGroup } from '@/components/shared/chip';
 
 const NotificationsPage = () => {
   const authUser = authStore((s) => s.user);
 
-  const [path, setPath] = useState<string>('unread');
+  const [status, setStatus] = useState('unread');
 
   const query = useResourceQuery({
     page: 1,
@@ -45,15 +34,22 @@ const NotificationsPage = () => {
   });
 
   useEffect(() => {
-    if (path == 'unread') query.add('eq', 'readAt', null);
+    if (status == 'unread') query.add('eq', 'readAt', null);
     else query.del('eq', 'readAt');
-  }, [path]);
+  }, [status]);
 
   return (
     <Page className="min-h-svh">
       <PageHeader title="Notifications" />
 
-      <PageSection className="mb-4">
+      <PageSection horizontal>
+        <ChipGroup value={status} onValueChanged={setStatus}>
+          <Chip value="unread">Unread</Chip>
+          <Chip value="all">All</Chip>
+        </ChipGroup>
+      </PageSection>
+
+      <PageSection>
         <Card>
           <CardContent>
             <MessageList query={query}>
