@@ -1,6 +1,4 @@
-import { Can } from '@/components/shared/can';
-import { Container } from '@/components/shared/container';
-import { Button } from '@/components/ui/button';
+import { Page, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   RoleUserItem,
@@ -12,7 +10,6 @@ import {
   RoleUserListSearchBox,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import { RiAddLine } from '@remixicon/react';
 import { useParams } from 'react-router-dom';
 
 const RoleAccountsPage = () => {
@@ -26,21 +23,15 @@ const RoleAccountsPage = () => {
     });
 
   return (
-    <>
-      <RoleUserList roleId={roleId} query={query}>
-        <Container className="mt-8 mb-4" orientation={'horizontal'}>
-          <RoleUserListSearchBox />
+    <Page>
+      <PageSection className="mb-4">
+        <Card>
+          <CardContent>
+            <RoleUserList roleId={roleId} query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <RoleUserListSearchBox />
+              </div>
 
-          <Can I={'update'} a={'access-control:role'}>
-            <Button>
-              <RiAddLine /> Add account
-            </Button>
-          </Can>
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
               <RoleUserListItemGroup
                 separator
                 skeleton={<RoleUserItemSkeleton />}
@@ -54,11 +45,11 @@ const RoleAccountsPage = () => {
                 )}
               </RoleUserListItemGroup>
               <RoleUserListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </RoleUserList>
-    </>
+            </RoleUserList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

@@ -1,6 +1,4 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
-import { TabsStaticLayout } from '@/components/shared/tabs-layout';
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Empty,
@@ -23,7 +21,7 @@ import type { Menu } from '@/types/menu.type';
 import { RiInbox2Line } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 
-const Menu: Menu[] = [
+const Menus: Menu[] = [
   {
     path: 'unread',
     label: 'Unread',
@@ -52,49 +50,45 @@ const NotificationsPage = () => {
   }, [path]);
 
   return (
-    <Container padding={'none'} className="min-h-svh bg-muted">
-      <TabsStaticLayout menus={Menu} path={path} onPathChange={setPath}>
-        <PageHeading title="Notifications" />
+    <Page className="min-h-svh">
+      <PageHeader title="Notifications" />
 
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
-              <MessageList query={query}>
-                <MessageListItemGroup
-                  skeleton={<MessageItemSkeleton />}
-                  empty={
-                    <Empty>
-                      <EmptyHeader>
-                        <EmptyMedia variant={'icon'}>
-                          <RiInbox2Line />
-                        </EmptyMedia>
-                        <EmptyTitle>No messages yet</EmptyTitle>
-                      </EmptyHeader>
-                    </Empty>
-                  }
-                  className="mb-4"
-                  separator
-                >
-                  {(m) => (
-                    <MessageItem
-                      key={m.id}
-                      message={m}
-                      slotMedia={
-                        <MessageItemUnreadIndicator readAt={m.readAt} />
-                      }
-                      slotRight={
-                        <MessageItemCreatedDate createdAt={m.createdAt} />
-                      }
-                    />
-                  )}
-                </MessageListItemGroup>
-                <MessageListPagination />
-              </MessageList>
-            </CardContent>
-          </Card>
-        </Container>
-      </TabsStaticLayout>
-    </Container>
+      <PageSection className="mb-4">
+        <Card>
+          <CardContent>
+            <MessageList query={query}>
+              <MessageListItemGroup
+                skeleton={<MessageItemSkeleton />}
+                empty={
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant={'icon'}>
+                        <RiInbox2Line />
+                      </EmptyMedia>
+                      <EmptyTitle>No messages yet</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
+                }
+                className="mb-4"
+                separator
+              >
+                {(m) => (
+                  <MessageItem
+                    key={m.id}
+                    message={m}
+                    slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
+                    slotRight={
+                      <MessageItemCreatedDate createdAt={m.createdAt} />
+                    }
+                  />
+                )}
+              </MessageListItemGroup>
+              <MessageListPagination />
+            </MessageList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

@@ -1,6 +1,10 @@
 import { Can } from '@/components/shared/can';
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -23,29 +27,31 @@ const PagesPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Access' },
           { label: 'Pages' },
         ]}
-        title="Pages"
       />
-
-      <PageList query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
-          <PageListSearchBox />
+      <PageHeader
+        title="Pages"
+        action={
           <Can I={'create'} a={'identity:page'}>
             <Button>
               <RiAddLine /> Create page
             </Button>
           </Can>
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
+        }
+      />
+      <PageSection>
+        <Card>
+          <CardContent>
+            <PageList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <PageListSearchBox />
+              </div>
               <PageListItemGroup
                 separator
                 skeleton={<PageItemSkeleton />}
@@ -60,11 +66,11 @@ const PagesPage = () => {
                 )}
               </PageListItemGroup>
               <PageListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </PageList>
-    </>
+            </PageList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

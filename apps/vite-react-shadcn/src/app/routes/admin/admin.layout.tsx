@@ -143,7 +143,7 @@ const AdminLayout = () => {
           })}
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="bg-muted">
+      <SidebarInset>
         <Header
           className="bg-sidebar"
           slotLeft={<SidebarTrigger />}

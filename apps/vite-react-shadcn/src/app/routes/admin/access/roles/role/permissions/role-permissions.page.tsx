@@ -1,6 +1,4 @@
-import { Can } from '@/components/shared/can';
-import { Container } from '@/components/shared/container';
-import { Button } from '@/components/ui/button';
+import { Page, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   RolePermissionItem,
@@ -12,7 +10,6 @@ import {
   RolePermissionListSearchBox,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import { RiAddLine } from '@remixicon/react';
 import { useParams } from 'react-router-dom';
 
 const RolePermissionsPage = () => {
@@ -26,21 +23,15 @@ const RolePermissionsPage = () => {
     });
 
   return (
-    <>
-      <RolePermissionList roleId={roleId} query={query}>
-        <Container className="mt-8 mb-4" orientation={'horizontal'}>
-          <RolePermissionListSearchBox />
+    <Page>
+      <PageSection className="mb-4">
+        <Card>
+          <CardContent>
+            <RolePermissionList roleId={roleId} query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <RolePermissionListSearchBox />
+              </div>
 
-          <Can I={'update'} a={'access-control:role'}>
-            <Button>
-              <RiAddLine /> Add permission
-            </Button>
-          </Can>
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
               <RolePermissionListItemGroup
                 separator
                 skeleton={<RolePermissionItemSkeleton />}
@@ -58,11 +49,11 @@ const RolePermissionsPage = () => {
                 )}
               </RolePermissionListItemGroup>
               <RolePermissionListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </RolePermissionList>
-    </>
+            </RolePermissionList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

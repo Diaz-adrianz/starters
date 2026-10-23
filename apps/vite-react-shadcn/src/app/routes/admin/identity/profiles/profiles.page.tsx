@@ -1,5 +1,9 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   ProfileItem,
@@ -20,24 +24,22 @@ const ProfilesPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Identity' },
           { label: 'Profiles' },
         ]}
-        title="Profiles"
       />
-
-      <ProfileList query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
-          <ProfileListSearchBox />
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
+      <PageHeader title="Profiles" />
+      <PageSection>
+        <Card>
+          <CardContent>
+            <ProfileList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <ProfileListSearchBox />
+              </div>
               <ProfileListItemGroup
                 separator
                 skeleton={<ProfileItemSkeleton />}
@@ -52,11 +54,11 @@ const ProfilesPage = () => {
                 )}
               </ProfileListItemGroup>
               <ProfileListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </ProfileList>
-    </>
+            </ProfileList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

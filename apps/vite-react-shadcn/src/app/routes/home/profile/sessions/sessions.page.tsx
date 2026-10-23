@@ -1,5 +1,4 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   SessionItem,
@@ -23,13 +22,13 @@ const SessionsPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
+    <Page>
+      <PageHeader
         title="Sessions"
         description="Manage devices where you're signed in"
       />
 
-      <Container className="mb-4">
+      <PageSection>
         <SessionList query={query}>
           <Card>
             <CardContent>
@@ -50,8 +49,8 @@ const SessionsPage = () => {
             </CardContent>
           </Card>
         </SessionList>
-      </Container>
-    </>
+      </PageSection>
+    </Page>
   );
 };
 

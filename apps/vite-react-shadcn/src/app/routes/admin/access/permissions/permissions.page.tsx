@@ -1,5 +1,9 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   PermissionItem,
@@ -20,24 +24,22 @@ const PermissionsPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Access' },
           { label: 'Permissions' },
         ]}
-        title="Permissions"
       />
-
-      <PermissionList query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
-          <PermissionListSearchBox />
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
+      <PageHeader title="Permissions" />
+      <PageSection>
+        <Card>
+          <CardContent>
+            <PermissionList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <PermissionListSearchBox />
+              </div>
               <PermissionListItemGroup
                 separator
                 skeleton={<PermissionItemSkeleton />}
@@ -54,11 +56,11 @@ const PermissionsPage = () => {
                 )}
               </PermissionListItemGroup>
               <PermissionListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </PermissionList>
-    </>
+            </PermissionList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

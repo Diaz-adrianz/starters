@@ -1,5 +1,5 @@
-import { Container } from '@/components/shared/container';
-import { TabsLinkLayout } from '@/components/shared/tabs-layout';
+import { Page, PageSection } from '@/components/shared/page';
+import { TabLayout } from '@/components/shared/tab-layout';
 import { useMenu } from '@/hooks/use-menu';
 import type { Menu } from '@/types/menu.type';
 import { RiSettings4Fill, RiSettings4Line } from '@remixicon/react';
@@ -17,11 +17,13 @@ const SettingsLayout = () => {
   const { menus, activeMenu } = useMenu(Menu);
 
   return (
-    <Container padding={'none'} className="min-h-svh bg-muted">
-      <TabsLinkLayout menus={menus} activePath={activeMenu?.path}>
-        <Outlet />
-      </TabsLinkLayout>
-    </Container>
+    <Page className="min-h-svh pt-0">
+      <PageSection dense>
+        <TabLayout menus={menus} activeMenu={activeMenu}>
+          <Outlet />
+        </TabLayout>
+      </PageSection>
+    </Page>
   );
 };
 

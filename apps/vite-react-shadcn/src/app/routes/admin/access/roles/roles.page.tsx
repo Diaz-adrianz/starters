@@ -1,6 +1,10 @@
 import { Can } from '@/components/shared/can';
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -23,29 +27,31 @@ const RolesPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Access' },
           { label: 'Roles' },
         ]}
-        title="Roles"
       />
-
-      <RoleList query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
-          <RoleListSearchBox />
+      <PageHeader
+        title="Roles"
+        action={
           <Can I={'create'} a={'identity:role'}>
             <Button>
               <RiAddLine /> Create role
             </Button>
           </Can>
-        </Container>
-
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
+        }
+      />
+      <PageSection>
+        <Card>
+          <CardContent>
+            <RoleList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <RoleListSearchBox />
+              </div>
               <RoleListItemGroup
                 separator
                 skeleton={<RoleItemSkeleton />}
@@ -61,11 +67,11 @@ const RolesPage = () => {
                 )}
               </RoleListItemGroup>
               <RoleListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </RoleList>
-    </>
+            </RoleList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

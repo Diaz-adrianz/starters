@@ -1,5 +1,4 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { ThemeSelect } from '@/components/shared/theme-select';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -13,10 +12,10 @@ import {
 
 const SettingsPage = () => {
   return (
-    <>
-      <PageHeading title="General Settings" />
+    <Page>
+      <PageHeader title="General Settings" />
 
-      <Container>
+      <PageSection>
         <Card>
           <CardContent>
             <ItemGroup>
@@ -34,8 +33,8 @@ const SettingsPage = () => {
             </ItemGroup>
           </CardContent>
         </Card>
-      </Container>
-    </>
+      </PageSection>
+    </Page>
   );
 };
 

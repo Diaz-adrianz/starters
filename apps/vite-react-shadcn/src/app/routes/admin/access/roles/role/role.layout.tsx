@@ -1,6 +1,10 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
-import { TabsLinkLayout } from '@/components/shared/tabs-layout';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
+import { TabLayout } from '@/components/shared/tab-layout';
 import { useRole } from '@/features/access-control';
 import { useMenu } from '@/hooks/use-menu';
 import type { Menu } from '@/types/menu.type';
@@ -57,27 +61,23 @@ const RoleLayout = () => {
     { activeMenu } = useMenu(menus);
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Access' },
           { label: 'Roles', path: '/admin/access/roles' },
           { label: role.data?.name ?? 'role' },
         ]}
-        title={`Role ${role.data?.name}`}
       />
+      <PageHeader title={`Role ${role.data?.name}`} />
 
-      <Container padding={'none'}>
-        <TabsLinkLayout
-          menus={menus}
-          activePath={activeMenu?.path}
-          breakpoint="lg"
-        >
+      <PageSection dense>
+        <TabLayout menus={menus} activeMenu={activeMenu} breakpoint="lg">
           <Outlet />
-        </TabsLinkLayout>
-      </Container>
-    </>
+        </TabLayout>
+      </PageSection>
+    </Page>
   );
 };
 

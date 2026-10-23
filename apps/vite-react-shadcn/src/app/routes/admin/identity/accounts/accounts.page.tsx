@@ -1,6 +1,10 @@
 import { Can } from '@/components/shared/can';
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import {
+  Page,
+  PageHeader,
+  PageNav,
+  PageSection,
+} from '@/components/shared/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -25,29 +29,32 @@ const AccountsPage = () => {
   });
 
   return (
-    <>
-      <PageHeading
-        breadcrumb={[
+    <Page className="min-h-svh">
+      <PageNav
+        items={[
           { label: 'Dashboard', path: '/admin' },
           { label: 'Identity' },
           { label: 'Accounts' },
         ]}
-        title="Accounts"
       />
-
-      <UserList query={query}>
-        <Container className="mb-4" orientation={'horizontal'}>
-          <UserListSearchBox />
+      <PageHeader
+        title="Accounts"
+        action={
           <Can I={'create'} a={'identity:user'}>
             <Button>
               <RiAddLine /> Create account
             </Button>
           </Can>
-        </Container>
+        }
+      />
+      <PageSection>
+        <Card>
+          <CardContent>
+            <UserList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <UserListSearchBox />
+              </div>
 
-        <Container className="mb-4">
-          <Card>
-            <CardContent>
               <UserListItemGroup
                 separator
                 skeleton={<UserItemSkeleton />}
@@ -66,11 +73,11 @@ const AccountsPage = () => {
                 )}
               </UserListItemGroup>
               <UserListPagination />
-            </CardContent>
-          </Card>
-        </Container>
-      </UserList>
-    </>
+            </UserList>
+          </CardContent>
+        </Card>
+      </PageSection>
+    </Page>
   );
 };
 

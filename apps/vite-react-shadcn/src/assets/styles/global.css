@@ -129,3 +129,87 @@
     @apply font-sans;
   }
 }
+
+@utility typo-display {
+  @apply font-heading text-4xl leading-tight font-extrabold tracking-tight md:text-5xl;
+}
+
+/*  primary page title / <h1> */
+@utility typo-heading-xl {
+  @apply font-heading text-4xl leading-tight font-bold tracking-tight;
+}
+
+/*  major section title / <h2> */
+@utility typo-heading-lg {
+  @apply font-heading text-3xl leading-tight font-bold tracking-tight;
+}
+
+/*  subsection title / <h3> */
+@utility typo-heading-md {
+  @apply font-heading text-2xl leading-snug font-semibold;
+}
+
+/*  card or panel title / <h4> */
+@utility typo-heading-sm {
+  @apply font-heading text-xl leading-snug font-semibold;
+}
+
+/*  grouped item title / <h5> */
+@utility typo-heading-xs {
+  @apply font-heading text-lg leading-snug font-medium;
+}
+
+/*  tight label-level heading / <h6> */
+@utility typo-heading-2xs {
+  @apply font-heading text-base leading-snug font-medium;
+}
+
+/*  intro or featured paragraph / <p> */
+@utility typo-body-lg {
+  @apply font-sans text-lg leading-relaxed font-normal;
+}
+
+/*  default reading text / <p> */
+@utility typo-body-md {
+  @apply font-sans text-base leading-relaxed font-normal;
+}
+
+/*  secondary or supporting text / <p> <span> */
+@utility typo-body-sm {
+  @apply font-sans text-sm leading-relaxed font-normal;
+}
+
+/* introductory paragraph beneath a heading / <p> */
+@utility typo-lead {
+  @apply font-sans text-xl leading-relaxed font-normal text-muted-foreground;
+}
+
+/* eyebrow label above a heading / <span> */
+@utility typo-overline {
+  @apply font-sans text-xs font-semibold tracking-widest uppercase;
+}
+
+/*  form labels, input descriptors / <label> */
+@utility typo-label {
+  @apply font-sans text-sm leading-none font-medium;
+}
+
+/* image captions, footnotes / <figcaption> <small> */
+@utility typo-caption {
+  @apply font-sans text-xs leading-normal font-normal;
+}
+
+/* code fragments within prose / <code> */
+@utility typo-code-inline {
+  @apply font-mono text-sm;
+}
+
+/* multi-line code / <pre> <code> */
+@utility typo-code-block {
+  @apply font-mono text-sm leading-relaxed;
+}
+
+/* inline hyperlinks / <a> */
+@utility typo-link {
+  @apply text-primary underline-offset-4 hover:underline;
+}

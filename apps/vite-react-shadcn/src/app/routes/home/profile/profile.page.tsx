@@ -1,5 +1,4 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import {
   ProfileCard,
   ProfileCardSkeleton,
@@ -10,17 +9,16 @@ const ProfilePage = () => {
   const profile = useProfile('me', { silent: true });
 
   return (
-    <>
-      <PageHeading
+    <Page>
+      <PageHeader
         title="Profile"
         description="View and update your personal information"
       />
-
-      <Container className="mb-4">
+      <PageSection>
         {profile.isLoading && <ProfileCardSkeleton />}
         {profile.data && <ProfileCard profile={profile.data} />}
-      </Container>
-    </>
+      </PageSection>
+    </Page>
   );
 };
 

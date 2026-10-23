@@ -1,4 +1,4 @@
-import { Container } from '@/components/shared/container';
+import { Page, PageSection } from '@/components/shared/page';
 import { RoleCard, RoleCardSkeleton, useRole } from '@/features/access-control';
 import { useParams } from 'react-router-dom';
 
@@ -9,12 +9,12 @@ const RolePage = () => {
     role = useRole(roleId);
 
   return (
-    <>
-      <Container className="mt-8 mb-4">
+    <Page>
+      <PageSection>
         {role.isLoading && <RoleCardSkeleton />}
         {role.data && <RoleCard role={role.data} />}
-      </Container>
-    </>
+      </PageSection>
+    </Page>
   );
 };
 

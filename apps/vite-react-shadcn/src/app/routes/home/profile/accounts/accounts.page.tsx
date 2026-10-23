@@ -1,5 +1,4 @@
-import { Container } from '@/components/shared/container';
-import { PageHeading } from '@/components/shared/page-heading';
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { UserCard, UserCardSkeleton, useUser } from '@/features/identity';
 import authStore from '@/stores/auth.store';
 
@@ -9,17 +8,16 @@ const AccountsPage = () => {
   const user = useUser(authUser?.id ?? '');
 
   return (
-    <>
-      <PageHeading
+    <Page>
+      <PageHeader
         title="Accounts"
         description="Manage this app and connected external accounts"
       />
-
-      <Container className="mb-4">
+      <PageSection>
         {user.isLoading && <UserCardSkeleton />}
         {user.data?.data.data && <UserCard user={user.data.data.data} />}
-      </Container>
-    </>
+      </PageSection>
+    </Page>
   );
 };
 
