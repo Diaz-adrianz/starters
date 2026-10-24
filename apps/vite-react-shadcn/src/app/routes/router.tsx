@@ -11,8 +11,8 @@ import HomeLayout from './home/home.layout';
 import homeRoutes from './home/home.routes';
 import adminRoutes from './admin/admin.routes';
 import AdminLayout from './admin/admin.layout';
-import { CanRoute } from '@/components/shared/can-route';
 import { AuthRoute } from '@/components/shared/auth';
+import { CanRoute } from '@/components/shared/can';
 
 const routes: RouteObject[] = [
   {
