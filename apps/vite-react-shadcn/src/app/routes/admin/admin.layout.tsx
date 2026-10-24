@@ -1,11 +1,5 @@
 import { useAbility } from '@/app/providers';
-import {
-  Header,
-  HeaderApps,
-  HeaderLogo,
-  HeaderNotifications,
-  HeaderUser,
-} from '@/components/shared/header';
+import { Header, HeaderLogo, HeaderUser } from '@/components/shared/header';
 import { MenuItemLink } from '@/components/shared/menu-item';
 import {
   Sidebar,
@@ -20,6 +14,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { HeaderNotifications } from '@/features/notification';
 import { useMenu } from '@/hooks/use-menu';
 import type { Menu } from '@/types/menu.type';
 import {
@@ -95,7 +90,7 @@ const AdminLayout = () => {
 
   return (
     <SidebarProvider>
-      <Sidebar variant="inset">
+      <Sidebar variant="sidebar">
         <SidebarHeader>
           <HeaderLogo />
         </SidebarHeader>
@@ -145,12 +140,11 @@ const AdminLayout = () => {
       </Sidebar>
       <SidebarInset>
         <Header
-          className="bg-sidebar"
+          className="sticky -mb-(--header-h) bg-sidebar"
           slotLeft={<SidebarTrigger />}
           slotRight={
             <>
               <HeaderNotifications />
-              <HeaderApps />
               <HeaderUser />
             </>
           }

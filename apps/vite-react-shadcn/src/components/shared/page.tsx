@@ -13,7 +13,10 @@ import { Link } from 'react-router-dom';
 function Page({ className, ...props }: ComponentProps<'main'>) {
   return (
     <main
-      className={cn('flex flex-col items-center bg-muted pt-4', className)}
+      className={cn(
+        'flex flex-col items-center bg-muted pt-[calc(var(--header-h)+(--spacing(4)))]',
+        className
+      )}
       {...props}
     />
   );

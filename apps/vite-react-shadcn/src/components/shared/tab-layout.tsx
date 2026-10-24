@@ -18,13 +18,13 @@ const BREAKPOINT_CLASSES: Record<
 > = {
   md: {
     root: 'md:flex-row',
-    side: 'md:sticky md:top-16 md:h-fit md:w-1/4',
+    side: 'md:sticky md:top-(--header-h) md:h-fit md:w-1/4',
     tabs: 'md:border-r md:border-b-0 md:ps-4',
     content: 'md:w-3/4',
   },
   lg: {
     root: 'lg:flex-row',
-    side: 'lg:sticky lg:top-16 lg:h-fit lg:w-1/4',
+    side: 'lg:sticky lg:top-(--header-h) lg:h-fit lg:w-1/4',
     tabs: 'lg:border-r lg:border-b-0 lg:ps-4',
     content: 'lg:w-3/4',
   },

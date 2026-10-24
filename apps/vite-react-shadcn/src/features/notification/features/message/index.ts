@@ -1,12 +1,8 @@
 // api
-export {
-  queryKeys as messageQueryKeys,
-  useMessagesCount,
-} from './api/message.query';
+export { queryKeys as messageQueryKeys } from './api/message.query';
 
 // components
 export {
-  useMessageList,
   MessageList,
   MessageListItemGroup,
   MessageListPagination,

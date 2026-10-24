@@ -4,7 +4,7 @@ import {
   RiNotification3Fill,
   RiNotification3Line,
 } from '@remixicon/react';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
@@ -12,8 +12,18 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from '../../ui/popover';
+} from '@/components/ui/popover';
 import authStore from '@/stores/auth.store';
+import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { useResourceQuery } from '@/hooks/use-resource-query';
+import { Empty, EmptyHeader, EmptyMedia } from '@/components/ui/empty';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useMessagesCount } from '../features/message/api/message.query';
+import { useNotificationSocket } from '../hooks/use-notification-socket';
 import {
   MessageItem,
   MessageItemCreatedDate,
@@ -22,21 +32,11 @@ import {
   MessageList,
   MessageListItemGroup,
   messageQueryKeys,
-  useMessagesCount,
-  useNotificationSocket,
-} from '@/features/notification';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { Badge } from '../../ui/badge';
-import { useResourceQuery } from '@/hooks/use-resource-query';
-import { Empty, EmptyHeader, EmptyMedia } from '../../ui/empty';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '../features/message';
 
 const MAX_MESSAGES = 10;
 
-export const HeaderNotifications = () => {
+function HeaderNotifications() {
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -139,4 +139,6 @@ export const HeaderNotifications = () => {
       </PopoverContent>
     </Popover>
   );
-};
+}
+
+export { HeaderNotifications };

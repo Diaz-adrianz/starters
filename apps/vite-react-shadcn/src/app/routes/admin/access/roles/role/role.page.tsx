@@ -9,7 +9,7 @@ const RolePage = () => {
     role = useRole(roleId);
 
   return (
-    <Page>
+    <Page className="pt-4">
       <PageSection>
         {role.isLoading && <RoleCardSkeleton />}
         {role.data && <RoleCard role={role.data} />}
