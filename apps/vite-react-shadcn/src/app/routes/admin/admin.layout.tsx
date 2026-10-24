@@ -140,7 +140,7 @@ const AdminLayout = () => {
       </Sidebar>
       <SidebarInset>
         <Header
-          className="sticky -mb-(--header-h) bg-sidebar"
+          className="sticky -mb-(--header-h)"
           slotLeft={<SidebarTrigger />}
           slotRight={
             <>
