@@ -1,6 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
 import ProfilePage from './profile/profile.page';
-import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import ProfileLayout from './profile/profile.layout';
 import AccountsPage from './profile/accounts/accounts.page';
 import SessionsPage from './profile/sessions/sessions.page';
@@ -8,6 +7,7 @@ import SettingsLayout from './settings/settings.layout';
 import SettingsPage from './settings/settings.page';
 import NotificationsPage from './notifications/notifications.page';
 import HomePage from './home.page';
+import { AuthRoute } from '@/components/shared/auth';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -17,9 +17,9 @@ const homeRoutes: RouteObject[] = [
   {
     path: 'profile',
     element: (
-      <AuthenticatedRoute>
+      <AuthRoute>
         <ProfileLayout />
-      </AuthenticatedRoute>
+      </AuthRoute>
     ),
     children: [
       {
@@ -39,9 +39,9 @@ const homeRoutes: RouteObject[] = [
   {
     path: 'settings',
     element: (
-      <AuthenticatedRoute>
+      <AuthRoute>
         <SettingsLayout />
-      </AuthenticatedRoute>
+      </AuthRoute>
     ),
     children: [
       {
@@ -53,9 +53,9 @@ const homeRoutes: RouteObject[] = [
   {
     path: 'notifications',
     element: (
-      <AuthenticatedRoute>
+      <AuthRoute>
         <NotificationsPage />
-      </AuthenticatedRoute>
+      </AuthRoute>
     ),
   },
 ];

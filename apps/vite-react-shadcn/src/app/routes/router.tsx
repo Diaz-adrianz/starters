@@ -9,10 +9,10 @@ import authRoutes from './auth/auth.routes';
 import NotFoundPage from './not-found/not-found.page';
 import HomeLayout from './home/home.layout';
 import homeRoutes from './home/home.routes';
-import { AuthenticatedRoute } from '@/components/shared/authenticated-route';
 import adminRoutes from './admin/admin.routes';
 import AdminLayout from './admin/admin.layout';
 import { CanRoute } from '@/components/shared/can-route';
+import { AuthRoute } from '@/components/shared/auth';
 
 const routes: RouteObject[] = [
   {
@@ -37,11 +37,11 @@ const routes: RouteObject[] = [
       {
         path: 'admin',
         element: (
-          <AuthenticatedRoute>
+          <AuthRoute>
             <CanRoute I={'visit'} a={'admin-app'} redirectTo="/">
               <AdminLayout />
             </CanRoute>
-          </AuthenticatedRoute>
+          </AuthRoute>
         ),
         children: adminRoutes,
       },

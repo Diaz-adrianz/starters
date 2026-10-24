@@ -1,23 +1,23 @@
 import type { RouteObject } from 'react-router-dom';
 import SignInPage from './signin/signin.page';
 import SignUpPage from './signup/signup.page';
-import { UnauthenticatedRoute } from '@/components/shared/unauthenticated-route';
+import { AuthRoute } from '@/components/shared/auth';
 
 const authRoutes: RouteObject[] = [
   {
     path: 'signin',
     element: (
-      <UnauthenticatedRoute>
+      <AuthRoute status="unauthenticated">
         <SignInPage />
-      </UnauthenticatedRoute>
+      </AuthRoute>
     ),
   },
   {
     path: 'signup',
     element: (
-      <UnauthenticatedRoute>
+      <AuthRoute status="unauthenticated">
         <SignUpPage />
-      </UnauthenticatedRoute>
+      </AuthRoute>
     ),
   },
 ];

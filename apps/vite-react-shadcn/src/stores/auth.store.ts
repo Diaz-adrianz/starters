@@ -61,3 +61,4 @@ const authStore = create<AuthState & AuthAction>()(
 );
 
 export default authStore;
+export type { AuthStatus };
