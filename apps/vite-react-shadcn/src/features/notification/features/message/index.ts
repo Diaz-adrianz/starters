@@ -1,5 +1,9 @@
 // components
-export { MessageList, MessageListContent } from './components/message-list';
+export {
+  MessageList,
+  MessageListReadFilter,
+  MessageListContent,
+} from './components/message-list';
 export {
   MessageItem,
   MessageItemSkeleton,

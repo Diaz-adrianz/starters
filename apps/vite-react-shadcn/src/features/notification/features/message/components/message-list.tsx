@@ -17,6 +17,7 @@ import type {
   SortingState,
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
+import { Chip, ChipGroup } from '@/components/shared/chip';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -38,24 +39,24 @@ type MessageListContextProps = {
 
 const MessageListContext = createContext<MessageListContextProps | null>(null);
 
-const useMessageList = () => {
+function useMessageList() {
   const context = useContext(MessageListContext);
   if (!context)
     throw new Error('useMessageList must be used within a MessageList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const MessageList = ({
+function MessageList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -111,7 +112,32 @@ const MessageList = ({
       {children}
     </MessageListContext.Provider>
   );
-};
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Filters
+/* -------------------------------------------------------------------------- */
+function MessageListReadFilter() {
+  const { query } = useMessageList();
+
+  const [status, setStatus] = useState('unread');
+
+  useEffect(() => {
+    query.batch([
+      status === 'unread'
+        ? { type: 'add', key: 'eq', field: 'readAt', value: null }
+        : { type: 'del', key: 'eq', field: 'readAt' },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
+  }, [status]);
+
+  return (
+    <ChipGroup value={status} onValueChanged={setStatus}>
+      <Chip value="unread">Unread</Chip>
+      <Chip value="all">All</Chip>
+    </ChipGroup>
+  );
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Content
@@ -129,4 +155,4 @@ function MessageListContent({
   return children({ isLoading, items: data?.items ?? [] });
 }
 
-export { MessageList, MessageListContent };
+export { MessageList, MessageListReadFilter, MessageListContent };
