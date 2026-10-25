@@ -11,14 +11,10 @@ import { Link } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signInSchema, type SignInValues } from '../schemas/auth.schema';
-import { useSignIn } from '../api/auth.mutation';
-import authStore from '@/stores/auth.store';
-import { toast } from 'sonner';
+import { useAuth } from '../hooks/use-auth';
 
 export const SignInForm = () => {
-  const authSignIn = authStore((s) => s.signIn);
-
-  const signIn = useSignIn();
+  const { signIn } = useAuth();
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -29,22 +25,8 @@ export const SignInForm = () => {
     },
   });
 
-  const onSubmit = async (values: SignInValues) => {
-    const { data } = await signIn.mutateAsync(values);
-    authSignIn(
-      {
-        id: data.data.user.id,
-        name: data.data.user.username,
-        avatar: data.data.user.avatar,
-      },
-      data.data.tokens.access,
-      data.data.tokens.refresh
-    );
-    toast.success('Sign in successful');
-  };
-
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
+    <form onSubmit={form.handleSubmit(signIn)}>
       <FieldGroup>
         {/* username / email  */}
         <Controller

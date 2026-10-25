@@ -1,8 +1,8 @@
-// api
-export { useSignIn, useSignOut } from './api/auth.mutation';
-
 // components
 export { SignInForm } from './components/signin-form';
+
+// hooks
+export { useAuth } from './hooks/use-auth';
 
 // types
 export { type RefreshApiResponse } from './types/auth.type';

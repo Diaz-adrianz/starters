@@ -14,9 +14,14 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
-import { RiAccountCircleLine, RiSettings4Line } from '@remixicon/react';
+import {
+  RiAccountCircleLine,
+  RiLogoutCircleLine,
+  RiSettings4Line,
+} from '@remixicon/react';
 import { getInitials } from '@/utils/string';
 import { Button } from '../ui/button';
+import { useAuth } from '@/features/auth';
 
 function Header({
   slotLeft,
@@ -61,6 +66,8 @@ function HeaderLogo() {
 }
 
 function HeaderUser() {
+  const { signOut } = useAuth();
+
   const authUser = authStore((s) => s.user),
     authStatus = authStore((s) => s.status);
 
@@ -104,6 +111,10 @@ function HeaderUser() {
               <RiSettings4Line />
               Settings
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={signOut} variant="destructive">
+            <RiLogoutCircleLine />
+            Sign Out
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
