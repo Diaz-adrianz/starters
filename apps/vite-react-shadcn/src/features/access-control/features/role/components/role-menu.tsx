@@ -42,9 +42,6 @@ const RoleMenu = ({
               Permissions
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to={`/admin/access/roles/${role.id}/pages`}>Pages</Link>
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

@@ -15,8 +15,6 @@ import {
   RiInformationLine,
   RiKeyFill,
   RiKeyLine,
-  RiPagesFill,
-  RiPagesLine,
 } from '@remixicon/react';
 import { useMemo } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
@@ -39,12 +37,6 @@ const Menu: Menu[] = [
     label: 'Permissions',
     Icon: RiKeyLine,
     IconActive: RiKeyFill,
-  },
-  {
-    path: '/admin/access/roles/:id/pages',
-    label: 'Pages',
-    Icon: RiPagesLine,
-    IconActive: RiPagesFill,
   },
 ];
 
