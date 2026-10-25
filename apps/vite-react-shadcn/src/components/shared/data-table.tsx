@@ -216,7 +216,7 @@ function DataTable<TData>({
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <p className="typo-caption text-muted-foreground">
-          {!!onRowSelectionChange && `${selectedCount} selected ·`} {totalItems}{' '}
+          {selectedCount > 0 && `${selectedCount} selected ·`} {totalItems}{' '}
           total
         </p>
 
