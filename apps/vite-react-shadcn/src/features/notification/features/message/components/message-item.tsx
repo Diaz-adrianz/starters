@@ -1,57 +1,52 @@
 import {
   Item,
-  ItemActions,
   ItemContent,
   ItemDescription,
-  ItemMedia,
   ItemTitle,
 } from '@/components/ui/item';
 import { type ComponentProps, type ReactNode } from 'react';
 import type { Message } from '../types/message.type';
-import { RiCircleFill } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dateToNow } from '@/utils/date';
 import { useMarkReadMessage } from '../api/message.mutation';
 
-export const MessageItem = ({
+function MessageItem({
   message,
-  slotMedia,
   slotBottom,
   slotRight,
-  slotActions,
   ...props
 }: ComponentProps<typeof Item> & {
   message: Pick<Message, 'id' | 'title' | 'body' | 'readAt'>;
-  slotMedia?: ReactNode;
   slotBottom?: ReactNode;
   slotRight?: ReactNode;
-  slotActions?: ReactNode;
-}) => {
+}) {
   const markRead = useMarkReadMessage();
 
   const onClick = () => {
     markRead.mutate({ id: message.id });
   };
 
+  const unRead = !message.readAt;
+
   return (
     <Item size={'xs'} {...props} asChild>
       <a href="#" onClick={onClick}>
-        {slotMedia}
         <ItemContent>
-          <ItemTitle>{message.title}</ItemTitle>
-          <ItemDescription>{message.body}</ItemDescription>
+          <ItemTitle className={unRead ? 'font-bold' : 'text-muted-foreground'}>
+            {message.title}
+          </ItemTitle>
+          <ItemDescription className={unRead ? 'text-foreground' : ''}>
+            {message.body}
+          </ItemDescription>
           {slotBottom}
         </ItemContent>
         {!!slotRight && <ItemContent>{slotRight}</ItemContent>}
-        {!!slotActions && <ItemActions>{slotActions}</ItemActions>}
       </a>
     </Item>
   );
-};
+}
 
-export const MessageItemSkeleton = ({
-  ...props
-}: ComponentProps<typeof Item>) => {
+function MessageItemSkeleton({ ...props }: ComponentProps<typeof Item>) {
   return (
     <Item {...props}>
       <ItemContent>
@@ -60,28 +55,15 @@ export const MessageItemSkeleton = ({
       </ItemContent>
     </Item>
   );
-};
+}
 
-export const MessageItemUnreadIndicator = ({
-  readAt,
-  ...props
-}: ComponentProps<typeof ItemMedia> & {
-  readAt: Message['readAt'];
-}) => {
-  return (
-    <ItemMedia {...props} variant={'icon'}>
-      {!readAt && (
-        <RiCircleFill className="size-2 animate-pulse text-destructive" />
-      )}
-    </ItemMedia>
-  );
-};
-
-export const MessageItemCreatedDate = ({
+function MessageItemCreatedDate({
   createdAt,
   ...props
 }: ComponentProps<typeof ItemDescription> & {
   createdAt: Message['createdAt'];
-}) => {
+}) {
   return <ItemDescription {...props}>{dateToNow(createdAt)}</ItemDescription>;
-};
+}
+
+export { MessageItem, MessageItemSkeleton, MessageItemCreatedDate };

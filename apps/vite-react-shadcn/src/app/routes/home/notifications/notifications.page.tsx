@@ -1,25 +1,16 @@
 import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
-import {
   MessageItem,
   MessageItemCreatedDate,
-  MessageItemSkeleton,
-  MessageItemUnreadIndicator,
   MessageList,
-  MessageListItemGroup,
-  MessageListPagination,
+  MessageListContent,
 } from '@/features/notification';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
-import { RiInbox2Line } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 import { Chip, ChipGroup } from '@/components/shared/chip';
+import { ItemGroup } from '@/components/ui/item';
 
 const NotificationsPage = () => {
   const authUser = authStore((s) => s.user);
@@ -53,33 +44,21 @@ const NotificationsPage = () => {
         <Card>
           <CardContent>
             <MessageList query={query}>
-              <MessageListItemGroup
-                skeleton={<MessageItemSkeleton />}
-                empty={
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyMedia variant={'icon'}>
-                        <RiInbox2Line />
-                      </EmptyMedia>
-                      <EmptyTitle>No messages yet</EmptyTitle>
-                    </EmptyHeader>
-                  </Empty>
-                }
-                className="mb-4"
-                separator
-              >
-                {(m) => (
-                  <MessageItem
-                    key={m.id}
-                    message={m}
-                    slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
-                    slotRight={
-                      <MessageItemCreatedDate createdAt={m.createdAt} />
-                    }
-                  />
+              <MessageListContent>
+                {({ items }) => (
+                  <ItemGroup>
+                    {items.map((m) => (
+                      <MessageItem
+                        key={m.id}
+                        message={m}
+                        slotRight={
+                          <MessageItemCreatedDate createdAt={m.createdAt} />
+                        }
+                      />
+                    ))}
+                  </ItemGroup>
                 )}
-              </MessageListItemGroup>
-              <MessageListPagination />
+              </MessageListContent>
             </MessageList>
           </CardContent>
         </Card>

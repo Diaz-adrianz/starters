@@ -1,6 +1,5 @@
 import {
   RiArrowRightLine,
-  RiInbox2Line,
   RiNotification3Fill,
   RiNotification3Line,
 } from '@remixicon/react';
@@ -18,21 +17,21 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import { Empty, EmptyHeader, EmptyMedia } from '@/components/ui/empty';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useMessagesCount } from '../features/message/api/message.query';
+import {
+  queryKeys as messageQueryKeys,
+  useMessagesCount,
+} from '../features/message/api/message.query';
 import { useNotificationSocket } from '../hooks/use-notification-socket';
 import {
   MessageItem,
   MessageItemCreatedDate,
-  MessageItemSkeleton,
-  MessageItemUnreadIndicator,
   MessageList,
-  MessageListItemGroup,
-  messageQueryKeys,
+  MessageListContent,
 } from '../features/message';
+import { ItemGroup } from '@/components/ui/item';
 
 const MAX_MESSAGES = 10;
 
@@ -95,30 +94,21 @@ function HeaderNotifications() {
         </PopoverHeader>
         <ScrollArea className="max-h-96 overflow-auto pb-16">
           <MessageList query={query}>
-            <MessageListItemGroup
-              skeleton={<MessageItemSkeleton />}
-              empty={
-                <Empty>
-                  <EmptyHeader>
-                    <EmptyMedia variant={'icon'}>
-                      <RiInbox2Line />
-                    </EmptyMedia>
-                  </EmptyHeader>
-                </Empty>
-              }
-              className="gap-0"
-            >
-              {(m) => (
-                <MessageItem
-                  key={m.id}
-                  message={m}
-                  slotMedia={<MessageItemUnreadIndicator readAt={m.readAt} />}
-                  slotBottom={
-                    <MessageItemCreatedDate createdAt={m.createdAt} />
-                  }
-                />
+            <MessageListContent>
+              {({ items }) => (
+                <ItemGroup>
+                  {items.map((m) => (
+                    <MessageItem
+                      key={m.id}
+                      message={m}
+                      slotBottom={
+                        <MessageItemCreatedDate createdAt={m.createdAt} />
+                      }
+                    />
+                  ))}
+                </ItemGroup>
               )}
-            </MessageListItemGroup>
+            </MessageListContent>
           </MessageList>
         </ScrollArea>
 

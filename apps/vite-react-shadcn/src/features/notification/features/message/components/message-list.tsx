@@ -1,39 +1,44 @@
-import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import {
   createContext,
-  Fragment,
   useContext,
-  type ComponentProps,
+  useEffect,
+  useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from 'react';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from '@/components/ui/pagination';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { usePagination } from '@/hooks/use-pagination';
-import { Button } from '@/components/ui/button';
-import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
-import { cn } from 'cn';
 import type { Message } from '../types/message.type';
 import { useMessages } from '../api/message.query';
+import type {
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+} from '@tanstack/react-table';
+import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 
-// ======================================
-// Context
-// --------------------------------------
+const DEFAULT_PAGE = 1,
+  DEFAULT_LIMIT = 10;
+
+/* -------------------------------------------------------------------------- */
+/*  Context
+/* -------------------------------------------------------------------------- */
 type MessageListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<Message>['data'] | undefined;
   isLoading: boolean;
+  pagination: PaginationState;
+  setPagination: Dispatch<SetStateAction<PaginationState>>;
+  sorting: SortingState;
+  setSorting: Dispatch<SetStateAction<SortingState>>;
+  rowSelection: RowSelectionState;
+  setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
 
 const MessageListContext = createContext<MessageListContextProps | null>(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useMessageList = () => {
+const useMessageList = () => {
   const context = useContext(MessageListContext);
   if (!context)
     throw new Error('useMessageList must be used within a MessageList.');
@@ -41,10 +46,10 @@ export const useMessageList = () => {
   return context;
 };
 
-// ======================================
-// Provider
-// --------------------------------------
-export const MessageList = ({
+/* -------------------------------------------------------------------------- */
+/*  Provider
+/* -------------------------------------------------------------------------- */
+const MessageList = ({
   children,
   query: controlledQuery,
 }: {
@@ -54,114 +59,74 @@ export const MessageList = ({
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
+  const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
+      pageSize: query.state.limit ?? DEFAULT_LIMIT,
+    }),
+    [sorting, setSorting] = useState<SortingState>(
+      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+        id: k,
+        desc: v === 'desc',
+      }))
+    ),
+    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const { data, isLoading } = useMessages(query.params);
 
+  useEffect(() => {
+    query.batch([
+      {
+        type: 'set',
+        key: 'order',
+        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
+          acc[id] = desc ? 'desc' : 'asc';
+          return acc;
+        }, {}),
+      },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
+  }, [sorting]);
+
+  useEffect(() => {
+    query.batch([
+      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
+      { type: 'set', key: 'limit', value: pagination.pageSize },
+    ]);
+  }, [pagination]);
+
   return (
-    <MessageListContext.Provider value={{ query, data, isLoading }}>
+    <MessageListContext.Provider
+      value={{
+        query,
+        data,
+        isLoading,
+        pagination,
+        setPagination,
+        sorting,
+        setSorting,
+        rowSelection,
+        setRowSelection,
+      }}
+    >
       {children}
     </MessageListContext.Provider>
   );
 };
 
-// ======================================
-// Content
-// --------------------------------------
-export const MessageListItemGroup = ({
+/* -------------------------------------------------------------------------- */
+/*  Content
+/* -------------------------------------------------------------------------- */
+function MessageListContent({
   children,
-  separator,
-  skeleton,
-  skeletonCount = 5,
-  empty,
-  className,
-  ...props
-}: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
-  children: (message: Message) => ReactNode;
-  separator?: boolean;
-  skeleton?: ReactNode;
-  skeletonCount?: number;
-  empty?: ReactNode;
-}) => {
+}: {
+  children: (opts: {
+    isLoading: MessageListContextProps['isLoading'];
+    items: NonNullable<MessageListContextProps['data']>['items'];
+  }) => ReactNode;
+}) {
   const { data, isLoading } = useMessageList();
 
-  return (
-    <ItemGroup className={cn('relative', className)} {...props}>
-      {!!skeleton &&
-        isLoading &&
-        Array.from({ length: skeletonCount }).map((_, i) => (
-          <Fragment key={i}>{skeleton}</Fragment>
-        ))}
+  return children({ isLoading, items: data?.items ?? [] });
+}
 
-      {(data?.items.length ?? 0) <= 0 && !isLoading && empty}
-
-      {data?.items.map((d, i) => {
-        return (
-          <Fragment key={d.id}>
-            {children(d)}
-            {separator && i < data.items.length - 1 && (
-              <ItemSeparator className="m-0" />
-            )}
-          </Fragment>
-        );
-      })}
-    </ItemGroup>
-  );
-};
-
-// ======================================
-// Pagination
-// --------------------------------------
-export const MessageListPagination = () => {
-  const { query, isLoading, data } = useMessageList();
-  const { hasPrevPage, prevPage, hasNextPage, nextPage, pages, jumpToPage } =
-    usePagination({
-      page: data?.page ?? 1,
-      limit: data?.limit ?? 10,
-      totalItems: data?.totalItems ?? 0,
-      onPageChange: (p) => query.set('page', p),
-      onLimitChange: (l) => query.set('limit', l),
-    });
-
-  return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <Button
-            size={'xs'}
-            variant={'ghost'}
-            disabled={!hasPrevPage || isLoading}
-            onClick={prevPage}
-          >
-            <RiArrowLeftSLine /> Previous
-          </Button>
-        </PaginationItem>
-        {pages.map((p, i) => (
-          <PaginationItem key={i}>
-            {p === null ? (
-              <PaginationEllipsis />
-            ) : (
-              <Button
-                disabled={isLoading}
-                size={'icon-xs'}
-                className="text-xs"
-                variant={data?.page === p ? 'default' : 'ghost'}
-                onClick={() => jumpToPage(p)}
-              >
-                {p}
-              </Button>
-            )}
-          </PaginationItem>
-        ))}
-        <PaginationItem>
-          <Button
-            size={'xs'}
-            variant={'ghost'}
-            disabled={!hasNextPage || isLoading}
-            onClick={nextPage}
-          >
-            Next <RiArrowRightSLine />
-          </Button>
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
-};
+export { MessageList, MessageListContent };
