@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 
 import { Can } from '@/components/shared/can';
+import { useConfirm } from '@/components/shared/confirm';
 
 function PermissionMenu({
   permission,
@@ -20,6 +21,13 @@ function PermissionMenu({
   permission: Pick<Permission, 'id' | 'enabled'>;
   trigger?: ReactNode;
 }) {
+  const confirm = useConfirm();
+
+  const updateActive = async (_: boolean) => {
+    const ok = await confirm();
+    console.log(ok);
+  };
+
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -43,6 +51,7 @@ function PermissionMenu({
               <DropdownMenuItem
                 variant={permission.enabled ? 'destructive' : 'default'}
                 disabled={!isAllowed}
+                onClick={() => updateActive(!permission.enabled)}
               >
                 {permission.enabled ? 'Deactivate' : 'Activate'}
               </DropdownMenuItem>
