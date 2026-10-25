@@ -9,12 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   RoleList,
-  RoleListSearchBox,
-  RoleListItemGroup,
-  RoleItemSkeleton,
-  RoleItem,
-  RoleItemActionMenu,
-  RoleListPagination,
+  RoleListSearchFilter,
+  RoleListTable,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import { RiAddLine } from '@remixicon/react';
@@ -50,23 +46,9 @@ const RolesPage = () => {
           <CardContent>
             <RoleList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <RoleListSearchBox />
+                <RoleListSearchFilter />
               </div>
-              <RoleListItemGroup
-                separator
-                skeleton={<RoleItemSkeleton />}
-                className="mb-8"
-              >
-                {(role) => (
-                  <RoleItem
-                    key={role.id}
-                    role={role}
-                    titleTo={'/admin/access/roles/' + role.id}
-                    slotActions={<RoleItemActionMenu role={role} />}
-                  />
-                )}
-              </RoleListItemGroup>
-              <RoleListPagination />
+              <RoleListTable />
             </RoleList>
           </CardContent>
         </Card>

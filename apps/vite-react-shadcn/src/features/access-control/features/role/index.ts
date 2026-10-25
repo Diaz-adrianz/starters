@@ -4,15 +4,9 @@ export { useRole } from './api/role.query';
 // components
 export {
   RoleList,
-  RoleListItemGroup,
-  RoleListPagination,
-  RoleListSearchBox,
+  RoleListSearchFilter,
+  RoleListTable,
 } from './components/role-list';
-export {
-  RoleItem,
-  RoleItemSkeleton,
-  RoleItemActionMenu,
-} from './components/role-item';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
 export {
   RoleUserList,

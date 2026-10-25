@@ -1,11 +1,4 @@
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemTitle,
-} from '@/components/ui/item';
 import type { ComponentProps, ReactNode } from 'react';
-import type { Role } from '../types/role.type';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,64 +10,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import { Can } from '@/components/shared/can';
-import { InlineLink } from '@/components/shared/inline-link';
+import type { Role } from '../types/role.type';
 import { Link } from 'react-router-dom';
 
-export const RoleItem = ({
-  role,
-  slotActions,
-  titleTo,
-  ...props
-}: Omit<ComponentProps<typeof Item>, 'role'> & {
-  role: Pick<Role, 'id' | 'name' | 'enabled'>;
-  slotActions?: ReactNode;
-  titleTo?: string;
-}) => {
-  return (
-    <Item size={'xs'} {...props}>
-      <ItemContent>
-        <ItemTitle>
-          {titleTo ? (
-            <InlineLink to={titleTo} className="hover:underline">
-              {role.name}
-            </InlineLink>
-          ) : (
-            role.name
-          )}
-        </ItemTitle>
-      </ItemContent>
-      <ItemContent className="flex-row items-center gap-4">
-        {role.enabled ? (
-          <Badge>Active</Badge>
-        ) : (
-          <Badge variant={'secondary'}>Inactive</Badge>
-        )}
-      </ItemContent>
-      {slotActions && <ItemActions>{slotActions}</ItemActions>}
-    </Item>
-  );
-};
-
-export const RoleItemSkeleton = ({ ...props }: ComponentProps<typeof Item>) => {
-  return (
-    <Item size={'xs'} {...props}>
-      <ItemContent>
-        <Skeleton className="h-6 w-32" />
-      </ItemContent>
-      <ItemContent>
-        <Skeleton className="h-4 w-16" />
-      </ItemContent>
-    </Item>
-  );
-};
-
-// ======================================
-// Actions
-// --------------------------------------
-export const RoleItemActionMenu = ({
+const RoleMenu = ({
   role,
   trigger,
   ...props
@@ -135,3 +75,5 @@ export const RoleItemActionMenu = ({
     </DropdownMenu>
   );
 };
+
+export { RoleMenu };
