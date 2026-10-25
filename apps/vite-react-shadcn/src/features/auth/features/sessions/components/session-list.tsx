@@ -1,39 +1,47 @@
-import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import {
   createContext,
   Fragment,
   useContext,
+  useEffect,
+  useState,
   type ComponentProps,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from 'react';
 import type { Session } from '../types/session.type';
 import { useSessions } from '../api/session.query';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from '@/components/ui/pagination';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { usePagination } from '@/hooks/use-pagination';
-import { Button } from '@/components/ui/button';
-import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
-import { cn } from 'cn';
+import type {
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+} from '@tanstack/react-table';
+import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
+import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 
-// ======================================
-// Context
-// --------------------------------------
+const DEFAULT_PAGE = 1,
+  DEFAULT_LIMIT = 10;
+
+/* -------------------------------------------------------------------------- */
+/*  Context
+/* -------------------------------------------------------------------------- */
 type SessionListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<Session>['data'] | undefined;
   isLoading: boolean;
+  pagination: PaginationState;
+  setPagination: Dispatch<SetStateAction<PaginationState>>;
+  sorting: SortingState;
+  setSorting: Dispatch<SetStateAction<SortingState>>;
+  rowSelection: RowSelectionState;
+  setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
 
 const SessionListContext = createContext<SessionListContextProps | null>(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useSessionList = () => {
+const useSessionList = () => {
   const context = useContext(SessionListContext);
   if (!context)
     throw new Error('useSessionList must be used within a SessionList.');
@@ -41,123 +49,116 @@ export const useSessionList = () => {
   return context;
 };
 
-// ======================================
-// Provider
-// --------------------------------------
-export const SessionList = ({
+/* -------------------------------------------------------------------------- */
+/*  Provider
+/* -------------------------------------------------------------------------- */
+function SessionList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
+  const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
+      pageSize: query.state.limit ?? DEFAULT_LIMIT,
+    }),
+    [sorting, setSorting] = useState<SortingState>(
+      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+        id: k,
+        desc: v === 'desc',
+      }))
+    ),
+    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const { data, isLoading } = useSessions(query.params);
 
+  useEffect(() => {
+    query.batch([
+      {
+        type: 'set',
+        key: 'order',
+        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
+          acc[id] = desc ? 'desc' : 'asc';
+          return acc;
+        }, {}),
+      },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
+  }, [sorting]);
+
+  useEffect(() => {
+    query.batch([
+      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
+      { type: 'set', key: 'limit', value: pagination.pageSize },
+    ]);
+  }, [pagination]);
+
   return (
-    <SessionListContext.Provider value={{ query, data, isLoading }}>
+    <SessionListContext.Provider
+      value={{
+        query,
+        data,
+        isLoading,
+        pagination,
+        setPagination,
+        sorting,
+        setSorting,
+        rowSelection,
+        setRowSelection,
+      }}
+    >
       {children}
     </SessionListContext.Provider>
   );
-};
+}
 
-// ======================================
-// Content
-// --------------------------------------
-export const SessionListItemGroup = ({
+/* -------------------------------------------------------------------------- */
+/*  Content
+/* -------------------------------------------------------------------------- */
+function SessionListContent({
   children,
-  separator,
+}: {
+  children: (
+    opts: {
+      items: NonNullable<SessionListContextProps['data']>['items'];
+    } & Pick<SessionListContextProps, 'isLoading' | 'pagination'>
+  ) => ReactNode;
+}) {
+  const { data, isLoading, pagination } = useSessionList();
+
+  return children({ items: data?.items ?? [], isLoading, pagination });
+}
+
+function SessionListItemGroup({
+  children,
   skeleton,
-  skeletonCount = 5,
-  className,
   ...props
 }: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
   children: (session: Session) => ReactNode;
-  separator?: boolean;
   skeleton?: ReactNode;
-  skeletonCount?: number;
-}) => {
-  const { data, isLoading } = useSessionList();
-
+}) {
   return (
-    <ItemGroup className={cn('relative', className)} {...props}>
-      {!!skeleton &&
-        isLoading &&
-        Array.from({ length: skeletonCount }).map((_, i) => (
-          <Fragment key={i}>{skeleton}</Fragment>
-        ))}
-
-      {data?.items.map((s, i) => {
-        return (
-          <Fragment key={s.id}>
-            {children(s)}
-            {separator && i < data.items.length - 1 && (
-              <ItemSeparator className="m-0" />
-            )}
-          </Fragment>
-        );
-      })}
-    </ItemGroup>
+    <SessionListContent>
+      {({ items, isLoading, pagination }) => (
+        <ItemGroup {...props}>
+          {isLoading
+            ? Array.from({ length: pagination.pageSize }).map((_, i) => (
+                <Fragment key={i}>{skeleton}</Fragment>
+              ))
+            : items.map((s, i) => (
+                <Fragment key={s.id}>
+                  {children(s)}
+                  {i < items.length - 1 && <ItemSeparator className="m-0" />}
+                </Fragment>
+              ))}
+        </ItemGroup>
+      )}
+    </SessionListContent>
   );
-};
+}
 
-// ======================================
-// Pagination
-// --------------------------------------
-export const SessionListPagination = () => {
-  const { query, isLoading, data } = useSessionList();
-  const { hasPrevPage, prevPage, hasNextPage, nextPage, pages, jumpToPage } =
-    usePagination({
-      page: data?.page ?? 1,
-      limit: data?.limit ?? 10,
-      totalItems: data?.totalItems ?? 0,
-      onPageChange: (p) => query.set('page', p),
-      onLimitChange: (l) => query.set('limit', l),
-    });
-
-  return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <Button
-            size={'xs'}
-            variant={'ghost'}
-            disabled={!hasPrevPage || isLoading}
-            onClick={prevPage}
-          >
-            <RiArrowLeftSLine /> Previous
-          </Button>
-        </PaginationItem>
-        {pages.map((p, i) => (
-          <PaginationItem key={i}>
-            {p === null ? (
-              <PaginationEllipsis />
-            ) : (
-              <Button
-                disabled={isLoading}
-                size={'icon-xs'}
-                className="text-xs"
-                variant={data?.page === p ? 'default' : 'ghost'}
-                onClick={() => jumpToPage(p)}
-              >
-                {p}
-              </Button>
-            )}
-          </PaginationItem>
-        ))}
-        <PaginationItem>
-          <Button
-            size={'xs'}
-            variant={'ghost'}
-            disabled={!hasNextPage || isLoading}
-            onClick={nextPage}
-          >
-            Next <RiArrowRightSLine />
-          </Button>
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
-};
+export { SessionList, SessionListItemGroup };

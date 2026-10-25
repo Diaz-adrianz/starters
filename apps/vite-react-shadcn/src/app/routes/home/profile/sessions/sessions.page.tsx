@@ -2,11 +2,10 @@ import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   SessionItem,
-  SessionItemActionMenu,
   SessionItemSkeleton,
   SessionList,
   SessionListItemGroup,
-  SessionListPagination,
+  SessionMenu,
 } from '@/features/auth';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
@@ -32,20 +31,15 @@ const SessionsPage = () => {
         <SessionList query={query}>
           <Card>
             <CardContent>
-              <SessionListItemGroup
-                skeleton={<SessionItemSkeleton />}
-                separator
-                className="mb-4"
-              >
+              <SessionListItemGroup skeleton={<SessionItemSkeleton />}>
                 {(s) => (
                   <SessionItem
                     key={s.id}
                     session={s}
-                    slotRight={<SessionItemActionMenu session={s} />}
+                    slotRight={<SessionMenu session={s} />}
                   />
                 )}
               </SessionListItemGroup>
-              <SessionListPagination />
             </CardContent>
           </Card>
         </SessionList>
