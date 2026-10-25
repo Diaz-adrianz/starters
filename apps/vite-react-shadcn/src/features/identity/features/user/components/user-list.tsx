@@ -49,8 +49,7 @@ type UserListContextProps = {
 
 const UserListContext = createContext<UserListContextProps | null>(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useUserList = () => {
+const useUserList = () => {
   const context = useContext(UserListContext);
   if (!context) throw new Error('useUserList must be used within a UserList.');
 

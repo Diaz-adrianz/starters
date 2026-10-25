@@ -6,13 +6,9 @@ import {
 } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  ProfileItem,
-  ProfileItemActionMenu,
-  ProfileItemSkeleton,
   ProfileList,
-  ProfileListItemGroup,
-  ProfileListPagination,
-  ProfileListSearchBox,
+  ProfileListSearchFilter,
+  ProfileListTable,
 } from '@/features/identity';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 
@@ -38,22 +34,9 @@ const ProfilesPage = () => {
           <CardContent>
             <ProfileList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <ProfileListSearchBox />
+                <ProfileListSearchFilter />
               </div>
-              <ProfileListItemGroup
-                separator
-                skeleton={<ProfileItemSkeleton />}
-                className="mb-8"
-              >
-                {(profile) => (
-                  <ProfileItem
-                    key={profile.id}
-                    profile={profile}
-                    slotActions={<ProfileItemActionMenu profile={profile} />}
-                  />
-                )}
-              </ProfileListItemGroup>
-              <ProfileListPagination />
+              <ProfileListTable />
             </ProfileList>
           </CardContent>
         </Card>

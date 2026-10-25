@@ -5,12 +5,6 @@ export { useProfile } from './api/profile.query';
 export { ProfileCard, ProfileCardSkeleton } from './components/profile-card';
 export {
   ProfileList,
-  ProfileListItemGroup,
-  ProfileListPagination,
-  ProfileListSearchBox,
+  ProfileListTable,
+  ProfileListSearchFilter,
 } from './components/profile-list';
-export {
-  ProfileItem,
-  ProfileItemSkeleton,
-  ProfileItemActionMenu,
-} from './components/profile-item';

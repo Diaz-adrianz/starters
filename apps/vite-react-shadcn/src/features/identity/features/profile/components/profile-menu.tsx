@@ -1,12 +1,4 @@
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from '@/components/ui/item';
 import type { ComponentProps, ReactNode } from 'react';
-import type { Profile } from '../types/profile.type';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,50 +10,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { Can } from '@/components/shared/can';
+import type { Profile } from '../types/profile.type';
 import { Link } from 'react-router-dom';
 
-export const ProfileItem = ({
-  profile,
-  slotActions,
-  ...props
-}: ComponentProps<typeof Item> & {
-  profile: Pick<Profile, 'firstName' | 'lastName' | 'gender'>;
-  slotActions?: ReactNode;
-}) => {
-  return (
-    <Item size={'xs'} {...props}>
-      <ItemContent>
-        <ItemTitle>
-          {profile.firstName} {profile.lastName}
-        </ItemTitle>
-        <ItemDescription>{profile.gender}</ItemDescription>
-      </ItemContent>
-      {slotActions && <ItemActions>{slotActions}</ItemActions>}
-    </Item>
-  );
-};
-
-export const ProfileItemSkeleton = ({
-  ...props
-}: ComponentProps<typeof Item>) => {
-  return (
-    <Item size={'xs'} {...props}>
-      <ItemContent>
-        <Skeleton className="h-6 w-32" />
-      </ItemContent>
-      <ItemContent>
-        <Skeleton className="h-4 w-16" />
-      </ItemContent>
-    </Item>
-  );
-};
-
-// ======================================
-// Actions
-// --------------------------------------
-export const ProfileItemActionMenu = ({
+const ProfileMenu = ({
   profile,
   trigger,
   ...props
@@ -106,3 +60,5 @@ export const ProfileItemActionMenu = ({
     </DropdownMenu>
   );
 };
+
+export { ProfileMenu };
