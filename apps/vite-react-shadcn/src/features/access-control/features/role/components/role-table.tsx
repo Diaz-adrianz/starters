@@ -3,6 +3,9 @@ import type { Role } from '../types/role.type';
 import { SortableHeader } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { RoleMenu } from './role-menu';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { RiArrowRightLine } from '@remixicon/react';
 
 const RoleTableColumnDef: ColumnDef<Role>[] = [
   {
@@ -40,7 +43,16 @@ const RoleTableColumnDef: ColumnDef<Role>[] = [
   {
     id: 'action',
     header: '',
-    cell: ({ row }) => <RoleMenu role={row.original} />,
+    cell: ({ row }) => (
+      <>
+        <Button size={'icon'} variant={'ghost'} asChild>
+          <Link to={`/admin/access/roles/${row.original.id}`}>
+            <RiArrowRightLine />
+          </Link>
+        </Button>
+        <RoleMenu role={row.original} />
+      </>
+    ),
     enableSorting: false,
   },
 ];
