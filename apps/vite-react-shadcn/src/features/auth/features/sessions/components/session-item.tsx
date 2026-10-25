@@ -17,7 +17,7 @@ import {
 } from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export const SessionItem = ({
+function SessionItem({
   session,
   slotRight,
   className,
@@ -25,7 +25,7 @@ export const SessionItem = ({
 }: ComponentProps<typeof Item> & {
   session: Session;
   slotRight?: ReactNode;
-}) => {
+}) {
   return (
     <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia variant={'icon'}>
@@ -56,12 +56,12 @@ export const SessionItem = ({
       </ItemContent>
     </Item>
   );
-};
+}
 
-export const SessionItemSkeleton = ({
+function SessionItemSkeleton({
   className,
   ...props
-}: ComponentProps<typeof Item>) => {
+}: ComponentProps<typeof Item>) {
   return (
     <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia>
@@ -77,4 +77,6 @@ export const SessionItemSkeleton = ({
       </ItemContent>
     </Item>
   );
-};
+}
+
+export { SessionItem, SessionItemSkeleton };

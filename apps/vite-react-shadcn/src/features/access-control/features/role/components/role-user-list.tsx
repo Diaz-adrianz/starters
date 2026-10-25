@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -51,18 +50,18 @@ const RoleUserListContext = createContext<RoleUserListContextProps | null>(
   null
 );
 
-const useRoleUserList = () => {
+function useRoleUserList() {
   const context = useContext(RoleUserListContext);
   if (!context)
     throw new Error('useRoleUserList must be used within a RoleUserList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const RoleUserList = ({
+function RoleUserList({
   children,
   roleId,
   query: controlledQuery,
@@ -70,7 +69,7 @@ const RoleUserList = ({
   children: ReactNode;
   roleId: string;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -126,14 +125,14 @@ const RoleUserList = ({
       {children}
     </RoleUserListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const RoleUserListSearchFilter = ({
+function RoleUserListSearchFilter({
   ...props
-}: ComponentProps<typeof InputGroup>) => {
+}: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = useRoleUserList();
 
   const [search, setSearch] = useState('');
@@ -172,12 +171,12 @@ const RoleUserListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const RoleUserListTable = () => {
+function RoleUserListTable() {
   const {
     data,
     isLoading,
@@ -189,15 +188,6 @@ const RoleUserListTable = () => {
     setRowSelection,
   } = useRoleUserList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={RoleUserTableColumnDef}
@@ -206,14 +196,14 @@ const RoleUserListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export { RoleUserList, RoleUserListSearchFilter, RoleUserListTable };

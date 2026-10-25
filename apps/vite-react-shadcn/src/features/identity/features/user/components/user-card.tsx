@@ -16,13 +16,13 @@ import type { User } from '../types/user.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/utils/date';
 
-export const UserCard = ({
+function UserCard({
   className,
   user,
   ...props
 }: ComponentProps<typeof Card> & {
   user: Pick<User, 'id' | 'avatar' | 'email' | 'username' | 'createdAt'>;
-}) => {
+}) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -70,12 +70,12 @@ export const UserCard = ({
       </CardContent>
     </Card>
   );
-};
+}
 
-export const UserCardSkeleton = ({
+function UserCardSkeleton({
   className,
   ...props
-}: ComponentProps<typeof Card>) => {
+}: ComponentProps<typeof Card>) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -114,4 +114,6 @@ export const UserCardSkeleton = ({
       </CardContent>
     </Card>
   );
-};
+}
+
+export { UserCard, UserCardSkeleton };

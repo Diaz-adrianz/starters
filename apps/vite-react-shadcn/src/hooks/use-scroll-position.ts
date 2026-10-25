@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export type ScrollPos = 'start' | 'up' | 'down' | 'end';
 
-export function useScrollPosition({
+function useScrollPosition({
   offsetTop = 0,
   offsetBottom = 0,
 }: { offsetTop?: number; offsetBottom?: number } = {}) {
@@ -35,3 +35,5 @@ export function useScrollPosition({
 
   return pos;
 }
+
+export { useScrollPosition };

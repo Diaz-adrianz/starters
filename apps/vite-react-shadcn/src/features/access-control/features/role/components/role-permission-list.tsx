@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -50,7 +49,7 @@ type RolePermissionListContextProps = {
 const RolePermissionListContext =
   createContext<RolePermissionListContextProps | null>(null);
 
-const useRolePermissionList = () => {
+function useRolePermissionList() {
   const context = useContext(RolePermissionListContext);
   if (!context)
     throw new Error(
@@ -58,12 +57,12 @@ const useRolePermissionList = () => {
     );
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const RolePermissionList = ({
+function RolePermissionList({
   children,
   roleId,
   query: controlledQuery,
@@ -71,7 +70,7 @@ const RolePermissionList = ({
   children: ReactNode;
   roleId: string;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -127,14 +126,14 @@ const RolePermissionList = ({
       {children}
     </RolePermissionListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const RolePermissionListSearchFilter = ({
+function RolePermissionListSearchFilter({
   ...props
-}: ComponentProps<typeof InputGroup>) => {
+}: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = useRolePermissionList();
 
   const [search, setSearch] = useState('');
@@ -175,12 +174,12 @@ const RolePermissionListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const RolePermissionListTable = () => {
+function RolePermissionListTable() {
   const {
     data,
     isLoading,
@@ -192,15 +191,6 @@ const RolePermissionListTable = () => {
     setRowSelection,
   } = useRolePermissionList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={RolePermissionTableColumnDef}
@@ -209,15 +199,15 @@ const RolePermissionListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export {
   RolePermissionList,

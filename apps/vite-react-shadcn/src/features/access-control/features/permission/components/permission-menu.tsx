@@ -12,14 +12,14 @@ import { RiMore2Line } from '@remixicon/react';
 
 import { Can } from '@/components/shared/can';
 
-const PermissionMenu = ({
+function PermissionMenu({
   permission,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
   permission: Pick<Permission, 'id' | 'enabled'>;
   trigger?: ReactNode;
-}) => {
+}) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -52,6 +52,6 @@ const PermissionMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}
 
 export { PermissionMenu };

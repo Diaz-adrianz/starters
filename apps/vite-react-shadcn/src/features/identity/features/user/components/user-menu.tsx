@@ -13,14 +13,14 @@ import { RiMore2Line } from '@remixicon/react';
 import { Can } from '@/components/shared/can';
 import type { User } from '../types/user.type';
 
-const UserMenu = ({
+function UserMenu({
   user,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
   user: Pick<User, 'id' | 'enabled'>;
   trigger?: ReactNode;
-}) => {
+}) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -59,6 +59,6 @@ const UserMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}
 
 export { UserMenu };

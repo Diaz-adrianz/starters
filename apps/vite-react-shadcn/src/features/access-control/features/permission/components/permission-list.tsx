@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -51,24 +50,24 @@ const PermissionListContext = createContext<PermissionListContextProps | null>(
   null
 );
 
-const usePermissionList = () => {
+function usePermissionList() {
   const context = useContext(PermissionListContext);
   if (!context)
     throw new Error('usePermissionList must be used within a PermissionList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const PermissionList = ({
+function PermissionList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -124,14 +123,14 @@ const PermissionList = ({
       {children}
     </PermissionListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const PermissionListSearchFilter = ({
+function PermissionListSearchFilter({
   ...props
-}: ComponentProps<typeof InputGroup>) => {
+}: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = usePermissionList();
 
   const [search, setSearch] = useState('');
@@ -170,12 +169,12 @@ const PermissionListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const PermissionListTable = () => {
+function PermissionListTable() {
   const {
     data,
     isLoading,
@@ -187,15 +186,6 @@ const PermissionListTable = () => {
     setRowSelection,
   } = usePermissionList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={PermissionTableColumnDef}
@@ -204,14 +194,14 @@ const PermissionListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export { PermissionList, PermissionListSearchFilter, PermissionListTable };

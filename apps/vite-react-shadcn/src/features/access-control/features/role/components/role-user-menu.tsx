@@ -11,11 +11,11 @@ import { Button } from '@/components/ui/button';
 import { RiMore2Line } from '@remixicon/react';
 import { Can } from '@/components/shared/can';
 
-const RoleUserMenu = ({
+function RoleUserMenu({
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
   roleUser: Pick<RoleUser, 'id'>;
-}) => {
+}) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -36,6 +36,6 @@ const RoleUserMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}
 
 export { RoleUserMenu };

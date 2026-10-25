@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -49,23 +48,23 @@ type UserListContextProps = {
 
 const UserListContext = createContext<UserListContextProps | null>(null);
 
-const useUserList = () => {
+function useUserList() {
   const context = useContext(UserListContext);
   if (!context) throw new Error('useUserList must be used within a UserList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const UserList = ({
+function UserList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -121,14 +120,12 @@ const UserList = ({
       {children}
     </UserListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const UserListSearchFilter = ({
-  ...props
-}: ComponentProps<typeof InputGroup>) => {
+function UserListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = useUserList();
 
   const [search, setSearch] = useState('');
@@ -169,12 +166,12 @@ const UserListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const UserListTable = () => {
+function UserListTable() {
   const {
     data,
     isLoading,
@@ -186,15 +183,6 @@ const UserListTable = () => {
     setRowSelection,
   } = useUserList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={UserTableColumnDef}
@@ -203,14 +191,14 @@ const UserListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export { UserList, UserListSearchFilter, UserListTable };

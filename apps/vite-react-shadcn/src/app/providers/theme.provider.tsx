@@ -57,7 +57,7 @@ function disableTransitionsTemporarily() {
   };
 }
 
-export function ThemeProvider({
+function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = 'theme',
@@ -159,7 +159,7 @@ export function ThemeProvider({
   );
 }
 
-export const useTheme = () => {
+function useTheme() {
   const context = React.useContext(ThemeProviderContext);
 
   if (context === undefined) {
@@ -167,4 +167,6 @@ export const useTheme = () => {
   }
 
   return context;
-};
+}
+
+export { ThemeProvider, useTheme };

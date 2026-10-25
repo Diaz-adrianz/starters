@@ -1,7 +1,7 @@
 import { Link, type LinkProps } from 'react-router-dom';
 import { cn } from 'cn';
 
-export const InlineLink = ({ className, ...props }: LinkProps) => {
+function InlineLink({ className, ...props }: LinkProps) {
   return (
     <Link
       className={cn(
@@ -11,4 +11,6 @@ export const InlineLink = ({ className, ...props }: LinkProps) => {
       {...props}
     />
   );
-};
+}
+
+export { InlineLink };

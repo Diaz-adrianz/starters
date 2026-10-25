@@ -8,7 +8,7 @@ import {
 } from '../ui/select';
 import { ThemeOptions, type Theme } from '@/constants/theme.constant';
 
-export const ThemeSelect = () => {
+function ThemeSelect() {
   const { theme, setTheme } = useTheme();
   return (
     <Select value={theme} onValueChange={(v) => setTheme(v as Theme)}>
@@ -24,4 +24,6 @@ export const ThemeSelect = () => {
       </SelectContent>
     </Select>
   );
-};
+}
+
+export { ThemeSelect };

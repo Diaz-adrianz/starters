@@ -2,13 +2,7 @@ import type { Menu } from '@/types/menu.type';
 import { type ComponentProps } from 'react';
 import { Link } from 'react-router-dom';
 
-export const MenuItemContent = ({
-  menu,
-  active,
-}: {
-  menu: Menu;
-  active?: boolean;
-}) => {
+function MenuItemContent({ menu, active }: { menu: Menu; active?: boolean }) {
   const Icon = active ? (menu.IconActive ?? menu.Icon) : menu.Icon;
 
   return (
@@ -16,19 +10,21 @@ export const MenuItemContent = ({
       {Icon && <Icon />} {menu.label}
     </>
   );
-};
+}
 
-export const MenuItemLink = ({
+function MenuItemLink({
   menu,
   active,
   ...props
 }: Omit<ComponentProps<typeof Link>, 'to'> & {
   menu: Menu;
   active?: boolean;
-}) => {
+}) {
   return (
     <Link to={menu.path} {...props}>
       <MenuItemContent menu={menu} active={active} />
     </Link>
   );
-};
+}
+
+export { MenuItemContent, MenuItemLink };

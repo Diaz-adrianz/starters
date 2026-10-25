@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -49,23 +48,23 @@ type RoleListContextProps = {
 
 const RoleListContext = createContext<RoleListContextProps | null>(null);
 
-const useRoleList = () => {
+function useRoleList() {
   const context = useContext(RoleListContext);
   if (!context) throw new Error('useRoleList must be used within a RoleList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const RoleList = ({
+function RoleList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -121,14 +120,12 @@ const RoleList = ({
       {children}
     </RoleListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const RoleListSearchFilter = ({
-  ...props
-}: ComponentProps<typeof InputGroup>) => {
+function RoleListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = useRoleList();
 
   const [search, setSearch] = useState('');
@@ -167,12 +164,12 @@ const RoleListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const RoleListTable = () => {
+function RoleListTable() {
   const {
     data,
     isLoading,
@@ -184,15 +181,6 @@ const RoleListTable = () => {
     setRowSelection,
   } = useRoleList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={RoleTableColumnDef}
@@ -201,14 +189,14 @@ const RoleListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export { RoleList, RoleListSearchFilter, RoleListTable };

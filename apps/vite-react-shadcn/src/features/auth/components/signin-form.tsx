@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signInSchema, type SignInValues } from '../schemas/auth.schema';
 import { useAuth } from '../hooks/use-auth';
 
-export const SignInForm = () => {
+function SignInForm() {
   const { signIn } = useAuth();
 
   const form = useForm<SignInValues>({
@@ -91,4 +91,6 @@ export const SignInForm = () => {
       </FieldGroup>
     </form>
   );
-};
+}
+
+export { SignInForm };

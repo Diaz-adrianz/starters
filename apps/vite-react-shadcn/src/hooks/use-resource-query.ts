@@ -22,7 +22,7 @@ type ConditionPatch = {
 
 type Patch = FieldPatch | ConditionPatch;
 
-export const useResourceQuery = (initial: ResourceQueryState = {}) => {
+function useResourceQuery(initial: ResourceQueryState = {}) {
   const [state, setState] = useState<ResourceQueryState>(initial);
 
   const set = useCallback(
@@ -89,4 +89,6 @@ export const useResourceQuery = (initial: ResourceQueryState = {}) => {
     reset,
     params,
   };
-};
+}
+
+export { useResourceQuery };

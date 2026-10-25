@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
-  OnChangeFn,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -49,24 +48,24 @@ type ProfileListContextProps = {
 
 const ProfileListContext = createContext<ProfileListContextProps | null>(null);
 
-const useProfileList = () => {
+function useProfileList() {
   const context = useContext(ProfileListContext);
   if (!context)
     throw new Error('useProfileList must be used within a ProfileList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider
 /* -------------------------------------------------------------------------- */
-const ProfileList = ({
+function ProfileList({
   children,
   query: controlledQuery,
 }: {
   children: ReactNode;
   query?: ReturnType<typeof useResourceQuery>;
-}) => {
+}) {
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
@@ -122,14 +121,14 @@ const ProfileList = ({
       {children}
     </ProfileListContext.Provider>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-const ProfileListSearchFilter = ({
+function ProfileListSearchFilter({
   ...props
-}: ComponentProps<typeof InputGroup>) => {
+}: ComponentProps<typeof InputGroup>) {
   const { isLoading, data, query } = useProfileList();
 
   const [search, setSearch] = useState('');
@@ -170,12 +169,12 @@ const ProfileListSearchFilter = ({
       ) : null}
     </InputGroup>
   );
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-const ProfileListTable = () => {
+function ProfileListTable() {
   const {
     data,
     isLoading,
@@ -187,15 +186,6 @@ const ProfileListTable = () => {
     setRowSelection,
   } = useProfileList();
 
-  const sortingChange: OnChangeFn<SortingState> = (updater) =>
-    setSorting(updater);
-
-  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
-    setPagination(updater);
-
-  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
-    setRowSelection(updater);
-
   return (
     <DataTable
       columns={ProfileTableColumnDef}
@@ -204,14 +194,14 @@ const ProfileListTable = () => {
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={paginationChange}
+      onPaginationChange={setPagination}
       sorting={sorting}
-      onSortingChange={sortingChange}
+      onSortingChange={setSorting}
       rowSelection={rowSelection}
-      onRowSelectionChange={rowSelectionChange}
+      onRowSelectionChange={setRowSelection}
       isLoading={isLoading}
     />
   );
-};
+}
 
 export { ProfileList, ProfileListSearchFilter, ProfileListTable };

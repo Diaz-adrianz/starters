@@ -11,7 +11,7 @@ type Handlers = {
   onMessageCreated?: (data: MessageCreated) => void;
 };
 
-export const useNotificationSocket = ({ onMessageCreated }: Handlers) => {
+function useNotificationSocket({ onMessageCreated }: Handlers) {
   const authStatus = authStore((s) => s.status);
   const handlersRef = useRef({ onMessageCreated });
   // eslint-disable-next-line react-hooks/refs
@@ -38,4 +38,6 @@ export const useNotificationSocket = ({ onMessageCreated }: Handlers) => {
       socket.off('message.created', handleMessageCreated);
     };
   }, [authStatus]);
-};
+}
+
+export { useNotificationSocket };

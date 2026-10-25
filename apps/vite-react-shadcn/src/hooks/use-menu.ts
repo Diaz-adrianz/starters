@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useLocation, matchPath } from 'react-router-dom';
 import type { Menu } from '../types/menu.type';
 
-export const useMenu = (menus: Menu[]) => {
+function useMenu(menus: Menu[]) {
   const { pathname } = useLocation();
 
   const activeMenu = useMemo(
@@ -15,4 +15,6 @@ export const useMenu = (menus: Menu[]) => {
   );
 
   return { menus, activeMenu };
-};
+}
+
+export { useMenu };

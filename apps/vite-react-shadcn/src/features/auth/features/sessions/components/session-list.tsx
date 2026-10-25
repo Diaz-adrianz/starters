@@ -50,13 +50,13 @@ type SessionListContextProps = {
 
 const SessionListContext = createContext<SessionListContextProps | null>(null);
 
-const useSessionList = () => {
+function useSessionList() {
   const context = useContext(SessionListContext);
   if (!context)
     throw new Error('useSessionList must be used within a SessionList.');
 
   return context;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Provider

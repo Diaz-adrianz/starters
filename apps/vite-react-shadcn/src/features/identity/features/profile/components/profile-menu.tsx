@@ -15,14 +15,14 @@ import { Can } from '@/components/shared/can';
 import type { Profile } from '../types/profile.type';
 import { Link } from 'react-router-dom';
 
-const ProfileMenu = ({
+function ProfileMenu({
   profile,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
   profile: Pick<Profile, 'id' | 'userId'>;
   trigger?: ReactNode;
-}) => {
+}) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -59,6 +59,6 @@ const ProfileMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}
 
 export { ProfileMenu };

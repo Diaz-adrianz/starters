@@ -32,6 +32,7 @@ import {
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
+  PaginationLink,
 } from '../ui/pagination';
 
 function SortableHeader<T>({
@@ -238,19 +239,13 @@ function DataTable<TData>({
                   {p === null ? (
                     <PaginationEllipsis />
                   ) : (
-                    <Button
-                      disabled={isLoading}
+                    <PaginationLink
                       size={'icon-sm'}
-                      variant={'ghost'}
-                      className={
-                        pagination.pageIndex === p
-                          ? 'text-primary!'
-                          : 'text-muted-foreground'
-                      }
+                      isActive={pagination.pageIndex === p}
                       onClick={() => table.setPageIndex(p)}
                     >
                       {p + 1}
-                    </Button>
+                    </PaginationLink>
                   )}
                 </PaginationItem>
               ))}

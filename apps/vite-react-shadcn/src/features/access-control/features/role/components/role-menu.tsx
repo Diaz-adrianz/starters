@@ -14,14 +14,14 @@ import { Can } from '@/components/shared/can';
 import type { Role } from '../types/role.type';
 import { Link } from 'react-router-dom';
 
-const RoleMenu = ({
+function RoleMenu({
   role,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
   role: Pick<Role, 'id' | 'enabled'>;
   trigger?: ReactNode;
-}) => {
+}) {
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -71,6 +71,6 @@ const RoleMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}
 
 export { RoleMenu };

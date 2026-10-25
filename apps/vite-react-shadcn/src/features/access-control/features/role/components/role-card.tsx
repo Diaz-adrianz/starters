@@ -12,13 +12,13 @@ import type { ComponentProps } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Role } from '../types/role.type';
 
-export const RoleCard = ({
+function RoleCard({
   className,
   role,
   ...props
 }: Omit<ComponentProps<typeof Card>, 'role'> & {
   role: Pick<Role, 'name' | 'default' | 'enabled'>;
-}) => {
+}) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -53,12 +53,12 @@ export const RoleCard = ({
       </CardContent>
     </Card>
   );
-};
+}
 
-export const RoleCardSkeleton = ({
+function RoleCardSkeleton({
   className,
   ...props
-}: ComponentProps<typeof Card>) => {
+}: ComponentProps<typeof Card>) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -93,4 +93,6 @@ export const RoleCardSkeleton = ({
       </CardContent>
     </Card>
   );
-};
+}
+
+export { RoleCard, RoleCardSkeleton };

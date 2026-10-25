@@ -9,12 +9,11 @@ import {
 } from '@casl/react';
 import type { AbilityItem } from '@/lib/casl/ability.type';
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAbility = () => {
+function useAbility() {
   return useCaslAbility();
-};
+}
 
-export const AbilityProvider = ({ children }: { children: ReactNode }) => {
+function AbilityProvider({ children }: { children: ReactNode }) {
   const authStatus = authStore((s) => s.status);
 
   const abilities = abilityStore((s) => s.abilities),
@@ -50,4 +49,6 @@ export const AbilityProvider = ({ children }: { children: ReactNode }) => {
   const ability = useMemo(() => defineAbilityFor(abilities), [abilities]);
 
   return <CaslAbilityProvider value={ability}>{children}</CaslAbilityProvider>;
-};
+}
+
+export { useAbility, AbilityProvider };

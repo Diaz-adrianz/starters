@@ -12,7 +12,7 @@ import type { Profile } from '../types/profile.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/utils/date';
 
-export const ProfileCard = ({
+function ProfileCard({
   className,
   profile,
   ...props
@@ -27,7 +27,7 @@ export const ProfileCard = ({
     | 'bio'
     | 'updatedAt'
   >;
-}) => {
+}) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -102,12 +102,12 @@ export const ProfileCard = ({
       </CardContent>
     </Card>
   );
-};
+}
 
-export const ProfileCardSkeleton = ({
+function ProfileCardSkeleton({
   className,
   ...props
-}: ComponentProps<typeof Card>) => {
+}: ComponentProps<typeof Card>) {
   return (
     <Card className={className} {...props}>
       <CardContent>
@@ -179,4 +179,6 @@ export const ProfileCardSkeleton = ({
       </CardContent>
     </Card>
   );
-};
+}
+
+export { ProfileCard, ProfileCardSkeleton };
