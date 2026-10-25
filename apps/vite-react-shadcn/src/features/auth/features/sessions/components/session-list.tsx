@@ -20,6 +20,15 @@ import type {
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { ItemGroup, ItemSeparator } from '@/components/ui/item';
+import { usePagination } from '@/hooks/use-pagination';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
+import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -161,4 +170,53 @@ function SessionListItemGroup({
   );
 }
 
-export { SessionList, SessionListItemGroup };
+/* -------------------------------------------------------------------------- */
+/*  Pagination
+/* -------------------------------------------------------------------------- */
+function SessionListPagination() {
+  const { pagination, setPagination, data } = useSessionList();
+  const table = usePagination({
+    pagination,
+    onPaginationChange: setPagination,
+    pageCount: data?.totalPages ?? 0,
+  });
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <p className="typo-caption text-muted-foreground">
+        {data?.totalItems ?? 0} total
+      </p>
+      <div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <Button
+                size={'icon-sm'}
+                variant={'outline'}
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+              >
+                <RiArrowLeftSLine />
+              </Button>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink>{pagination.pageIndex + 1}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <Button
+                size={'icon-sm'}
+                variant={'outline'}
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+              >
+                <RiArrowRightSLine />
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
+  );
+}
+
+export { SessionList, SessionListItemGroup, SessionListPagination };

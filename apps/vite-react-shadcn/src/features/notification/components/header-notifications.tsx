@@ -30,10 +30,9 @@ import {
   MessageItemCreatedDate,
   MessageItemSkeleton,
   MessageList,
-  MessageListContent,
   MessageListEmpty,
+  MessageListItemGroup,
 } from '../features/message';
-import { ItemGroup } from '@/components/ui/item';
 
 const MAX_MESSAGES = 10;
 
@@ -96,29 +95,20 @@ function HeaderNotifications() {
         </PopoverHeader>
         <ScrollArea className="max-h-96 overflow-auto pb-16">
           <MessageList query={query}>
-            <MessageListContent>
-              {({ items, isLoading, pagination }) => (
-                <ItemGroup>
-                  {isLoading ? (
-                    Array.from({ length: pagination.pageSize }).map((_, i) => (
-                      <MessageItemSkeleton key={i} />
-                    ))
-                  ) : items.length ? (
-                    items.map((m) => (
-                      <MessageItem
-                        key={m.id}
-                        message={m}
-                        slotBottom={
-                          <MessageItemCreatedDate createdAt={m.createdAt} />
-                        }
-                      />
-                    ))
-                  ) : (
-                    <MessageListEmpty />
-                  )}
-                </ItemGroup>
+            <MessageListItemGroup
+              skeleton={<MessageItemSkeleton />}
+              empty={<MessageListEmpty />}
+            >
+              {(item) => (
+                <MessageItem
+                  key={item.id}
+                  message={item}
+                  slotRight={
+                    <MessageItemCreatedDate createdAt={item.createdAt} />
+                  }
+                />
               )}
-            </MessageListContent>
+            </MessageListItemGroup>
           </MessageList>
         </ScrollArea>
 

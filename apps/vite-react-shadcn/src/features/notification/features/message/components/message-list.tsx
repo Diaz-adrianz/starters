@@ -1,8 +1,10 @@
 import {
   createContext,
+  Fragment,
   useContext,
   useEffect,
   useState,
+  type ComponentProps,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
@@ -24,7 +26,20 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { RiInbox2Line } from '@remixicon/react';
+import {
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiInbox2Line,
+} from '@remixicon/react';
+import { ItemGroup, ItemSeparator } from '@/components/ui/item';
+import { usePagination } from '@/hooks/use-pagination';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -163,6 +178,40 @@ function MessageListContent({
   return children({ items: data?.items ?? [], isLoading, pagination });
 }
 
+function MessageListItemGroup({
+  children,
+  skeleton,
+  empty,
+  ...props
+}: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
+  children: (item: Message) => ReactNode;
+  skeleton?: ReactNode;
+  empty?: ReactNode;
+}) {
+  return (
+    <MessageListContent>
+      {({ items, isLoading, pagination }) => (
+        <ItemGroup {...props}>
+          {isLoading ? (
+            Array.from({ length: pagination.pageSize }).map((_, i) => (
+              <Fragment key={i}>{skeleton}</Fragment>
+            ))
+          ) : items.length ? (
+            items.map((item, i) => (
+              <Fragment key={item.id}>
+                {children(item)}
+                {i < items.length - 1 && <ItemSeparator className="m-0" />}
+              </Fragment>
+            ))
+          ) : (
+            <>{empty}</>
+          )}
+        </ItemGroup>
+      )}
+    </MessageListContent>
+  );
+}
+
 function MessageListEmpty({ title = 'No messages yet' }: { title?: string }) {
   return (
     <Empty>
@@ -176,9 +225,59 @@ function MessageListEmpty({ title = 'No messages yet' }: { title?: string }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Pagination
+/* -------------------------------------------------------------------------- */
+function MessageListPagination() {
+  const { pagination, setPagination, data } = useMessageList();
+  const table = usePagination({
+    pagination,
+    onPaginationChange: setPagination,
+    pageCount: data?.totalPages ?? 0,
+  });
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <p className="typo-caption text-muted-foreground">
+        {data?.totalItems ?? 0} total
+      </p>
+      <div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <Button
+                size={'icon-sm'}
+                variant={'outline'}
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+              >
+                <RiArrowLeftSLine />
+              </Button>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink>{pagination.pageIndex + 1}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <Button
+                size={'icon-sm'}
+                variant={'outline'}
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+              >
+                <RiArrowRightSLine />
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
+  );
+}
+
 export {
   MessageList,
   MessageListReadFilter,
-  MessageListContent,
+  MessageListItemGroup,
   MessageListEmpty,
+  MessageListPagination,
 };

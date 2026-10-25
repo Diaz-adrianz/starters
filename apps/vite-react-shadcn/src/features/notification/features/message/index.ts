@@ -2,8 +2,9 @@
 export {
   MessageList,
   MessageListReadFilter,
-  MessageListContent,
+  MessageListItemGroup,
   MessageListEmpty,
+  MessageListPagination,
 } from './components/message-list';
 export {
   MessageItem,

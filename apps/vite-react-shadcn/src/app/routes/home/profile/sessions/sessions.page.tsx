@@ -5,6 +5,7 @@ import {
   SessionItemSkeleton,
   SessionList,
   SessionListItemGroup,
+  SessionListPagination,
   SessionMenu,
 } from '@/features/auth';
 import { useResourceQuery } from '@/hooks/use-resource-query';
@@ -31,7 +32,10 @@ const SessionsPage = () => {
         <SessionList query={query}>
           <Card>
             <CardContent>
-              <SessionListItemGroup skeleton={<SessionItemSkeleton />}>
+              <SessionListItemGroup
+                className="mb-4"
+                skeleton={<SessionItemSkeleton />}
+              >
                 {(s) => (
                   <SessionItem
                     key={s.id}
@@ -40,6 +44,7 @@ const SessionsPage = () => {
                   />
                 )}
               </SessionListItemGroup>
+              <SessionListPagination />
             </CardContent>
           </Card>
         </SessionList>

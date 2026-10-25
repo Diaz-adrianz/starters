@@ -5,13 +5,13 @@ import {
   MessageItemCreatedDate,
   MessageItemSkeleton,
   MessageList,
-  MessageListContent,
   MessageListEmpty,
+  MessageListItemGroup,
+  MessageListPagination,
   MessageListReadFilter,
 } from '@/features/notification';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
-import { ItemGroup } from '@/components/ui/item';
 
 const NotificationsPage = () => {
   const authUser = authStore((s) => s.user);
@@ -34,29 +34,22 @@ const NotificationsPage = () => {
               <div className="mb-8 flex flex-wrap gap-2">
                 <MessageListReadFilter />
               </div>
-              <MessageListContent>
-                {({ items, isLoading, pagination }) => (
-                  <ItemGroup>
-                    {isLoading ? (
-                      Array.from({ length: pagination.pageSize }).map(
-                        (_, i) => <MessageItemSkeleton key={i} />
-                      )
-                    ) : items.length ? (
-                      items.map((m) => (
-                        <MessageItem
-                          key={m.id}
-                          message={m}
-                          slotRight={
-                            <MessageItemCreatedDate createdAt={m.createdAt} />
-                          }
-                        />
-                      ))
-                    ) : (
-                      <MessageListEmpty />
-                    )}
-                  </ItemGroup>
+              <MessageListItemGroup
+                className="mb-4"
+                skeleton={<MessageItemSkeleton />}
+                empty={<MessageListEmpty />}
+              >
+                {(item) => (
+                  <MessageItem
+                    key={item.id}
+                    message={item}
+                    slotRight={
+                      <MessageItemCreatedDate createdAt={item.createdAt} />
+                    }
+                  />
                 )}
-              </MessageListContent>
+              </MessageListItemGroup>
+              <MessageListPagination />
             </MessageList>
           </CardContent>
         </Card>
