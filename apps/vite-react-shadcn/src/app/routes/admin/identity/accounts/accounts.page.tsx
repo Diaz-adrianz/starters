@@ -8,15 +8,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  UserItem,
-  UserItemActionMenu,
-  UserItemEmail,
-  UserItemSkeleton,
-  UserItemVerifiedBadge,
   UserList,
-  UserListItemGroup,
-  UserListPagination,
-  UserListSearchBox,
+  UserListSearchFilter,
+  UserListTable,
 } from '@/features/identity';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import { RiAddLine } from '@remixicon/react';
@@ -52,27 +46,9 @@ const AccountsPage = () => {
           <CardContent>
             <UserList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <UserListSearchBox />
+                <UserListSearchFilter />
               </div>
-
-              <UserListItemGroup
-                separator
-                skeleton={<UserItemSkeleton />}
-                className="mb-8"
-              >
-                {(user) => (
-                  <UserItem
-                    key={user.id}
-                    user={user}
-                    slotBottom={<UserItemEmail email={user.email} />}
-                    slotRight={
-                      <UserItemVerifiedBadge verifiedAt={user.verifiedAt} />
-                    }
-                    slotActions={<UserItemActionMenu user={user} />}
-                  />
-                )}
-              </UserListItemGroup>
-              <UserListPagination />
+              <UserListTable />
             </UserList>
           </CardContent>
         </Card>
