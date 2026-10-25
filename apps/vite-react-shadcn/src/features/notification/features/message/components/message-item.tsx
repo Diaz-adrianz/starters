@@ -48,7 +48,7 @@ function MessageItem({
 
 function MessageItemSkeleton({ ...props }: ComponentProps<typeof Item>) {
   return (
-    <Item {...props}>
+    <Item size={'xs'} {...props}>
       <ItemContent>
         <Skeleton className="mb-2 h-5 w-32" />
         <Skeleton className="h-4 w-52" />

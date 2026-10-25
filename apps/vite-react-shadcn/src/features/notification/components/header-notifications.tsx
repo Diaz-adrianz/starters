@@ -28,8 +28,10 @@ import { useNotificationSocket } from '../hooks/use-notification-socket';
 import {
   MessageItem,
   MessageItemCreatedDate,
+  MessageItemSkeleton,
   MessageList,
   MessageListContent,
+  MessageListEmpty,
 } from '../features/message';
 import { ItemGroup } from '@/components/ui/item';
 
@@ -95,17 +97,25 @@ function HeaderNotifications() {
         <ScrollArea className="max-h-96 overflow-auto pb-16">
           <MessageList query={query}>
             <MessageListContent>
-              {({ items }) => (
+              {({ items, isLoading, pagination }) => (
                 <ItemGroup>
-                  {items.map((m) => (
-                    <MessageItem
-                      key={m.id}
-                      message={m}
-                      slotBottom={
-                        <MessageItemCreatedDate createdAt={m.createdAt} />
-                      }
-                    />
-                  ))}
+                  {isLoading ? (
+                    Array.from({ length: pagination.pageSize }).map((_, i) => (
+                      <MessageItemSkeleton key={i} />
+                    ))
+                  ) : items.length ? (
+                    items.map((m) => (
+                      <MessageItem
+                        key={m.id}
+                        message={m}
+                        slotBottom={
+                          <MessageItemCreatedDate createdAt={m.createdAt} />
+                        }
+                      />
+                    ))
+                  ) : (
+                    <MessageListEmpty />
+                  )}
                 </ItemGroup>
               )}
             </MessageListContent>
@@ -115,7 +125,7 @@ function HeaderNotifications() {
         <Button
           className="absolute right-4 bottom-4 left-4"
           variant={
-            (unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'secondary'
+            (unreadCount.data ?? 0) > MAX_MESSAGES ? 'default' : 'outline'
           }
           asChild
         >

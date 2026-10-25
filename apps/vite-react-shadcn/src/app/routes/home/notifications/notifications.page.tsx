@@ -3,8 +3,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   MessageItem,
   MessageItemCreatedDate,
+  MessageItemSkeleton,
   MessageList,
   MessageListContent,
+  MessageListEmpty,
   MessageListReadFilter,
 } from '@/features/notification';
 import { useResourceQuery } from '@/hooks/use-resource-query';
@@ -33,17 +35,25 @@ const NotificationsPage = () => {
                 <MessageListReadFilter />
               </div>
               <MessageListContent>
-                {({ items }) => (
+                {({ items, isLoading, pagination }) => (
                   <ItemGroup>
-                    {items.map((m) => (
-                      <MessageItem
-                        key={m.id}
-                        message={m}
-                        slotRight={
-                          <MessageItemCreatedDate createdAt={m.createdAt} />
-                        }
-                      />
-                    ))}
+                    {isLoading ? (
+                      Array.from({ length: pagination.pageSize }).map(
+                        (_, i) => <MessageItemSkeleton key={i} />
+                      )
+                    ) : items.length ? (
+                      items.map((m) => (
+                        <MessageItem
+                          key={m.id}
+                          message={m}
+                          slotRight={
+                            <MessageItemCreatedDate createdAt={m.createdAt} />
+                          }
+                        />
+                      ))
+                    ) : (
+                      <MessageListEmpty />
+                    )}
                   </ItemGroup>
                 )}
               </MessageListContent>

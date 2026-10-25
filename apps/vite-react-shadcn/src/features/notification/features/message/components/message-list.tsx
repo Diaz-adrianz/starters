@@ -18,6 +18,13 @@ import type {
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { Chip, ChipGroup } from '@/components/shared/chip';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import { RiInbox2Line } from '@remixicon/react';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -145,14 +152,33 @@ function MessageListReadFilter() {
 function MessageListContent({
   children,
 }: {
-  children: (opts: {
-    isLoading: MessageListContextProps['isLoading'];
-    items: NonNullable<MessageListContextProps['data']>['items'];
-  }) => ReactNode;
+  children: (
+    opts: {
+      items: NonNullable<MessageListContextProps['data']>['items'];
+    } & Pick<MessageListContextProps, 'isLoading' | 'pagination'>
+  ) => ReactNode;
 }) {
-  const { data, isLoading } = useMessageList();
+  const { data, isLoading, pagination } = useMessageList();
 
-  return children({ isLoading, items: data?.items ?? [] });
+  return children({ items: data?.items ?? [], isLoading, pagination });
 }
 
-export { MessageList, MessageListReadFilter, MessageListContent };
+function MessageListEmpty({ title = 'No messages yet' }: { title?: string }) {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant={'icon'}>
+          <RiInbox2Line />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
+export {
+  MessageList,
+  MessageListReadFilter,
+  MessageListContent,
+  MessageListEmpty,
+};

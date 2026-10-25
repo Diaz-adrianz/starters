@@ -3,6 +3,7 @@ export {
   MessageList,
   MessageListReadFilter,
   MessageListContent,
+  MessageListEmpty,
 } from './components/message-list';
 export {
   MessageItem,
