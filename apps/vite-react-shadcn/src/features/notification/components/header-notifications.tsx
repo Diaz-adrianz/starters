@@ -16,7 +16,7 @@ import authStore from '@/stores/auth.store';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from '@/components/ui/scroll-area';

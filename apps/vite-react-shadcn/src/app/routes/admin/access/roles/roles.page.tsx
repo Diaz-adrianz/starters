@@ -12,7 +12,7 @@ import {
   RoleListSearchFilter,
   RoleListTable,
 } from '@/features/access-control';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { RiAddLine } from '@remixicon/react';
 
 const RolesPage = () => {

@@ -11,7 +11,7 @@ import {
 } from 'react';
 import type { Session } from '../types/session.type';
 import { useSessions } from '../api/session.query';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import type {
   PaginationState,

@@ -10,7 +10,7 @@ import {
   PermissionListSearchFilter,
   PermissionListTable,
 } from '@/features/access-control';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 
 const PermissionsPage = () => {
   const query = useResourceQuery({

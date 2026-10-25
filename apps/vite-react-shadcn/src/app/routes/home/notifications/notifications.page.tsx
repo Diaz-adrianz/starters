@@ -10,7 +10,7 @@ import {
   MessageListPagination,
   MessageListReadFilter,
 } from '@/features/notification';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
 
 const NotificationsPage = () => {

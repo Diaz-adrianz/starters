@@ -10,7 +10,7 @@ import {
   ProfileListSearchFilter,
   ProfileListTable,
 } from '@/features/identity';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 
 const ProfilesPage = () => {
   const query = useResourceQuery({

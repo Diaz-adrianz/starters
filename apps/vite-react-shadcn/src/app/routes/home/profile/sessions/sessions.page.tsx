@@ -8,7 +8,7 @@ import {
   SessionListPagination,
   SessionMenu,
 } from '@/features/auth';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
 
 const SessionsPage = () => {

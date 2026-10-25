@@ -12,7 +12,7 @@ import {
   UserListSearchFilter,
   UserListTable,
 } from '@/features/identity';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { RiAddLine } from '@remixicon/react';
 
 const AccountsPage = () => {

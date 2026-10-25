@@ -5,7 +5,7 @@ import {
   RolePermissionListSearchFilter,
   RolePermissionListTable,
 } from '@/features/access-control';
-import { useResourceQuery } from '@/hooks/use-resource-query';
+import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { useParams } from 'react-router-dom';
 
 const RolePermissionsPage = () => {

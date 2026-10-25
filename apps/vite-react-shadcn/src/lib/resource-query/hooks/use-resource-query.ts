@@ -1,10 +1,10 @@
+import { useMemo, useState, useCallback } from 'react';
 import type {
   ConditionKey,
   ConditionValue,
   ResourceQueryState,
-} from '@/lib/resource-query/resource-query.type';
-import { buildParams } from '@/lib/resource-query/resource-query.util';
-import { useMemo, useState, useCallback } from 'react';
+} from '../resource-query.type';
+import { buildParams } from '../resource-query.util';
 
 type FieldPatch<K extends keyof ResourceQueryState = keyof ResourceQueryState> =
   {
