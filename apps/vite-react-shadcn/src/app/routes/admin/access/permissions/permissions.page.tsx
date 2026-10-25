@@ -6,13 +6,9 @@ import {
 } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  PermissionItem,
-  PermissionItemActionMenu,
-  PermissionItemSkeleton,
   PermissionList,
-  PermissionListItemGroup,
-  PermissionListPagination,
-  PermissionListSearchBox,
+  PermissionListSearchFilter,
+  PermissionListTable,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 
@@ -38,24 +34,9 @@ const PermissionsPage = () => {
           <CardContent>
             <PermissionList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <PermissionListSearchBox />
+                <PermissionListSearchFilter />
               </div>
-              <PermissionListItemGroup
-                separator
-                skeleton={<PermissionItemSkeleton />}
-                className="mb-8"
-              >
-                {(permission) => (
-                  <PermissionItem
-                    key={permission.id}
-                    permission={permission}
-                    slotActions={
-                      <PermissionItemActionMenu permission={permission} />
-                    }
-                  />
-                )}
-              </PermissionListItemGroup>
-              <PermissionListPagination />
+              <PermissionListTable />
             </PermissionList>
           </CardContent>
         </Card>
