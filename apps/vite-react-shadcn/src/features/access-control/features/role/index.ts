@@ -10,16 +10,9 @@ export {
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
 export {
   RoleUserList,
-  RoleUserListItemGroup,
-  RoleUserListPagination,
-  RoleUserListSearchBox,
-  useRoleUserList,
+  RoleUserListSearchFilter,
+  RoleUserListTable,
 } from './components/role-user-list';
-export {
-  RoleUserItem,
-  RoleUserItemSkeleton,
-  RoleUserItemActionMenu,
-} from './components/role-user-item';
 export {
   RolePermissionList,
   RolePermissionListItemGroup,

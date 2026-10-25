@@ -1,13 +1,9 @@
 import { Page, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  RoleUserItem,
-  RoleUserItemActionMenu,
-  RoleUserItemSkeleton,
   RoleUserList,
-  RoleUserListItemGroup,
-  RoleUserListPagination,
-  RoleUserListSearchBox,
+  RoleUserListSearchFilter,
+  RoleUserListTable,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/hooks/use-resource-query';
 import { useParams } from 'react-router-dom';
@@ -29,22 +25,9 @@ const RoleAccountsPage = () => {
           <CardContent>
             <RoleUserList roleId={roleId} query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <RoleUserListSearchBox />
+                <RoleUserListSearchFilter />
               </div>
-
-              <RoleUserListItemGroup
-                separator
-                skeleton={<RoleUserItemSkeleton />}
-                className="mb-8"
-              >
-                {(roleUser) => (
-                  <RoleUserItem
-                    roleUser={roleUser}
-                    slotActions={<RoleUserItemActionMenu roleUser={roleUser} />}
-                  />
-                )}
-              </RoleUserListItemGroup>
-              <RoleUserListPagination />
+              <RoleUserListTable />
             </RoleUserList>
           </CardContent>
         </Card>
