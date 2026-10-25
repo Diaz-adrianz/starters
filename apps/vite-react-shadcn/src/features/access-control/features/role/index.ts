@@ -15,16 +15,9 @@ export {
 } from './components/role-user-list';
 export {
   RolePermissionList,
-  RolePermissionListItemGroup,
-  RolePermissionListPagination,
-  RolePermissionListSearchBox,
-  useRolePermissionList,
+  RolePermissionListSearchFilter,
+  RolePermissionListTable,
 } from './components/role-permission-list';
-export {
-  RolePermissionItem,
-  RolePermissionItemSkeleton,
-  RolePermissionItemActionMenu,
-} from './components/role-permission-item';
 
 // types
 export { type Role } from './types/role.type';

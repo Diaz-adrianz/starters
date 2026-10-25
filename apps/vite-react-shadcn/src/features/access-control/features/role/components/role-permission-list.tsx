@@ -1,29 +1,16 @@
-import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import {
   createContext,
-  Fragment,
   useContext,
   useEffect,
   useState,
   type ComponentProps,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from 'react';
 import { useResourceQuery } from '@/hooks/use-resource-query';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-} from '@/components/ui/pagination';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { usePagination } from '@/hooks/use-pagination';
-import { Button } from '@/components/ui/button';
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiLoaderLine,
-  RiSearchLine,
-} from '@remixicon/react';
+import { RiLoaderLine, RiSearchLine } from '@remixicon/react';
 import type { RolePermission } from '../types/role.type';
 import { useRolePermissions } from '../api/role.query';
 import {
@@ -32,22 +19,38 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
-import { cn } from 'cn';
+import type {
+  OnChangeFn,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+} from '@tanstack/react-table';
+import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
+import { DataTable } from '@/components/shared/data-table';
+import { RolePermissionTableColumnDef } from './role-permission-table';
 
-// ======================================
-// Context
-// --------------------------------------
+const DEFAULT_PAGE = 1,
+  DEFAULT_LIMIT = 10;
+
+/* -------------------------------------------------------------------------- */
+/*  Context
+/* -------------------------------------------------------------------------- */
 type RolePermissionListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<RolePermission>['data'] | undefined;
   isLoading: boolean;
+  pagination: PaginationState;
+  setPagination: Dispatch<SetStateAction<PaginationState>>;
+  sorting: SortingState;
+  setSorting: Dispatch<SetStateAction<SortingState>>;
+  rowSelection: RowSelectionState;
+  setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
 
 const RolePermissionListContext =
   createContext<RolePermissionListContextProps | null>(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useRolePermissionList = () => {
+const useRolePermissionList = () => {
   const context = useContext(RolePermissionListContext);
   if (!context)
     throw new Error(
@@ -57,10 +60,10 @@ export const useRolePermissionList = () => {
   return context;
 };
 
-// ======================================
-// Provider
-// --------------------------------------
-export const RolePermissionList = ({
+/* -------------------------------------------------------------------------- */
+/*  Provider
+/* -------------------------------------------------------------------------- */
+const RolePermissionList = ({
   children,
   roleId,
   query: controlledQuery,
@@ -72,59 +75,64 @@ export const RolePermissionList = ({
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
+  const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
+      pageSize: query.state.limit ?? DEFAULT_LIMIT,
+    }),
+    [sorting, setSorting] = useState<SortingState>(
+      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+        id: k,
+        desc: v === 'desc',
+      }))
+    ),
+    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
   const { data, isLoading } = useRolePermissions(roleId, query.params);
 
+  useEffect(() => {
+    query.batch([
+      {
+        type: 'set',
+        key: 'order',
+        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
+          acc[id] = desc ? 'desc' : 'asc';
+          return acc;
+        }, {}),
+      },
+      { type: 'set', key: 'page', value: 1 },
+    ]);
+  }, [sorting]);
+
+  useEffect(() => {
+    query.batch([
+      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
+      { type: 'set', key: 'limit', value: pagination.pageSize },
+    ]);
+  }, [pagination]);
+
   return (
-    <RolePermissionListContext.Provider value={{ query, data, isLoading }}>
+    <RolePermissionListContext.Provider
+      value={{
+        query,
+        data,
+        isLoading,
+        pagination,
+        setPagination,
+        sorting,
+        setSorting,
+        rowSelection,
+        setRowSelection,
+      }}
+    >
       {children}
     </RolePermissionListContext.Provider>
   );
 };
 
-// ======================================
-// Content
-// --------------------------------------
-export const RolePermissionListItemGroup = ({
-  children,
-  separator,
-  skeleton,
-  skeletonCount = 5,
-  className,
-  ...props
-}: Omit<ComponentProps<typeof ItemGroup>, 'children'> & {
-  children: (rolePermission: RolePermission) => ReactNode;
-  separator?: boolean;
-  skeleton?: ReactNode;
-  skeletonCount?: number;
-}) => {
-  const { data, isLoading } = useRolePermissionList();
-
-  return (
-    <ItemGroup className={cn('relative', className)} {...props}>
-      {!!skeleton &&
-        isLoading &&
-        Array.from({ length: skeletonCount }).map((_, i) => (
-          <Fragment key={i}>{skeleton}</Fragment>
-        ))}
-
-      {data?.items.map((s, i) => {
-        return (
-          <Fragment key={s.id}>
-            {children(s)}
-            {separator && i < data.items.length - 1 && (
-              <ItemSeparator className="m-0" />
-            )}
-          </Fragment>
-        );
-      })}
-    </ItemGroup>
-  );
-};
-
-// ======================================
-// Pagination
-// --------------------------------------
-export const RolePermissionListSearchBox = ({
+/* -------------------------------------------------------------------------- */
+/*  Filters
+/* -------------------------------------------------------------------------- */
+const RolePermissionListSearchFilter = ({
   ...props
 }: ComponentProps<typeof InputGroup>) => {
   const { isLoading, data, query } = useRolePermissionList();
@@ -169,68 +177,50 @@ export const RolePermissionListSearchBox = ({
   );
 };
 
-// ======================================
-// Pagination
-// --------------------------------------
-export const RolePermissionListPagination = () => {
-  const { query, isLoading, data } = useRolePermissionList();
-  const { hasPrevPage, prevPage, hasNextPage, nextPage, pages, jumpToPage } =
-    usePagination({
-      page: data?.page ?? 1,
-      limit: data?.limit ?? 10,
-      totalItems: data?.totalItems ?? 0,
-      onPageChange: (p) => query.set('page', p),
-      onLimitChange: (l) => query.set('limit', l),
-    });
+/* -------------------------------------------------------------------------- */
+/*  Contents
+/* -------------------------------------------------------------------------- */
+const RolePermissionListTable = () => {
+  const {
+    data,
+    isLoading,
+    pagination,
+    setPagination,
+    sorting,
+    setSorting,
+    rowSelection,
+    setRowSelection,
+  } = useRolePermissionList();
+
+  const sortingChange: OnChangeFn<SortingState> = (updater) =>
+    setSorting(updater);
+
+  const paginationChange: OnChangeFn<PaginationState> = (updater) =>
+    setPagination(updater);
+
+  const rowSelectionChange: OnChangeFn<RowSelectionState> = (updater) =>
+    setRowSelection(updater);
 
   return (
-    <div className="flex items-center justify-between gap-2">
-      <p className="text-xs text-muted-foreground">
-        {data?.totalItems ?? 0} results
-      </p>
-      <div>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <Button
-                size={'xs'}
-                variant={'ghost'}
-                disabled={!hasPrevPage || isLoading}
-                onClick={prevPage}
-              >
-                <RiArrowLeftSLine /> Previous
-              </Button>
-            </PaginationItem>
-            {pages.map((p, i) => (
-              <PaginationItem key={i}>
-                {p === null ? (
-                  <PaginationEllipsis />
-                ) : (
-                  <Button
-                    disabled={isLoading}
-                    size={'icon-xs'}
-                    className="text-xs"
-                    variant={data?.page === p ? 'default' : 'ghost'}
-                    onClick={() => jumpToPage(p)}
-                  >
-                    {p}
-                  </Button>
-                )}
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <Button
-                size={'xs'}
-                variant={'ghost'}
-                disabled={!hasNextPage || isLoading}
-                onClick={nextPage}
-              >
-                Next <RiArrowRightSLine />
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    <DataTable
+      columns={RolePermissionTableColumnDef}
+      data={data?.items ?? []}
+      pageCount={data?.totalPages ?? 0}
+      totalItems={data?.totalItems ?? 0}
+      getRowId={(row) => row.id}
+      pagination={pagination}
+      onPaginationChange={paginationChange}
+      sorting={sorting}
+      onSortingChange={sortingChange}
+      rowSelection={rowSelection}
+      onRowSelectionChange={rowSelectionChange}
+      isLoading={isLoading}
+    />
   );
+};
+
+export {
+  RolePermissionList,
+  RolePermissionListSearchFilter,
+  RolePermissionListTable,
 };

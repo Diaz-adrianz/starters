@@ -15,9 +15,8 @@ const RoleUserTableColumnDef: ColumnDef<RoleUser>[] = [
     enableSorting: false,
   },
   {
-    id: 'user.username',
+    accessorKey: 'username',
     header: ({ column }) => <SortableHeader column={column} title="User" />,
-    cell: ({ row }) => row.original.username,
   },
   {
     accessorKey: 'createdAt',
