@@ -8,6 +8,7 @@ export {
   RoleListTable,
 } from './components/role-list';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
+export { RoleCreateDialog } from './components/role-create-dialog';
 export {
   RoleUserList,
   RoleUserListSearchFilter,

@@ -8,14 +8,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
+  RoleCreateDialog,
   RoleList,
   RoleListSearchFilter,
   RoleListTable,
 } from '@/features/access-control';
+import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { RiAddLine } from '@remixicon/react';
 
 const RolesPage = () => {
+  const createDialog = useDialogState();
+
   const query = useResourceQuery({
     page: 1,
     limit: 10,
@@ -24,6 +28,8 @@ const RolesPage = () => {
 
   return (
     <Page className="min-h-svh">
+      <RoleCreateDialog {...createDialog} />
+
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
@@ -34,8 +40,8 @@ const RolesPage = () => {
       <PageHeader
         title="Roles"
         action={
-          <Can I={'create'} a={'identity:role'}>
-            <Button>
+          <Can I={'create'} a={'access-control:role'}>
+            <Button onClick={() => createDialog.show()}>
               <RiAddLine /> Create role
             </Button>
           </Can>
