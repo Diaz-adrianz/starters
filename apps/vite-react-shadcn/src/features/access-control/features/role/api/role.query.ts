@@ -4,7 +4,8 @@ import type { ApiParams } from '@/lib/axios/api.type';
 
 export const queryKeys = {
   all: ['access-control', 'role'] as const,
-  list: (params: ApiParams) => [...queryKeys.all, 'list', params] as const,
+  lists: () => [...queryKeys.all, 'list'] as const,
+  list: (params: ApiParams) => [...queryKeys.lists(), params] as const,
   detail: (id: string) => [...queryKeys.all, 'detail', id] as const,
   listUser: (id: string, params: ApiParams) =>
     [...queryKeys.detail(id), 'users', params] as const,

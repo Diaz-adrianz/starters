@@ -11,6 +11,10 @@ export { RoleCard, RoleCardSkeleton } from './components/role-card';
 export { RoleMenu } from './components/role-menu';
 export { RoleCreateDialog } from './components/role-create-dialog';
 export {
+  RoleUpdateDialog,
+  type RoleUpdateDialogPayload,
+} from './components/role-update-dialog';
+export {
   RoleUserList,
   RoleUserListSearchFilter,
   RoleUserListTable,

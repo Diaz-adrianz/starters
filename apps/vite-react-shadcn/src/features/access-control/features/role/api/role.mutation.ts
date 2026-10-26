@@ -8,13 +8,13 @@ export function useCreateRole({ onSuccess }: { onSuccess?: () => void } = {}) {
   return useMutation({
     mutationFn: RoleApi.create,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
       onSuccess?.();
     },
   });
 }
 
-export function useUpdateRole() {
+export function useUpdateRole({ onSuccess }: { onSuccess?: () => void } = {}) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, values }: { id: string; values: UpdateRoleValues }) =>
@@ -22,7 +22,8 @@ export function useUpdateRole() {
     meta: {},
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: queryKeys.detail(id) });
-      qc.invalidateQueries({ queryKey: queryKeys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
+      onSuccess?.();
     },
   });
 }
@@ -33,7 +34,7 @@ export function useArchiveRole() {
     mutationFn: ({ id }: { id: string }) => RoleApi.archive(id),
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: queryKeys.detail(id) });
-      qc.invalidateQueries({ queryKey: queryKeys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
     },
   });
 }
@@ -44,7 +45,7 @@ export function useRestoreRole() {
     mutationFn: ({ id }: { id: string }) => RoleApi.restore(id),
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: queryKeys.detail(id) });
-      qc.invalidateQueries({ queryKey: queryKeys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
     },
   });
 }
@@ -54,7 +55,7 @@ export function useDeleteRole() {
   return useMutation({
     mutationFn: RoleApi.delete,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.all });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
     },
   });
 }

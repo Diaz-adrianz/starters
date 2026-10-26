@@ -13,7 +13,9 @@ import {
   RoleListSearchFilter,
   RoleListTable,
   RoleMenu,
+  RoleUpdateDialog,
   useRoleMutations,
+  type RoleUpdateDialogPayload,
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -21,7 +23,8 @@ import { RiAddLine, RiArrowRightLine } from '@remixicon/react';
 import { Link } from 'react-router-dom';
 
 const RolesPage = () => {
-  const createDialog = useDialogState();
+  const createDialog = useDialogState(),
+    updateDialog = useDialogState<RoleUpdateDialogPayload>();
 
   const query = useResourceQuery({
       page: 1,
@@ -33,6 +36,7 @@ const RolesPage = () => {
   return (
     <Page className="min-h-svh">
       <RoleCreateDialog {...createDialog} />
+      <RoleUpdateDialog {...updateDialog} />
 
       <PageNav
         items={[
@@ -70,6 +74,7 @@ const RolesPage = () => {
                       <RoleMenu
                         role={row.original}
                         actions={{
+                          onEdit: (r) => updateDialog.show({ id: r.id }),
                           onArchive: (r) => mutations.archive(r),
                         }}
                       />
