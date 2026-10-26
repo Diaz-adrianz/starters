@@ -20,6 +20,7 @@ import type {
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
 import { SearchInput } from '@/components/shared/search-input';
+import { ResourceListTrashFilter } from '@/components/shared/resource-list';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -141,6 +142,17 @@ function ProfileListSearchFilter() {
   );
 }
 
+function ProfileListTrashFilter() {
+  const { query } = useProfileList();
+
+  return (
+    <ResourceListTrashFilter
+      pressed={query.state.trash}
+      onPressedChange={(s) => query.set('trash', s)}
+    />
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
@@ -180,4 +192,9 @@ function ProfileListTable({
   );
 }
 
-export { ProfileList, ProfileListSearchFilter, ProfileListTable };
+export {
+  ProfileList,
+  ProfileListSearchFilter,
+  ProfileListTrashFilter,
+  ProfileListTable,
+};

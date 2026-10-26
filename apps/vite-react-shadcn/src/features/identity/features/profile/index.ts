@@ -7,5 +7,6 @@ export {
   ProfileList,
   ProfileListTable,
   ProfileListSearchFilter,
+  ProfileListTrashFilter,
 } from './components/profile-list';
 export { ProfileMenu } from './components/profile-menu';

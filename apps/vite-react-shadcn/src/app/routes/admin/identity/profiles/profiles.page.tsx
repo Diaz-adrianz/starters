@@ -10,6 +10,7 @@ import {
   ProfileList,
   ProfileListSearchFilter,
   ProfileListTable,
+  ProfileListTrashFilter,
   ProfileMenu,
 } from '@/features/identity';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -36,7 +37,10 @@ const ProfilesPage = () => {
           <CardContent>
             <ProfileList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <ProfileListSearchFilter />
+                <div className="grow">
+                  <ProfileListSearchFilter />
+                </div>
+                <ProfileListTrashFilter />
               </div>
               <ProfileListTable
                 columnDef={[

@@ -9,7 +9,6 @@ import {
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { RiDeleteBinFill, RiDeleteBinLine } from '@remixicon/react';
 import type { Role } from '../types/role.type';
 import { useRoles } from '../api/role.query';
 import type {
@@ -20,8 +19,8 @@ import type {
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { Toggle } from '@/components/ui/toggle';
 import { SearchInput } from '@/components/shared/search-input';
+import { ResourceListTrashFilter } from '@/components/shared/resource-list';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -146,14 +145,10 @@ function RoleListTrashFilter() {
   const { query } = useRoleList();
 
   return (
-    <Toggle
+    <ResourceListTrashFilter
       pressed={query.state.trash}
       onPressedChange={(s) => query.set('trash', s)}
-      size={'icon'}
-      className="data-[state=on]:animate-pulse data-[state=on]:bg-destructive/15 data-[state=on]:text-destructive"
-    >
-      {query.state.trash ? <RiDeleteBinFill /> : <RiDeleteBinLine />}
-    </Toggle>
+    />
   );
 }
 
