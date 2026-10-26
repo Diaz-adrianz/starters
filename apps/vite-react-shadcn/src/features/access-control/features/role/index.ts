@@ -5,6 +5,7 @@ export { useRole } from './api/role.query';
 export {
   RoleList,
   RoleListSearchFilter,
+  RoleListTrashFilter,
   RoleListTable,
 } from './components/role-list';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
@@ -14,18 +15,20 @@ export {
   RoleUpdateDialog,
   type RoleUpdateDialogPayload,
 } from './components/role-update-dialog';
+
 export {
   RoleUserList,
   RoleUserListSearchFilter,
   RoleUserListTable,
 } from './components/role-user-list';
+
 export {
   RolePermissionList,
   RolePermissionListSearchFilter,
   RolePermissionListTable,
 } from './components/role-permission-list';
 
-// components
+// hooks
 export { useRoleMutations } from './hooks/use-role-mutations';
 
 // types

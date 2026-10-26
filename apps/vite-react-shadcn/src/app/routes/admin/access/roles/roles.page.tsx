@@ -12,6 +12,7 @@ import {
   RoleList,
   RoleListSearchFilter,
   RoleListTable,
+  RoleListTrashFilter,
   RoleMenu,
   RoleUpdateDialog,
   useRoleMutations,
@@ -19,7 +20,12 @@ import {
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
-import { RiAddLine, RiArrowRightLine } from '@remixicon/react';
+import {
+  RiAddLine,
+  RiArrowGoBackLine,
+  RiArrowRightLine,
+  RiDeleteBack2Line,
+} from '@remixicon/react';
 import { Link } from 'react-router-dom';
 
 const RolesPage = () => {
@@ -60,26 +66,47 @@ const RolesPage = () => {
           <CardContent>
             <RoleList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <RoleListSearchFilter />
+                <RoleListSearchFilter className="w-auto grow" />
+                <RoleListTrashFilter />
               </div>
               <RoleListTable
                 columns={{
-                  action: ({ row }) => (
-                    <>
-                      <Button size={'icon'} variant={'ghost'} asChild>
-                        <Link to={`/admin/access/roles/${row.original.id}`}>
-                          <RiArrowRightLine />
-                        </Link>
-                      </Button>
-                      <RoleMenu
-                        role={row.original}
-                        actions={{
-                          onEdit: (r) => updateDialog.show({ id: r.id }),
-                          onArchive: (r) => mutations.archive(r),
-                        }}
-                      />
-                    </>
-                  ),
+                  action: ({ row }) =>
+                    query.state.trash ? (
+                      <>
+                        <Button
+                          variant={'ghost'}
+                          size={'icon'}
+                          onClick={() => mutations.restore(row.original)}
+                        >
+                          <RiArrowGoBackLine />
+                        </Button>
+                        <Button
+                          variant={'ghost'}
+                          className="text-destructive!"
+
+                          size={'icon'}
+                          onClick={() => mutations.del(row.original)}
+                        >
+                          <RiDeleteBack2Line />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button size={'icon'} variant={'ghost'} asChild>
+                          <Link to={`/admin/access/roles/${row.original.id}`}>
+                            <RiArrowRightLine />
+                          </Link>
+                        </Button>
+                        <RoleMenu
+                          role={row.original}
+                          actions={{
+                            onEdit: (r) => updateDialog.show({ id: r.id }),
+                            onArchive: (r) => mutations.archive(r),
+                          }}
+                        />
+                      </>
+                    ),
                 }}
               />
             </RoleList>

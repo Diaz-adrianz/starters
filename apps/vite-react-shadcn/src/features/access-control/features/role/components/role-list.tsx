@@ -10,7 +10,12 @@ import {
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { RiLoaderLine, RiSearchLine } from '@remixicon/react';
+import {
+  RiDeleteBinFill,
+  RiDeleteBinLine,
+  RiLoaderLine,
+  RiSearchLine,
+} from '@remixicon/react';
 import type { Role } from '../types/role.type';
 import { useRoles } from '../api/role.query';
 import {
@@ -27,6 +32,7 @@ import type {
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
 import { RoleTableColumnDef, type RoleTableColumnDefProps } from './role-table';
+import { Toggle } from '@/components/ui/toggle';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -166,6 +172,21 @@ function RoleListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
   );
 }
 
+function RoleListTrashFilter() {
+  const { query } = useRoleList();
+
+  return (
+    <Toggle
+      pressed={query.state.trash}
+      onPressedChange={(s) => query.set('trash', s)}
+      size={'icon'}
+      className="data-[state=on]:animate-pulse data-[state=on]:bg-destructive/15 data-[state=on]:text-destructive"
+    >
+      {query.state.trash ? <RiDeleteBinFill /> : <RiDeleteBinLine />}
+    </Toggle>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
@@ -199,4 +220,4 @@ function RoleListTable({ columns }: { columns?: RoleTableColumnDefProps }) {
   );
 }
 
-export { RoleList, RoleListSearchFilter, RoleListTable };
+export { RoleList, RoleListSearchFilter, RoleListTrashFilter, RoleListTable };
