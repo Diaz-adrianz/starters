@@ -1,66 +1,79 @@
-import type { ComponentProps, ReactNode } from 'react';
-import type { Permission } from '../types/permission.type';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
-
+import { RiEdit2Line, type RemixiconComponentType } from '@remixicon/react';
 import { Can } from '@/components/shared/can';
-import { useConfirm } from '@/components/shared/confirm';
+import { Link } from 'react-router-dom';
+import { cn } from 'cn';
+import type { Permission } from '../types/permission.type';
+import { WithTooltip } from '@/components/shared/with-tooltip';
 
-function PermissionMenu({
-  permission,
-  trigger,
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  permission: Pick<Permission, 'id' | 'enabled'>;
-  trigger?: ReactNode;
+function PermissionMenuActionButton({
+  action,
+  Icon,
+  label,
+  destructive,
+  to,
+  onClick,
+}: {
+  action: string;
+  Icon: RemixiconComponentType;
+  label: string;
+  destructive?: boolean;
+  to?: string;
+  onClick?: () => void;
 }) {
-  const confirm = useConfirm();
-
-  const updateActive = async (_: boolean) => {
-    const ok = await confirm();
-    console.log(ok);
-  };
-
+  const className = cn(
+    destructive && 'text-destructive hover:text-destructive'
+  );
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? (
-          <Button variant="ghost" size={'icon'}>
-            <RiMore2Line />
+    <Can I={action} a="access-control:permission">
+      <WithTooltip text={label}>
+        {to ? (
+          <Button size="icon" variant="ghost" className={className} asChild>
+            <Link to={to}>
+              <Icon />
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            size="icon"
+            variant="ghost"
+            className={className}
+            onClick={onClick}
+          >
+            <Icon />
           </Button>
         )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'access-control:permission'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem disabled={!isAllowed}>Edit</DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'access-control:permission'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem
-                variant={permission.enabled ? 'destructive' : 'default'}
-                disabled={!isAllowed}
-                onClick={() => updateActive(!permission.enabled)}
-              >
-                {permission.enabled ? 'Deactivate' : 'Activate'}
-              </DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </WithTooltip>
+    </Can>
   );
 }
 
-export { PermissionMenu };
+type PermissionMenuItem = Pick<Permission, 'id' | 'description'>;
+
+function PermissionMenuActions({
+  permission,
+  actions,
+}: {
+  permission: PermissionMenuItem;
+  actions?: {
+    update?: (permission: PermissionMenuItem) => void;
+  };
+}) {
+  if (!actions) return null;
+  const { update } = actions;
+
+  return (
+    <>
+      {update && (
+        <PermissionMenuActionButton
+          action="update"
+          label="Update permission"
+          Icon={RiEdit2Line}
+          onClick={() => update(permission)}
+        />
+      )}
+    </>
+  );
+}
+
+export { PermissionMenuActions };

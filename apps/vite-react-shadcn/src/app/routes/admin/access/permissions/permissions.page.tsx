@@ -9,6 +9,7 @@ import {
   PermissionList,
   PermissionListSearchFilter,
   PermissionListTable,
+  PermissionMenuActions,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 
@@ -36,7 +37,18 @@ const PermissionsPage = () => {
               <div className="mb-8 flex flex-wrap gap-2">
                 <PermissionListSearchFilter />
               </div>
-              <PermissionListTable />
+              <PermissionListTable
+                columns={{
+                  action: ({ row }) => (
+                    <PermissionMenuActions
+                      permission={row.original}
+                      actions={{
+                        update: () => {},
+                      }}
+                    />
+                  ),
+                }}
+              />
             </PermissionList>
           </CardContent>
         </Card>

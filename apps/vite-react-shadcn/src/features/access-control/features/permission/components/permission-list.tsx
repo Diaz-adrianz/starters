@@ -26,7 +26,10 @@ import type {
 } from '@tanstack/react-table';
 import { DataTable } from '@/components/shared/data-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
-import { PermissionTableColumnDef } from './permission-table';
+import {
+  PermissionTableColumnDef,
+  type PermissionTableColumnDefProps,
+} from './permission-table';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -174,7 +177,11 @@ function PermissionListSearchFilter({
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function PermissionListTable() {
+function PermissionListTable({
+  columns,
+}: {
+  columns?: PermissionTableColumnDefProps;
+}) {
   const {
     data,
     isLoading,
@@ -188,7 +195,7 @@ function PermissionListTable() {
 
   return (
     <DataTable
-      columns={PermissionTableColumnDef}
+      columns={PermissionTableColumnDef(columns)}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}

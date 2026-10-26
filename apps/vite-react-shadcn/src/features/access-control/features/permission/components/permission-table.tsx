@@ -1,10 +1,15 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { CellContext, ColumnDef } from '@tanstack/react-table';
 import type { Permission } from '../types/permission.type';
 import { SortableHeader } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
-import { PermissionMenu } from './permission-menu';
 
-const PermissionTableColumnDef: ColumnDef<Permission>[] = [
+type PermissionTableColumnDefProps = {
+  action?: (op: CellContext<Permission, unknown>) => React.JSX.Element;
+};
+
+const PermissionTableColumnDef = (
+  props?: PermissionTableColumnDefProps
+): ColumnDef<Permission>[] => [
   {
     id: 'no',
     header: '#',
@@ -41,9 +46,10 @@ const PermissionTableColumnDef: ColumnDef<Permission>[] = [
   {
     id: 'action',
     header: '',
-    cell: ({ row }) => <PermissionMenu permission={row.original} />,
+    cell: props?.action,
     enableSorting: false,
   },
 ];
 
 export { PermissionTableColumnDef };
+export type { PermissionTableColumnDefProps };
