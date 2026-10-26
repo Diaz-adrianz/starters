@@ -1,63 +1,16 @@
-import { Button } from '@/components/ui/button';
 import {
   RiArrowGoBackLine,
   RiDeleteBack2Line,
   RiDeleteBinLine,
   RiEdit2Line,
   RiExpandDiagonalLine,
-  type RemixiconComponentType,
 } from '@remixicon/react';
-import { Can } from '@/components/shared/can';
-import { Link } from 'react-router-dom';
-import { cn } from 'cn';
 import type { Role } from '../types/role.type';
-import { WithTooltip } from '@/components/shared/with-tooltip';
-
-function RoleMenuActionButton({
-  action,
-  Icon,
-  label,
-  destructive,
-  to,
-  onClick,
-}: {
-  action: string;
-  Icon: RemixiconComponentType;
-  label: string;
-  destructive?: boolean;
-  to?: string;
-  onClick?: () => void;
-}) {
-  const className = cn(
-    destructive && 'text-destructive hover:text-destructive'
-  );
-  return (
-    <Can I={action} a="access-control:role">
-      <WithTooltip text={label}>
-        {to ? (
-          <Button size="icon" variant="ghost" className={className} asChild>
-            <Link to={to}>
-              <Icon />
-            </Link>
-          </Button>
-        ) : (
-          <Button
-            size="icon"
-            variant="ghost"
-            className={className}
-            onClick={onClick}
-          >
-            <Icon />
-          </Button>
-        )}
-      </WithTooltip>
-    </Can>
-  );
-}
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
 
 type RoleMenuItem = Pick<Role, 'id' | 'name' | 'enabled'>;
 
-function RoleMenuActions({
+function RoleMenu({
   role,
   actions,
 }: {
@@ -76,7 +29,8 @@ function RoleMenuActions({
   return (
     <>
       {read && (
-        <RoleMenuActionButton
+        <ResourceMenuButton
+          subject="access-control:role"
           action="read"
           label="Read role"
           Icon={RiExpandDiagonalLine}
@@ -85,7 +39,8 @@ function RoleMenuActions({
         />
       )}
       {update && (
-        <RoleMenuActionButton
+        <ResourceMenuButton
+          subject="access-control:role"
           action="update"
           label="Update role"
           Icon={RiEdit2Line}
@@ -93,7 +48,8 @@ function RoleMenuActions({
         />
       )}
       {archive && (
-        <RoleMenuActionButton
+        <ResourceMenuButton
+          subject="access-control:role"
           action="archive"
           label="Remove role"
           Icon={RiDeleteBinLine}
@@ -102,7 +58,8 @@ function RoleMenuActions({
         />
       )}
       {restore && (
-        <RoleMenuActionButton
+        <ResourceMenuButton
+          subject="access-control:role"
           action="restore"
           label="Restore role"
           Icon={RiArrowGoBackLine}
@@ -110,7 +67,8 @@ function RoleMenuActions({
         />
       )}
       {del && (
-        <RoleMenuActionButton
+        <ResourceMenuButton
+          subject="access-control:role"
           action="delete"
           label="Delete role"
           Icon={RiDeleteBack2Line}
@@ -122,4 +80,4 @@ function RoleMenuActions({
   );
 }
 
-export { RoleMenuActions };
+export { RoleMenu };

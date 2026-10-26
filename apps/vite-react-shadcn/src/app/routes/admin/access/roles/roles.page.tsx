@@ -15,7 +15,7 @@ import {
   RoleListSearchFilter,
   RoleListTable,
   RoleListTrashFilter,
-  RoleMenuActions,
+  RoleMenu,
   RoleUpdateDialog,
   useRoleMutations,
   type RoleUpdateDialogPayload,
@@ -100,7 +100,7 @@ const RolesPage = () => {
                     id: 'action',
                     header: '',
                     cell: ({ row }) => (
-                      <RoleMenuActions
+                      <RoleMenu
                         role={row.original}
                         actions={
                           query.state.trash

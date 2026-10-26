@@ -9,7 +9,7 @@ export {
   RoleListTable,
 } from './components/role-list';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
-export { RoleMenuActions } from './components/role-menu';
+export { RoleMenu } from './components/role-menu';
 export { RoleCreateDialog } from './components/role-create-dialog';
 export {
   RoleUpdateDialog,
