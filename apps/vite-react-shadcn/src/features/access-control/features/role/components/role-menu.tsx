@@ -32,7 +32,7 @@ function RoleMenu({
         <ResourceMenuButton
           subject="access-control:role"
           action="read"
-          label="Read role"
+          label="View"
           Icon={RiExpandDiagonalLine}
           to={typeof read === 'string' ? read : undefined}
           onClick={typeof read === 'function' ? () => read(role) : undefined}
@@ -42,7 +42,7 @@ function RoleMenu({
         <ResourceMenuButton
           subject="access-control:role"
           action="update"
-          label="Update role"
+          label="Edit"
           Icon={RiEdit2Line}
           onClick={() => update(role)}
         />
@@ -51,7 +51,7 @@ function RoleMenu({
         <ResourceMenuButton
           subject="access-control:role"
           action="archive"
-          label="Remove role"
+          label="Remove"
           Icon={RiDeleteBinLine}
           destructive
           onClick={() => archive(role)}
@@ -61,7 +61,7 @@ function RoleMenu({
         <ResourceMenuButton
           subject="access-control:role"
           action="restore"
-          label="Restore role"
+          label="Restore"
           Icon={RiArrowGoBackLine}
           onClick={() => restore(role)}
         />
@@ -70,7 +70,7 @@ function RoleMenu({
         <ResourceMenuButton
           subject="access-control:role"
           action="delete"
-          label="Delete role"
+          label="Delete"
           Icon={RiDeleteBack2Line}
           destructive
           onClick={() => del(role)}

@@ -20,16 +20,13 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
 } from '@tanstack/react-table';
 import { DataTable } from '@/components/shared/data-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
-import {
-  PermissionTableColumnDef,
-  type PermissionTableColumnDefProps,
-} from './permission-table';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -178,9 +175,11 @@ function PermissionListSearchFilter({
 /*  Contents
 /* -------------------------------------------------------------------------- */
 function PermissionListTable({
-  columns,
+  columnDef,
 }: {
-  columns?: PermissionTableColumnDefProps;
+  columnDef: ColumnDef<
+    NonNullable<PermissionListContextProps['data']>['items'][number]
+  >[];
 }) {
   const {
     data,
@@ -195,7 +194,7 @@ function PermissionListTable({
 
   return (
     <DataTable
-      columns={PermissionTableColumnDef(columns)}
+      columns={columnDef}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}
