@@ -7,5 +7,12 @@ const createRoleSchema = z.object({
 
 type CreateRoleValues = z.infer<typeof createRoleSchema>;
 
-export { createRoleSchema };
-export type { CreateRoleValues };
+const updateRoleSchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  enabled: z.boolean().optional(),
+});
+
+type UpdateRoleValues = z.infer<typeof updateRoleSchema>;
+
+export { createRoleSchema, updateRoleSchema };
+export type { CreateRoleValues, UpdateRoleValues };

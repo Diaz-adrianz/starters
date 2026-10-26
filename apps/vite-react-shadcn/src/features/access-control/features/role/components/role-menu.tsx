@@ -13,15 +13,33 @@ import { RiMore2Line } from '@remixicon/react';
 import { Can } from '@/components/shared/can';
 import type { Role } from '../types/role.type';
 import { Link } from 'react-router-dom';
+import { useConfirm } from '@/components/shared/confirm';
+import { toast } from 'sonner';
+import { useArchiveRole } from '../api/role.mutation';
 
 function RoleMenu({
   role,
   trigger,
   ...props
 }: ComponentProps<typeof DropdownMenu> & {
-  role: Pick<Role, 'id' | 'enabled'>;
+  role: Pick<Role, 'id' | 'name' | 'enabled'>;
   trigger?: ReactNode;
 }) {
+  const confirm = useConfirm();
+  const archiveApi = useArchiveRole();
+
+  const archive = async () => {
+    const ok = await confirm({
+      title: 'Remove role?',
+      description: `Remove "${role.name}"? You can restore it later.`,
+    });
+    if (ok)
+      toast.promise(archiveApi.mutateAsync({ id: role.id }), {
+        loading: 'Removing role...',
+        success: 'Role removed',
+      });
+  };
+
   return (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
@@ -62,7 +80,11 @@ function RoleMenu({
           </Can>
           <Can I={'archive'} a={'access-control:role'} passThrough>
             {({ isAllowed }) => (
-              <DropdownMenuItem variant="destructive" disabled={!isAllowed}>
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={!isAllowed}
+                onClick={archive}
+              >
                 Remove
               </DropdownMenuItem>
             )}
