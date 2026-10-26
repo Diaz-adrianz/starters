@@ -21,8 +21,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useCreateRole } from '../api/role.mutation';
+import { toast } from 'sonner';
 
-function RoleCreateDialog({ open, onOpenChange }: DialogState) {
+function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
+  const createApi = useCreateRole({
+    onSuccess() {
+      hide();
+    },
+  });
+
   const form = useForm<CreateRoleValues>({
     resolver: zodResolver(createRoleSchema),
     mode: 'onChange',
@@ -33,7 +41,10 @@ function RoleCreateDialog({ open, onOpenChange }: DialogState) {
   });
 
   const create = (values: CreateRoleValues) => {
-    console.log(values);
+    toast.promise(createApi.mutateAsync(values), {
+      loading: 'Creating role...',
+      success: 'Role created',
+    });
   };
 
   return (
