@@ -172,7 +172,7 @@ function DataTable<TData>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
+              <TableRow key={group.id} className="hover:bg-transparent">
                 {group.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
