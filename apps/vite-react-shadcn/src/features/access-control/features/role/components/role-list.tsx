@@ -10,20 +10,9 @@ import {
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import {
-  RiDeleteBinFill,
-  RiDeleteBinLine,
-  RiLoaderLine,
-  RiSearchLine,
-} from '@remixicon/react';
+import { RiDeleteBinFill, RiDeleteBinLine } from '@remixicon/react';
 import type { Role } from '../types/role.type';
 import { useRoles } from '../api/role.query';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { useDebounce } from '@/hooks/use-debounce';
 import type {
   ColumnDef,
   PaginationState,
@@ -33,6 +22,7 @@ import type {
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
 import { Toggle } from '@/components/ui/toggle';
+import { SearchInput } from '@/components/shared/search-input';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -131,44 +121,28 @@ function RoleList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-function RoleListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
+function RoleListSearchFilter({
+  ...props
+}: ComponentProps<typeof SearchInput>) {
   const { isLoading, data, query } = useRoleList();
 
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'search',
-        value: debouncedSearch ? { name: debouncedSearch } : undefined,
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [debouncedSearch]);
-
   return (
-    <InputGroup {...props}>
-      <InputGroupInput
-        placeholder="Search name..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <InputGroupAddon>
-        <RiSearchLine />
-      </InputGroupAddon>
-
-      {isLoading ? (
-        <InputGroupAddon align={'inline-end'}>
-          <RiLoaderLine className="animate-spin" />
-        </InputGroupAddon>
-      ) : search ? (
-        <InputGroupAddon align="inline-end">
-          {data?.totalItems ?? 0} results
-        </InputGroupAddon>
-      ) : null}
-    </InputGroup>
+    <SearchInput
+      {...props}
+      placeholder="Search name..."
+      isLoading={isLoading}
+      resultsCount={data?.totalItems}
+      onChange={(value) =>
+        query.batch([
+          {
+            type: 'set',
+            key: 'search',
+            value: value ? { name: value } : undefined,
+          },
+          { type: 'set', key: 'page', value: 1 },
+        ])
+      }
+    />
   );
 }
 
