@@ -3,30 +3,24 @@ import {
   useContext,
   useEffect,
   useState,
-  type ComponentProps,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { RiLoaderLine, RiSearchLine } from '@remixicon/react';
 import type { User } from '../types/user.type';
 import { useUsers } from '../api/user.query';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { useDebounce } from '@/hooks/use-debounce';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { UserTableColumnDef } from './user-table';
+import { SearchInput } from '@/components/shared/search-input';
+import { ResourceListTrashFilter } from '@/components/shared/resource-list';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -125,53 +119,49 @@ function UserList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-function UserListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
+function UserListSearchFilter() {
   const { isLoading, data, query } = useUserList();
 
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search);
+  return (
+    <SearchInput
+      placeholder="Search username, email..."
+      isLoading={isLoading}
+      resultsCount={data?.totalItems}
+      onChange={(value) =>
+        query.batch([
+          {
+            type: 'set',
+            key: 'search',
+            value: value ? { username: value, email: value } : undefined,
+          },
+          { type: 'set', key: 'page', value: 1 },
+        ])
+      }
+    />
+  );
+}
 
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'search',
-        value: debouncedSearch
-          ? { username: debouncedSearch, email: debouncedSearch }
-          : undefined,
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [debouncedSearch]);
+function UserListTrashFilter() {
+  const { query } = useUserList();
 
   return (
-    <InputGroup {...props}>
-      <InputGroupInput
-        placeholder="Search username, email..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <InputGroupAddon>
-        <RiSearchLine />
-      </InputGroupAddon>
-
-      {isLoading ? (
-        <InputGroupAddon align={'inline-end'}>
-          <RiLoaderLine className="animate-spin" />
-        </InputGroupAddon>
-      ) : search ? (
-        <InputGroupAddon align="inline-end">
-          {data?.totalItems ?? 0} results
-        </InputGroupAddon>
-      ) : null}
-    </InputGroup>
+    <ResourceListTrashFilter
+      pressed={query.state.trash}
+      onPressedChange={(s) => query.set('trash', s)}
+    />
   );
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function UserListTable() {
+function UserListTable({
+  columnDef,
+}: {
+  columnDef: ColumnDef<
+    NonNullable<UserListContextProps['data']>['items'][number]
+  >[];
+}) {
   const {
     data,
     isLoading,
@@ -185,7 +175,7 @@ function UserListTable() {
 
   return (
     <DataTable
-      columns={UserTableColumnDef}
+      columns={columnDef}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}
@@ -201,4 +191,4 @@ function UserListTable() {
   );
 }
 
-export { UserList, UserListSearchFilter, UserListTable };
+export { UserList, UserListSearchFilter, UserListTrashFilter, UserListTable };

@@ -1,63 +1,82 @@
-import type { ComponentProps, ReactNode } from 'react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
-import { Can } from '@/components/shared/can';
+  RiArrowGoBackLine,
+  RiDeleteBack2Line,
+  RiDeleteBinLine,
+  RiEdit2Line,
+  RiExpandDiagonalLine,
+} from '@remixicon/react';
 import type { User } from '../types/user.type';
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
+
+type UserMenuItem = Pick<User, 'id' | 'username'>;
 
 function UserMenu({
   user,
-  trigger,
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  user: Pick<User, 'id' | 'enabled'>;
-  trigger?: ReactNode;
+  actions,
+}: {
+  user: UserMenuItem;
+  actions?: {
+    read?: string | ((user: UserMenuItem) => void);
+    update?: (user: UserMenuItem) => void;
+    archive?: (user: UserMenuItem) => void;
+    restore?: (user: UserMenuItem) => void;
+    delete?: (user: UserMenuItem) => void;
+  };
 }) {
+  if (!actions) return null;
+  const { read, update, archive, restore, delete: del } = actions;
+
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? (
-          <Button variant="ghost" size={'icon'}>
-            <RiMore2Line />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Send email</DropdownMenuLabel>
-          <DropdownMenuItem>Verification</DropdownMenuItem>
-          <DropdownMenuItem>Password reset</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'identity:user'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem
-                disabled={!isAllowed}
-                variant={user.enabled ? 'destructive' : 'default'}
-              >
-                {user.enabled ? 'Deactivate' : 'Activate'}
-              </DropdownMenuItem>
-            )}
-          </Can>
-          <Can I={'archive'} a={'identity:user'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem disabled={!isAllowed} variant="destructive">
-                Remove
-              </DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {read && (
+        <ResourceMenuButton
+          subject="identity:user"
+          action="read"
+          label="View"
+          Icon={RiExpandDiagonalLine}
+          to={typeof read === 'string' ? read : undefined}
+          onClick={typeof read === 'function' ? () => read(user) : undefined}
+        />
+      )}
+      {update && (
+        <ResourceMenuButton
+          subject="identity:user"
+          action="update"
+          label="Edit"
+          Icon={RiEdit2Line}
+          onClick={() => update(user)}
+        />
+      )}
+      {archive && (
+        <ResourceMenuButton
+          subject="identity:user"
+          action="archive"
+          label="Remove"
+          Icon={RiDeleteBinLine}
+          destructive
+          onClick={() => archive(user)}
+        />
+      )}
+      {restore && (
+        <ResourceMenuButton
+          subject="identity:user"
+          action="restore"
+          label="Restore"
+          Icon={RiArrowGoBackLine}
+          onClick={() => restore(user)}
+        />
+      )}
+      {del && (
+        <ResourceMenuButton
+          subject="identity:user"
+          action="delete"
+          label="Delete"
+          Icon={RiDeleteBack2Line}
+          destructive
+          onClick={() => del(user)}
+        />
+      )}
+    </>
   );
 }
 
