@@ -13,20 +13,14 @@ import {
   RoleListSearchFilter,
   RoleListTable,
   RoleListTrashFilter,
-  RoleMenu,
+  RoleMenuActions,
   RoleUpdateDialog,
   useRoleMutations,
   type RoleUpdateDialogPayload,
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
-import {
-  RiAddLine,
-  RiArrowGoBackLine,
-  RiArrowRightLine,
-  RiDeleteBack2Line,
-} from '@remixicon/react';
-import { Link } from 'react-router-dom';
+import { RiAddLine } from '@remixicon/react';
 
 const RolesPage = () => {
   const createDialog = useDialogState(),
@@ -71,42 +65,23 @@ const RolesPage = () => {
               </div>
               <RoleListTable
                 columns={{
-                  action: ({ row }) =>
-                    query.state.trash ? (
-                      <>
-                        <Button
-                          variant={'ghost'}
-                          size={'icon'}
-                          onClick={() => mutations.restore(row.original)}
-                        >
-                          <RiArrowGoBackLine />
-                        </Button>
-                        <Button
-                          variant={'ghost'}
-                          className="text-destructive!"
-
-                          size={'icon'}
-                          onClick={() => mutations.del(row.original)}
-                        >
-                          <RiDeleteBack2Line />
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button size={'icon'} variant={'ghost'} asChild>
-                          <Link to={`/admin/access/roles/${row.original.id}`}>
-                            <RiArrowRightLine />
-                          </Link>
-                        </Button>
-                        <RoleMenu
-                          role={row.original}
-                          actions={{
-                            onEdit: (r) => updateDialog.show({ id: r.id }),
-                            onArchive: (r) => mutations.archive(r),
-                          }}
-                        />
-                      </>
-                    ),
+                  action: ({ row }) => (
+                    <RoleMenuActions
+                      role={row.original}
+                      actions={
+                        query.state.trash
+                          ? {
+                              restore: (r) => mutations.restore(r),
+                              delete: (r) => mutations.del(r),
+                            }
+                          : {
+                              read: `/admin/access/roles/${row.original.id}`,
+                              update: (r) => updateDialog.show({ id: r.id }),
+                              archive: (r) => mutations.archive(r),
+                            }
+                      }
+                    />
+                  ),
                 }}
               />
             </RoleList>

@@ -1,78 +1,125 @@
-import type { ComponentProps } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
+import {
+  RiArrowGoBackLine,
+  RiDeleteBack2Line,
+  RiDeleteBinLine,
+  RiEdit2Line,
+  RiExpandDiagonalLine,
+  type RemixiconComponentType,
+} from '@remixicon/react';
 import { Can } from '@/components/shared/can';
-import type { Role } from '../types/role.type';
 import { Link } from 'react-router-dom';
+import { cn } from 'cn';
+import type { Role } from '../types/role.type';
+import { WithTooltip } from '@/components/shared/with-tooltip';
 
-type RoleMenuProps = ComponentProps<typeof DropdownMenu> & {
-  role: Pick<Role, 'id' | 'name' | 'enabled'>;
-  actions?: {
-    onEdit?: (role: RoleMenuProps['role']) => void;
-    onArchive?: (role: RoleMenuProps['role']) => void;
-  };
-};
-
-function RoleMenu({ role, actions, ...props }: RoleMenuProps) {
+function RoleMenuActionButton({
+  action,
+  Icon,
+  label,
+  destructive,
+  to,
+  onClick,
+}: {
+  action: string;
+  Icon: RemixiconComponentType;
+  label: string;
+  destructive?: boolean;
+  to?: string;
+  onClick?: () => void;
+}) {
+  const className = cn(
+    destructive && 'text-destructive hover:text-destructive'
+  );
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={'icon'}>
-          <RiMore2Line />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>View</DropdownMenuLabel>
-          <DropdownMenuItem asChild>
-            <Link to={`/admin/access/roles/${role.id}/accounts`}>Accounts</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to={`/admin/access/roles/${role.id}/permissions`}>
-              Permissions
+    <Can I={action} a="access-control:role">
+      <WithTooltip text={label}>
+        {to ? (
+          <Button size="icon" variant="ghost" className={className} asChild>
+            <Link to={to}>
+              <Icon />
             </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          {!!actions?.onEdit && (
-            <Can I={'update'} a={'access-control:role'} passThrough>
-              {({ isAllowed }) => (
-                <DropdownMenuItem
-                  disabled={!isAllowed}
-                  onClick={() => actions.onEdit?.(role)}
-                >
-                  Edit
-                </DropdownMenuItem>
-              )}
-            </Can>
-          )}
-          {!!actions?.onArchive && (
-            <Can I={'archive'} a={'access-control:role'} passThrough>
-              {({ isAllowed }) => (
-                <DropdownMenuItem
-                  variant="destructive"
-                  disabled={!isAllowed}
-                  onClick={() => actions.onArchive?.(role)}
-                >
-                  Remove
-                </DropdownMenuItem>
-              )}
-            </Can>
-          )}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </Button>
+        ) : (
+          <Button
+            size="icon"
+            variant="ghost"
+            className={className}
+            onClick={onClick}
+          >
+            <Icon />
+          </Button>
+        )}
+      </WithTooltip>
+    </Can>
   );
 }
 
-export { RoleMenu };
+type RoleMenuItem = Pick<Role, 'id' | 'name' | 'enabled'>;
+
+function RoleMenuActions({
+  role,
+  actions,
+}: {
+  role: RoleMenuItem;
+  actions?: {
+    read?: string | ((role: RoleMenuItem) => void);
+    update?: (role: RoleMenuItem) => void;
+    archive?: (role: RoleMenuItem) => void;
+    restore?: (role: RoleMenuItem) => void;
+    delete?: (role: RoleMenuItem) => void;
+  };
+}) {
+  if (!actions) return null;
+  const { read, update, archive, restore, delete: del } = actions;
+
+  return (
+    <>
+      {read && (
+        <RoleMenuActionButton
+          action="read"
+          label="Read role"
+          Icon={RiExpandDiagonalLine}
+          to={typeof read === 'string' ? read : undefined}
+          onClick={typeof read === 'function' ? () => read(role) : undefined}
+        />
+      )}
+      {update && (
+        <RoleMenuActionButton
+          action="update"
+          label="Update role"
+          Icon={RiEdit2Line}
+          onClick={() => update(role)}
+        />
+      )}
+      {archive && (
+        <RoleMenuActionButton
+          action="archive"
+          label="Remove role"
+          Icon={RiDeleteBinLine}
+          destructive
+          onClick={() => archive(role)}
+        />
+      )}
+      {restore && (
+        <RoleMenuActionButton
+          action="restore"
+          label="Restore role"
+          Icon={RiArrowGoBackLine}
+          onClick={() => restore(role)}
+        />
+      )}
+      {del && (
+        <RoleMenuActionButton
+          action="delete"
+          label="Delete role"
+          Icon={RiDeleteBack2Line}
+          destructive
+          onClick={() => del(role)}
+        />
+      )}
+    </>
+  );
+}
+
+export { RoleMenuActions };
