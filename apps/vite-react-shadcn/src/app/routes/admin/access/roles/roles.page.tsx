@@ -62,7 +62,9 @@ const RolesPage = () => {
           <CardContent>
             <RoleList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <RoleListSearchFilter className="w-auto grow" />
+                <div className="grow">
+                  <RoleListSearchFilter />
+                </div>
                 <RoleListTrashFilter />
               </div>
               <RoleListTable

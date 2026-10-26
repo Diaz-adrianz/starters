@@ -3,7 +3,6 @@ import {
   useContext,
   useEffect,
   useState,
-  type ComponentProps,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
@@ -122,15 +121,12 @@ function PermissionList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-function PermissionListSearchFilter({
-  ...props
-}: ComponentProps<typeof SearchInput>) {
+function PermissionListSearchFilter() {
   const { isLoading, data, query } = usePermissionList();
 
   return (
     <SearchInput
-      {...props}
-      placeholder="Search name..."
+      placeholder="Search description..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
       onChange={(value) =>

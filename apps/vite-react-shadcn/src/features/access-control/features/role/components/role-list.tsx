@@ -3,7 +3,6 @@ import {
   useContext,
   useEffect,
   useState,
-  type ComponentProps,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
@@ -121,14 +120,11 @@ function RoleList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-function RoleListSearchFilter({
-  ...props
-}: ComponentProps<typeof SearchInput>) {
+function RoleListSearchFilter() {
   const { isLoading, data, query } = useRoleList();
 
   return (
     <SearchInput
-      {...props}
       placeholder="Search name..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
