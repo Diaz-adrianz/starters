@@ -1,10 +1,12 @@
 import { Can } from '@/components/shared/can';
+import { NumberingCell, SortableHeader } from '@/components/shared/data-table';
 import {
   Page,
   PageHeader,
   PageNav,
   PageSection,
 } from '@/components/shared/page';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -64,25 +66,59 @@ const RolesPage = () => {
                 <RoleListTrashFilter />
               </div>
               <RoleListTable
-                columns={{
-                  action: ({ row }) => (
-                    <RoleMenuActions
-                      role={row.original}
-                      actions={
-                        query.state.trash
-                          ? {
-                              restore: (r) => mutations.restore(r),
-                              delete: (r) => mutations.del(r),
-                            }
-                          : {
-                              read: `/admin/access/roles/${row.original.id}`,
-                              update: (r) => updateDialog.show({ id: r.id }),
-                              archive: (r) => mutations.archive(r),
-                            }
-                      }
-                    />
-                  ),
-                }}
+                columnDef={[
+                  {
+                    id: 'no',
+                    header: '#',
+                    cell: NumberingCell,
+                    enableSorting: false,
+                  },
+                  {
+                    accessorKey: 'name',
+                    header: ({ column }) => (
+                      <SortableHeader column={column} title="Description" />
+                    ),
+                  },
+                  {
+                    accessorKey: 'enabled',
+                    header: () => 'Status',
+                    cell: ({ row }) =>
+                      row.original.enabled ? (
+                        <Badge>Active</Badge>
+                      ) : (
+                        <Badge variant={'secondary'}>Inactive</Badge>
+                      ),
+                    enableSorting: false,
+                  },
+                  {
+                    accessorKey: 'default',
+                    header: () => 'Default',
+                    cell: ({ row }) => (row.original.default ? 'Yes' : 'No'),
+                    enableSorting: false,
+                  },
+                  {
+                    id: 'action',
+                    header: '',
+                    cell: ({ row }) => (
+                      <RoleMenuActions
+                        role={row.original}
+                        actions={
+                          query.state.trash
+                            ? {
+                                restore: (r) => mutations.restore(r),
+                                delete: (r) => mutations.del(r),
+                              }
+                            : {
+                                read: `/admin/access/roles/${row.original.id}`,
+                                update: (r) => updateDialog.show({ id: r.id }),
+                                archive: (r) => mutations.archive(r),
+                              }
+                        }
+                      />
+                    ),
+                    enableSorting: false,
+                  },
+                ]}
               />
             </RoleList>
           </CardContent>

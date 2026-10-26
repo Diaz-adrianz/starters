@@ -7,6 +7,7 @@ import {
   RiArrowUpLongLine,
 } from '@remixicon/react';
 import {
+  type CellContext,
   type Column,
   type ColumnDef,
   type OnChangeFn,
@@ -35,6 +36,9 @@ import {
   PaginationLink,
 } from '../ui/pagination';
 
+/* -------------------------------------------------------------------------- */
+/*  Headers
+/* -------------------------------------------------------------------------- */
 function SortableHeader<T>({
   column,
   title,
@@ -67,6 +71,17 @@ function SortableHeader<T>({
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Cells
+/* -------------------------------------------------------------------------- */
+function NumberingCell<T>({ row, table }: CellContext<T, unknown>) {
+  const { pageIndex, pageSize } = table.getState().pagination;
+  return pageIndex * pageSize + row.index + 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Table
+/* -------------------------------------------------------------------------- */
 function DataTable<TData>({
   columns,
   data,
@@ -267,4 +282,4 @@ function DataTable<TData>({
   );
 }
 
-export { SortableHeader, DataTable };
+export { SortableHeader, NumberingCell, DataTable };

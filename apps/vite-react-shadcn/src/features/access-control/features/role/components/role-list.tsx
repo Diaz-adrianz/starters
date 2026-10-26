@@ -25,13 +25,13 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { RoleTableColumnDef, type RoleTableColumnDefProps } from './role-table';
 import { Toggle } from '@/components/ui/toggle';
 
 const DEFAULT_PAGE = 1,
@@ -190,7 +190,13 @@ function RoleListTrashFilter() {
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function RoleListTable({ columns }: { columns?: RoleTableColumnDefProps }) {
+function RoleListTable({
+  columnDef,
+}: {
+  columnDef: ColumnDef<
+    NonNullable<RoleListContextProps['data']>['items'][number]
+  >[];
+}) {
   const {
     data,
     isLoading,
@@ -204,7 +210,7 @@ function RoleListTable({ columns }: { columns?: RoleTableColumnDefProps }) {
 
   return (
     <DataTable
-      columns={RoleTableColumnDef(columns)}
+      columns={columnDef}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}
