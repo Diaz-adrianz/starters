@@ -1,40 +1,34 @@
-import type { ComponentProps } from 'react';
+import { RiUserUnfollowLine } from '@remixicon/react';
 import type { RoleUser } from '../types/role.type';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
-import { Can } from '@/components/shared/can';
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
+
+type RoleUserMenuItem = Pick<RoleUser, 'id' | 'userId' | 'username'>;
 
 function RoleUserMenu({
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  roleUser: Pick<RoleUser, 'id'>;
+  roleUser,
+  actions,
+}: {
+  roleUser: RoleUserMenuItem;
+  actions?: {
+    unAssign?: (roleUser: RoleUserMenuItem) => void;
+  };
 }) {
+  if (!actions) return null;
+  const { unAssign } = actions;
+
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={'icon'}>
-          <RiMore2Line />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'access-control:role'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem variant="destructive" disabled={!isAllowed}>
-                Delete
-              </DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {unAssign && (
+        <ResourceMenuButton
+          subject="access-control:role"
+          action="update"
+          label="Unassign"
+          Icon={RiUserUnfollowLine}
+          destructive
+          onClick={() => unAssign(roleUser)}
+        />
+      )}
+    </>
   );
 }
 

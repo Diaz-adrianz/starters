@@ -21,6 +21,7 @@ export {
   RoleUserListSearchFilter,
   RoleUserListTable,
 } from './components/role-user-list';
+export { RoleUserMenu } from './components/role-user-menu';
 
 export {
   RolePermissionList,
