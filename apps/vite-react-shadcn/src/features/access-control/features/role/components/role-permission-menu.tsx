@@ -1,45 +1,34 @@
-import type { ComponentProps } from 'react';
+import { RiProhibitedLine } from '@remixicon/react';
 import type { RolePermission } from '../types/role.type';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
-import { Can } from '@/components/shared/can';
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
+
+type RolePermissionMenuItem = Pick<RolePermission, 'id'>;
 
 function RolePermissionMenu({
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  rolePermission: Pick<RolePermission, 'id'>;
+  rolePermission,
+  actions,
+}: {
+  rolePermission: RolePermissionMenuItem;
+  actions?: {
+    revoke?: (rolePermission: RolePermissionMenuItem) => void;
+  };
 }) {
+  if (!actions) return null;
+  const { revoke } = actions;
+
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={'icon'}>
-          <RiMore2Line />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'access-control:role'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem disabled={!isAllowed}>Update</DropdownMenuItem>
-            )}
-          </Can>
-          <Can I={'update'} a={'access-control:role'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem variant="destructive" disabled={!isAllowed}>
-                Delete
-              </DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {revoke && (
+        <ResourceMenuButton
+          subject="access-control:role"
+          action="update"
+          label="Revoke"
+          Icon={RiProhibitedLine}
+          destructive
+          onClick={() => revoke(rolePermission)}
+        />
+      )}
+    </>
   );
 }
 

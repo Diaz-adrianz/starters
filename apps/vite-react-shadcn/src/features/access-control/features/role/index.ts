@@ -28,6 +28,7 @@ export {
   RolePermissionListSearchFilter,
   RolePermissionListTable,
 } from './components/role-permission-list';
+export { RolePermissionMenu } from './components/role-permission-menu';
 
 // hooks
 export { useRoleMutations } from './hooks/use-role-mutations';

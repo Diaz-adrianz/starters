@@ -3,30 +3,24 @@ import {
   useContext,
   useEffect,
   useState,
-  type ComponentProps,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { RiLoaderLine, RiSearchLine } from '@remixicon/react';
+
 import type { RolePermission } from '../types/role.type';
 import { useRolePermissions } from '../api/role.query';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { useDebounce } from '@/hooks/use-debounce';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { RolePermissionTableColumnDef } from './role-permission-table';
+import { SearchInput } from '@/components/shared/search-input';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -131,55 +125,38 @@ function RolePermissionList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
-function RolePermissionListSearchFilter({
-  ...props
-}: ComponentProps<typeof InputGroup>) {
+function RolePermissionListSearchFilter() {
   const { isLoading, data, query } = useRolePermissionList();
 
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'search',
-        value: debouncedSearch
-          ? { 'permission.description': debouncedSearch }
-          : undefined,
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [debouncedSearch]);
-
   return (
-    <InputGroup {...props}>
-      <InputGroupInput
-        placeholder="Search description..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <InputGroupAddon>
-        <RiSearchLine />
-      </InputGroupAddon>
-
-      {isLoading ? (
-        <InputGroupAddon align={'inline-end'}>
-          <RiLoaderLine className="animate-spin" />
-        </InputGroupAddon>
-      ) : search ? (
-        <InputGroupAddon align="inline-end">
-          {data?.totalItems ?? 0} results
-        </InputGroupAddon>
-      ) : null}
-    </InputGroup>
+    <SearchInput
+      placeholder="Search permission..."
+      isLoading={isLoading}
+      resultsCount={data?.totalItems}
+      onChange={(value) =>
+        query.batch([
+          {
+            type: 'set',
+            key: 'search',
+            value: value ? { 'permission.description': value } : undefined,
+          },
+          { type: 'set', key: 'page', value: 1 },
+        ])
+      }
+    />
   );
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function RolePermissionListTable() {
+function RolePermissionListTable({
+  columnDef,
+}: {
+  columnDef: ColumnDef<
+    NonNullable<RolePermissionListContextProps['data']>['items'][number]
+  >[];
+}) {
   const {
     data,
     isLoading,
@@ -193,7 +170,7 @@ function RolePermissionListTable() {
 
   return (
     <DataTable
-      columns={RolePermissionTableColumnDef}
+      columns={columnDef}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}
