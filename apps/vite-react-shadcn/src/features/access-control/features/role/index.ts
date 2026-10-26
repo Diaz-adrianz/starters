@@ -8,6 +8,7 @@ export {
   RoleListTable,
 } from './components/role-list';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
+export { RoleMenu } from './components/role-menu';
 export { RoleCreateDialog } from './components/role-create-dialog';
 export {
   RoleUserList,
@@ -19,6 +20,9 @@ export {
   RolePermissionListSearchFilter,
   RolePermissionListTable,
 } from './components/role-permission-list';
+
+// components
+export { useRoleMutations } from './hooks/use-role-mutations';
 
 // types
 export { type Role } from './types/role.type';

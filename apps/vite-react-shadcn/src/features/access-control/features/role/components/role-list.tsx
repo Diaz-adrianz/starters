@@ -26,7 +26,7 @@ import type {
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { RoleTableColumnDef } from './role-table';
+import { RoleTableColumnDef, type RoleTableColumnDefProps } from './role-table';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -169,7 +169,7 @@ function RoleListSearchFilter({ ...props }: ComponentProps<typeof InputGroup>) {
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function RoleListTable() {
+function RoleListTable({ columns }: { columns?: RoleTableColumnDefProps }) {
   const {
     data,
     isLoading,
@@ -183,7 +183,7 @@ function RoleListTable() {
 
   return (
     <DataTable
-      columns={RoleTableColumnDef}
+      columns={RoleTableColumnDef(columns)}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}

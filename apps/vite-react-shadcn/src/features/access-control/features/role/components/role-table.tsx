@@ -1,13 +1,14 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { CellContext, ColumnDef } from '@tanstack/react-table';
 import type { Role } from '../types/role.type';
 import { SortableHeader } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
-import { RoleMenu } from './role-menu';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { RiArrowRightLine } from '@remixicon/react';
 
-const RoleTableColumnDef: ColumnDef<Role>[] = [
+type RoleTableColumnDefProps = {
+  action?: (op: CellContext<Role, unknown>) => React.JSX.Element;
+};
+const RoleTableColumnDef = (
+  props?: RoleTableColumnDefProps
+): ColumnDef<Role>[] => [
   {
     id: 'no',
     header: '#',
@@ -43,18 +44,10 @@ const RoleTableColumnDef: ColumnDef<Role>[] = [
   {
     id: 'action',
     header: '',
-    cell: ({ row }) => (
-      <>
-        <Button size={'icon'} variant={'ghost'} asChild>
-          <Link to={`/admin/access/roles/${row.original.id}`}>
-            <RiArrowRightLine />
-          </Link>
-        </Button>
-        <RoleMenu role={row.original} />
-      </>
-    ),
+    cell: props?.action,
     enableSorting: false,
   },
 ];
 
 export { RoleTableColumnDef };
+export type { RoleTableColumnDefProps };

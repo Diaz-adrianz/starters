@@ -70,17 +70,17 @@ function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={confirm}>
       {children}
       <AlertDialog open={open} onOpenChange={(o) => !o && settle(false)}>
-        <AlertDialogContent
-          size="sm"
-          className={cn(
-            confirmVariant === 'destructive' || cancelVariant === 'destructive'
-              ? 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'
-              : ''
-          )}
-        >
+        <AlertDialogContent size="sm">
           <AlertDialogHeader>
             {Icon && (
-              <AlertDialogMedia>
+              <AlertDialogMedia
+                className={cn(
+                  confirmVariant === 'destructive' ||
+                    cancelVariant === 'destructive'
+                    ? 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'
+                    : ''
+                )}
+              >
                 <Icon />
               </AlertDialogMedia>
             )}
