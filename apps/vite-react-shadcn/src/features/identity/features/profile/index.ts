@@ -8,3 +8,4 @@ export {
   ProfileListTable,
   ProfileListSearchFilter,
 } from './components/profile-list';
+export { ProfileMenu } from './components/profile-menu';

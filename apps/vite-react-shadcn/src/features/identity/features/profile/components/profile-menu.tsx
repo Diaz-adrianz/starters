@@ -1,63 +1,82 @@
-import type { ComponentProps, ReactNode } from 'react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { RiMore2Line } from '@remixicon/react';
-
-import { Can } from '@/components/shared/can';
+  RiArrowGoBackLine,
+  RiDeleteBack2Line,
+  RiDeleteBinLine,
+  RiEdit2Line,
+  RiExpandDiagonalLine,
+} from '@remixicon/react';
 import type { Profile } from '../types/profile.type';
-import { Link } from 'react-router-dom';
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
+
+type ProfileMenuItem = Pick<Profile, 'id' | 'firstName'>;
 
 function ProfileMenu({
   profile,
-  trigger,
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  profile: Pick<Profile, 'id' | 'userId'>;
-  trigger?: ReactNode;
+  actions,
+}: {
+  profile: ProfileMenuItem;
+  actions?: {
+    read?: string | ((profile: ProfileMenuItem) => void);
+    update?: (profile: ProfileMenuItem) => void;
+    archive?: (profile: ProfileMenuItem) => void;
+    restore?: (profile: ProfileMenuItem) => void;
+    delete?: (profile: ProfileMenuItem) => void;
+  };
 }) {
+  if (!actions) return null;
+  const { read, update, archive, restore, delete: del } = actions;
+
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? (
-          <Button variant="ghost" size={'icon'}>
-            <RiMore2Line />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>View</DropdownMenuLabel>
-          <DropdownMenuItem asChild>
-            <Link to={'/admin/identity/accounts/' + profile.userId}>
-              Account
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Can I={'update'} a={'identity:profile'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem disabled={!isAllowed}>Edit</DropdownMenuItem>
-            )}
-          </Can>
-          <Can I={'archive'} a={'identity:profile'} passThrough>
-            {({ isAllowed }) => (
-              <DropdownMenuItem variant="destructive" disabled={!isAllowed}>
-                Remove
-              </DropdownMenuItem>
-            )}
-          </Can>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {read && (
+        <ResourceMenuButton
+          subject="identity:profile"
+          action="read"
+          label="View"
+          Icon={RiExpandDiagonalLine}
+          to={typeof read === 'string' ? read : undefined}
+          onClick={typeof read === 'function' ? () => read(profile) : undefined}
+        />
+      )}
+      {update && (
+        <ResourceMenuButton
+          subject="identity:profile"
+          action="update"
+          label="Edit"
+          Icon={RiEdit2Line}
+          onClick={() => update(profile)}
+        />
+      )}
+      {archive && (
+        <ResourceMenuButton
+          subject="identity:profile"
+          action="archive"
+          label="Remove"
+          Icon={RiDeleteBinLine}
+          destructive
+          onClick={() => archive(profile)}
+        />
+      )}
+      {restore && (
+        <ResourceMenuButton
+          subject="identity:profile"
+          action="restore"
+          label="Restore"
+          Icon={RiArrowGoBackLine}
+          onClick={() => restore(profile)}
+        />
+      )}
+      {del && (
+        <ResourceMenuButton
+          subject="identity:profile"
+          action="delete"
+          label="Delete"
+          Icon={RiDeleteBack2Line}
+          destructive
+          onClick={() => del(profile)}
+        />
+      )}
+    </>
   );
 }
 

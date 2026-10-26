@@ -20,13 +20,13 @@ import {
 } from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
-import { ProfileTableColumnDef } from './profile-table';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -174,7 +174,13 @@ function ProfileListSearchFilter({
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
-function ProfileListTable() {
+function ProfileListTable({
+  columnDef,
+}: {
+  columnDef: ColumnDef<
+    NonNullable<ProfileListContextProps['data']>['items'][number]
+  >[];
+}) {
   const {
     data,
     isLoading,
@@ -188,7 +194,7 @@ function ProfileListTable() {
 
   return (
     <DataTable
-      columns={ProfileTableColumnDef}
+      columns={columnDef}
       data={data?.items ?? []}
       pageCount={data?.totalPages ?? 0}
       totalItems={data?.totalItems ?? 0}
