@@ -25,6 +25,7 @@ import { useUpdateRole } from '../api/role.mutation';
 import { toast } from 'sonner';
 import { useRole } from '../api/role.query';
 import { LoadingOverlay } from '@/components/shared/loading';
+import { NotFoundResourceEmpty } from '@/components/shared/not-found-empty';
 
 type RoleUpdateDialogPayload = { id: string };
 
@@ -67,66 +68,68 @@ function RoleUpdateDialog({
           <DialogTitle>Update Role</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(update)}>
-          <FieldGroup>
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="name"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="enabled"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field
-                  orientation="horizontal"
-                  data-invalid={fieldState.invalid}
-                >
-                  <FieldContent>
-                    <FieldLabel htmlFor="enabled">Enable</FieldLabel>
+        {!data && !isLoading && open ? (
+          <NotFoundResourceEmpty resource="Role" />
+        ) : (
+          <form onSubmit={form.handleSubmit(update)}>
+            <FieldGroup>
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="name">Name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="name"
+                      aria-invalid={fieldState.invalid}
+                    />
                     {fieldState.invalid && (
-                      <FieldError errors={[{ message: 'kodea' }]} />
+                      <FieldError errors={[fieldState.error]} />
                     )}
-                  </FieldContent>
-                  <Switch
-                    name={field.name}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    id="enabled"
-                    aria-invalid={fieldState.invalid}
-                  />
-                </Field>
-              )}
-            />
+                  </Field>
+                )}
+              />
 
-            <Field orientation={'horizontal'}>
-              <Button
-                className="w-full"
-                type="submit"
-                disabled={
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting ||
-                  !data
-                }
-              >
-                Save
-              </Button>
-            </Field>
-          </FieldGroup>
-        </form>
+              <Controller
+                name="enabled"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    orientation="horizontal"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldContent>
+                      <FieldLabel htmlFor="enabled">Enable</FieldLabel>
+                      {fieldState.invalid && (
+                        <FieldError errors={[{ message: 'kodea' }]} />
+                      )}
+                    </FieldContent>
+                    <Switch
+                      name={field.name}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="enabled"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </Field>
+                )}
+              />
+
+              <Field orientation={'horizontal'}>
+                <Button
+                  className="w-full"
+                  type="submit"
+                  disabled={
+                    !form.formState.isValid || form.formState.isSubmitting
+                  }
+                >
+                  Save
+                </Button>
+              </Field>
+            </FieldGroup>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
