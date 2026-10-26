@@ -10,15 +10,8 @@ import {
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import { RiLoaderLine, RiSearchLine } from '@remixicon/react';
 import type { Permission } from '../types/permission.type';
 import { usePermissions } from '../api/permission.query';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { useDebounce } from '@/hooks/use-debounce';
 import type {
   ColumnDef,
   PaginationState,
@@ -27,6 +20,7 @@ import type {
 } from '@tanstack/react-table';
 import { DataTable } from '@/components/shared/data-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
+import { SearchInput } from '@/components/shared/search-input';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -130,44 +124,26 @@ function PermissionList({
 /* -------------------------------------------------------------------------- */
 function PermissionListSearchFilter({
   ...props
-}: ComponentProps<typeof InputGroup>) {
+}: ComponentProps<typeof SearchInput>) {
   const { isLoading, data, query } = usePermissionList();
 
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'search',
-        value: debouncedSearch ? { description: debouncedSearch } : undefined,
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [debouncedSearch]);
-
   return (
-    <InputGroup {...props}>
-      <InputGroupInput
-        placeholder="Search description..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <InputGroupAddon>
-        <RiSearchLine />
-      </InputGroupAddon>
-
-      {isLoading ? (
-        <InputGroupAddon align={'inline-end'}>
-          <RiLoaderLine className="animate-spin" />
-        </InputGroupAddon>
-      ) : search ? (
-        <InputGroupAddon align="inline-end">
-          {data?.totalItems ?? 0} results
-        </InputGroupAddon>
-      ) : null}
-    </InputGroup>
+    <SearchInput
+      {...props}
+      placeholder="Search name..."
+      isLoading={isLoading}
+      resultsCount={data?.totalItems}
+      onChange={(value) =>
+        query.batch([
+          {
+            type: 'set',
+            key: 'search',
+            value: value ? { description: value } : undefined,
+          },
+          { type: 'set', key: 'page', value: 1 },
+        ])
+      }
+    />
   );
 }
 
