@@ -329,4 +329,14 @@ export const PermissionsData: {
       },
     ],
   },
+  {
+    name: 'portal',
+    entries: [
+      {
+        description: 'Access administrator portal',
+        permission: 'administrator:access',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+    ],
+  },
 ];
