@@ -1,7 +1,7 @@
 import { Logo } from '@/assets/images';
 import { useScrollPosition } from '@/hooks/use-scroll-position';
 import { cn } from 'cn';
-import { useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { useState, type ComponentProps, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import authStore from '@/stores/auth.store';
 import {
@@ -143,14 +143,10 @@ function HeaderPortals() {
 
   const [open, setOpen] = useState(false);
 
-  const portals = useMemo(
-    () =>
-      Object.values(Portals).filter((portal) =>
-        portal.ability
-          ? ability.can(portal.ability.action, portal.ability.subject)
-          : true
-      ),
-    [authStatus]
+  const portals = Object.values(Portals).filter((portal) =>
+    portal.ability
+      ? ability.can(portal.ability.action, portal.ability.subject)
+      : true
   );
 
   if (authStatus === 'unauthenticated' || !authUser) return null;
