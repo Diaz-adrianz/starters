@@ -20,7 +20,7 @@ export class Profile {
   userId: string;
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column('varchar', { nullable: true })
