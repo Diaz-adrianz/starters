@@ -19,7 +19,7 @@ import {
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { getInitials } from '@/utils/string';
 import { Can } from '@casl/react';
-import { RiAddLine } from '@remixicon/react';
+import { RiAddLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 const AccountsPage = () => {
   const query = useResourceQuery({
@@ -68,7 +68,7 @@ const AccountsPage = () => {
                   {
                     accessorKey: 'username',
                     header: ({ column }) => (
-                      <SortableHeader column={column} title="User" />
+                      <SortableHeader column={column} title="Account" />
                     ),
                     cell: ({ row }) => (
                       <div className="flex items-center gap-2">
@@ -83,7 +83,19 @@ const AccountsPage = () => {
                     ),
                   },
                   {
-                    accessorKey: 'email',
+                    id: 'profile.firstName',
+                    header: ({ column }) => (
+                      <SortableHeader column={column} title="Name" />
+                    ),
+                    cell: ({ row }) => (
+                      <p className="text-muted-foreground">
+                        {row.original.profile?.firstName}{' '}
+                        {row.original.profile?.lastName}
+                      </p>
+                    ),
+                  },
+                  {
+                    id: 'email',
                     header: ({ column }) => (
                       <SortableHeader column={column} title="Email" />
                     ),
@@ -94,13 +106,49 @@ const AccountsPage = () => {
                     ),
                   },
                   {
-                    accessorKey: 'enabled',
+                    id: 'profile.phoneNumber',
+                    header: () => 'Phone number',
+                    cell: ({ row }) => (
+                      <p className="text-muted-foreground">
+                        {row.original.profile?.phoneNumber}
+                      </p>
+                    ),
+                    enableSorting: false,
+                  },
+                  {
+                    id: 'profile.gender',
+                    header: ({ column }) => (
+                      <SortableHeader column={column} title="Gender" />
+                    ),
+                    cell: ({ row }) => (
+                      <p className="text-muted-foreground">
+                        {row.original.profile?.gender}
+                      </p>
+                    ),
+                  },
+                  {
+                    id: 'enabled',
                     header: () => 'Status',
                     cell: ({ row }) =>
                       row.original.enabled ? (
                         <Badge>Active</Badge>
                       ) : (
                         <Badge variant={'secondary'}>Inactive</Badge>
+                      ),
+                    enableSorting: false,
+                  },
+                  {
+                    id: 'verifiedAt',
+                    header: () => 'Verified',
+                    cell: ({ row }) =>
+                      row.original.verifiedAt ? (
+                        <Badge size={'icon'}>
+                          <RiCheckLine />
+                        </Badge>
+                      ) : (
+                        <Badge size={'icon'} variant={'destructive'}>
+                          <RiCloseLine />
+                        </Badge>
                       ),
                     enableSorting: false,
                   },

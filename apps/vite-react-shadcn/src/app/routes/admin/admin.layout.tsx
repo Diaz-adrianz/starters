@@ -31,8 +31,6 @@ import {
   RiKeyLine,
   RiShieldFill,
   RiShieldLine,
-  RiUserSmileFill,
-  RiUserSmileLine,
 } from '@remixicon/react';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -49,13 +47,6 @@ const MenuGroup: {
         Icon: RiAccountCircleLine,
         IconActive: RiAccountCircleFill,
         ability: { action: 'read', subject: 'identity:user' },
-      },
-      {
-        path: '/admin/identity/profiles',
-        label: 'Profiles',
-        Icon: RiUserSmileLine,
-        IconActive: RiUserSmileFill,
-        ability: { action: 'read', subject: 'identity:profile' },
       },
     ],
   },

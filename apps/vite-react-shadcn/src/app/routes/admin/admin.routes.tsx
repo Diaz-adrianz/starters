@@ -3,7 +3,6 @@ import AdminPage from './admin.page';
 import AccountsPage from './identity/accounts/accounts.page';
 import RolesPage from './access/roles/roles.page';
 import PermissionsPage from './access/permissions/permissions.page';
-import ProfilesPage from './identity/profiles/profiles.page';
 import RoleLayout from './access/roles/role/role.layout';
 import RolePermissionsPage from './access/roles/role/permissions/role-permissions.page';
 import RoleAccountsPage from './access/roles/role/accounts/role-accounts.page';
@@ -16,10 +15,7 @@ const adminRoutes: RouteObject[] = [
   },
   {
     path: 'identity',
-    children: [
-      { path: 'accounts', element: <AccountsPage /> },
-      { path: 'profiles', element: <ProfilesPage /> },
-    ],
+    children: [{ path: 'accounts', element: <AccountsPage /> }],
   },
   {
     path: 'access',

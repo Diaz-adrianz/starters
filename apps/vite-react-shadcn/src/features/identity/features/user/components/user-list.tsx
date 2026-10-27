@@ -124,7 +124,6 @@ function UserListSearchFilter() {
 
   return (
     <SearchInput
-      placeholder="Search username, email..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
       onChange={(value) =>
@@ -132,7 +131,15 @@ function UserListSearchFilter() {
           {
             type: 'set',
             key: 'search',
-            value: value ? { username: value, email: value } : undefined,
+            value: value
+              ? {
+                  username: value,
+                  email: value,
+                  'profile.firstName': value,
+                  'profile.lastName': value,
+                  'profile.phoneNumber': value,
+                }
+              : undefined,
           },
           { type: 'set', key: 'page', value: 1 },
         ])
