@@ -24,7 +24,6 @@ import {
 import { getInitials } from '@/utils/string';
 import { Button } from '../ui/button';
 import { useAuth } from '@/features/auth';
-import { useAbility } from '@/app/providers';
 import { Portals } from '@/config/portals.config';
 import {
   Popover,
@@ -35,6 +34,7 @@ import {
   PopoverTrigger,
 } from '../ui/popover';
 import { Item, ItemContent, ItemMedia, ItemTitle } from '../ui/item';
+import { useAbility } from '@casl/react';
 
 function Header({
   slotLeft,

@@ -1,9 +1,6 @@
-import { Can as CaslCan } from '@casl/react';
-import { useAbility } from '@/app/providers';
+import { useAbility } from '@casl/react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-
-const Can = CaslCan;
 
 function CanRoute({
   children,
@@ -24,4 +21,4 @@ function CanRoute({
   return children;
 }
 
-export { Can, CanRoute };
+export { CanRoute };

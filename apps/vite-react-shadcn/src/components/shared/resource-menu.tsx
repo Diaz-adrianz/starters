@@ -1,9 +1,9 @@
 import type { RemixiconComponentType } from '@remixicon/react';
 import { cn } from 'cn';
-import { Can } from './can';
 import { WithTooltip } from './with-tooltip';
 import { Button } from '../ui/button';
 import { Link } from 'react-router-dom';
+import { Can } from '@casl/react';
 
 function ResourceMenuButton({
   action,

@@ -1,4 +1,4 @@
-import { useTheme } from '@/app/providers';
+import { useTheme } from '@/app/providers/theme.provider';
 import {
   Select,
   SelectContent,

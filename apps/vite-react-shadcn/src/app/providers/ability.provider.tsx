@@ -3,15 +3,8 @@ import authStore from '@/stores/auth.store';
 import { abilityStore } from '@/stores/ability.store';
 import { useUserAccessList } from '@/features/access-control';
 import { defineAbilityFor } from '@/lib/casl/ability.util';
-import {
-  useAbility as useCaslAbility,
-  AbilityProvider as CaslAbilityProvider,
-} from '@casl/react';
+import { AbilityProvider as CaslAbilityProvider } from '@casl/react';
 import type { AbilityItem } from '@/lib/casl/ability.type';
-
-function useAbility() {
-  return useCaslAbility();
-}
 
 function AbilityProvider({ children }: { children: ReactNode }) {
   const authStatus = authStore((s) => s.status);
@@ -47,4 +40,4 @@ function AbilityProvider({ children }: { children: ReactNode }) {
   return <CaslAbilityProvider value={ability}>{children}</CaslAbilityProvider>;
 }
 
-export { useAbility, AbilityProvider };
+export { AbilityProvider };

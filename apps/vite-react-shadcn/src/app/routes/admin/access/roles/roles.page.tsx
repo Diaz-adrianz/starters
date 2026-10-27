@@ -1,4 +1,3 @@
-import { Can } from '@/components/shared/can';
 import { NumberingCell, SortableHeader } from '@/components/shared/data-table';
 import {
   Page,
@@ -22,6 +21,7 @@ import {
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
+import { Can } from '@casl/react';
 import { RiAddLine } from '@remixicon/react';
 
 const RolesPage = () => {

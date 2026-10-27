@@ -1,4 +1,3 @@
-import { useAbility } from '@/app/providers';
 import {
   Header,
   HeaderLogo,
@@ -22,6 +21,7 @@ import {
 import { HeaderNotifications } from '@/features/notification';
 import { useMenu } from '@/hooks/use-menu';
 import type { Menu } from '@/types/menu.type';
+import { useAbility } from '@casl/react';
 import {
   RiAccountCircleFill,
   RiAccountCircleLine,

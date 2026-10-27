@@ -1,4 +1,3 @@
-import { Can } from '@/components/shared/can';
 import { NumberingCell, SortableHeader } from '@/components/shared/data-table';
 import {
   Page,
@@ -19,6 +18,7 @@ import {
 } from '@/features/identity';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { getInitials } from '@/utils/string';
+import { Can } from '@casl/react';
 import { RiAddLine } from '@remixicon/react';
 
 const AccountsPage = () => {
