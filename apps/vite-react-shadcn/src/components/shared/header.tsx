@@ -1,7 +1,7 @@
 import { Logo } from '@/assets/images';
 import { useScrollPosition } from '@/hooks/use-scroll-position';
 import { cn } from 'cn';
-import { type ComponentProps, type ReactNode } from 'react';
+import { useMemo, useState, type ComponentProps, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import authStore from '@/stores/auth.store';
 import {
@@ -16,12 +16,25 @@ import {
 import { AvatarImage, AvatarFallback, Avatar } from '../ui/avatar';
 import {
   RiAccountCircleLine,
+  RiApps2Fill,
+  RiApps2Line,
   RiLogoutCircleLine,
   RiSettings4Line,
 } from '@remixicon/react';
 import { getInitials } from '@/utils/string';
 import { Button } from '../ui/button';
 import { useAuth } from '@/features/auth';
+import { useAbility } from '@/app/providers';
+import { Portals } from '@/config/portals.config';
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '../ui/popover';
+import { Item, ItemContent, ItemMedia, ItemTitle } from '../ui/item';
 
 function Header({
   slotLeft,
@@ -122,65 +135,59 @@ function HeaderUser() {
   );
 }
 
-// const Apps: {
-//   logo: string;
-//   name: string;
-//   to: string;
-//   ability?: { action: string; subject: string };
-// }[] = [
-//   {
-//     logo: LogoAdminApp,
-//     name: 'Admin',
-//     to: '/admin',
-//     ability: { action: 'visit', subject: 'admin-app' },
-//   },
-// ];
+function HeaderPortals() {
+  const ability = useAbility();
 
-// export const HeaderApps = () => {
-//   const ability = useAbility();
+  const authUser = authStore((s) => s.user),
+    authStatus = authStore((s) => s.status);
 
-//   const authUser = authStore((s) => s.user),
-//     authStatus = authStore((s) => s.status);
+  const [open, setOpen] = useState(false);
 
-//   const [open, setOpen] = useState(false);
+  const portals = useMemo(
+    () =>
+      Object.values(Portals).filter((portal) =>
+        portal.ability
+          ? ability.can(portal.ability.action, portal.ability.subject)
+          : true
+      ),
+    [authStatus]
+  );
 
-//   if (authStatus === 'unauthenticated' || !authUser) return null;
+  if (authStatus === 'unauthenticated' || !authUser) return null;
 
-//   const apps = Apps.filter((app) =>
-//     app.ability ? ability.can(app.ability.action, app.ability.subject) : true
-//   );
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size={'icon'}>
+          {open ? <RiApps2Fill /> : <RiApps2Line />}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-full max-w-sm min-w-72">
+        <PopoverHeader>
+          <PopoverTitle>Apps</PopoverTitle>
+          <PopoverDescription>
+            {!portals.length && 'No apps available'}
+          </PopoverDescription>
+        </PopoverHeader>
+        {portals.length > 0 && (
+          <div className="grid grid-cols-2">
+            {portals.map((portal) => (
+              <Item className="flex-col" key={portal.name} asChild>
+                <Link to={portal.basePath}>
+                  <ItemMedia variant={'image'}>
+                    <img src={portal.logo} alt={`${portal.name} logo`} />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>{portal.name}</ItemTitle>
+                  </ItemContent>
+                </Link>
+              </Item>
+            ))}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
-//   return (
-//     <Popover open={open} onOpenChange={setOpen}>
-//       <PopoverTrigger asChild>
-//         <Button variant="ghost" size={'icon'}>
-//           {open ? <RiApps2Fill /> : <RiApps2Line />}
-//         </Button>
-//       </PopoverTrigger>
-//       <PopoverContent align="end" className="w-full max-w-sm min-w-72">
-//         <PopoverHeader>
-//           <PopoverTitle>Apps</PopoverTitle>
-//           <PopoverDescription>
-//             {!apps.length && 'No apps available'}
-//           </PopoverDescription>
-//         </PopoverHeader>
-//         <div className="grid grid-cols-2">
-//           {apps.map((app) => (
-//             <Item className="flex-col" key={app.name} asChild>
-//               <Link to={app.to}>
-//                 <ItemMedia variant={'image'}>
-//                   <img src={app.logo} alt="" />
-//                 </ItemMedia>
-//                 <ItemContent>
-//                   <ItemTitle>{app.name}</ItemTitle>
-//                 </ItemContent>
-//               </Link>
-//             </Item>
-//           ))}
-//         </div>
-//       </PopoverContent>
-//     </Popover>
-//   );
-// };
-
-export { Header, HeaderLogo, HeaderUser };
+export { Header, HeaderLogo, HeaderUser, HeaderPortals };

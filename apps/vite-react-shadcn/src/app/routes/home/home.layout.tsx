@@ -1,4 +1,9 @@
-import { Header, HeaderLogo, HeaderUser } from '@/components/shared/header';
+import {
+  Header,
+  HeaderLogo,
+  HeaderPortals,
+  HeaderUser,
+} from '@/components/shared/header';
 import { HeaderNotifications } from '@/features/notification';
 import { Outlet } from 'react-router-dom';
 
@@ -10,6 +15,7 @@ const HomeLayout = () => {
         slotRight={
           <>
             <HeaderNotifications />
+            <HeaderPortals />
             <HeaderUser />
           </>
         }

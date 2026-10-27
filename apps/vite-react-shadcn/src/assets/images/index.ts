@@ -1,4 +1,4 @@
 import Logo from './logo.png';
-import LogoAdminApp from './logo-admin-app.png';
+import LogoAdminPortal from './logo-admin-portal.png';
 
-export { Logo, LogoAdminApp };
+export { Logo, LogoAdminPortal };

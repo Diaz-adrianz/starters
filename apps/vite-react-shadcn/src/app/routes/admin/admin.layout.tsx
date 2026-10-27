@@ -1,5 +1,10 @@
 import { useAbility } from '@/app/providers';
-import { Header, HeaderLogo, HeaderUser } from '@/components/shared/header';
+import {
+  Header,
+  HeaderLogo,
+  HeaderPortals,
+  HeaderUser,
+} from '@/components/shared/header';
 import { MenuItemLink } from '@/components/shared/menu-item';
 import {
   Sidebar,
@@ -136,6 +141,7 @@ const AdminLayout = () => {
           slotRight={
             <>
               <HeaderNotifications />
+              <HeaderPortals />
               <HeaderUser />
             </>
           }
