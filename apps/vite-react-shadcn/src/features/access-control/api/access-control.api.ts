@@ -5,7 +5,7 @@ const PRE = '/access-control/';
 
 export const AccessControlApi = {
   userAccessList: () =>
-    apiClient.get<
-      ApiResponse<{ roles: string[]; pages: string[]; permissions: string[] }>
-    >(PRE + 'me'),
+    apiClient.get<ApiResponse<{ roles: string[]; permissions: string[] }>>(
+      PRE + 'me'
+    ),
 };

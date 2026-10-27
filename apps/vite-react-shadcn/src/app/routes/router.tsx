@@ -38,7 +38,7 @@ const routes: RouteObject[] = [
         path: 'admin',
         element: (
           <AuthRoute>
-            <CanRoute I={'visit'} a={'admin-app'} redirectTo="/">
+            <CanRoute I={'access'} a={'portal:administrator'} redirectTo="/">
               <AdminLayout />
             </CanRoute>
           </AuthRoute>

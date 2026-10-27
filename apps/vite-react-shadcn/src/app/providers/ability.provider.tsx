@@ -34,10 +34,6 @@ function AbilityProvider({ children }: { children: ReactNode }) {
         items.push({ action, subject: `${module}:${resource}` });
       });
 
-      data.pages.forEach((page) =>
-        items.push({ action: 'visit', subject: page })
-      );
-
       setAbilities(items);
     }
   }, [data, setAbilities]);
