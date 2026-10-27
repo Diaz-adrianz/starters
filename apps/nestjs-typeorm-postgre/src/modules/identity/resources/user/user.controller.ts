@@ -76,7 +76,13 @@ export class UserController {
   @Permission('identity:user:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const q = this.store.buildResourceQuery().addFromDto(query);
+    const q = this.store
+      .buildResourceQuery()
+      .addFromDto(query, 'and', [
+        'profile.firstName',
+        'profile.lastName',
+        'profile.phoneNumber',
+      ]);
     return this.userService.findMany(q);
   }
 

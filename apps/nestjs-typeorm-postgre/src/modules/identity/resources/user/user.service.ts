@@ -86,6 +86,7 @@ export class UserService {
   findMany(q: ResourceQuery) {
     return this.userRepo.findAndCount({
       ...q.toFindOptions(),
+      relations: { profile: true },
       select: {
         ...this.userRepo.select([
           'id',
@@ -94,7 +95,15 @@ export class UserService {
           'enabled',
           'avatar',
           'verifiedAt',
+          'createdAt',
         ]),
+        profile: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phoneNumber: true,
+          gender: true,
+        },
       },
     });
   }
