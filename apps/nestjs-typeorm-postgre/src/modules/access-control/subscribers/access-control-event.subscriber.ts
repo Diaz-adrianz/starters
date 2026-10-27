@@ -9,7 +9,6 @@ import { RolePermission } from '../entities/role-permission.entity';
 import { AppRepository } from '../../../database/typeorm/app-repository';
 import { DatabaseKeys } from '../../../database/database-keys.constant';
 import { In } from 'typeorm';
-import { RolePage } from '../entities/role-page.entity';
 import { AccessControlService } from '../access-control.service';
 
 @Injectable()
@@ -17,8 +16,6 @@ export class AccessControlEventSubscriber {
   constructor(
     @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
     private rolePermissionRepo: AppRepository<RolePermission>,
-    @InjectRepository(RolePage, DatabaseKeys.DEFAULT)
-    private rolePageRepo: AppRepository<RolePage>,
     private accessControlService: AccessControlService,
   ) {}
 
@@ -52,13 +49,6 @@ export class AccessControlEventSubscriber {
     await this.accessControlService.invalidateRoles(payload.target);
   }
 
-  @OnEvent(AccessControlEventName.ROLE_PAGE_SET)
-  async rolePageSet(
-    payload: AccessControlEventPayload['accessControl.role.page_set'],
-  ) {
-    await this.accessControlService.invalidateRoles(payload.target);
-  }
-
   @OnEvent(AccessControlEventName.PERMISSION_UPDATED)
   async permissionUpdated(
     payload: AccessControlEventPayload['accessControl.permission.updated'],
@@ -70,29 +60,6 @@ export class AccessControlEventSubscriber {
     });
     await this.accessControlService.invalidateRoles(
       rolePermissions.map((rp) => ({ id: rp.roleId })),
-    );
-  }
-
-  @OnEvent(AccessControlEventName.PAGE_UPDATED)
-  async pageUpdated(
-    payload: AccessControlEventPayload['accessControl.page.updated'],
-  ) {
-    const rolePages = await this.rolePageRepo.find({
-      where: { page: In(payload.target.map((p) => p.id)) },
-      select: { roleId: true },
-      withDeleted: true,
-    });
-    await this.accessControlService.invalidateRoles(
-      rolePages.map((rp) => ({ id: rp.roleId })),
-    );
-  }
-
-  @OnEvent(AccessControlEventName.PAGE_DELETED)
-  async pageDeleted(
-    payload: AccessControlEventPayload['accessControl.page.deleted'],
-  ) {
-    await this.accessControlService.invalidateRoles(
-      payload.affected.roles.map((r) => ({ id: r.id })),
     );
   }
 }

@@ -3,10 +3,7 @@ export const AccessControlEventName = {
   ROLE_DELETED: 'accessControl.role.deleted',
   ROLE_USER_SET: 'accessControl.role.user_set',
   ROLE_PERMISSION_SET: 'accessControl.role.permission_set',
-  ROLE_PAGE_SET: 'accessControl.role.page_set',
   PERMISSION_UPDATED: 'accessControl.permission.updated',
-  PAGE_UPDATED: 'accessControl.page.updated',
-  PAGE_DELETED: 'accessControl.page.deleted',
 } as const;
 
 export interface AccessControlEventPayload {
@@ -24,18 +21,7 @@ export interface AccessControlEventPayload {
     target: { id: string }[];
     payload: { permissionId: string };
   };
-  [AccessControlEventName.ROLE_PAGE_SET]: {
-    target: { id: string }[];
-    payload: { pageId: string };
-  };
   [AccessControlEventName.PERMISSION_UPDATED]: {
     target: { id: string }[];
-  };
-  [AccessControlEventName.PAGE_UPDATED]: {
-    target: { id: string }[];
-  };
-  [AccessControlEventName.PAGE_DELETED]: {
-    target: { id: string }[];
-    affected: { roles: { id: string }[] };
   };
 }

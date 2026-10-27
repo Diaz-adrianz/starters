@@ -7,14 +7,11 @@ import { CacheService } from '../../infra/cache/cache.service';
 import { LoggerService } from '../../infra/logger/logger.service';
 import { HOUR } from '../../shared/utils/number.util';
 import { RolePermission } from './entities/role-permission.entity';
-import { RolePage } from './entities/role-page.entity';
 import { Condition } from './interfaces/condition.interface';
 
 type UserRolesCache = { id: string; name: string }[];
 
 type RolePermissionsCache = { key: string; condition: Condition | null }[];
-
-type RolePagesCache = { name: string }[];
 
 @Injectable()
 export class AccessControlService {
@@ -23,8 +20,6 @@ export class AccessControlService {
     private roleUserRepo: AppRepository<RoleUser>,
     @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
     private rolePermissionRepo: AppRepository<RolePermission>,
-    @InjectRepository(RolePage, DatabaseKeys.DEFAULT)
-    private rolePagesRepo: AppRepository<RolePage>,
     private cache: CacheService,
     private logger: LoggerService,
   ) {}
@@ -33,15 +28,11 @@ export class AccessControlService {
     const roles = await this.findUserActiveRoles(userId),
       permissions = await Promise.all(
         roles.map((role) => this.findRoleActivePermissions(role.id)),
-      ),
-      pages = await Promise.all(
-        roles.map((role) => this.findRoleActivePages(role.id)),
       );
 
     return {
       roles: roles.map((r) => r.name),
       permissions: permissions.flat().map((p) => p.key),
-      pages: pages.flat().map((p) => p.name),
     };
   }
 
@@ -66,9 +57,7 @@ export class AccessControlService {
 
   invalidateRoles(roles: { id: string }[]) {
     return this.cache.delMany((k) =>
-      roles
-        .map((role) => [k.rolePermissions(role.id), k.rolePages(role.id)])
-        .flat(),
+      roles.map((role) => k.rolePermissions(role.id)),
     );
   }
 
@@ -130,29 +119,5 @@ export class AccessControlService {
     }
 
     return permissions;
-  }
-
-  private async findRoleActivePages(roleId: string) {
-    let pages = await this.cache.get<RolePagesCache>((k) =>
-      k.rolePages(roleId),
-    );
-
-    if (!pages) {
-      this.logger.debug(
-        `Pages cache missed for role "${roleId}"`,
-        this.constructor.name,
-      );
-      const rolePages = await this.rolePagesRepo.find({
-        where: { roleId, page: { enabled: true } },
-        relations: { page: true },
-      });
-
-      pages = rolePages.map(({ page }) => ({
-        name: page.name,
-      }));
-      await this.cache.set((k) => k.rolePages(roleId), pages, 1 * HOUR);
-    }
-
-    return pages;
   }
 }

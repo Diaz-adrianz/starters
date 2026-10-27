@@ -88,38 +88,6 @@ export const PermissionsData: {
         roles: [{ name: RolesData.SUPERADMIN }],
       },
 
-      // page
-      {
-        description: 'Create page',
-        permission: 'page:create',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-      {
-        description: 'Read page',
-        permission: 'page:read',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
-      },
-      {
-        description: 'Update page',
-        permission: 'page:update',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-      {
-        description: 'Archive page',
-        permission: 'page:archive',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-      {
-        description: 'Restore page',
-        permission: 'page:restore',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-      {
-        description: 'Delete page',
-        permission: 'page:delete',
-        roles: [{ name: RolesData.SUPERADMIN }],
-      },
-
       // role
       {
         description: 'Create role',

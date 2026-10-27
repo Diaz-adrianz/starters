@@ -9,10 +9,6 @@ import { DefaultDatabaseModule } from '../../database/default/default-database.m
 import { RoleController } from './resources/role/role.controller';
 import { PermissionService } from './resources/permission/permission.service';
 import { AccessControlEventSubscriber } from './subscribers/access-control-event.subscriber';
-import { Page } from './entities/page.entity';
-import { RolePage } from './entities/role-page.entity';
-import { PageService } from './resources/page/page.service';
-import { PageController } from './resources/page/page.controller';
 import { AccessControlService } from './access-control.service';
 import { AccessControlController } from './access-control.controller';
 import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
@@ -21,24 +17,16 @@ import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber
   imports: [
     DefaultDatabaseModule.forFeature([
       Permission,
-      Page,
       Role,
       RolePermission,
-      RolePage,
       RoleUser,
     ]),
   ],
-  controllers: [
-    AccessControlController,
-    PermissionController,
-    RoleController,
-    PageController,
-  ],
+  controllers: [AccessControlController, PermissionController, RoleController],
   providers: [
     AccessControlService,
     PermissionService,
     RoleService,
-    PageService,
 
     // subscribers
     AccessControlEventSubscriber,

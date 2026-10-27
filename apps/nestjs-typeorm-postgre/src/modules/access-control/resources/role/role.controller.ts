@@ -17,7 +17,6 @@ import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
 import { SetRoleUserDto } from './dto/set-role-user.dto';
 import { SetRolePermissionDto } from './dto/set-role-permission.dto';
-import { SetRolePageDto } from './dto/set-role-page.dto';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -25,21 +24,6 @@ export class RoleController {
     private readonly roleService: RoleService,
     private store: StoreService,
   ) {}
-
-  @Permission('access-control:role:read')
-  @Get(':id/pages')
-  findManyPage(@Param('id') id: string, @Query() query: ResourceQueryDto) {
-    const rq = this.store
-      .buildResourceQuery()
-      .addFromDto(query, 'and', ['page.description']);
-    return this.roleService.findManyPage(id, rq);
-  }
-
-  @Permission('access-control:role:update')
-  @Put(':id/pages')
-  setPage(@Param('id') id: string, @Body() dto: SetRolePageDto) {
-    return this.roleService.setPage(id, dto);
-  }
 
   @Permission('access-control:role:read')
   @Get(':id/permissions')
