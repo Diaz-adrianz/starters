@@ -5,7 +5,7 @@ function InlineLink({ className, ...props }: LinkProps) {
   return (
     <Link
       className={cn(
-        'underline-offset-4 hover:underline focus-visible:underline',
+        'underline underline-offset-4 hover:opacity-60 focus-visible:opacity-60',
         className
       )}
       {...props}

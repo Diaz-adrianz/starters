@@ -7,6 +7,7 @@ import RoleLayout from './access/roles/role/role.layout';
 import RolePermissionsPage from './access/roles/role/permissions/role-permissions.page';
 import RoleAccountsPage from './access/roles/role/accounts/role-accounts.page';
 import RolePage from './access/roles/role/role.page';
+import { ActivitiesPage } from './audit/activities/activities.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -31,6 +32,15 @@ const adminRoutes: RouteObject[] = [
         ],
       },
       { path: 'permissions', element: <PermissionsPage /> },
+    ],
+  },
+  {
+    path: 'audit',
+    children: [
+      {
+        path: 'activities',
+        element: <ActivitiesPage />,
+      },
     ],
   },
 ];

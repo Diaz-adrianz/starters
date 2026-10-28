@@ -27,6 +27,8 @@ import {
   RiAccountCircleLine,
   RiDashboardFill,
   RiDashboardLine,
+  RiHistoryFill,
+  RiHistoryLine,
   RiKeyFill,
   RiKeyLine,
   RiShieldFill,
@@ -66,6 +68,18 @@ const MenuGroup: {
         Icon: RiKeyLine,
         IconActive: RiKeyFill,
         ability: { action: 'read', subject: 'access-control:permission' },
+      },
+    ],
+  },
+  {
+    group: 'Audit',
+    menus: [
+      {
+        path: '/admin/audit/activities',
+        label: 'Activities',
+        Icon: RiHistoryLine,
+        IconActive: RiHistoryFill,
+        ability: { action: 'read', subject: 'audit:activity' },
       },
     ],
   },
