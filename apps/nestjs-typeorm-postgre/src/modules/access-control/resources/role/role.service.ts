@@ -107,7 +107,8 @@ export class RoleService {
   // Base
   // ----------------------------------------------------------------
   create(createRoleDto: CreateRoleDto) {
-    return this.roleRepo.insert(createRoleDto);
+    const data = this.roleRepo.create(createRoleDto);
+    return this.roleRepo.save(data);
   }
 
   findMany(rq: ResourceQuery) {

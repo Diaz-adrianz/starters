@@ -14,6 +14,7 @@ import { Permission } from '../../../access-control/decorators/permission.decora
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('identity/profiles')
 export class ProfileController {
@@ -24,6 +25,7 @@ export class ProfileController {
 
   // Base
   // ----------------------------------------------------------------
+  @AuditActivity({ targetId: ({ res }) => res.id })
   @Post()
   create(@Body() dto: CreateProfileDto) {
     return this.profileService.create(this.store.actor.id, dto);
@@ -51,6 +53,7 @@ export class ProfileController {
     return this.profileService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:profile:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProfileDto) {
@@ -58,6 +61,7 @@ export class ProfileController {
     return this.profileService.update(rq, dto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:profile:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
@@ -65,6 +69,7 @@ export class ProfileController {
     return this.profileService.archive(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:profile:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
@@ -72,6 +77,7 @@ export class ProfileController {
     return this.profileService.restore(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:profile:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

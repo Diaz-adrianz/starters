@@ -17,6 +17,7 @@ import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
 import { SetRoleUserDto } from './dto/set-role-user.dto';
 import { SetRolePermissionDto } from './dto/set-role-permission.dto';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -37,6 +38,7 @@ export class RoleController {
     return this.roleService.findManyPermission(id, rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:update')
   @Put(':id/permissions')
   setPermission(@Param('id') id: string, @Body() dto: SetRolePermissionDto) {
@@ -50,6 +52,7 @@ export class RoleController {
     return this.roleService.findManyUser(id, rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:update')
   @Put(':id/users')
   setUser(@Param('id') id: string, @Body() dto: SetRoleUserDto) {
@@ -59,6 +62,7 @@ export class RoleController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
+  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('access-control:role:create')
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
@@ -79,6 +83,7 @@ export class RoleController {
     return this.roleService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
@@ -86,6 +91,7 @@ export class RoleController {
     return this.roleService.update(rq, updateRoleDto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
@@ -93,6 +99,7 @@ export class RoleController {
     return this.roleService.archive(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
@@ -100,6 +107,7 @@ export class RoleController {
     return this.roleService.restore(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

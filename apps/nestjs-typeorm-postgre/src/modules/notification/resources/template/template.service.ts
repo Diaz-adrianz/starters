@@ -48,7 +48,8 @@ export class TemplateService {
   // Basic CRUD
   // ----------------------------------------------------------------
   create(dto: CreateTemplateDto) {
-    return this.templateRepo.insert(dto);
+    const data = this.templateRepo.create(dto);
+    return this.templateRepo.save(data);
   }
 
   findMany(rq: ResourceQuery) {

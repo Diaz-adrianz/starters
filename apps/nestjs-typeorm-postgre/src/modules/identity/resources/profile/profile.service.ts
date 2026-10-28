@@ -17,7 +17,8 @@ export class ProfileService {
   // Base
   // ----------------------------------------------------------------
   create(userId: string, dto: CreateProfileDto) {
-    return this.profileRepo.insert({ ...dto, userId });
+    const data = this.profileRepo.create({ ...dto, userId });
+    return this.profileRepo.save(data);
   }
 
   findMany(rq: ResourceQuery) {

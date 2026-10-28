@@ -4,6 +4,7 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionService } from './permission.service';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('access-control/permissions')
 export class PermissionController {
@@ -35,6 +36,7 @@ export class PermissionController {
     return this.permissionService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:permission:update')
   @Patch(':id')
   update(

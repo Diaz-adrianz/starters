@@ -3,6 +3,7 @@ import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { SessionService } from './session.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('auth/sessions')
 export class SessionController {
@@ -11,6 +12,7 @@ export class SessionController {
     private store: StoreService,
   ) {}
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('auth:session:revoke')
   @Patch(':id/revoke')
   revokeOne(@Param('id') id: string) {
@@ -34,6 +36,7 @@ export class SessionController {
     return this.sessionService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('auth:session:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
