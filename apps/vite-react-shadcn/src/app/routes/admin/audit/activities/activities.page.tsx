@@ -15,12 +15,17 @@ import {
   ActivityMenu,
   ActivityActorTypeMap,
   ActivityListSearchFilter,
+  type ActivityDialogPayload,
+  ActivityDialog,
 } from '@/features/audit';
+import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
 import { cn } from 'cn';
 
 export const ActivitiesPage = () => {
+  const detailDialog = useDialogState<ActivityDialogPayload>();
+
   const query = useResourceQuery({
     page: 1,
     limit: 10,
@@ -29,6 +34,8 @@ export const ActivitiesPage = () => {
 
   return (
     <Page className="min-h-svh">
+      <ActivityDialog {...detailDialog} />
+
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
@@ -142,7 +149,7 @@ export const ActivitiesPage = () => {
                       <ActivityMenu
                         activity={row.original}
                         actions={{
-                          read: () => {},
+                          read: (a) => detailDialog.show({ id: a.id }),
                         }}
                       />
                     ),

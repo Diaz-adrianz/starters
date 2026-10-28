@@ -6,6 +6,10 @@ export {
   ActivityListTable,
 } from './components/activity-list';
 export { ActivityMenu } from './components/activity-menu';
+export {
+  ActivityDialog,
+  type ActivityDialogPayload,
+} from './components/activity-dialog';
 
 // constants
 export {
