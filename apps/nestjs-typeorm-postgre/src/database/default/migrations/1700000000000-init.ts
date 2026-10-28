@@ -17,6 +17,15 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "access_control"."permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "module" character varying NOT NULL, "resource" character varying NOT NULL, "action" character varying NOT NULL, "description" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_534580365a9abdb3120b7307312" UNIQUE ("module", "resource", "action"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
+      `CREATE TYPE "audit"."activities_actor_type_enum" AS ENUM('user', 'system')`,
+    );
+    await queryRunner.query(
+      `CREATE TYPE "audit"."activities_status_enum" AS ENUM('success', 'failure', 'denied')`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "audit"."activities" ("id" BIGSERIAL NOT NULL, "actor_type" "audit"."activities_actor_type_enum" NOT NULL, "actor_id" character varying, "actor_name" character varying, "module" character varying NOT NULL, "action" character varying NOT NULL, "status" "audit"."activities_status_enum" NOT NULL DEFAULT 'success', "target_type" character varying, "target_id" character varying, "target_name" character varying, "request_id" character varying, "context" jsonb, "changes" jsonb, "meta" jsonb, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_7f4004429f731ffb9c88eb486a8" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
       `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "device_id" character varying, "device_label" character varying, "device_type" character varying, "browser" character varying, "os" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
@@ -145,6 +154,9 @@ export class Init1700000000000 implements MigrationInterface {
       `DROP TYPE "identity"."verification_tokens_type_enum"`,
     );
     await queryRunner.query(`DROP TABLE "auth"."sessions"`);
+    await queryRunner.query(`DROP TABLE "audit"."activities"`);
+    await queryRunner.query(`DROP TYPE "audit"."activities_status_enum"`);
+    await queryRunner.query(`DROP TYPE "audit"."activities_actor_type_enum"`);
     await queryRunner.query(`DROP TABLE "access_control"."permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."role_permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."roles"`);

@@ -22,6 +22,7 @@ import { WebsocketModule } from './infra/websocket/websocket.module';
 import { HealthModule } from './infra/health/health.module';
 import { RolesGuard } from './modules/access-control/guards/roles.guard';
 import { PermissionGuard } from './modules/access-control/guards/permission.guard';
+import { AuditModule } from './modules/audit/audit.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { PermissionGuard } from './modules/access-control/guards/permission.guar
     AuthModule,
     NotificationModule,
     AccessControlModule,
+    AuditModule,
   ],
   providers: [
     // Guard providers
