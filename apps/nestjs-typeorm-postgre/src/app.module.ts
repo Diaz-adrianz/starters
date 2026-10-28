@@ -23,6 +23,7 @@ import { HealthModule } from './infra/health/health.module';
 import { RolesGuard } from './modules/access-control/guards/roles.guard';
 import { PermissionGuard } from './modules/access-control/guards/permission.guard';
 import { AuditModule } from './modules/audit/audit.module';
+import { ActivityInterceptor } from './modules/audit/interceptors/activity.interceptor';
 
 @Module({
   imports: [
@@ -90,6 +91,10 @@ import { AuditModule } from './modules/audit/audit.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ActivityInterceptor,
     },
   ],
 })
