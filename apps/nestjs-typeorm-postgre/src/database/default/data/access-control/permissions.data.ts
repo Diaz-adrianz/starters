@@ -339,4 +339,14 @@ export const PermissionsData: {
       },
     ],
   },
+  {
+    name: 'audit',
+    entries: [
+      {
+        description: 'Read activity',
+        permission: 'activity:read',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+    ],
+  },
 ];

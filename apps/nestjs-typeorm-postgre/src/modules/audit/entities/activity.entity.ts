@@ -14,11 +14,11 @@ export type ActivityContext = {
 };
 
 export type ActivityChanges = {
-  before?: unknown;
-  after?: unknown;
+  before?: any;
+  after?: any;
 };
 
-export type ActivityMeta = Record<string, unknown>;
+export type ActivityMeta = Record<string, any>;
 
 @Entity({ schema: 'audit', name: 'activities' })
 export class Activity {
