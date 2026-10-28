@@ -19,6 +19,15 @@ import type {
 } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ActivityStatusOptions } from '../constants/activity.constant';
+import { SearchInput } from '@/components/shared/search-input';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -120,6 +129,59 @@ function ActivityList({
 /* -------------------------------------------------------------------------- */
 /*  Filters
 /* -------------------------------------------------------------------------- */
+function ActivityListSearchFilter() {
+  const { isLoading, data, query } = useActivityList();
+
+  return (
+    <SearchInput
+      isLoading={isLoading}
+      resultsCount={data?.totalItems}
+      onChange={(value) =>
+        query.batch([
+          {
+            type: 'set',
+            key: 'search',
+            value: value
+              ? {
+                  actorName: value,
+                  module: value,
+                  action: value,
+                  targetType: value,
+                  targetName: value,
+                }
+              : undefined,
+          },
+          { type: 'set', key: 'page', value: 1 },
+        ])
+      }
+    />
+  );
+}
+
+function ActivityListStatusFilter() {
+  const { query } = useActivityList();
+  const [value, setValue] = useState('');
+
+  useEffect(() => {
+    if (value) query.add('eq', 'status', value);
+    else query.del('eq', 'status');
+  }, [value]);
+
+  return (
+    <Select value={value} onValueChange={setValue}>
+      <SelectTrigger>
+        <SelectValue placeholder="Status" />
+      </SelectTrigger>
+      <SelectContent>
+        {ActivityStatusOptions.map((o) => (
+          <SelectItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Contents
@@ -160,4 +222,9 @@ function ActivityListTable({
   );
 }
 
-export { ActivityList, ActivityListTable };
+export {
+  ActivityList,
+  ActivityListSearchFilter,
+  ActivityListStatusFilter,
+  ActivityListTable,
+};

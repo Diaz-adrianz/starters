@@ -1,10 +1,10 @@
-export type ActivityActor = 'user';
+export type ActivityActorType = 'user';
 
 export type ActivityStatus = 'success' | 'failure' | 'denied';
 
 export type Activity = {
   id: string;
-  actorType: ActivityActor;
+  actorType: ActivityActorType;
   actorId: string | null;
   actorName: string | null;
   module: string;

@@ -9,11 +9,16 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import {
   ActivityList,
+  ActivityListStatusFilter,
   ActivityListTable,
+  ActivityStatusMap,
   ActivityMenu,
+  ActivityActorTypeMap,
+  ActivityListSearchFilter,
 } from '@/features/audit';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
+import { cn } from 'cn';
 
 export const ActivitiesPage = () => {
   const query = useResourceQuery({
@@ -36,6 +41,13 @@ export const ActivitiesPage = () => {
         <Card>
           <CardContent>
             <ActivityList query={query}>
+              <div className="mb-8 flex flex-wrap gap-2">
+                <ActivityListStatusFilter />
+                <div className="grow">
+                  <ActivityListSearchFilter />
+                </div>
+              </div>
+
               <ActivityListTable
                 columnDef={[
                   {
@@ -62,7 +74,14 @@ export const ActivitiesPage = () => {
                     id: 'status',
                     header: () => 'Status',
                     cell: ({ row }) => (
-                      <p className="uppercase">{row.original.status}</p>
+                      <p
+                        className={cn(
+                          'font-bold uppercase',
+                          ActivityStatusMap[row.original.status].meta?.className
+                        )}
+                      >
+                        {ActivityStatusMap[row.original.status].label}
+                      </p>
                     ),
                     enableSorting: false,
                   },
@@ -81,7 +100,7 @@ export const ActivitiesPage = () => {
                           <p className="text-muted-foreground">N/A</p>
                         )}
                         <span className="typo-caption text-muted-foreground">
-                          {row.original.actorType}
+                          {ActivityActorTypeMap[row.original.actorType].label}
                         </span>
                       </div>
                     ),
