@@ -110,31 +110,32 @@ const AdminLayout = () => {
           </SidebarGroup>
 
           {MenuGroup.map((mg) => {
-            return (
+            const menus = mg.menus.filter(
+              (menu) =>
+                !menu.ability ||
+                ability.can(menu.ability.action, menu.ability.subject)
+            );
+            return menus.length ? (
               <SidebarGroup key={mg.group}>
                 <SidebarGroupLabel>{mg.group}</SidebarGroupLabel>
                 <SidebarMenu>
-                  {mg.menus.map((menu) => {
-                    if (
-                      !menu.ability ||
-                      ability.can(menu.ability.action, menu.ability.subject)
-                    )
-                      return (
-                        <SidebarMenuItem key={menu.path}>
-                          <SidebarMenuButton
-                            isActive={activeMenu?.path === menu.path}
-                            asChild
-                          >
-                            <MenuItemLink
-                              menu={menu}
-                              active={activeMenu?.path === menu.path}
-                            />
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
-                  })}
+                  {menus.map((menu) => (
+                    <SidebarMenuItem key={menu.path}>
+                      <SidebarMenuButton
+                        isActive={activeMenu?.path === menu.path}
+                        asChild
+                      >
+                        <MenuItemLink
+                          menu={menu}
+                          active={activeMenu?.path === menu.path}
+                        />
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroup>
+            ) : (
+              ''
             );
           })}
         </SidebarContent>
