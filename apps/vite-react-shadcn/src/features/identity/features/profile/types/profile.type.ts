@@ -1,5 +1,7 @@
 import type { User } from '../../user';
 
+export type ProfileGender = 'male' | 'female';
+
 export type Profile = {
   id: string;
   userId: string;
@@ -8,7 +10,7 @@ export type Profile = {
   lastName: string | null;
   phoneNumber: string | null;
   dateOfBirth: string | null;
-  gender: string | null;
+  gender: ProfileGender | null;
   bio: string | null;
   updatedAt: string;
 };
