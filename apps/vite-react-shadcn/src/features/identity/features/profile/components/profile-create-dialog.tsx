@@ -70,135 +70,28 @@ function ProfileCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <form onSubmit={form.handleSubmit(create)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Set up Profile</DialogTitle>
-          </DialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Set up Profile</DialogTitle>
+        </DialogHeader>
 
-          <div className="-mx-4 no-scrollbar max-h-[80vh] overflow-y-auto px-4 pb-2">
-            <FieldGroup>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  name="firstName"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="firstName">First name</FieldLabel>
-                      <Input
-                        {...field}
-                        id="firstName"
-                        placeholder="John"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="lastName"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="lastName">Last name</FieldLabel>
-                      <Input
-                        {...field}
-                        id="lastName"
-                        placeholder="Doe"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
+        <form
+          id="form-profile-create"
+          onSubmit={form.handleSubmit(create)}
+          className="-mx-4 no-scrollbar max-h-[80vh] overflow-y-auto px-4 pb-2"
+        >
+          <FieldGroup>
+            <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="dateOfBirth"
+                name="firstName"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="dateOfBirth">Date of birth</FieldLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="justify-start font-normal"
-                        >
-                          <RiCalendarLine />
-                          {field.value ? (
-                            formatDate(field.value, 'dd MMM yyyy')
-                          ) : (
-                            <span>Select date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ?? undefined}
-                          onSelect={field.onChange}
-                          defaultMonth={field.value ?? undefined}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="gender"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="gender">Gender</FieldLabel>
-                    <Select
-                      name={field.name}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="gender"
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Choose" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          value={''}
-                          className="text-muted-foreground"
-                        >
-                          Clear selection
-                        </SelectItem>
-                        {ProfileGenderOptions.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="phoneNumber"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="phoneNumber">Phone number</FieldLabel>
+                    <FieldLabel htmlFor="firstName">First name</FieldLabel>
                     <Input
                       {...field}
-                      type="tel"
-                      id="phoneNumber"
-                      placeholder="+6281234567890"
+                      id="firstName"
+                      placeholder="John"
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -208,15 +101,15 @@ function ProfileCreateDialog({
                 )}
               />
               <Controller
-                name="bio"
+                name="lastName"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="bio">Bio</FieldLabel>
-                    <Textarea
+                    <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                    <Input
                       {...field}
-                      id="bio"
-                      placeholder="Tell us a little about yourself"
+                      id="lastName"
+                      placeholder="Doe"
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -225,20 +118,127 @@ function ProfileCreateDialog({
                   </Field>
                 )}
               />
-            </FieldGroup>
-          </div>
+            </div>
+            <Controller
+              name="dateOfBirth"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="dateOfBirth">Date of birth</FieldLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="justify-start font-normal"
+                      >
+                        <RiCalendarLine />
+                        {field.value ? (
+                          formatDate(field.value, 'dd MMM yyyy')
+                        ) : (
+                          <span>Select date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ?? undefined}
+                        onSelect={field.onChange}
+                        defaultMonth={field.value ?? undefined}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="gender"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="gender">Gender</FieldLabel>
+                  <Select
+                    name={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="gender"
+                      aria-invalid={fieldState.invalid}
+                    >
+                      <SelectValue placeholder="Choose" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={''} className="text-muted-foreground">
+                        Clear selection
+                      </SelectItem>
+                      {ProfileGenderOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="phoneNumber"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="phoneNumber">Phone number</FieldLabel>
+                  <Input
+                    {...field}
+                    type="tel"
+                    id="phoneNumber"
+                    placeholder="+6281234567890"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="bio"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="bio">Bio</FieldLabel>
+                  <Textarea
+                    {...field}
+                    id="bio"
+                    placeholder="Tell us a little about yourself"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
 
-          <DialogFooter>
-            <Button
-              className="w-full"
-              onClick={form.handleSubmit(create)}
-              disabled={!form.formState.isValid || form.formState.isSubmitting}
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </form>
+        <DialogFooter>
+          <Button
+            className="w-full"
+            type="submit"
+            form="form-profile-create"
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

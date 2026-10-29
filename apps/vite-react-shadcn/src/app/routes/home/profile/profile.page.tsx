@@ -13,12 +13,17 @@ import {
   ProfileCard,
   ProfileCardSkeleton,
   ProfileCreateDialog,
+  ProfileUpdateDialog,
   useProfile,
+  type ProfileUpdateDialogPayload,
 } from '@/features/identity';
 import { useDialogState } from '@/hooks/use-dialog';
+import { Can } from '@casl/react';
+import { RiEdit2Line } from '@remixicon/react';
 
 const ProfilePage = () => {
-  const createDialog = useDialogState();
+  const createDialog = useDialogState(),
+    updateDialog = useDialogState<ProfileUpdateDialogPayload>();
 
   const profile = useProfile('me', { silent: true });
 
@@ -28,10 +33,28 @@ const ProfilePage = () => {
         {...createDialog}
         onSuccess={() => profile.refetch()}
       />
+      <ProfileUpdateDialog
+        {...updateDialog}
+        onSuccess={() => profile.refetch()}
+      />
 
       <PageHeader
         title="Profile"
         description="View and update your personal information"
+        action={
+          <>
+            {profile.data && (
+              <Can I={'update'} a={'identity:profile'}>
+                <Button
+                  variant={'outline'}
+                  onClick={() => updateDialog.show({ id: profile.data.id })}
+                >
+                  <RiEdit2Line /> Edit
+                </Button>
+              </Can>
+            )}
+          </>
+        }
       />
       <PageSection>
         {profile.isLoading && <ProfileCardSkeleton />}
