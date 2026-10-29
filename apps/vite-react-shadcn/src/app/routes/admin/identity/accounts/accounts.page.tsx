@@ -5,6 +5,7 @@ import {
   PageNav,
   PageSection,
 } from '@/components/shared/page';
+import { WithTooltip } from '@/components/shared/with-tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import {
   UserMenu,
 } from '@/features/identity';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
+import { formatDate } from '@/utils/date';
 import { getInitials } from '@/utils/string';
 import { Can } from '@casl/react';
 import { RiAddLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
@@ -128,12 +130,16 @@ const AccountsPage = () => {
                   },
                   {
                     id: 'enabled',
-                    header: () => 'Status',
+                    header: () => 'Enabled',
                     cell: ({ row }) =>
                       row.original.enabled ? (
-                        <Badge>Active</Badge>
+                        <Badge size={'icon'}>
+                          <RiCheckLine />
+                        </Badge>
                       ) : (
-                        <Badge variant={'secondary'}>Inactive</Badge>
+                        <Badge size={'icon'} variant={'destructive'}>
+                          <RiCloseLine />
+                        </Badge>
                       ),
                     enableSorting: false,
                   },
@@ -142,9 +148,13 @@ const AccountsPage = () => {
                     header: () => 'Verified',
                     cell: ({ row }) =>
                       row.original.verifiedAt ? (
-                        <Badge size={'icon'}>
-                          <RiCheckLine />
-                        </Badge>
+                        <WithTooltip
+                          text={`At ${formatDate(row.original.verifiedAt, 'dd MMM yyyy, HH:mm a')}`}
+                        >
+                          <Badge size={'icon'}>
+                            <RiCheckLine />
+                          </Badge>
+                        </WithTooltip>
                       ) : (
                         <Badge size={'icon'} variant={'destructive'}>
                           <RiCloseLine />

@@ -34,7 +34,7 @@ function RoleCard({
           <ItemSeparator className="m-0" />
           <Item size={'xs'}>
             <ItemContent>
-              <ItemTitle>Active</ItemTitle>
+              <ItemTitle>Enabled</ItemTitle>
             </ItemContent>
             <ItemContent>
               <ItemDescription>{role.enabled ? 'Yes' : 'No'}</ItemDescription>
@@ -74,7 +74,7 @@ function RoleCardSkeleton({
           <ItemSeparator className="m-0" />
           <Item size={'xs'}>
             <ItemContent>
-              <ItemTitle>Active</ItemTitle>
+              <ItemTitle>Enabled</ItemTitle>
             </ItemContent>
             <ItemContent>
               <Skeleton className="h-5 w-16" />

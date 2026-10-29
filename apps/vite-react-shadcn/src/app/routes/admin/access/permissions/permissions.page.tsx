@@ -14,6 +14,7 @@ import {
   PermissionMenu,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
+import { RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 const PermissionsPage = () => {
   const query = useResourceQuery({
@@ -66,12 +67,16 @@ const PermissionsPage = () => {
                   },
                   {
                     accessorKey: 'enabled',
-                    header: () => 'Status',
+                    header: () => 'Enabled',
                     cell: ({ row }) =>
                       row.original.enabled ? (
-                        <Badge>Active</Badge>
+                        <Badge size={'icon'}>
+                          <RiCheckLine />
+                        </Badge>
                       ) : (
-                        <Badge variant={'secondary'}>Inactive</Badge>
+                        <Badge size={'icon'} variant={'destructive'}>
+                          <RiCloseLine />
+                        </Badge>
                       ),
                     enableSorting: false,
                   },

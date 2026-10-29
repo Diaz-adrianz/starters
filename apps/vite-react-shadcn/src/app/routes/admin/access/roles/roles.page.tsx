@@ -22,7 +22,7 @@ import {
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { Can } from '@casl/react';
-import { RiAddLine } from '@remixicon/react';
+import { RiAddLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 const RolesPage = () => {
   const createDialog = useDialogState(),
@@ -83,19 +83,32 @@ const RolesPage = () => {
                   },
                   {
                     accessorKey: 'enabled',
-                    header: () => 'Status',
+                    header: () => 'Enabled',
                     cell: ({ row }) =>
                       row.original.enabled ? (
-                        <Badge>Active</Badge>
+                        <Badge size={'icon'}>
+                          <RiCheckLine />
+                        </Badge>
                       ) : (
-                        <Badge variant={'secondary'}>Inactive</Badge>
+                        <Badge size={'icon'} variant={'destructive'}>
+                          <RiCloseLine />
+                        </Badge>
                       ),
                     enableSorting: false,
                   },
                   {
                     accessorKey: 'default',
                     header: () => 'Default',
-                    cell: ({ row }) => (row.original.default ? 'Yes' : 'No'),
+                    cell: ({ row }) =>
+                      row.original.default ? (
+                        <Badge size={'icon'}>
+                          <RiCheckLine />
+                        </Badge>
+                      ) : (
+                        <Badge size={'icon'} variant={'destructive'}>
+                          <RiCloseLine />
+                        </Badge>
+                      ),
                     enableSorting: false,
                   },
                   {
