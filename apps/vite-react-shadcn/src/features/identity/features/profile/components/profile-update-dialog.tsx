@@ -31,17 +31,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ProfileGenderOptions } from '../constants/profile.constant';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { RiCalendarLine } from '@remixicon/react';
-import { formatDate } from '@/utils/date';
-import { Calendar } from '@/components/ui/calendar';
 import { useProfile } from '../api/profile.query';
 import { LoadingOverlay } from '@/components/shared/loading';
 import { NotFoundResourceEmpty } from '@/components/shared/not-found-empty';
+import { DatePickerSingle } from '@/components/shared/date-picker';
 
 type ProfileUpdateDialogPayload = { id: string };
 
@@ -148,29 +141,11 @@ function ProfileUpdateDialog({
                       <FieldLabel htmlFor="dateOfBirth">
                         Date of birth
                       </FieldLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="justify-start font-normal"
-                          >
-                            <RiCalendarLine />
-                            {field.value ? (
-                              formatDate(field.value, 'dd MMM yyyy')
-                            ) : (
-                              <span>Select date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value ?? undefined}
-                            onSelect={field.onChange}
-                            defaultMonth={field.value ?? undefined}
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePickerSingle
+                        type="date"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
