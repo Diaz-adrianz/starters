@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { signInSchema, type SignInValues } from '../schemas/auth.schema';
 import { useAuth } from '../hooks/use-auth';
 
@@ -17,7 +17,7 @@ function SignInForm() {
   const { signIn } = useAuth();
 
   const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
+    resolver: yupResolver(signInSchema),
     mode: 'onChange',
     defaultValues: {
       username: '',

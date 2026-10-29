@@ -1,18 +1,18 @@
-import z from 'zod';
+import * as y from 'yup';
 
-const createRoleSchema = z.object({
-  name: z.string().trim().min(1),
-  enabled: z.boolean().optional(),
+const createRoleSchema = y.object({
+  name: y.string().required(),
+  enabled: y.boolean().optional(),
 });
 
-type CreateRoleValues = z.infer<typeof createRoleSchema>;
+type CreateRoleValues = y.InferType<typeof createRoleSchema>;
 
-const updateRoleSchema = z.object({
-  name: z.string().trim().min(1).optional(),
-  enabled: z.boolean().optional(),
+const updateRoleSchema = y.object({
+  name: y.string().optional(),
+  enabled: y.boolean().optional(),
 });
 
-type UpdateRoleValues = z.infer<typeof updateRoleSchema>;
+type UpdateRoleValues = y.InferType<typeof updateRoleSchema>;
 
 export { createRoleSchema, updateRoleSchema };
 export type { CreateRoleValues, UpdateRoleValues };

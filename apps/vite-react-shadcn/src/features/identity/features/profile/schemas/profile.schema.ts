@@ -1,33 +1,26 @@
-import z from 'zod';
+import * as y from 'yup';
 import { ProfileGenders } from '../constants/profile.constant';
+import { nullish } from '@/utils/yup';
 
-const createProfileSchema = z.object({
-  firstName: z.string().max(100),
-  lastName: z.string().max(100),
-  phoneNumber: z
-    .string()
-    .regex(/^\+[1-9]\d{6,14}$/, 'Invalid phone number')
-    .optional(),
-  dateOfBirth: z.date().optional(),
-  gender: z.enum(ProfileGenders).optional(),
-  bio: z.string().max(500).optional(),
+const createProfileSchema = y.object({
+  firstName: y.string().max(100).required(),
+  lastName: y.string().max(100).required(),
+  phoneNumber: nullish(
+    y.string().matches(/^\+[1-9]\d{6,14}$/, {
+      message: 'Invalid phone number',
+      excludeEmptyString: true,
+    })
+  ),
+  dateOfBirth: y.date().typeError('Invalid date').optional(),
+  gender: y.string().oneOf(ProfileGenders).optional(),
+  bio: y.string().max(500).optional(),
 });
 
-type CreateProfileValues = z.infer<typeof createProfileSchema>;
+type CreateProfileValues = y.InferType<typeof createProfileSchema>;
 
-const updateProfileSchema = z.object({
-  firstName: z.string().max(100),
-  lastName: z.string().max(100),
-  phoneNumber: z
-    .string()
-    .regex(/^\+[1-9]\d{6,14}$/, 'Invalid phone number')
-    .optional(),
-  dateOfBirth: z.date().optional(),
-  gender: z.enum(ProfileGenders).optional(),
-  bio: z.string().max(500).optional(),
-});
+const updateProfileSchema = createProfileSchema;
 
-type UpdateProfileValues = z.infer<typeof updateProfileSchema>;
+type UpdateProfileValues = y.InferType<typeof updateProfileSchema>;
 
 export { createProfileSchema, updateProfileSchema };
 export type { CreateProfileValues, UpdateProfileValues };

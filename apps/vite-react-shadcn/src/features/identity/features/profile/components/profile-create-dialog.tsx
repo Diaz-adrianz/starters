@@ -11,7 +11,7 @@ import {
   createProfileSchema,
   type CreateProfileValues,
 } from '../schemas/profile.schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Field,
   FieldError,
@@ -56,7 +56,7 @@ function ProfileCreateDialog({
   });
 
   const form = useForm<CreateProfileValues>({
-    resolver: zodResolver(createProfileSchema),
+    resolver: yupResolver(createProfileSchema),
     mode: 'onChange',
     defaultValues: {},
   });

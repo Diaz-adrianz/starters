@@ -10,7 +10,7 @@ import {
   createRoleSchema,
   type CreateRoleValues,
 } from '../schemas/role.schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Field,
   FieldContent,
@@ -32,7 +32,7 @@ function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
   });
 
   const form = useForm<CreateRoleValues>({
-    resolver: zodResolver(createRoleSchema),
+    resolver: yupResolver(createRoleSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',

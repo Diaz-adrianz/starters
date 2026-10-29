@@ -1,16 +1,19 @@
-import z from 'zod';
+import * as y from 'yup';
 
-export const signInSchema = z.object({
-  username: z
+const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._]*$/;
+
+export const signInSchema = y.object({
+  username: y
     .string()
-    .min(1, 'Required')
-    .refine(
+    .trim()
+    .required('Required')
+    .test(
+      'email-or-username',
+      'Enter valid email or username',
       (val) =>
-        z.email().safeParse(val).success ||
-        /^[a-zA-Z][a-zA-Z0-9._]*$/.test(val),
-      'Enter valid email or username'
+        !val || y.string().email().isValidSync(val) || USERNAME_REGEX.test(val)
     ),
-  password: z.string().min(8, 'Min 8 characters'),
+  password: y.string().required('Required').min(8, 'Min 8 characters'),
 });
 
-export type SignInValues = z.infer<typeof signInSchema>;
+export type SignInValues = y.InferType<typeof signInSchema>;

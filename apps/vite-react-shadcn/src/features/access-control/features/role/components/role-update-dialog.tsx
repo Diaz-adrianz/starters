@@ -10,7 +10,7 @@ import {
   updateRoleSchema,
   type UpdateRoleValues,
 } from '../schemas/role.schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Field,
   FieldContent,
@@ -45,7 +45,7 @@ function RoleUpdateDialog({
     });
 
   const form = useForm<UpdateRoleValues>({
-    resolver: zodResolver(updateRoleSchema),
+    resolver: yupResolver(updateRoleSchema),
     mode: 'onChange',
     defaultValues: { name: '', enabled: true },
     values: data && { name: data.name, enabled: data.enabled },
