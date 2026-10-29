@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, isValid } from 'date-fns';
+import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
 import { enUS, type Locale } from 'date-fns/locale';
 
 const locales: Record<string, Locale> = { en: enUS };
@@ -25,4 +25,10 @@ export const dateToNow = (
     addSuffix: true,
     locale: locales[locale] ?? locales.en,
   });
+};
+
+export const isValidDateString = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = parse(value, 'yyyy-MM-dd', new Date());
+  return isValid(date) && format(date, 'yyyy-MM-dd') === value;
 };

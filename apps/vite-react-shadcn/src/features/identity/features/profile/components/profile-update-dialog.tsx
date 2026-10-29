@@ -142,7 +142,6 @@ function ProfileUpdateDialog({
                         Date of birth
                       </FieldLabel>
                       <DatePickerSingle
-                        type="date"
                         value={field.value}
                         onValueChange={field.onChange}
                       />
@@ -160,7 +159,7 @@ function ProfileUpdateDialog({
                       <FieldLabel htmlFor="gender">Gender</FieldLabel>
                       <Select
                         name={field.name}
-                        value={field.value}
+                        value={field.value ?? ''}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger
@@ -199,6 +198,7 @@ function ProfileUpdateDialog({
                       </FieldLabel>
                       <Input
                         {...field}
+                        value={field.value ?? ''}
                         type="tel"
                         id="phoneNumber"
                         placeholder="+6281234567890"
@@ -218,6 +218,7 @@ function ProfileUpdateDialog({
                       <FieldLabel htmlFor="bio">Bio</FieldLabel>
                       <Textarea
                         {...field}
+                        value={field.value ?? ''}
                         id="bio"
                         placeholder="Tell us a little about yourself"
                         aria-invalid={fieldState.invalid}

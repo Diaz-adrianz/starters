@@ -119,7 +119,6 @@ function ProfileCreateDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="dateOfBirth">Date of birth</FieldLabel>
                   <DatePickerSingle
-                    type="date"
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -137,7 +136,7 @@ function ProfileCreateDialog({
                   <FieldLabel htmlFor="gender">Gender</FieldLabel>
                   <Select
                     name={field.name}
-                    value={field.value}
+                    value={field.value ?? ''}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger
@@ -171,6 +170,7 @@ function ProfileCreateDialog({
                   <FieldLabel htmlFor="phoneNumber">Phone number</FieldLabel>
                   <Input
                     {...field}
+                    value={field.value ?? ''}
                     type="tel"
                     id="phoneNumber"
                     placeholder="+6281234567890"
@@ -190,6 +190,7 @@ function ProfileCreateDialog({
                   <FieldLabel htmlFor="bio">Bio</FieldLabel>
                   <Textarea
                     {...field}
+                    value={field.value ?? ''}
                     id="bio"
                     placeholder="Tell us a little about yourself"
                     aria-invalid={fieldState.invalid}
