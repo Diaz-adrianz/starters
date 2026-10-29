@@ -1,23 +1,30 @@
 import type { ComponentProps } from 'react';
-import { Toggle } from '../ui/toggle';
-import { RiDeleteBinFill, RiDeleteBinLine } from '@remixicon/react';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 
-function ResourceListTrashFilter({ ...props }: ComponentProps<typeof Toggle>) {
+function ResourceListTrashFilter({
+  value,
+  onValueChange,
+  ...props
+}: Omit<ComponentProps<typeof Tabs>, 'value' | 'onValueChange'> & {
+  value?: boolean;
+  onValueChange?: (value: boolean) => void;
+}) {
   return (
-    <Toggle
+    <Tabs
       {...props}
-      size={props.pressed ? 'default' : 'icon'}
-      className="data-[state=on]:animate-pulse data-[state=on]:bg-destructive/15 data-[state=on]:text-destructive"
+      value={value ? 'trash' : 'active'}
+      onValueChange={(v) => onValueChange?.(v === 'trash')}
     >
-      {props.pressed ? (
-        <>
-          <RiDeleteBinFill />
-          Showing removed
-        </>
-      ) : (
-        <RiDeleteBinLine />
-      )}
-    </Toggle>
+      <TabsList>
+        <TabsTrigger value="active">Active</TabsTrigger>
+        <TabsTrigger
+          value="trash"
+          className="data-[state=active]:text-destructive!"
+        >
+          Trash
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 }
 

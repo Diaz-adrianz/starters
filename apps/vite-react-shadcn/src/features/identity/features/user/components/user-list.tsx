@@ -153,8 +153,8 @@ function UserListTrashFilter() {
 
   return (
     <ResourceListTrashFilter
-      pressed={query.state.trash}
-      onPressedChange={(s) => query.set('trash', s)}
+      value={query.state.trash}
+      onValueChange={(s) => query.set('trash', s)}
     />
   );
 }
