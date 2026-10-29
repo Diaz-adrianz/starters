@@ -11,9 +11,9 @@ const createProfileSchema = y.object({
       excludeEmptyString: true,
     })
   ),
-  dateOfBirth: y.date().typeError('Invalid date').optional(),
-  gender: y.string().oneOf(ProfileGenders).optional(),
-  bio: y.string().max(500).optional(),
+  dateOfBirth: nullish(y.date().typeError('Invalid date')),
+  gender: nullish(y.string().oneOf(ProfileGenders)),
+  bio: nullish(y.string().max(500)),
 });
 
 type CreateProfileValues = y.InferType<typeof createProfileSchema>;

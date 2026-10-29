@@ -169,6 +169,12 @@ function ProfileCreateDialog({
                         <SelectValue placeholder="Choose" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem
+                          value={''}
+                          className="text-muted-foreground"
+                        >
+                          Clear selection
+                        </SelectItem>
                         {ProfileGenderOptions.map((o) => (
                           <SelectItem key={o.value} value={o.value}>
                             {o.label}
