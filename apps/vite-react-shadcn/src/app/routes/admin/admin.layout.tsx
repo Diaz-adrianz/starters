@@ -41,29 +41,24 @@ const MenuGroup: {
   menus: Menu[];
 }[] = [
   {
-    group: 'Identity',
+    group: 'IAM',
     menus: [
       {
-        path: '/admin/identity/accounts',
+        path: '/admin/iam/accounts',
         label: 'Accounts',
         Icon: RiAccountCircleLine,
         IconActive: RiAccountCircleFill,
         ability: { action: 'read', subject: 'identity:user' },
       },
-    ],
-  },
-  {
-    group: 'Access',
-    menus: [
       {
-        path: '/admin/access/roles',
+        path: '/admin/iam/roles',
         label: 'Roles',
         Icon: RiShieldLine,
         IconActive: RiShieldFill,
         ability: { action: 'read', subject: 'access-control:role' },
       },
       {
-        path: '/admin/access/permissions',
+        path: '/admin/iam/permissions',
         label: 'Permissions',
         Icon: RiKeyLine,
         IconActive: RiKeyFill,
@@ -72,10 +67,10 @@ const MenuGroup: {
     ],
   },
   {
-    group: 'Audit',
+    group: 'System',
     menus: [
       {
-        path: '/admin/audit/activities',
+        path: '/admin/system/activities',
         label: 'Activities',
         Icon: RiHistoryLine,
         IconActive: RiHistoryFill,

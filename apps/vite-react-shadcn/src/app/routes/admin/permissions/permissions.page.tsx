@@ -28,7 +28,7 @@ const PermissionsPage = () => {
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
-          { label: 'Access' },
+          { label: 'IAM' },
           { label: 'Permissions' },
         ]}
       />

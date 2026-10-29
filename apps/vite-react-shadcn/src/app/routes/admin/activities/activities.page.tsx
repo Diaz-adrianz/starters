@@ -39,7 +39,7 @@ export const ActivitiesPage = () => {
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
-          { label: 'Audit' },
+          { label: 'System' },
           { label: 'Activities' },
         ]}
       />

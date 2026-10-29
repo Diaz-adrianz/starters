@@ -43,7 +43,7 @@ const RolesPage = () => {
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
-          { label: 'Access' },
+          { label: 'IAM' },
           { label: 'Roles' },
         ]}
       />
@@ -124,7 +124,7 @@ const RolesPage = () => {
                                 delete: (r) => mutations.del(r),
                               }
                             : {
-                                read: `/admin/access/roles/${row.original.id}`,
+                                read: `/admin/iam/roles/${row.original.id}`,
                                 update: (r) => updateDialog.show({ id: r.id }),
                                 archive: (r) => mutations.archive(r),
                               }

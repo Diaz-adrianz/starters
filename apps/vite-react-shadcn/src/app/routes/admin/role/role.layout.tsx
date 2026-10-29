@@ -21,19 +21,19 @@ import { Outlet, useParams } from 'react-router-dom';
 
 const Menu: Menu[] = [
   {
-    path: '/admin/access/roles/:id',
+    path: '/admin/iam/roles/:id',
     label: 'Info',
     Icon: RiInformationLine,
     IconActive: RiInformationFill,
   },
   {
-    path: '/admin/access/roles/:id/accounts',
+    path: '/admin/iam/roles/:id/accounts',
     label: 'Accounts',
     Icon: RiAccountCircleLine,
     IconActive: RiAccountCircleFill,
   },
   {
-    path: '/admin/access/roles/:id/permissions',
+    path: '/admin/iam/roles/:id/permissions',
     label: 'Permissions',
     Icon: RiKeyLine,
     IconActive: RiKeyFill,
@@ -57,8 +57,8 @@ const RoleLayout = () => {
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
-          { label: 'Access' },
-          { label: 'Roles', path: '/admin/access/roles' },
+          { label: 'IAM' },
+          { label: 'Roles', path: '/admin/iam/roles' },
           { label: role.data?.name ?? 'role' },
         ]}
       />

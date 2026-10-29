@@ -1,13 +1,13 @@
 import type { RouteObject } from 'react-router-dom';
 import AdminPage from './admin.page';
-import AccountsPage from './identity/accounts/accounts.page';
-import RolesPage from './access/roles/roles.page';
-import PermissionsPage from './access/permissions/permissions.page';
-import RoleLayout from './access/roles/role/role.layout';
-import RolePermissionsPage from './access/roles/role/permissions/role-permissions.page';
-import RoleAccountsPage from './access/roles/role/accounts/role-accounts.page';
-import RolePage from './access/roles/role/role.page';
-import { ActivitiesPage } from './audit/activities/activities.page';
+import AccountsPage from './accounts/accounts.page';
+import RolesPage from './roles/roles.page';
+import PermissionsPage from './permissions/permissions.page';
+import RoleLayout from './role/role.layout';
+import RolePermissionsPage from './role/permissions/role-permissions.page';
+import RoleAccountsPage from './role/accounts/role-accounts.page';
+import RolePage from './role/role.page';
+import { ActivitiesPage } from './activities/activities.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -15,12 +15,9 @@ const adminRoutes: RouteObject[] = [
     element: <AdminPage />,
   },
   {
-    path: 'identity',
-    children: [{ path: 'accounts', element: <AccountsPage /> }],
-  },
-  {
-    path: 'access',
+    path: 'iam',
     children: [
+      { path: 'accounts', element: <AccountsPage /> },
       { path: 'roles', element: <RolesPage /> },
       {
         path: 'roles/:id',
@@ -35,7 +32,7 @@ const adminRoutes: RouteObject[] = [
     ],
   },
   {
-    path: 'audit',
+    path: 'system',
     children: [
       {
         path: 'activities',

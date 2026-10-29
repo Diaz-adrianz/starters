@@ -35,7 +35,7 @@ const AccountsPage = () => {
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
-          { label: 'Identity' },
+          { label: 'IAM' },
           { label: 'Accounts' },
         ]}
       />
