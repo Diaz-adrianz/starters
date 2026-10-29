@@ -16,9 +16,11 @@ import {
   UserListTrashFilter,
   UserListTable,
   UserMenu,
+  ProfileGenderMap,
 } from '@/features/identity';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
+import { getOptionMap } from '@/utils/option';
 import { getInitials } from '@/utils/string';
 import { Can } from '@casl/react';
 import { RiAddLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
@@ -124,7 +126,12 @@ const AccountsPage = () => {
                     ),
                     cell: ({ row }) => (
                       <p className="text-muted-foreground">
-                        {row.original.profile?.gender}
+                        {
+                          getOptionMap(
+                            ProfileGenderMap,
+                            row.original.profile?.gender
+                          )?.label
+                        }
                       </p>
                     ),
                   },

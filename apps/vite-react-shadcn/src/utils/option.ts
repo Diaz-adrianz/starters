@@ -4,9 +4,9 @@ export interface Option<V = string, M = Record<string, string>> {
   meta?: M;
 }
 
-export const getOption = <T extends Option>(
-  list: T[],
-  value?: string | null
-): T | null => {
-  return list.find((o) => o.value == (value ?? '')) ?? null;
+export const getOptionMap = <K extends string, M extends Option>(
+  map: Record<K, M>,
+  value?: K | null
+): M | null => {
+  return value && value in map ? map[value] : null;
 };

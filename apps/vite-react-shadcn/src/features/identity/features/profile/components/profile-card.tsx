@@ -11,6 +11,8 @@ import type { ComponentProps } from 'react';
 import type { Profile } from '../types/profile.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/utils/date';
+import { getOptionMap } from '@/utils/option';
+import { ProfileGenderMap } from '../constants/profile.constant';
 
 function ProfileCard({
   className,
@@ -37,7 +39,7 @@ function ProfileCard({
               <ItemTitle>First name</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>{profile.firstName || '-'}</ItemDescription>
+              <ItemDescription>{profile.firstName}</ItemDescription>
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
@@ -46,7 +48,7 @@ function ProfileCard({
               <ItemTitle>Last name</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>{profile.lastName || '-'}</ItemDescription>
+              <ItemDescription>{profile.lastName}</ItemDescription>
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
@@ -55,7 +57,7 @@ function ProfileCard({
               <ItemTitle>Phone number</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>{profile.phoneNumber || '-'}</ItemDescription>
+              <ItemDescription>{profile.phoneNumber}</ItemDescription>
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
@@ -65,7 +67,7 @@ function ProfileCard({
             </ItemContent>
             <ItemContent>
               <ItemDescription>
-                {formatDate(profile.dateOfBirth, 'dd MMM yyyy') || '-'}
+                {formatDate(profile.dateOfBirth, 'dd MMM yyyy')}
               </ItemDescription>
             </ItemContent>
           </Item>
@@ -75,7 +77,9 @@ function ProfileCard({
               <ItemTitle>Gender</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>{profile.gender || '-'}</ItemDescription>
+              <ItemDescription>
+                {getOptionMap(ProfileGenderMap, profile.gender)?.label}
+              </ItemDescription>
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />
@@ -84,7 +88,7 @@ function ProfileCard({
               <ItemTitle>Bio</ItemTitle>
             </ItemContent>
             <ItemContent>
-              <ItemDescription>{profile.bio || '-'}</ItemDescription>
+              <ItemDescription>{profile.bio}</ItemDescription>
             </ItemContent>
           </Item>
           <ItemSeparator className="m-0" />

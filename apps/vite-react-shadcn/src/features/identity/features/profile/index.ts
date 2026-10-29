@@ -15,3 +15,6 @@ export {
   ProfileUpdateDialog,
   type ProfileUpdateDialogPayload,
 } from './components/profile-update-dialog';
+
+// constants
+export { ProfileGenderMap } from './constants/profile.constant';
