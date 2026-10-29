@@ -121,9 +121,7 @@ const AccountsPage = () => {
                   },
                   {
                     id: 'profile.gender',
-                    header: ({ column }) => (
-                      <SortableHeader column={column} title="Gender" />
-                    ),
+                    header: () => 'Gender',
                     cell: ({ row }) => (
                       <p className="text-muted-foreground">
                         {
@@ -134,39 +132,46 @@ const AccountsPage = () => {
                         }
                       </p>
                     ),
+                    enableSorting: false,
                   },
                   {
                     id: 'enabled',
                     header: () => 'Enabled',
-                    cell: ({ row }) =>
-                      row.original.enabled ? (
-                        <Badge size={'icon'}>
-                          <RiCheckLine />
-                        </Badge>
-                      ) : (
-                        <Badge size={'icon'} variant={'destructive'}>
-                          <RiCloseLine />
-                        </Badge>
-                      ),
+                    cell: ({ row }) => (
+                      <div className="flex justify-center">
+                        {row.original.enabled ? (
+                          <Badge size={'icon'}>
+                            <RiCheckLine />
+                          </Badge>
+                        ) : (
+                          <Badge size={'icon'} variant={'destructive'}>
+                            <RiCloseLine />
+                          </Badge>
+                        )}
+                      </div>
+                    ),
                     enableSorting: false,
                   },
                   {
                     id: 'verifiedAt',
                     header: () => 'Verified',
-                    cell: ({ row }) =>
-                      row.original.verifiedAt ? (
-                        <WithTooltip
-                          text={`At ${formatDate(row.original.verifiedAt, 'dd MMM yyyy, HH:mm a')}`}
-                        >
-                          <Badge size={'icon'}>
-                            <RiCheckLine />
+                    cell: ({ row }) => (
+                      <div className="flex justify-center">
+                        {row.original.verifiedAt ? (
+                          <WithTooltip
+                            text={`At ${formatDate(row.original.verifiedAt, 'dd MMM yyyy, HH:mm a')}`}
+                          >
+                            <Badge size={'icon'}>
+                              <RiCheckLine />
+                            </Badge>
+                          </WithTooltip>
+                        ) : (
+                          <Badge size={'icon'} variant={'destructive'}>
+                            <RiCloseLine />
                           </Badge>
-                        </WithTooltip>
-                      ) : (
-                        <Badge size={'icon'} variant={'destructive'}>
-                          <RiCloseLine />
-                        </Badge>
-                      ),
+                        )}
+                      </div>
+                    ),
                     enableSorting: false,
                   },
                   {
@@ -182,7 +187,7 @@ const AccountsPage = () => {
                                 delete: () => {},
                               }
                             : {
-                                read: `/admin/identity/accounts/${row.original.id}`,
+                                read: `/admin/iam/accounts/${row.original.id}`,
                                 update: () => {},
                                 archive: () => {},
                               }

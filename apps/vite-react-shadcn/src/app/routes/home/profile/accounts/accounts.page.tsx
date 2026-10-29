@@ -15,7 +15,7 @@ const AccountsPage = () => {
       />
       <PageSection>
         {user.isLoading && <UserCardSkeleton />}
-        {user.data?.data.data && <UserCard user={user.data.data.data} />}
+        {user.data && <UserCard user={user.data} />}
       </PageSection>
     </Page>
   );

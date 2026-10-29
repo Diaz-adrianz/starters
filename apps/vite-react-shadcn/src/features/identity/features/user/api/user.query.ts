@@ -27,6 +27,7 @@ export function useUser(
   return useQuery({
     queryKey: queryKeys.detail(id),
     queryFn: () => UserApi.findOne(id),
+    select: (d) => d.data.data,
     enabled: !!id && enabled,
   });
 }
