@@ -111,6 +111,17 @@ export class UserService {
   findOne(rq: ResourceQuery) {
     return this.userRepo.findOneOrFail({
       ...rq.toFindOptions(),
+      relations: { profile: true },
+      select: {
+        ...this.userRepo.select('*'),
+        profile: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phoneNumber: true,
+          gender: true,
+        },
+      },
     });
   }
 
