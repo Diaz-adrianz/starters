@@ -7,6 +7,7 @@ import {
   SessionListItemGroup,
   SessionListPagination,
   SessionMenu,
+  useSessionMutations,
 } from '@/features/auth';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
@@ -15,11 +16,12 @@ const SessionsPage = () => {
   const authUser = authStore((s) => s.user);
 
   const query = useResourceQuery({
-    page: 1,
-    limit: 10,
-    eq: { userId: authUser?.id ?? '' },
-    order: { lastUsedAt: 'desc' },
-  });
+      page: 1,
+      limit: 10,
+      eq: { userId: authUser?.id ?? '' },
+      order: { lastUsedAt: 'desc' },
+    }),
+    mutations = useSessionMutations();
 
   return (
     <Page>
@@ -40,7 +42,16 @@ const SessionsPage = () => {
                   <SessionItem
                     key={s.id}
                     session={s}
-                    slotRight={<SessionMenu session={s} />}
+                    slotRight={
+                      <SessionMenu
+                        session={s}
+                        actions={
+                          s.isActive
+                            ? { revoke: (s) => mutations.revoke(s) }
+                            : { delete: (s) => mutations.del(s) }
+                        }
+                      />
+                    }
                   />
                 )}
               </SessionListItemGroup>

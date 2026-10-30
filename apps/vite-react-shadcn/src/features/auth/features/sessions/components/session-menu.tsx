@@ -1,70 +1,45 @@
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenu,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useRemoveSession, useRevokeSession } from '../api/session.mutation';
-import { toast } from 'sonner';
-import type { ComponentProps, ReactNode } from 'react';
+import { RiDeleteBack2Line, RiProhibitedLine } from '@remixicon/react';
 import type { Session } from '../types/session.type';
-import { RiMore2Line } from '@remixicon/react';
+import { ResourceMenuButton } from '@/components/shared/resource-menu';
+
+type SessionMenuItem = Pick<Session, 'id' | 'deviceLabel'>;
 
 function SessionMenu({
   session,
-  trigger,
-  ...props
-}: ComponentProps<typeof DropdownMenu> & {
-  session: Pick<Session, 'id' | 'isActive'>;
-  trigger?: ReactNode;
+  actions,
+}: {
+  session: SessionMenuItem;
+  actions?: {
+    revoke?: (session: SessionMenuItem) => void;
+    delete?: (session: SessionMenuItem) => void;
+  };
 }) {
-  const remove = useRemoveSession(),
-    revoke = useRevokeSession();
-
-  const onRemove = () => {
-    toast.promise(remove.mutateAsync(session.id), {
-      loading: 'Deleting...',
-      success: 'Deleted',
-    });
-  };
-
-  const onRevoke = () => {
-    toast.promise(revoke.mutateAsync({ id: session.id }), {
-      loading: 'Terminating...',
-      success: 'Terminated',
-    });
-  };
+  if (!actions) return null;
+  const { revoke, delete: del } = actions;
 
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>
-        {trigger ?? (
-          <Button variant="ghost" size={'icon'}>
-            <RiMore2Line />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {session.isActive ? (
-          <DropdownMenuItem
-            variant="destructive"
-            disabled={revoke.isPending}
-            onClick={onRevoke}
-          >
-            Terminate
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem
-            variant="destructive"
-            disabled={remove.isPending}
-            onClick={onRemove}
-          >
-            Delete
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {revoke && (
+        <ResourceMenuButton
+          subject="auth:session"
+          action="revoke"
+          label="Terminate"
+          Icon={RiProhibitedLine}
+          destructive
+          onClick={() => revoke(session)}
+        />
+      )}
+      {del && (
+        <ResourceMenuButton
+          subject="auth:session"
+          action="delete"
+          label="Delete"
+          Icon={RiDeleteBack2Line}
+          destructive
+          onClick={() => del(session)}
+        />
+      )}
+    </>
   );
 }
 

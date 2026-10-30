@@ -14,8 +14,12 @@ const AccountsPage = () => {
         description="Manage this app and connected external accounts"
       />
       <PageSection>
-        {user.isLoading && <UserCardSkeleton />}
-        {user.data && <UserCard user={user.data} />}
+        {user.isLoading && (
+          <UserCardSkeleton hides={['enabled', 'verifiedAt']} />
+        )}
+        {user.data && (
+          <UserCard user={user.data} hides={['enabled', 'verifiedAt']} />
+        )}
       </PageSection>
     </Page>
   );

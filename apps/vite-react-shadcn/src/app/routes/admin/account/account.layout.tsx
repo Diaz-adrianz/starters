@@ -5,20 +5,18 @@ import {
   PageSection,
 } from '@/components/shared/page';
 import { TabLayout } from '@/components/shared/tab-layout';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from '@/features/identity';
 import { useMenu } from '@/hooks/use-menu';
 import type { Menu } from '@/types/menu.type';
-import { getInitials } from '@/utils/string';
 import {
   RiAccountCircleFill,
   RiAccountCircleLine,
   RiComputerFill,
   RiComputerLine,
+  RiEmotionHappyFill,
+  RiEmotionHappyLine,
   RiHistoryFill,
   RiHistoryLine,
-  RiInformationFill,
-  RiInformationLine,
 } from '@remixicon/react';
 import { useMemo } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
@@ -26,15 +24,15 @@ import { Outlet, useParams } from 'react-router-dom';
 const Menu: Menu[] = [
   {
     path: '/admin/iam/accounts/:id',
-    label: 'Info',
-    Icon: RiInformationLine,
-    IconActive: RiInformationFill,
+    label: 'Account',
+    Icon: RiAccountCircleLine,
+    IconActive: RiAccountCircleFill,
   },
   {
     path: '/admin/iam/accounts/:id/profile',
     label: 'Profile',
-    Icon: RiAccountCircleLine,
-    IconActive: RiAccountCircleFill,
+    Icon: RiEmotionHappyLine,
+    IconActive: RiEmotionHappyFill,
   },
   {
     path: '/admin/iam/accounts/:id/sessions',
@@ -72,17 +70,7 @@ const AccountLayout = () => {
           { label: data?.username ?? 'account' },
         ]}
       />
-      <PageHeader
-        title={data?.username ?? ''}
-        action={
-          data && (
-            <Avatar className="size-20">
-              <AvatarImage src={data.avatar ?? ''} alt="" />
-              <AvatarFallback>{getInitials(data.username)}</AvatarFallback>
-            </Avatar>
-          )
-        }
-      />
+      <PageHeader title={data?.username ?? ''} />
 
       <PageSection dense>
         <TabLayout menus={menus} activeMenu={activeMenu} breakpoint="lg">

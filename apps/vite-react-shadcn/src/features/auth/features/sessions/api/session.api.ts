@@ -9,8 +9,8 @@ import type { Session } from '../types/session.type';
 const PRE = '/auth/sessions/';
 
 export const SessionApi = {
+  revoke: (id: string) => apiClient.patch<ApiResponse>(PRE + id + '/revoke'),
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<Session>>(PRE, { params }),
-  remove: (id: string) => apiClient.delete<ApiResponse>(PRE + id),
-  revoke: (id: string) => apiClient.patch<ApiResponse>(PRE + id + '/revoke'),
+  delete: (id: string) => apiClient.delete<ApiResponse>(PRE + id),
 };

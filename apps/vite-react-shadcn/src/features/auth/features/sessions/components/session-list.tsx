@@ -14,6 +14,7 @@ import { useSessions } from '../api/session.query';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import type {
+  ColumnDef,
   PaginationState,
   RowSelectionState,
   SortingState,
@@ -29,6 +30,7 @@ import {
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
+import { DataTable } from '@/components/shared/data-table';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -219,4 +221,45 @@ function SessionListPagination() {
   );
 }
 
-export { SessionList, SessionListItemGroup, SessionListPagination };
+function SessionListTable({
+  columnDef,
+}: {
+  columnDef: ColumnDef<
+    NonNullable<SessionListContextProps['data']>['items'][number]
+  >[];
+}) {
+  const {
+    data,
+    isLoading,
+    pagination,
+    setPagination,
+    sorting,
+    setSorting,
+    rowSelection,
+    setRowSelection,
+  } = useSessionList();
+
+  return (
+    <DataTable
+      columns={columnDef}
+      data={data?.items ?? []}
+      pageCount={data?.totalPages ?? 0}
+      totalItems={data?.totalItems ?? 0}
+      getRowId={(row) => row.id}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      rowSelection={rowSelection}
+      onRowSelectionChange={setRowSelection}
+      isLoading={isLoading}
+    />
+  );
+}
+
+export {
+  SessionList,
+  SessionListItemGroup,
+  SessionListPagination,
+  SessionListTable,
+};
