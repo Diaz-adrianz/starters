@@ -3,11 +3,14 @@ import { Page, PageSection } from '@/components/shared/page';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
+  SessionDialog,
   SessionList,
   SessionListTable,
   SessionMenu,
   useSessionMutations,
+  type SessionDialogPayload,
 } from '@/features/auth';
+import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
 import { useParams } from 'react-router-dom';
@@ -15,6 +18,8 @@ import { useParams } from 'react-router-dom';
 const AccountSessionsPage = () => {
   const params = useParams(),
     id = params.id!;
+
+  const detailDialog = useDialogState<SessionDialogPayload>();
 
   const query = useResourceQuery({
       eq: { userId: id },
@@ -26,6 +31,8 @@ const AccountSessionsPage = () => {
 
   return (
     <Page className="pt-4">
+      <SessionDialog {...detailDialog} />
+
       <PageSection>
         <Card>
           <CardContent>
@@ -100,11 +107,12 @@ const AccountSessionsPage = () => {
                     cell: ({ row }) => (
                       <SessionMenu
                         session={row.original}
-                        actions={
-                          row.original.isActive
+                        actions={{
+                          read: (s) => detailDialog.show({ id: s.id }),
+                          ...(row.original.isActive
                             ? { revoke: (s) => mutations.revoke(s) }
-                            : { delete: (s) => mutations.del(s) }
-                        }
+                            : { delete: (s) => mutations.del(s) }),
+                        }}
                       />
                     ),
                     enableSorting: false,

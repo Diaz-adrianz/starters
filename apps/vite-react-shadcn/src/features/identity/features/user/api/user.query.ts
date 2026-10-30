@@ -22,12 +22,13 @@ export function useUsers(
 
 export function useUser(
   id: string,
-  { enabled = true }: { enabled?: boolean } = {}
+  { enabled = true, silent }: { enabled?: boolean; silent?: boolean } = {}
 ) {
   return useQuery({
     queryKey: queryKeys.detail(id),
     queryFn: () => UserApi.findOne(id),
     select: (d) => d.data.data,
     enabled: !!id && enabled,
+    meta: { silent },
   });
 }

@@ -21,3 +21,15 @@ export function useSessions(
     meta: { silent },
   });
 }
+
+export function useSession(
+  id: string,
+  { enabled = true }: { enabled?: boolean } = {}
+) {
+  return useQuery({
+    queryKey: queryKeys.detail(id),
+    queryFn: () => SessionApi.findOne(id),
+    select: (d) => d.data.data,
+    enabled: !!id && enabled,
+  });
+}

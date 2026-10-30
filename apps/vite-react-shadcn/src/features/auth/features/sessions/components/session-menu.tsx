@@ -1,4 +1,8 @@
-import { RiDeleteBack2Line, RiProhibitedLine } from '@remixicon/react';
+import {
+  RiDeleteBack2Line,
+  RiExpandDiagonalLine,
+  RiProhibitedLine,
+} from '@remixicon/react';
 import type { Session } from '../types/session.type';
 import { ResourceMenuButton } from '@/components/shared/resource-menu';
 
@@ -11,14 +15,25 @@ function SessionMenu({
   session: SessionMenuItem;
   actions?: {
     revoke?: (session: SessionMenuItem) => void;
+    read?: string | ((session: SessionMenuItem) => void);
     delete?: (session: SessionMenuItem) => void;
   };
 }) {
   if (!actions) return null;
-  const { revoke, delete: del } = actions;
+  const { revoke, read, delete: del } = actions;
 
   return (
     <>
+      {read && (
+        <ResourceMenuButton
+          subject="auth:session"
+          action="read"
+          label="View"
+          Icon={RiExpandDiagonalLine}
+          to={typeof read === 'string' ? read : undefined}
+          onClick={typeof read === 'function' ? () => read(session) : undefined}
+        />
+      )}
       {revoke && (
         <ResourceMenuButton
           subject="auth:session"
