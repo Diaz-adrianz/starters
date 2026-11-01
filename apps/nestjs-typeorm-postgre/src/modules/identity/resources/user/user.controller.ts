@@ -60,9 +60,7 @@ export class UserController {
       updateUserAvatarDto.avatar,
       (k) => k.avatar(data.id),
     );
-    return this.userService.updateById(data.id, {
-      avatar: avatar.key,
-    });
+    return this.userService.update(rq, { avatar: avatar.key });
   }
 
   // ================================================================

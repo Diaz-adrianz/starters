@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { User } from '../../../modules/identity/entities/user.entity';
 import { UsersData } from '../data/identity/users.data';
+import { UserStatus } from '../../../modules/identity/enums/user-status.enum';
 
 export class IdentityUsers1789874980049 implements Seeder {
   track = false;
@@ -25,8 +26,7 @@ export class IdentityUsers1789874980049 implements Seeder {
       username: user.username,
       email: user.email,
       password,
-      enabled: true,
-      verifiedAt: new Date(),
+      status: UserStatus.ACTIVE,
     }));
 
     const insertResult = await userRepo

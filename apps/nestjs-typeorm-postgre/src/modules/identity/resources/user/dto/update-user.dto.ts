@@ -1,11 +1,12 @@
 import { Exclude } from 'class-transformer';
 import {
-  IsBoolean,
+  IsIn,
   IsOptional,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { UserStatus } from '../../../enums/user-status.enum';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -18,15 +19,12 @@ export class UpdateUserDto {
   username?: string;
 
   @IsOptional()
-  @IsBoolean()
-  enabled?: boolean;
+  @IsIn([UserStatus.ACTIVE, UserStatus.DISABLED])
+  status?: UserStatus;
 
   // ==========================
   // Internal data
   // --------------------------
   @Exclude()
   avatar?: string | null;
-
-  @Exclude()
-  verifiedAt?: Date | null;
 }

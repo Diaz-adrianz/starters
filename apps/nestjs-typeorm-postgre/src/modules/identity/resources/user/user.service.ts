@@ -8,6 +8,7 @@ import { User } from '../../entities/user.entity';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { UserStatus } from '../../enums/user-status.enum';
 
 @Injectable()
 export class UserService {
@@ -39,16 +40,8 @@ export class UserService {
     return result;
   }
 
-  // Base extensions
-  // ----------------------------------------------------------------
   findById(id: string) {
-    const rq = new ResourceQuery([['id', 'eq', id]]);
-    return this.findOne(rq);
-  }
-
-  updateById(id: string, updateUserDto: UpdateUserDto) {
-    const rq = new ResourceQuery([['id', 'eq', id]]);
-    return this.update(rq, updateUserDto);
+    return this.userRepo.findOneOrFail({ where: { id } });
   }
 
   // Base
@@ -69,7 +62,7 @@ export class UserService {
       email,
       username,
       password,
-      enabled: true,
+      status: UserStatus.ACTIVE,
     });
     await this.userRepo.save(user);
     this.event.emit('identity.user.created', {
@@ -92,9 +85,8 @@ export class UserService {
           'id',
           'username',
           'email',
-          'enabled',
+          'status',
           'avatar',
-          'verifiedAt',
           'createdAt',
         ]),
         profile: {

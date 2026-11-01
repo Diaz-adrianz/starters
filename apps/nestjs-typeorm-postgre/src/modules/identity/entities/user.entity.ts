@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Profile } from './profile.entity';
+import { UserStatus } from '../enums/user-status.enum';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
@@ -27,14 +28,11 @@ export class User {
   @Column('varchar', { nullable: true })
   password?: string | null;
 
-  @Column('bool', { default: false })
-  enabled: boolean;
+  @Column('enum', { enum: UserStatus })
+  status: UserStatus;
 
   @Column('varchar', { nullable: true })
   avatar?: string | null;
-
-  @Column('timestamptz', { nullable: true })
-  verifiedAt?: Date | null;
 
   @OneToOne(() => Profile, (p) => p.user)
   profile: Profile | null;
@@ -54,9 +52,5 @@ export class User {
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-  }
-
-  isActive(): boolean {
-    return this.enabled && !!this.verifiedAt;
   }
 }

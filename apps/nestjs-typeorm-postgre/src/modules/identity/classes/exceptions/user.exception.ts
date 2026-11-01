@@ -2,13 +2,15 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 export class UserDisabledException extends ForbiddenException {
   constructor() {
-    super('Account has been suspended');
+    super('Account has been disabled.');
   }
 }
 
-export class UserNotVerifiedException extends ForbiddenException {
+export class UserInvitedException extends ForbiddenException {
   constructor() {
-    super('Account is not verified yet');
+    super(
+      "This account hasn't been set up yet. If you're the account owner, please check your email for the invitation.",
+    );
   }
 }
 

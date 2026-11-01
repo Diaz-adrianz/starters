@@ -18,9 +18,10 @@ import { JwtAccessPayload } from './interfaces/jwt-access.interface';
 import {
   UserDisabledException,
   UserNoPasswordException,
-  UserNotVerifiedException,
+  UserInvitedException,
 } from '../identity/classes/exceptions/user.exception';
 import { CacheService } from '../../infra/cache/cache.service';
+import { UserStatus } from '../identity/enums/user-status.enum';
 
 type UserCache = {
   id: string;
@@ -168,8 +169,8 @@ export class AuthService {
   }
 
   private validateUser(user: User) {
-    if (!user.enabled) throw new UserDisabledException();
-    if (!user.verifiedAt) throw new UserNotVerifiedException();
+    if (user.status === UserStatus.INVITED) throw new UserInvitedException();
+    if (user.status === UserStatus.DISABLED) throw new UserDisabledException();
   }
 
   invalidateUsers(users: { id: string }[]) {
