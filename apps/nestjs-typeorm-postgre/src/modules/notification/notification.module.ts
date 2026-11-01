@@ -30,6 +30,7 @@ import {
   EmailDeliveryJobOptions,
 } from './queue/email-delivery/email-delivery.config';
 import { NotificationGateway } from './notification.gateway';
+import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { NotificationGateway } from './notification.gateway';
 
     // subscribers
     AuthEventSubscriber,
+    IdentityEventSubscriber,
 
     // processors
     EmailDeliveryProcessor,

@@ -1,29 +1,18 @@
 import { Exclude } from 'class-transformer';
-import {
-  IsIn,
-  IsOptional,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsOptional } from 'class-validator';
 import { UserStatus } from '../../../enums/user-status.enum';
+import { IsUsername } from '../../../decorators/validators/is-username.validator';
 
 export class UpdateUserDto {
   @IsOptional()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches(/^[a-zA-Z][a-zA-Z0-9._]*$/, {
-    message:
-      'Username must start with a letter and contain only letters, numbers, dots, or underscores',
-  })
+  @IsUsername()
   username?: string;
 
   @IsOptional()
   @IsIn([UserStatus.ACTIVE, UserStatus.DISABLED])
   status?: UserStatus;
 
-  // ==========================
-  // Internal data
+  // Internal
   // --------------------------
   @Exclude()
   avatar?: string | null;

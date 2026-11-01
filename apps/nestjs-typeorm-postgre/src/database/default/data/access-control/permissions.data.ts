@@ -14,8 +14,8 @@ export const PermissionsData: {
     entries: [
       // session
       {
-        description: 'Read session',
-        permission: 'session:read',
+        description: 'Revoke session',
+        permission: 'session:revoke',
         roles: [
           { name: RolesData.SUPERADMIN },
           {
@@ -29,8 +29,8 @@ export const PermissionsData: {
         ],
       },
       {
-        description: 'Revoke session',
-        permission: 'session:revoke',
+        description: 'Read session',
+        permission: 'session:read',
         roles: [
           { name: RolesData.SUPERADMIN },
           {
@@ -126,9 +126,14 @@ export const PermissionsData: {
     entries: [
       // user
       {
+        description: 'Invite user',
+        permission: 'user:invite',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
         description: 'Create user',
         permission: 'user:create',
-        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+        roles: [{ name: RolesData.SUPERADMIN }],
       },
       {
         description: 'Read user',
@@ -266,20 +271,8 @@ export const PermissionsData: {
 
       // message
       {
-        description: 'Read message',
-        permission: 'message:read',
-        roles: [
-          { name: RolesData.SUPERADMIN },
-          { name: RolesData.ADMIN },
-          {
-            name: RolesData.USER,
-            condition: { userId: { eq: '{{actor.id}}' } },
-          },
-        ],
-      },
-      {
-        description: 'Delete message',
-        permission: 'message:delete',
+        description: 'Mark message as read',
+        permission: 'message:mark-read',
         roles: [
           {
             name: RolesData.SUPERADMIN,
@@ -296,8 +289,20 @@ export const PermissionsData: {
         ],
       },
       {
-        description: 'Mark message as read',
-        permission: 'message:mark-read',
+        description: 'Read message',
+        permission: 'message:read',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          { name: RolesData.ADMIN },
+          {
+            name: RolesData.USER,
+            condition: { userId: { eq: '{{actor.id}}' } },
+          },
+        ],
+      },
+      {
+        description: 'Delete message',
+        permission: 'message:delete',
         roles: [
           {
             name: RolesData.SUPERADMIN,

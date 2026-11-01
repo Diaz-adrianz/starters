@@ -9,21 +9,60 @@ import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { UserStatus } from '../../enums/user-status.enum';
+import { InviteUserDto } from './dto/invite-user.dto';
+import { TokenService } from '../token/token.service';
+import { generateOtp } from '../../../../shared/utils/number.util';
+import { sha256 } from '../../../../shared/utils/string.util';
+import { TokenType } from '../../enums/token-type.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User, DatabaseKeys.DEFAULT)
     private userRepo: AppRepository<User>,
+    private tokenService: TokenService,
     private event: EventService,
   ) {}
 
-  // Misc / Used by other modules
-  // ----------------------------------------------------------------
+  async invite(dto: InviteUserDto) {
+    const user = await this.create({
+      email: dto.email,
+      username: dto.username,
+      roleName: dto.roleName,
+      status: UserStatus.INVITED,
+    });
+
+    const otp = generateOtp(6),
+      otpHash = sha256(otp);
+
+    const expire = 86400, // 1d
+      expiresAt = new Date(Date.now() + expire * 1000);
+
+    await this.tokenService.issue(
+      user.id,
+      TokenType.INVITATION,
+      otpHash,
+      expiresAt,
+    );
+
+    this.event.emit('identity.user.invited', {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
+    });
+
+    return user;
+  }
+
   findByUsernameOrEmail(value: string) {
     return this.userRepo.findOneOrFail({
       where: [{ username: value }, { email: value }],
     });
+  }
+
+  findById(id: string) {
+    return this.userRepo.findOneOrFail({ where: { id } });
   }
 
   async updatePasswordById(id: string, password: string) {
@@ -40,14 +79,10 @@ export class UserService {
     return result;
   }
 
-  findById(id: string) {
-    return this.userRepo.findOneOrFail({ where: { id } });
-  }
-
   // Base
   // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
-    const { email, username, password, roleName } = createUserDto;
+    const { email, username, password, roleName, status } = createUserDto;
     const sameEmail = await this.userRepo.count({
       where: { email: email },
     });
@@ -62,7 +97,7 @@ export class UserService {
       email,
       username,
       password,
-      status: UserStatus.ACTIVE,
+      status: status ?? UserStatus.ACTIVE,
     });
     await this.userRepo.save(user);
     this.event.emit('identity.user.created', {

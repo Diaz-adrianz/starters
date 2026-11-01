@@ -21,6 +21,7 @@ import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
 import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
+import { InviteUserDto } from './dto/invite-user.dto';
 
 @Controller('identity/users')
 export class UserController {
@@ -29,6 +30,13 @@ export class UserController {
     private storageService: DefaultStorageService,
     private store: StoreService,
   ) {}
+
+  @AuditActivity({ targetId: ({ res }) => res.id })
+  @Permission('identity:user:invite')
+  @Post('/invite')
+  invite(@Body() dto: InviteUserDto) {
+    return this.userService.invite(dto);
+  }
 
   // ================================================================
   // Update avatar S3
