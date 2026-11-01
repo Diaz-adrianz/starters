@@ -8,10 +8,7 @@ const schema = z.object({
   APP_MODE: z.enum(AppModes),
   APP_PORT: z.coerce.number(),
   APP_ORIGIN: z.url(),
-  APP_CLIENT_ORIGINS: z
-    .string()
-    .transform((val) => val.split(',').map((o) => o.trim()))
-    .pipe(z.array(z.url()).min(1)),
+  APP_CLIENT_DEFAULT_ORIGIN: z.url(),
 });
 
 export const appConfig = registerAs('app', () => {
@@ -24,7 +21,12 @@ export const appConfig = registerAs('app', () => {
     mode: data.APP_MODE,
     port: data.APP_PORT,
     origin: data.APP_ORIGIN,
-    clientOrigins: data.APP_CLIENT_ORIGINS,
+    client: {
+      default: {
+        origin: data.APP_CLIENT_DEFAULT_ORIGIN,
+      },
+    },
+    clientOrigins: [data.APP_CLIENT_DEFAULT_ORIGIN],
   };
 });
 
