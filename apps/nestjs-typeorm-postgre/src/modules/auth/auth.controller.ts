@@ -15,13 +15,6 @@ import { AuthService } from './auth.service';
 import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
-import { SignUpLocalDto } from './dto/sign-up-local.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import {
-  ResetPasswordCheckDto,
-  ResetPasswordDto,
-} from './dto/reset-password.dto';
 import { UserService } from '../identity/resources/user/user.service';
 import { StoreService } from '../../infra/store/store.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
@@ -45,26 +38,6 @@ export class AuthController {
     private userService: UserService,
     private store: StoreService,
   ) {}
-
-  // ================================================================
-  // Sign up handlers per strategy
-  // ----------------------------------------------------------------
-  @AuditActivity({
-    module: 'auth',
-    action: 'signUp',
-    actor: ({ res: result }) => ({
-      type: 'user',
-      id: result.id,
-      name: result.username,
-    }),
-    redact: ['password', 'matchPassword'],
-  })
-  @NoAuth()
-  @ResSuccess({ message: 'Verification email sent' })
-  @Post('sign-up')
-  async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
-    return this.authService.signUpLocal(signUpLocalDto);
-  }
 
   // ================================================================
   // Sign in
@@ -153,41 +126,6 @@ export class AuthController {
       new ResourceQuery([['id', 'eq', payload.user.id]]),
     );
     return { user };
-  }
-
-  // ================================================================
-  // User verification
-  // ----------------------------------------------------------------
-  @NoAuth()
-  @ResSuccess({ message: 'Email verified' })
-  @Post('/verify-email')
-  verifyEmail(@Body() dto: VerifyEmailDto) {
-    return this.authService.verifyEmail(dto);
-  }
-
-  // ================================================================
-  // Reset password
-  // ----------------------------------------------------------------
-  @NoAuth()
-  @ResSuccess({ message: "If that email exists, we've sent a reset code" })
-  @Post('/forgot-password')
-  forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto);
-  }
-
-  @NoAuth()
-  @ResSuccess({ message: 'Code verified' })
-  @Post('/reset-password-check')
-  async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
-    const { expiresAt } = await this.authService.resetPasswordCheck(dto);
-    return { expiresAt };
-  }
-
-  @NoAuth()
-  @ResSuccess({ message: 'Password reset' })
-  @Post('/reset-password')
-  resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
   }
 
   // ================================================================

@@ -1,32 +1,12 @@
-import {
-  BadGatewayException,
-  BadRequestException,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '../identity/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { sha256 } from '../../shared/utils/string.util';
-import { SignUpLocalDto } from './dto/sign-up-local.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import {
-  ResetPasswordCheckDto,
-  ResetPasswordDto,
-} from './dto/reset-password.dto';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { EventService } from '../../infra/event/event.service';
 import { UserService } from '../identity/resources/user/user.service';
-import { VerificationTokenService } from '../identity/resources/verification-token/verification-token.service';
-import { VerificationToken } from '../identity/entities/verification-token.entity';
-import { generateOtp, HOUR } from '../../shared/utils/number.util';
-import { VerificationTokenType } from '../identity/enums/verification-token-type.enum';
+import { HOUR } from '../../shared/utils/number.util';
 import { LoggerService } from '../../infra/logger/logger.service';
-import { DeliveryService } from '../notification/resources/delivery/delivery.service';
-import { DeliveryType } from '../notification/enums/delivery-type.enum';
-import { DeliveryPriority } from '../notification/enums/delivery-priority.enum';
-import { Channel } from '../notification/enums/channel.enum';
 import { Store } from '../../infra/store/store.interface';
 import { SessionService } from './resources/session/session.service';
 import {
@@ -56,50 +36,8 @@ export class AuthService {
     private logger: LoggerService,
     private jwtService: JwtService,
     private userService: UserService,
-    private verificationTokenService: VerificationTokenService,
-    private deliveryService: DeliveryService,
     private sessionService: SessionService,
   ) {}
-
-  // ================================================================
-  // Sign up
-  // ----------------------------------------------------------------
-  async signUpLocal(signUpLocalDto: SignUpLocalDto) {
-    const existUser = await this.userService
-      .findByUsernameOrEmail(signUpLocalDto.email)
-      .catch(() => null);
-
-    if (existUser && existUser.verifiedAt === null) {
-      const existingToken = await this.verificationTokenService
-        .findActiveByUser(
-          existUser.id,
-          VerificationTokenType.EMAIL_VERIFICATION,
-        )
-        .catch(() => undefined);
-
-      if (
-        !existingToken ||
-        !existingToken.isWithinCooldown(
-          this.authConfig.token.verification.expire * 1000,
-        )
-      )
-        await this.sendEmailVerification(existUser, existingToken);
-
-      return existUser;
-    }
-
-    const user = await this.userService.create({
-      username: signUpLocalDto.username,
-      email: signUpLocalDto.email,
-      password: signUpLocalDto.password,
-      matchPassword: signUpLocalDto.matchPassword,
-      roleName: signUpLocalDto.roleName,
-    });
-
-    await this.sendEmailVerification(user);
-
-    return user;
-  }
 
   // ================================================================
   // Sign in
@@ -197,66 +135,6 @@ export class AuthService {
   }
 
   // ================================================================
-  // User verification
-  // ----------------------------------------------------------------
-  async verifyEmail(dto: VerifyEmailDto) {
-    const otpHash = sha256(dto.otp);
-
-    const token = await this.verificationTokenService
-      .findActiveByHash(otpHash, VerificationTokenType.EMAIL_VERIFICATION)
-      .catch(() => undefined);
-
-    if (!token || token.isExpired())
-      throw new BadRequestException('Token invalid or expired');
-
-    await this.userService.updateById(token.userId, { verifiedAt: new Date() });
-    await this.verificationTokenService.markConsumed(token.id);
-  }
-
-  // ================================================================
-  // Password reset
-  // ----------------------------------------------------------------
-  async forgotPassword(dto: ForgotPasswordDto) {
-    const user = await this.userService
-      .findByUsernameOrEmail(dto.email)
-      .catch(() => null);
-    if (!user) return;
-
-    const token = await this.verificationTokenService
-      .findActiveByUser(user.id, VerificationTokenType.PASSWORD_RESET)
-      .catch(() => undefined);
-
-    if (
-      !token ||
-      !token.isWithinCooldown(this.authConfig.token.resetPassword.expire * 1000)
-    )
-      await this.sendEmailPasswordReset(user, token);
-  }
-
-  async resetPasswordCheck(dto: ResetPasswordCheckDto) {
-    const otpHash = sha256(dto.otp);
-
-    const token = await this.verificationTokenService
-      .findActiveByHash(otpHash, VerificationTokenType.PASSWORD_RESET)
-      .catch(() => undefined);
-
-    if (!token || token.isExpired())
-      throw new BadRequestException('Token invalid or expired');
-
-    return token;
-  }
-
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const token = await this.resetPasswordCheck(resetPasswordDto);
-    await this.userService.updatePasswordById(
-      token.userId,
-      resetPasswordDto.password,
-    );
-    await this.verificationTokenService.markConsumed(token.id);
-    await this.signOutAll(token.userId);
-  }
-
-  // ================================================================
   // Strategy validation
   // ----------------------------------------------------------------
   async validateLocalStrategy(username: string, password: string) {
@@ -301,94 +179,6 @@ export class AuthService {
   // ================================================================
   // Utils
   // ----------------------------------------------------------------
-  private async sendEmailPasswordReset(
-    user: User,
-    existingToken?: VerificationToken,
-  ) {
-    const otp = generateOtp(6);
-    const otpHash = sha256(otp);
-    const expire = this.authConfig.token.resetPassword.expire;
-    const expiresAt = new Date(Date.now() + expire * 1000);
-
-    const token = await this.verificationTokenService.issueOrRefresh(
-      user.id,
-      VerificationTokenType.PASSWORD_RESET,
-      otpHash,
-      expiresAt,
-      existingToken,
-    );
-
-    try {
-      await this.deliveryService.create({
-        type: DeliveryType.TRANSACTIONAL,
-        priority: DeliveryPriority.CRITICAL,
-        templateKey: 'auth.password-reset',
-        channels: [Channel.EMAIL],
-        recipients: [
-          {
-            email: user.email,
-            payload: { otp, expiresIn: `${expire / 60} minutes` },
-          },
-        ],
-      });
-    } catch (error) {
-      this.logger.error(
-        'Failed to send password reset email: ',
-        error,
-        this.constructor.name,
-      );
-    }
-
-    await this.verificationTokenService.markSent(token.id);
-  }
-
-  private async sendEmailVerification(
-    user: User,
-    existingToken?: VerificationToken,
-  ) {
-    if (user.verifiedAt !== null)
-      throw new BadRequestException('Account already verified');
-
-    const otp = generateOtp(6);
-    const otpHash = sha256(otp);
-    const expire = this.authConfig.token.verification.expire;
-    const expiresAt = new Date(Date.now() + expire * 1000);
-
-    const token = await this.verificationTokenService.issueOrRefresh(
-      user.id,
-      VerificationTokenType.EMAIL_VERIFICATION,
-      otpHash,
-      expiresAt,
-      existingToken,
-    );
-
-    try {
-      await this.deliveryService.create({
-        type: DeliveryType.TRANSACTIONAL,
-        priority: DeliveryPriority.CRITICAL,
-        templateKey: 'auth.email-verification',
-        channels: [Channel.EMAIL],
-        recipients: [
-          {
-            email: user.email,
-            payload: { otp, expiresIn: `${expire / 60 / 60} hours` },
-          },
-        ],
-      });
-    } catch (error) {
-      this.logger.error(
-        'Failed to send verification email: ',
-        error,
-        this.constructor.name,
-      );
-      throw new BadGatewayException(
-        "We couldn't send verification email right now. Please try again",
-      );
-    }
-
-    await this.verificationTokenService.markSent(token.id);
-  }
-
   private signAccessToken(payload: JwtAccessPayload) {
     return this.jwtService.signAsync(payload, {
       secret: this.authConfig.jwt.access.secret,

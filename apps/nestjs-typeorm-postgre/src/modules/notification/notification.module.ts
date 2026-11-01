@@ -78,6 +78,5 @@ import { NotificationGateway } from './notification.gateway';
     // websocket
     NotificationGateway,
   ],
-  exports: [DeliveryService],
 })
 export class NotificationModule {}
