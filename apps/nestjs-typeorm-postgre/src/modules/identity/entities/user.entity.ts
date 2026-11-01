@@ -6,12 +6,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { VerificationToken } from './verification-token.entity';
 import { Profile } from './profile.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
@@ -37,9 +35,6 @@ export class User {
 
   @Column('timestamptz', { nullable: true })
   verifiedAt?: Date | null;
-
-  @OneToMany(() => VerificationToken, (vt) => vt.user)
-  verificationTokens: VerificationToken[];
 
   @OneToOne(() => Profile, (p) => p.user)
   profile: Profile | null;

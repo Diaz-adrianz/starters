@@ -29,15 +29,6 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "device_id" character varying, "device_label" character varying, "device_type" character varying, "browser" character varying, "os" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "identity"."verification_tokens_type_enum" AS ENUM('email_verification', 'password_reset', 'set_password')`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "identity"."verification_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "type" "identity"."verification_tokens_type_enum" NOT NULL, "token_hash" character varying NOT NULL, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "sent_at" TIMESTAMP WITH TIME ZONE, "consumed_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_f2d4d7a2aa57ef199e61567db22" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
-      `CREATE UNIQUE INDEX "active_token_per_type" ON "identity"."verification_tokens"  ("user_id", "type") WHERE "consumed_at" IS NULL`,
-    );
-    await queryRunner.query(
       `CREATE TABLE "identity"."users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "username" character varying NOT NULL, "email" character varying NOT NULL, "password" character varying, "enabled" boolean NOT NULL DEFAULT false, "avatar" character varying, "verified_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
@@ -89,9 +80,6 @@ export class Init1700000000000 implements MigrationInterface {
       `ALTER TABLE "access_control"."role_permissions" ADD CONSTRAINT "FK_17022daf3f885f7d35423e9971e" FOREIGN KEY ("permission_id") REFERENCES "access_control"."permissions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
-      `ALTER TABLE "identity"."verification_tokens" ADD CONSTRAINT "FK_31d2079dc4079b80517d31cf4f2" FOREIGN KEY ("user_id") REFERENCES "identity"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "identity"."profiles" ADD CONSTRAINT "FK_9e432b7df0d182f8d292902d1a2" FOREIGN KEY ("user_id") REFERENCES "identity"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
@@ -111,9 +99,6 @@ export class Init1700000000000 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "identity"."profiles" DROP CONSTRAINT "FK_9e432b7df0d182f8d292902d1a2"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "identity"."verification_tokens" DROP CONSTRAINT "FK_31d2079dc4079b80517d31cf4f2"`,
     );
     await queryRunner.query(
       `ALTER TABLE "access_control"."role_permissions" DROP CONSTRAINT "FK_17022daf3f885f7d35423e9971e"`,
@@ -148,11 +133,6 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "identity"."profiles"`);
     await queryRunner.query(`DROP TYPE "identity"."profiles_gender_enum"`);
     await queryRunner.query(`DROP TABLE "identity"."users"`);
-    await queryRunner.query(`DROP INDEX "identity"."active_token_per_type"`);
-    await queryRunner.query(`DROP TABLE "identity"."verification_tokens"`);
-    await queryRunner.query(
-      `DROP TYPE "identity"."verification_tokens_type_enum"`,
-    );
     await queryRunner.query(`DROP TABLE "auth"."sessions"`);
     await queryRunner.query(`DROP TABLE "audit"."activities"`);
     await queryRunner.query(`DROP TYPE "audit"."activities_status_enum"`);
