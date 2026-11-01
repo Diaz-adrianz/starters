@@ -6,12 +6,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Profile } from './profile.entity';
 import { UserStatus } from '../enums/user-status.enum';
+import { Token } from './token.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
@@ -36,6 +38,9 @@ export class User {
 
   @OneToOne(() => Profile, (p) => p.user)
   profile: Profile | null;
+
+  @OneToMany(() => Token, (t) => t.user)
+  tokens: Token[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

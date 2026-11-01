@@ -29,6 +29,15 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "device_id" character varying, "device_label" character varying, "device_type" character varying, "browser" character varying, "os" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
+      `CREATE TYPE "identity"."tokens_type_enum" AS ENUM('invitation')`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "identity"."tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "type" "identity"."tokens_type_enum" NOT NULL, "hash" character varying NOT NULL, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "refreshed_at" TIMESTAMP WITH TIME ZONE NOT NULL, "consumed_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3001e89ada36263dabf1fb6210a" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "active_token_per_type" ON "identity"."tokens"  ("user_id", "type") WHERE "consumed_at" IS NULL`,
+    );
+    await queryRunner.query(
       `CREATE TYPE "identity"."users_status_enum" AS ENUM('active', 'disabled', 'invited')`,
     );
     await queryRunner.query(
@@ -83,6 +92,9 @@ export class Init1700000000000 implements MigrationInterface {
       `ALTER TABLE "access_control"."role_permissions" ADD CONSTRAINT "FK_17022daf3f885f7d35423e9971e" FOREIGN KEY ("permission_id") REFERENCES "access_control"."permissions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
+      `ALTER TABLE "identity"."tokens" ADD CONSTRAINT "FK_8769073e38c365f315426554ca5" FOREIGN KEY ("user_id") REFERENCES "identity"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "identity"."profiles" ADD CONSTRAINT "FK_9e432b7df0d182f8d292902d1a2" FOREIGN KEY ("user_id") REFERENCES "identity"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
@@ -102,6 +114,9 @@ export class Init1700000000000 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "identity"."profiles" DROP CONSTRAINT "FK_9e432b7df0d182f8d292902d1a2"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "identity"."tokens" DROP CONSTRAINT "FK_8769073e38c365f315426554ca5"`,
     );
     await queryRunner.query(
       `ALTER TABLE "access_control"."role_permissions" DROP CONSTRAINT "FK_17022daf3f885f7d35423e9971e"`,
@@ -137,6 +152,9 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "identity"."profiles_gender_enum"`);
     await queryRunner.query(`DROP TABLE "identity"."users"`);
     await queryRunner.query(`DROP TYPE "identity"."users_status_enum"`);
+    await queryRunner.query(`DROP INDEX "identity"."active_token_per_type"`);
+    await queryRunner.query(`DROP TABLE "identity"."tokens"`);
+    await queryRunner.query(`DROP TYPE "identity"."tokens_type_enum"`);
     await queryRunner.query(`DROP TABLE "auth"."sessions"`);
     await queryRunner.query(`DROP TABLE "audit"."activities"`);
     await queryRunner.query(`DROP TYPE "audit"."activities_status_enum"`);
