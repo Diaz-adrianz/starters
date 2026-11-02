@@ -9,29 +9,19 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { getInitials } from '@/utils/string';
-import { RiCheckLine, RiCloseLine } from '@remixicon/react';
 import type { ComponentProps } from 'react';
 import type { User } from '../types/user.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/utils/date';
-import { WithTooltip } from '@/components/shared/with-tooltip';
 import { Badge } from '@/components/ui/badge';
+import { UserStatusMap } from '../constants/user.constant';
 
 type UserCardData = Pick<
   User,
-  | 'id'
-  | 'avatar'
-  | 'email'
-  | 'username'
-  | 'enabled'
-  | 'verifiedAt'
-  | 'createdAt'
+  'id' | 'avatar' | 'email' | 'username' | 'status' | 'createdAt'
 >;
 
-type UserCardHideableData = (keyof Pick<
-  UserCardData,
-  'enabled' | 'verifiedAt'
->)[];
+type UserCardHideableData = (keyof Pick<UserCardData, 'status'>)[];
 
 function UserCard({
   className,
@@ -56,47 +46,18 @@ function UserCard({
           <p className="typo-body-md text-muted-foreground">{user.email}</p>
         </div>
         <ItemGroup>
-          {!hides?.includes('enabled') && (
+          {!hides?.includes('status') && (
             <>
               <Item size={'xs'}>
                 <ItemContent>
-                  <ItemTitle>Enabled</ItemTitle>
+                  <ItemTitle>Status</ItemTitle>
                 </ItemContent>
                 <ItemContent>
-                  {user.enabled ? (
-                    <Badge>
-                      Enabled <RiCheckLine />
-                    </Badge>
-                  ) : (
-                    <Badge variant={'destructive'}>
-                      Disabled <RiCloseLine />
-                    </Badge>
-                  )}
-                </ItemContent>
-              </Item>
-              <ItemSeparator className="m-0" />
-            </>
-          )}
-          {!hides?.includes('verifiedAt') && (
-            <>
-              <Item size={'xs'}>
-                <ItemContent>
-                  <ItemTitle>Verified</ItemTitle>
-                </ItemContent>
-                <ItemContent>
-                  {user.verifiedAt ? (
-                    <WithTooltip
-                      text={`At ${formatDate(user.verifiedAt, 'dd MMM yyyy, HH:mm a')}`}
-                    >
-                      <Badge>
-                        Verified <RiCheckLine />
-                      </Badge>
-                    </WithTooltip>
-                  ) : (
-                    <Badge variant={'destructive'}>
-                      Unverified <RiCloseLine />
-                    </Badge>
-                  )}
+                  <Badge
+                    variant={UserStatusMap[user.status].meta?.badgeVariant}
+                  >
+                    {UserStatusMap[user.status].label}
+                  </Badge>
                 </ItemContent>
               </Item>
               <ItemSeparator className="m-0" />
@@ -134,28 +95,14 @@ function UserCardSkeleton({
           <Skeleton className="h-6 w-52" />
         </div>
         <ItemGroup>
-          {!hides?.includes('enabled') && (
+          {!hides?.includes('status') && (
             <>
               <Item size={'xs'}>
                 <ItemContent>
-                  <ItemTitle>Enabled</ItemTitle>
+                  <ItemTitle>Status</ItemTitle>
                 </ItemContent>
                 <ItemContent>
                   <Skeleton className="h-6 w-16" />
-                </ItemContent>
-              </Item>
-              <ItemSeparator className="m-0" />
-            </>
-          )}
-
-          {!hides?.includes('verifiedAt') && (
-            <>
-              <Item size={'xs'}>
-                <ItemContent>
-                  <ItemTitle>Verified</ItemTitle>
-                </ItemContent>
-                <ItemContent>
-                  <Skeleton className="h-6 w-24" />
                 </ItemContent>
               </Item>
               <ItemSeparator className="m-0" />

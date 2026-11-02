@@ -11,5 +11,8 @@ export {
 export { UserMenu } from './components/user-menu';
 export { UserItem } from './components/user-item';
 
+// constants
+export { UserStatusMap } from './constants/user.constant';
+
 // types
 export { type User } from './types/user.type';

@@ -5,7 +5,6 @@ import {
   PageNav,
   PageSection,
 } from '@/components/shared/page';
-import { WithTooltip } from '@/components/shared/with-tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,13 +16,13 @@ import {
   UserListTable,
   UserMenu,
   ProfileGenderMap,
+  UserStatusMap,
 } from '@/features/identity';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
-import { formatDate } from '@/utils/date';
 import { getOptionMap } from '@/utils/option';
 import { getInitials } from '@/utils/string';
 import { Can } from '@casl/react';
-import { RiAddLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
+import { RiAddLine } from '@remixicon/react';
 
 const AccountsPage = () => {
   const query = useResourceQuery({
@@ -138,39 +137,13 @@ const AccountsPage = () => {
                     id: 'enabled',
                     header: () => 'Enabled',
                     cell: ({ row }) => (
-                      <div className="flex justify-center">
-                        {row.original.enabled ? (
-                          <Badge size={'icon'}>
-                            <RiCheckLine />
-                          </Badge>
-                        ) : (
-                          <Badge size={'icon'} variant={'destructive'}>
-                            <RiCloseLine />
-                          </Badge>
-                        )}
-                      </div>
-                    ),
-                    enableSorting: false,
-                  },
-                  {
-                    id: 'verifiedAt',
-                    header: () => 'Verified',
-                    cell: ({ row }) => (
-                      <div className="flex justify-center">
-                        {row.original.verifiedAt ? (
-                          <WithTooltip
-                            text={`At ${formatDate(row.original.verifiedAt, 'dd MMM yyyy, HH:mm a')}`}
-                          >
-                            <Badge size={'icon'}>
-                              <RiCheckLine />
-                            </Badge>
-                          </WithTooltip>
-                        ) : (
-                          <Badge size={'icon'} variant={'destructive'}>
-                            <RiCloseLine />
-                          </Badge>
-                        )}
-                      </div>
+                      <Badge
+                        variant={
+                          UserStatusMap[row.original.status].meta?.badgeVariant
+                        }
+                      >
+                        {UserStatusMap[row.original.status].label}
+                      </Badge>
                     ),
                     enableSorting: false,
                   },
