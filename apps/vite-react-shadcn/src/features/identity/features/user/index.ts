@@ -10,6 +10,7 @@ export {
 } from './components/user-list';
 export { UserMenu } from './components/user-menu';
 export { UserItem } from './components/user-item';
+export { UserInviteDialog } from './components/user-invite-dialog';
 
 // constants
 export { UserStatusMap } from './constants/user.constant';

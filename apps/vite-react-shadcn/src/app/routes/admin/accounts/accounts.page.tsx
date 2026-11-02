@@ -17,14 +17,18 @@ import {
   UserMenu,
   ProfileGenderMap,
   UserStatusMap,
+  UserInviteDialog,
 } from '@/features/identity';
+import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { getOptionMap } from '@/utils/option';
 import { getInitials } from '@/utils/string';
 import { Can } from '@casl/react';
-import { RiAddLine } from '@remixicon/react';
+import { RiUserAddFill } from '@remixicon/react';
 
 const AccountsPage = () => {
+  const inviteDialog = useDialogState();
+
   const query = useResourceQuery({
     page: 1,
     limit: 10,
@@ -33,6 +37,8 @@ const AccountsPage = () => {
 
   return (
     <Page className="min-h-svh">
+      <UserInviteDialog {...inviteDialog} />
+
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
@@ -43,9 +49,9 @@ const AccountsPage = () => {
       <PageHeader
         title="Accounts"
         action={
-          <Can I={'create'} a={'identity:user'}>
-            <Button>
-              <RiAddLine /> Create account
+          <Can I={'invite'} a={'identity:user'}>
+            <Button onClick={() => inviteDialog.show()}>
+              <RiUserAddFill /> Invite account
             </Button>
           </Can>
         }
