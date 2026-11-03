@@ -15,6 +15,10 @@ export {
   RoleUpdateDialog,
   type RoleUpdateDialogPayload,
 } from './components/role-update-dialog';
+export {
+  RoleCombobox,
+  type RoleComboboxItem,
+} from './components/role-combobox';
 
 export {
   RoleUserList,

@@ -1,3 +1,4 @@
+import { type RoleComboboxItem } from '@/features/access-control';
 import * as y from 'yup';
 
 // fields
@@ -19,6 +20,7 @@ const usernameSchema = y
 const inviteUserSchema = y.object({
   username: usernameSchema.required(),
   email: y.string().email().required(),
+  roles: y.array().of(y.mixed<RoleComboboxItem>().defined()).optional(),
 });
 
 type InviteUserValues = y.InferType<typeof inviteUserSchema>;

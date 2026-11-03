@@ -15,6 +15,7 @@
     "format:fix": "prettier --write \"**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
     "@casl/ability": "^7.0.1",
     "@casl/react": "^7.0.1",
     "@fontsource-variable/dm-sans": "^5.3.0",
