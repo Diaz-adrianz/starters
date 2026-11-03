@@ -66,11 +66,21 @@ export class UserService {
   }
 
   async updatePasswordById(id: string, password: string) {
-    const salt = await bcrypt.genSalt(10),
-      hashed = await bcrypt.hash(password, salt);
     const result = await this.userRepo.update(
       id,
-      { password: hashed },
+      { password: await this.hashPassword(password) },
+      { returning: ['id'] },
+    );
+    this.event.emit('identity.user.updated', {
+      target: result.raw as Pick<User, 'id'>[],
+    });
+    return result;
+  }
+
+  async updateStatusById(id: string, status: UserStatus) {
+    const result = await this.userRepo.update(
+      id,
+      { status },
       { returning: ['id'] },
     );
     this.event.emit('identity.user.updated', {
@@ -96,7 +106,7 @@ export class UserService {
     const user = this.userRepo.create({
       email,
       username,
-      password,
+      password: password ? await this.hashPassword(password) : undefined,
       status: status ?? UserStatus.ACTIVE,
     });
     await this.userRepo.save(user);
@@ -193,5 +203,12 @@ export class UserService {
       target: result.raw as Pick<User, 'id'>[],
     });
     return result;
+  }
+
+  // Utils
+  // ----------------------------------------------------------------
+  private async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
   }
 }

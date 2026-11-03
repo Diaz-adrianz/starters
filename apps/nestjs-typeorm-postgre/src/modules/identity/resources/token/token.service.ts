@@ -17,12 +17,22 @@ export class TokenService {
   findActiveByUser(userId: string, type: TokenType) {
     return this.tokenRepo.findOneOrFail({
       where: { userId, type, consumedAt: IsNull() },
+      relations: { user: true },
+      select: {
+        ...this.tokenRepo.select('*'),
+        user: { id: true, username: true, email: true },
+      },
     });
   }
 
   findActiveByHash(hash: string, type: TokenType) {
     return this.tokenRepo.findOneOrFail({
       where: { hash, type, consumedAt: IsNull() },
+      relations: { user: true },
+      select: {
+        ...this.tokenRepo.select('*'),
+        user: { id: true, username: true, email: true },
+      },
     });
   }
 

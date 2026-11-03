@@ -1,7 +1,5 @@
 import { Exclude } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -50,12 +48,4 @@ export class User {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
-
-  @BeforeInsert()
-  async hashPassword() {
-    if (!this.password) return;
-
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
 }

@@ -35,8 +35,7 @@ export class IdentityEventSubscriber {
               otp: payload.otp.code,
               expiresIn: payload.otp.expiresIn,
               acceptUrl:
-                this.appConfig.client.default.origin +
-                '/auth/accept-invitation',
+                this.appConfig.client.default.origin + '/auth/accept-invite',
             },
           },
         ],

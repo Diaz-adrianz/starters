@@ -9,14 +9,16 @@ import { ProfileController } from './resources/profile/profile.controller';
 import { Profile } from './entities/profile.entity';
 import { Token } from './entities/token.entity';
 import { TokenService } from './resources/token/token.service';
+import { IdentityService } from './identity.service';
+import { IdentityController } from './identity.controller';
 
 @Module({
   imports: [
     DefaultDatabaseModule.forFeature([User, Profile, Token]),
     DefaultStorageModule,
   ],
-  controllers: [UserController, ProfileController],
-  providers: [UserService, ProfileService, TokenService],
+  controllers: [UserController, ProfileController, IdentityController],
+  providers: [UserService, ProfileService, TokenService, IdentityService],
   exports: [UserService],
 })
 export class IdentityModule {}
