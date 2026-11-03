@@ -8,7 +8,7 @@ export {
   UserListTrashFilter,
   UserListTable,
 } from './components/user-list';
-export { UserMenu } from './components/user-menu';
+export { UserActions } from './components/user-actions';
 export { UserItem } from './components/user-item';
 export { UserInviteDialog } from './components/user-invite-dialog';
 

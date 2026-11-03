@@ -14,10 +14,10 @@ import {
   UserListSearchFilter,
   UserListTrashFilter,
   UserListTable,
-  UserMenu,
   ProfileGenderMap,
   UserStatusMap,
   UserInviteDialog,
+  UserActions,
 } from '@/features/identity';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -157,18 +157,22 @@ const AccountsPage = () => {
                     id: 'action',
                     header: '',
                     cell: ({ row }) => (
-                      <UserMenu
-                        user={row.original}
-                        actions={
+                      <UserActions
+                        collapsed={['resendInvite']}
+                        handlers={
                           query.state.trash
                             ? {
                                 restore: () => {},
                                 delete: () => {},
                               }
                             : {
-                                read: `/admin/iam/accounts/${row.original.id}`,
-                                update: () => {},
-                                archive: () => {},
+                                view: `/admin/iam/accounts/${row.original.id}`,
+                                edit: () => {},
+                                remove: () => {},
+                                resendInvite:
+                                  row.original.status === 'invited'
+                                    ? () => {}
+                                    : undefined,
                               }
                         }
                       />

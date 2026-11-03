@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/item';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/utils/date';
-import { UserItem, UserMenu, useUser } from '@/features/identity';
+import { UserActions, UserItem, useUser } from '@/features/identity';
 
 type SessionDialogPayload = { id: string };
 
@@ -55,10 +55,9 @@ function SessionDialog({
                   className="mb-4"
                   user={user.data}
                   slotActions={
-                    <UserMenu
-                      user={user.data}
-                      actions={{
-                        read: `/admin/iam/accounts/${user.data.id}`,
+                    <UserActions
+                      handlers={{
+                        view: `/admin/iam/accounts/${user.data.id}`,
                       }}
                     />
                   }
