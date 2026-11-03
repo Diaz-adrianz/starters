@@ -12,9 +12,19 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { signInSchema, type SignInValues } from '../schemas/auth.schema';
 import { useAuth } from '../hooks/use-auth';
+import { useState } from 'react';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
+import { RiEyeLine, RiEyeOffLine } from '@remixicon/react';
 
 function SignInForm() {
   const { signIn } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<SignInValues>({
     resolver: yupResolver(signInSchema),
@@ -63,13 +73,24 @@ function SignInForm() {
                   <Link to={'/auth/forgot-password'}>Forgot password?</Link>
                 </Button>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                {...field}
-                aria-invalid={fieldState.invalid}
-              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="********"
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    onClick={() => setShowPassword((s) => !s)}
+                    variant="secondary"
+                    size={'icon-sm'}
+                  >
+                    {showPassword ? <RiEyeLine /> : <RiEyeOffLine />}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
