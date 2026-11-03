@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import SignInPage from './signin/signin.page';
 import SignUpPage from './signup/signup.page';
 import { AuthRoute } from '@/components/shared/auth';
+import AcceptInvitePage from './accept-invite/accept-invite.page';
 
 const authRoutes: RouteObject[] = [
   {
@@ -19,6 +20,10 @@ const authRoutes: RouteObject[] = [
         <SignUpPage />
       </AuthRoute>
     ),
+  },
+  {
+    path: 'accept-invite',
+    element: <AcceptInvitePage />,
   },
 ];
 

@@ -29,10 +29,10 @@ export function useAuth() {
     toast.success('Sign in successful');
   };
 
-  const signOut = () => {
-    toast.promise(signOutApi.mutateAsync(), {
-      loading: 'Signing you out...',
-    });
+  const signOut = async () => {
+    const request = signOutApi.mutateAsync();
+    toast.promise(request, { loading: 'Signing you out...' });
+    await request;
   };
 
   return { signIn, signOut };
