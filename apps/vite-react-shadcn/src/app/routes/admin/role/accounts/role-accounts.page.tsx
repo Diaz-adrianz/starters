@@ -41,7 +41,7 @@ const RoleAccountsPage = () => {
                   {
                     accessorKey: 'username',
                     header: ({ column }) => (
-                      <SortableHeader column={column} title="User" />
+                      <SortableHeader column={column} title="Account" />
                     ),
                   },
                   {
@@ -61,9 +61,10 @@ const RoleAccountsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: () => (
+                    cell: ({ row: { original: roleUser } }) => (
                       <RoleUserActions
                         handlers={{
+                          viewUser: `/admin/iam/accounts/${roleUser.userId}`,
                           unAssign: () => {},
                         }}
                       />

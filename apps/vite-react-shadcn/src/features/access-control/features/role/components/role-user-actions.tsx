@@ -2,9 +2,9 @@ import {
   ResourceActions,
   type ResourceActionsProps,
 } from '@/components/shared/resource-actions';
-import { RiUserUnfollowLine } from '@remixicon/react';
+import { RiAccountCircleLine, RiUserUnfollowLine } from '@remixicon/react';
 
-type Keys = 'unAssign';
+type Keys = 'viewUser' | 'unAssign';
 
 function RoleUserActions(
   props: Omit<ResourceActionsProps<Keys>, 'keys' | 'actions'>
@@ -12,6 +12,11 @@ function RoleUserActions(
   return (
     <ResourceActions<Keys>
       actions={{
+        viewUser: {
+          icon: RiAccountCircleLine,
+          label: 'View account',
+          can: { i: 'read', a: 'identity:user' },
+        },
         unAssign: {
           icon: RiUserUnfollowLine,
           label: 'Unassign',

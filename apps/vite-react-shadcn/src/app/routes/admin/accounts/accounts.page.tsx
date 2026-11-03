@@ -18,6 +18,7 @@ import {
   UserStatusMap,
   UserInviteDialog,
   UserActions,
+  useUserMutations,
 } from '@/features/identity';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -30,10 +31,11 @@ const AccountsPage = () => {
   const inviteDialog = useDialogState();
 
   const query = useResourceQuery({
-    page: 1,
-    limit: 10,
-    order: { createdAt: 'desc' },
-  });
+      page: 1,
+      limit: 10,
+      order: { createdAt: 'desc' },
+    }),
+    mutations = useUserMutations();
 
   return (
     <Page className="min-h-svh">
@@ -140,8 +142,8 @@ const AccountsPage = () => {
                     enableSorting: false,
                   },
                   {
-                    id: 'enabled',
-                    header: () => 'Enabled',
+                    id: 'status',
+                    header: () => 'Status',
                     cell: ({ row }) => (
                       <Badge
                         variant={
@@ -156,21 +158,21 @@ const AccountsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: ({ row }) => (
+                    cell: ({ row: { original: user } }) => (
                       <UserActions
                         collapsed={['resendInvite']}
                         handlers={
                           query.state.trash
                             ? {
-                                restore: () => {},
-                                delete: () => {},
+                                restore: () => mutations.restore(user),
+                                delete: () => mutations.del(user),
                               }
                             : {
-                                view: `/admin/iam/accounts/${row.original.id}`,
+                                view: `/admin/iam/accounts/${user.id}`,
                                 edit: () => {},
-                                remove: () => {},
+                                remove: () => mutations.archive(user),
                                 resendInvite:
-                                  row.original.status === 'invited'
+                                  user.status === 'invited'
                                     ? () => {}
                                     : undefined,
                               }

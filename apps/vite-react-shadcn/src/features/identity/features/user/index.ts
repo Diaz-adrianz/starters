@@ -15,5 +15,8 @@ export { UserInviteDialog } from './components/user-invite-dialog';
 // constants
 export { UserStatusMap } from './constants/user.constant';
 
+// hooks
+export { useUserMutations } from './hooks/use-user-mutations';
+
 // types
 export { type User } from './types/user.type';

@@ -15,4 +15,7 @@ export const UserApi = {
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<User>>(PRE, { params }),
   findOne: (id: string) => apiClient.get<ApiResponse<User>>(PRE + id),
+  archive: (id: string) => apiClient.patch<ApiResponse>(PRE + id + '/archive'),
+  restore: (id: string) => apiClient.patch<ApiResponse>(PRE + id + '/restore'),
+  delete: (id: string) => apiClient.delete<ApiResponse>(PRE + id),
 };
