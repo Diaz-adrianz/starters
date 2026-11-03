@@ -35,16 +35,17 @@ function UserInviteDialog({
 }) {
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
-  const inviteApi = useInviteUser({
-    onSuccess() {
-      hide();
-    },
-  });
-
   const form = useForm<InviteUserValues>({
     resolver: yupResolver(inviteUserSchema),
     mode: 'onChange',
     defaultValues: { username: '', email: '', roles: [] },
+  });
+
+  const inviteApi = useInviteUser({
+    onSuccess() {
+      hide();
+      form.reset();
+    },
   });
 
   const invite = (values: InviteUserValues) => {
@@ -115,6 +116,7 @@ function UserInviteDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Roles</FieldLabel>
                   <RoleCombobox
+                    side="top"
                     container={container}
                     id={field.name}
                     value={field.value}

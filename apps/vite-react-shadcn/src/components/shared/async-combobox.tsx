@@ -13,6 +13,7 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from '@/components/ui/combobox';
+import type { Side } from '@base-ui/react/internals/useAnchorPositioning';
 
 type AsyncComboboxProps<T> = {
   queryKey: readonly unknown[];
@@ -29,6 +30,7 @@ type AsyncComboboxProps<T> = {
   debounceMs?: number;
   minSearchLength?: number;
   max?: number;
+  side?: Side;
   disabled?: boolean;
   invalid?: boolean;
   id?: string;
@@ -53,6 +55,7 @@ function AsyncCombobox<T>({
   debounceMs = 300,
   minSearchLength = 0,
   max,
+  side = 'bottom',
   disabled,
   invalid,
   id,
@@ -124,7 +127,7 @@ function AsyncCombobox<T>({
         </ComboboxValue>
       </ComboboxChips>
 
-      <ComboboxContent anchor={anchor} container={container}>
+      <ComboboxContent anchor={anchor} container={container} side={side}>
         <ComboboxEmpty>{isFetching ? loadingText : emptyText}</ComboboxEmpty>
         <ComboboxList>
           {(item: T) => (
