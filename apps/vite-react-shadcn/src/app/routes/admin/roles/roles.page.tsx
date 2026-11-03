@@ -14,7 +14,7 @@ import {
   RoleListSearchFilter,
   RoleListTable,
   RoleListTrashFilter,
-  RoleMenu,
+  RoleActions,
   RoleUpdateDialog,
   useRoleMutations,
   type RoleUpdateDialogPayload,
@@ -114,19 +114,18 @@ const RolesPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: ({ row }) => (
-                      <RoleMenu
-                        role={row.original}
-                        actions={
+                    cell: ({ row: { original: role } }) => (
+                      <RoleActions
+                        handlers={
                           query.state.trash
                             ? {
-                                restore: (r) => mutations.restore(r),
-                                delete: (r) => mutations.del(r),
+                                restore: () => mutations.restore(role),
+                                delete: () => mutations.del(role),
                               }
                             : {
-                                read: `/admin/iam/roles/${row.original.id}`,
-                                update: (r) => updateDialog.show({ id: r.id }),
-                                archive: (r) => mutations.archive(r),
+                                view: `/admin/iam/roles/${role.id}`,
+                                edit: () => updateDialog.show({ id: role.id }),
+                                remove: () => mutations.archive(role),
                               }
                         }
                       />

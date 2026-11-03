@@ -4,4 +4,4 @@ export {
   PermissionListSearchFilter,
   PermissionListTable,
 } from './components/permission-list';
-export { PermissionMenu } from './components/permission-menu';
+export { PermissionActions } from './components/permission-actions';

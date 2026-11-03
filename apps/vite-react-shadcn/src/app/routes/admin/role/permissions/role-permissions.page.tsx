@@ -5,7 +5,7 @@ import {
   RolePermissionList,
   RolePermissionListSearchFilter,
   RolePermissionListTable,
-  RolePermissionMenu,
+  RolePermissionActions,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
@@ -62,10 +62,9 @@ const RolePermissionsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: ({ row }) => (
-                      <RolePermissionMenu
-                        rolePermission={row.original}
-                        actions={{
+                    cell: () => (
+                      <RolePermissionActions
+                        handlers={{
                           revoke: () => {},
                         }}
                       />

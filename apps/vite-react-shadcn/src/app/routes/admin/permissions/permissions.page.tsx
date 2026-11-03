@@ -11,7 +11,7 @@ import {
   PermissionList,
   PermissionListSearchFilter,
   PermissionListTable,
-  PermissionMenu,
+  PermissionActions,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { RiCheckLine, RiCloseLine } from '@remixicon/react';
@@ -83,11 +83,10 @@ const PermissionsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: ({ row }) => (
-                      <PermissionMenu
-                        permission={row.original}
-                        actions={{
-                          update: () => {},
+                    cell: () => (
+                      <PermissionActions
+                        handlers={{
+                          edit: () => {},
                         }}
                       />
                     ),

@@ -3,10 +3,10 @@ import { Page, PageSection } from '@/components/shared/page';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
+  SessionActions,
   SessionDialog,
   SessionList,
   SessionListTable,
-  SessionMenu,
   useSessionMutations,
   type SessionDialogPayload,
 } from '@/features/auth';
@@ -105,13 +105,13 @@ const AccountSessionsPage = () => {
                     id: 'menu',
                     header: '',
                     cell: ({ row }) => (
-                      <SessionMenu
-                        session={row.original}
-                        actions={{
-                          read: (s) => detailDialog.show({ id: s.id }),
+                      <SessionActions
+                        handlers={{
+                          view: () =>
+                            detailDialog.show({ id: row.original.id }),
                           ...(row.original.isActive
-                            ? { revoke: (s) => mutations.revoke(s) }
-                            : { delete: (s) => mutations.del(s) }),
+                            ? { revoke: () => mutations.revoke(row.original) }
+                            : { delete: () => mutations.del(row.original) }),
                         }}
                       />
                     ),

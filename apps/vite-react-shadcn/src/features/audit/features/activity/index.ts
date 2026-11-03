@@ -5,7 +5,7 @@ export {
   ActivityListSearchFilter,
   ActivityListTable,
 } from './components/activity-list';
-export { ActivityMenu } from './components/activity-menu';
+export { ActivityActions } from './components/activity-actions';
 export {
   ActivityDialog,
   type ActivityDialogPayload,

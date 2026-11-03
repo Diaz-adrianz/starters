@@ -5,7 +5,7 @@ import {
   RoleUserList,
   RoleUserListSearchFilter,
   RoleUserListTable,
-  RoleUserMenu,
+  RoleUserActions,
 } from '@/features/access-control';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { formatDate } from '@/utils/date';
@@ -61,10 +61,9 @@ const RoleAccountsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: ({ row }) => (
-                      <RoleUserMenu
-                        roleUser={row.original}
-                        actions={{
+                    cell: () => (
+                      <RoleUserActions
+                        handlers={{
                           unAssign: () => {},
                         }}
                       />

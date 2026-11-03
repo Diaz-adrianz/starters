@@ -7,7 +7,7 @@ import {
   ActivityList,
   ActivityListStatusFilter,
   ActivityListTable,
-  ActivityMenu,
+  ActivityActions,
   ActivityStatusMap,
   type ActivityDialogPayload,
 } from '@/features/audit';
@@ -112,10 +112,10 @@ const AccountActivitiesPage = () => {
                     id: 'menu',
                     header: '',
                     cell: ({ row }) => (
-                      <ActivityMenu
-                        activity={row.original}
-                        actions={{
-                          read: (a) => detailDialog.show({ id: a.id }),
+                      <ActivityActions
+                        handlers={{
+                          view: () =>
+                            detailDialog.show({ id: row.original.id }),
                         }}
                       />
                     ),

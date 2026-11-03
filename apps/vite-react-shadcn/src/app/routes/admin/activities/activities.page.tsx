@@ -12,7 +12,7 @@ import {
   ActivityListStatusFilter,
   ActivityListTable,
   ActivityStatusMap,
-  ActivityMenu,
+  ActivityActions,
   ActivityActorTypeMap,
   ActivityListSearchFilter,
   type ActivityDialogPayload,
@@ -146,10 +146,10 @@ export const ActivitiesPage = () => {
                     id: 'menu',
                     header: '',
                     cell: ({ row }) => (
-                      <ActivityMenu
-                        activity={row.original}
-                        actions={{
-                          read: (a) => detailDialog.show({ id: a.id }),
+                      <ActivityActions
+                        handlers={{
+                          view: () =>
+                            detailDialog.show({ id: row.original.id }),
                         }}
                       />
                     ),

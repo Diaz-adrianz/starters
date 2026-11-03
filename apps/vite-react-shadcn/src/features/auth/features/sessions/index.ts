@@ -6,7 +6,7 @@ export {
   SessionListTable,
 } from './components/session-list';
 export { SessionItem, SessionItemSkeleton } from './components/session-item';
-export { SessionMenu } from './components/session-menu';
+export { SessionActions } from './components/session-actions';
 export {
   SessionDialog,
   type SessionDialogPayload,

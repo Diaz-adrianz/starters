@@ -9,7 +9,7 @@ export {
   ProfileListSearchFilter,
   ProfileListTrashFilter,
 } from './components/profile-list';
-export { ProfileMenu } from './components/profile-menu';
+export { ProfileActions } from './components/profile-actions';
 export { ProfileCreateDialog } from './components/profile-create-dialog';
 export {
   ProfileUpdateDialog,

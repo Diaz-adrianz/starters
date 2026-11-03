@@ -1,12 +1,12 @@
 import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { Card, CardContent } from '@/components/ui/card';
 import {
+  SessionActions,
   SessionItem,
   SessionItemSkeleton,
   SessionList,
   SessionListItemGroup,
   SessionListPagination,
-  SessionMenu,
   useSessionMutations,
 } from '@/features/auth';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -43,12 +43,12 @@ const SessionsPage = () => {
                     key={s.id}
                     session={s}
                     slotRight={
-                      <SessionMenu
-                        session={s}
-                        actions={
+                      <SessionActions
+                        collapsed={['revoke', 'delete']}
+                        handlers={
                           s.isActive
-                            ? { revoke: (s) => mutations.revoke(s) }
-                            : { delete: (s) => mutations.del(s) }
+                            ? { revoke: () => mutations.revoke(s) }
+                            : { delete: () => mutations.del(s) }
                         }
                       />
                     }

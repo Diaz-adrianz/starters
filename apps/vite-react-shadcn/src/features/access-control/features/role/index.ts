@@ -9,7 +9,7 @@ export {
   RoleListTable,
 } from './components/role-list';
 export { RoleCard, RoleCardSkeleton } from './components/role-card';
-export { RoleMenu } from './components/role-menu';
+export { RoleActions } from './components/role-actions';
 export { RoleCreateDialog } from './components/role-create-dialog';
 export {
   RoleUpdateDialog,
@@ -25,14 +25,14 @@ export {
   RoleUserListSearchFilter,
   RoleUserListTable,
 } from './components/role-user-list';
-export { RoleUserMenu } from './components/role-user-menu';
+export { RoleUserActions } from './components/role-user-actions';
 
 export {
   RolePermissionList,
   RolePermissionListSearchFilter,
   RolePermissionListTable,
 } from './components/role-permission-list';
-export { RolePermissionMenu } from './components/role-permission-menu';
+export { RolePermissionActions } from './components/role-permission-actions';
 
 // hooks
 export { useRoleMutations } from './hooks/use-role-mutations';
