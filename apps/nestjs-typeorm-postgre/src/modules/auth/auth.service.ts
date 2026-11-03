@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '../identity/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -158,7 +158,8 @@ export class AuthService {
         `User cache missed for "${userId}"`,
         this.constructor.name,
       );
-      const user = await this.userService.findById(userId);
+      const user = await this.userService.findById(userId).catch(() => null);
+      if (!user) throw new UnauthorizedException();
       this.validateUser(user);
 
       userCache = { id: user.id, name: user.username };
