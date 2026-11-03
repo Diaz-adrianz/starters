@@ -1,5 +1,14 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { IsUsername } from '../../../decorators/validators/is-username.validator';
+import { Type } from 'class-transformer';
+import { CreateUserRoleDto } from './create-user.dto';
 
 export class InviteUserDto {
   @IsNotEmpty()
@@ -11,6 +20,9 @@ export class InviteUserDto {
   email: string;
 
   @IsOptional()
-  @IsString()
-  roleName?: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateUserRoleDto)
+  roles?: CreateUserRoleDto[];
 }

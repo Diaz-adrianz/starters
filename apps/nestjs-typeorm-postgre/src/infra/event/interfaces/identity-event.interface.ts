@@ -8,7 +8,7 @@ export const IdentityEventName = {
 export interface IdentityEventPayload {
   [IdentityEventName.USER_CREATED]: {
     target: { id: string };
-    payload: { id: string; username: string; roleName?: string };
+    payload: { id: string; username: string; roles?: { name: string }[] };
   };
   [IdentityEventName.USER_UPDATED]: {
     target: { id: string }[];

@@ -1,14 +1,23 @@
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsStrongPassword,
+  ValidateNested,
 } from 'class-validator';
 import { MatchWith } from '../../../../../common/decorators/validators/match-with.validator';
 import { IsUsername } from '../../../decorators/validators/is-username.validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { UserStatus } from '../../../enums/user-status.enum';
+
+export class CreateUserRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -28,8 +37,11 @@ export class CreateUserDto {
   matchPassword?: string | null;
 
   @IsOptional()
-  @IsString()
-  roleName?: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateUserRoleDto)
+  roles?: CreateUserRoleDto[];
 
   // Internal
   // --------------------------

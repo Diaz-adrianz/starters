@@ -28,7 +28,7 @@ export class UserService {
     const user = await this.create({
       email: dto.email,
       username: dto.username,
-      roleName: dto.roleName,
+      roles: dto.roles,
       status: UserStatus.INVITED,
     });
 
@@ -92,7 +92,7 @@ export class UserService {
   // Base
   // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
-    const { email, username, password, roleName, status } = createUserDto;
+    const { email, username, password, roles, status } = createUserDto;
     const sameEmail = await this.userRepo.count({
       where: { email: email },
     });
@@ -115,7 +115,7 @@ export class UserService {
       payload: {
         id: user.id,
         username: username,
-        roleName: roleName,
+        roles: roles,
       },
     });
     return user;

@@ -21,24 +21,26 @@ export class IdentityEventSubscriber {
     target,
     payload,
   }: IdentityEventPayload['identity.user.created']) {
-    if (payload.roleName) {
-      const role = await this.roleService
-        .findOneByName(payload.roleName)
-        .catch(() => null);
+    if (payload.roles?.length) {
+      for (const r of payload.roles) {
+        const role = await this.roleService
+          .findOneByName(r.name)
+          .catch(() => null);
 
-      if (!role) {
-        this.logger.warn(
-          `Role "${payload.roleName}" not found for new user "${target.id}", skipping role assignment`,
-          this.constructor.name,
-        );
-        return;
+        if (!role) {
+          this.logger.warn(
+            `Role "${r.name}" not found for new user "${target.id}", skipping role assignment`,
+            this.constructor.name,
+          );
+          return;
+        }
+
+        await this.roleService.setUser(role.id, {
+          assign: true,
+          userId: target.id,
+          username: payload.username,
+        });
       }
-
-      await this.roleService.setUser(role.id, {
-        assign: true,
-        userId: target.id,
-        username: payload.username,
-      });
     }
   }
 
