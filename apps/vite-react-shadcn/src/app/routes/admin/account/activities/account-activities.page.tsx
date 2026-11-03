@@ -10,6 +10,7 @@ import {
   ActivityActions,
   ActivityStatusMap,
   type ActivityDialogPayload,
+  ActivityListCreatedAtFilter,
 } from '@/features/audit';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -39,6 +40,7 @@ const AccountActivitiesPage = () => {
           <CardContent>
             <ActivityList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
+                <ActivityListCreatedAtFilter />
                 <ActivityListStatusFilter />
               </div>
 

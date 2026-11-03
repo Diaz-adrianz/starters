@@ -14,7 +14,11 @@ import { RiCalendar2Line, RiTimeLine } from '@remixicon/react';
 import { useState } from 'react';
 import { format, parse } from 'date-fns';
 import { isValidDateString } from '@/utils/date';
+import type { DateRange } from 'react-day-picker';
 
+/* ---------------------------------------------------------------------------- */
+/* Date yyyy-MM-dd
+/* ---------------------------------------------------------------------------- */
 function DatePickerSingle({
   value,
   onValueChange,
@@ -77,6 +81,113 @@ function DatePickerSingle({
   );
 }
 
+type DateRangeValue = { from: string | null; to: string | null };
+
+function DatePickerRange({
+  value,
+  onValueChange,
+  placeholder = 'Select date range',
+  disabled,
+  min,
+  max,
+  numberOfMonths = 2,
+  closeOnComplete = true,
+}: {
+  value?: DateRangeValue;
+  onValueChange?: (value: DateRangeValue) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  numberOfMonths?: number;
+  closeOnComplete?: boolean;
+}) {
+  const [internalValue, setInternalValue] = useState<DateRangeValue>({
+    from: null,
+    to: null,
+  });
+  const [open, setOpen] = useState(false);
+
+  const isControlled = value !== undefined;
+  const selectedValue = isControlled ? value : internalValue;
+
+  const toDate = (v: string | null) =>
+    v && isValidDateString(v) ? parse(v, 'yyyy-MM-dd', new Date()) : undefined;
+
+  const selectedRange: DateRange | undefined = {
+    from: toDate(selectedValue.from),
+    to: toDate(selectedValue.to),
+  };
+
+  const updateRange = (range: DateRange | undefined) => {
+    const next: DateRangeValue = {
+      from: range?.from ? format(range.from, 'yyyy-MM-dd') : null,
+      to: range?.to ? format(range.to, 'yyyy-MM-dd') : null,
+    };
+
+    if (!isControlled) setInternalValue(next);
+    onValueChange?.(next);
+
+    if (closeOnComplete && next.from && next.to) setOpen(false);
+  };
+
+  const fmt = (d: Date) => format(d, 'dd MMM yyyy');
+  const label = selectedRange.from
+    ? selectedRange.to
+      ? `${fmt(selectedRange.from)} – ${fmt(selectedRange.to)}`
+      : `${fmt(selectedRange.from)} – ...`
+    : null;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          className="justify-start text-left font-normal"
+        >
+          <RiCalendar2Line className="mr-2 size-4 shrink-0" />
+          {label ? (
+            <span className="truncate">{label}</span>
+          ) : (
+            <span className="text-muted-foreground">{placeholder}</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0">
+        <Calendar
+          mode="range"
+          selected={selectedRange}
+          defaultMonth={selectedRange.from}
+          numberOfMonths={numberOfMonths}
+          captionLayout="dropdown"
+          min={min}
+          max={max}
+          onSelect={updateRange}
+        />
+        <div className="flex items-center justify-end gap-1 border-t p-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={!selectedRange.from}
+            onClick={() => updateRange(undefined)}
+          >
+            Clear
+          </Button>
+          <Button type="button" size="sm" onClick={() => setOpen(false)}>
+            Done
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/* ---------------------------------------------------------------------------- */
+/* Datetime yyyy-MM-dd hh:mm
+/* ---------------------------------------------------------------------------- */
 function DatetimePickerSingle({
   value,
   onValueChange,
@@ -169,4 +280,5 @@ function DatetimePickerSingle({
   );
 }
 
-export { DatePickerSingle, DatetimePickerSingle };
+export { DatePickerSingle, DatePickerRange, DatetimePickerSingle };
+export type { DateRangeValue };

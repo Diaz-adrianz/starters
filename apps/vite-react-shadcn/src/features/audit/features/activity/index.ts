@@ -3,6 +3,7 @@ export {
   ActivityList,
   ActivityListStatusFilter,
   ActivityListSearchFilter,
+  ActivityListCreatedAtFilter,
   ActivityListTable,
 } from './components/activity-list';
 export { ActivityActions } from './components/activity-actions';

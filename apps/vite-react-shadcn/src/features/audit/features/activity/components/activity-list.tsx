@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { ActivityStatusOptions } from '../constants/activity.constant';
 import { SearchInput } from '@/components/shared/search-input';
+import { DatePickerRange } from '@/components/shared/date-picker';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -183,6 +184,27 @@ function ActivityListStatusFilter() {
   );
 }
 
+function ActivityListCreatedAtFilter() {
+  const { query } = useActivityList();
+
+  return (
+    <DatePickerRange
+      placeholder="Timestamp"
+      min={1}
+      onValueChange={({ from, to }) =>
+        query.batch([
+          from
+            ? { type: 'add', key: 'gte', field: 'createdAt', value: from }
+            : { type: 'del', key: 'gte', field: 'createdAt' },
+          to
+            ? { type: 'add', key: 'lte', field: 'createdAt', value: to }
+            : { type: 'del', key: 'lte', field: 'createdAt' },
+        ])
+      }
+    />
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Contents
 /* -------------------------------------------------------------------------- */
@@ -226,5 +248,6 @@ export {
   ActivityList,
   ActivityListSearchFilter,
   ActivityListStatusFilter,
+  ActivityListCreatedAtFilter,
   ActivityListTable,
 };
