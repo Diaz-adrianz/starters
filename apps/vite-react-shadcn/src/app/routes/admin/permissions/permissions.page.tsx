@@ -12,11 +12,16 @@ import {
   PermissionListSearchFilter,
   PermissionListTable,
   PermissionActions,
+  type PermissionUpdateDialogPayload,
+  PermissionUpdateDialog,
 } from '@/features/access-control';
+import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import { RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 const PermissionsPage = () => {
+  const updateDialog = useDialogState<PermissionUpdateDialogPayload>();
+
   const query = useResourceQuery({
     page: 1,
     limit: 10,
@@ -25,6 +30,8 @@ const PermissionsPage = () => {
 
   return (
     <Page className="min-h-svh">
+      <PermissionUpdateDialog {...updateDialog} />
+
       <PageNav
         items={[
           { label: 'Dashboard', path: '/admin' },
@@ -83,10 +90,10 @@ const PermissionsPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: () => (
+                    cell: ({ row: { original: permission } }) => (
                       <PermissionActions
                         handlers={{
-                          edit: () => {},
+                          edit: () => updateDialog.show({ id: permission.id }),
                         }}
                       />
                     ),

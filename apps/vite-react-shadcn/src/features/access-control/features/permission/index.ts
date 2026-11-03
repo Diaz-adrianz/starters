@@ -5,3 +5,7 @@ export {
   PermissionListTable,
 } from './components/permission-list';
 export { PermissionActions } from './components/permission-actions';
+export {
+  PermissionUpdateDialog,
+  type PermissionUpdateDialogPayload,
+} from './components/permission-update-dialog';
