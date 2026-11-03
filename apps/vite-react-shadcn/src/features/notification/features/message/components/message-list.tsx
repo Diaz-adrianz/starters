@@ -26,20 +26,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiInbox2Line,
-} from '@remixicon/react';
+import { RiInbox2Line } from '@remixicon/react';
 import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import { usePagination } from '@/hooks/use-pagination';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination';
-import { Button } from '@/components/ui/button';
+import { ResourceListPagination } from '@/components/shared/resource-list';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -237,40 +227,14 @@ function MessageListPagination() {
   });
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <p className="typo-caption text-muted-foreground">
-        {data?.totalItems ?? 0} total
-      </p>
-      <div>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <Button
-                size={'icon-sm'}
-                variant={'outline'}
-                disabled={!table.getCanPreviousPage()}
-                onClick={() => table.previousPage()}
-              >
-                <RiArrowLeftSLine />
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink>{pagination.pageIndex + 1}</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <Button
-                size={'icon-sm'}
-                variant={'outline'}
-                disabled={!table.getCanNextPage()}
-                onClick={() => table.nextPage()}
-              >
-                <RiArrowRightSLine />
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    <ResourceListPagination
+      total={data?.totalItems ?? 0}
+      page={pagination.pageIndex + 1}
+      onPrev={
+        table.getCanPreviousPage() ? () => table.previousPage() : undefined
+      }
+      onNext={table.getCanNextPage() ? () => table.nextPage() : undefined}
+    />
   );
 }
 
