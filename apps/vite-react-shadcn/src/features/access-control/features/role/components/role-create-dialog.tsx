@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -25,18 +26,19 @@ import { useCreateRole } from '../api/role.mutation';
 import { toast } from 'sonner';
 
 function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
-  const createApi = useCreateRole({
-    onSuccess() {
-      hide();
-    },
-  });
-
   const form = useForm<CreateRoleValues>({
     resolver: yupResolver(createRoleSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
       enabled: true,
+    },
+  });
+
+  const createApi = useCreateRole({
+    onSuccess() {
+      hide();
+      form.reset();
     },
   });
 
@@ -54,17 +56,21 @@ function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
           <DialogTitle>Create Role</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(create)}>
+        <form
+          id="form-role-create"
+          onSubmit={form.handleSubmit(create)}
+          className="-mx-4 no-scrollbar max-h-[80vh] overflow-y-auto px-4 pb-2"
+        >
           <FieldGroup>
             <Controller
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
                   <Input
                     {...field}
-                    id="name"
+                    id={field.name}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -83,35 +89,34 @@ function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
                   data-invalid={fieldState.invalid}
                 >
                   <FieldContent>
-                    <FieldLabel htmlFor="enabled">Enable</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Enable</FieldLabel>
                     {fieldState.invalid && (
-                      <FieldError errors={[{ message: 'kodea' }]} />
+                      <FieldError errors={[fieldState.error]} />
                     )}
                   </FieldContent>
                   <Switch
                     name={field.name}
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    id="enabled"
+                    id={field.name}
                     aria-invalid={fieldState.invalid}
                   />
                 </Field>
               )}
             />
-
-            <Field orientation={'horizontal'}>
-              <Button
-                className="w-full"
-                type="submit"
-                disabled={
-                  !form.formState.isValid || form.formState.isSubmitting
-                }
-              >
-                Save
-              </Button>
-            </Field>
           </FieldGroup>
         </form>
+
+        <DialogFooter>
+          <Button
+            className="w-full"
+            type="submit"
+            form="form-role-create"
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+          >
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
