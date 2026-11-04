@@ -157,7 +157,7 @@ export const PermissionsData: {
       },
       {
         description: 'Delete role permission',
-        permission: 'role-permisison:delete',
+        permission: 'role-permission:delete',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
     ],
