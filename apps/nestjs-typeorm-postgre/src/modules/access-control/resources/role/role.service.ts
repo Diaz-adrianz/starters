@@ -1,100 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { Role } from '../../entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
-import { SetRoleUserDto } from './dto/set-role-user.dto';
-import { RoleUser } from '../../entities/role-user.entity';
-import { RolePermission } from '../../entities/role-permission.entity';
-import { SetRolePermissionDto } from './dto/set-role-permission.dto';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
-    @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
-    private roleUserRepo: AppRepository<RoleUser>,
-    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
-    private rolePermissionRepo: AppRepository<RolePermission>,
     private event: EventService,
   ) {}
-
-  // ================================================================
-  // RolePermission
-  // ----------------------------------------------------------------
-  async setPermission(id: string, dto: SetRolePermissionDto) {
-    const res = await (dto.grant
-      ? this.rolePermissionRepo.upsert(
-          {
-            roleId: id,
-            permissionId: dto.permissionId,
-            condition: dto.condition,
-          },
-          { conflictPaths: ['roleId', 'permissionId'] },
-        )
-      : this.rolePermissionRepo.delete({
-          roleId: id,
-          permissionId: dto.permissionId,
-        }));
-    this.event.emit('accessControl.role.permission_set', {
-      target: [{ id }],
-      payload: { permissionId: dto.permissionId },
-    });
-    return res;
-  }
-
-  findManyPermission(id: string, rq: ResourceQuery) {
-    rq.add([['roleId', 'eq', id]]);
-    return this.rolePermissionRepo.findAndCount({
-      ...rq.toFindOptions(),
-      relations: { permission: true },
-      select: {
-        ...this.rolePermissionRepo.select('*'),
-        permission: { description: true },
-      },
-    });
-  }
-
-  // ================================================================
-  // RoleUser
-  // ----------------------------------------------------------------
-  async setUser(id: string, dto: SetRoleUserDto) {
-    const res = await (dto.assign
-      ? this.roleUserRepo.insert({
-          roleId: id,
-          userId: dto.userId,
-          username: dto.username,
-        })
-      : this.roleUserRepo.delete({ roleId: id, userId: dto.userId }));
-    this.event.emit('accessControl.role.user_set', {
-      target: [{ id }],
-      payload: { userId: dto.userId },
-    });
-    return res;
-  }
-
-  findManyUser(id: string, rq: ResourceQuery) {
-    rq.add([['roleId', 'eq', id]]);
-    return this.roleUserRepo.findAndCount(rq.toFindOptions());
-  }
-
-  updateUserByUserId(
-    userId: string,
-    payload: Partial<Pick<RoleUser, 'username'>>,
-  ) {
-    return this.roleUserRepo.update({ userId }, payload);
-  }
-
-  deleteUserByUserId(userId: string) {
-    return this.roleUserRepo.delete({ userId });
-  }
 
   // ================================================================
   // Misc / shared

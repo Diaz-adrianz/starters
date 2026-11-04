@@ -1,11 +1,11 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import { IsConditionObject } from '../../../decorators/validators/is-condition-object.validator';
 import { type Condition } from '../../../interfaces/condition.interface';
 
-export class SetRolePermissionDto {
+export class CreateRolePermissionDto {
   @IsNotEmpty()
-  @IsBoolean()
-  grant: boolean;
+  @IsUUID()
+  roleId: string;
 
   @IsNotEmpty()
   @IsUUID()

@@ -12,6 +12,10 @@ import { AccessControlEventSubscriber } from './subscribers/access-control-event
 import { AccessControlService } from './access-control.service';
 import { AccessControlController } from './access-control.controller';
 import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
+import { RoleUserService } from './resources/role-user/role-user.service';
+import { RolePermissionService } from './resources/role-permission/role-permission.service';
+import { RolePermissionController } from './resources/role-permission/role-permission.controller';
+import { RoleUserController } from './resources/role-user/role-user.controller';
 
 @Module({
   imports: [
@@ -22,11 +26,19 @@ import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber
       RoleUser,
     ]),
   ],
-  controllers: [AccessControlController, PermissionController, RoleController],
+  controllers: [
+    AccessControlController,
+    PermissionController,
+    RoleController,
+    RoleUserController,
+    RolePermissionController,
+  ],
   providers: [
     AccessControlService,
     PermissionService,
     RoleService,
+    RoleUserService,
+    RolePermissionService,
 
     // subscribers
     AccessControlEventSubscriber,

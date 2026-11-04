@@ -33,22 +33,6 @@ export class AccessControlEventSubscriber {
     await this.accessControlService.invalidateRoles(payload.target);
   }
 
-  @OnEvent(AccessControlEventName.ROLE_USER_SET)
-  async roleUserSet(
-    payload: AccessControlEventPayload['accessControl.role.user_set'],
-  ) {
-    await this.accessControlService.invalidateUsers([
-      { id: payload.payload.userId },
-    ]);
-  }
-
-  @OnEvent(AccessControlEventName.ROLE_PERMISSION_SET)
-  async rolePermissionSet(
-    payload: AccessControlEventPayload['accessControl.role.permission_set'],
-  ) {
-    await this.accessControlService.invalidateRoles(payload.target);
-  }
-
   @OnEvent(AccessControlEventName.PERMISSION_UPDATED)
   async permissionUpdated(
     payload: AccessControlEventPayload['accessControl.permission.updated'],
@@ -60,6 +44,38 @@ export class AccessControlEventSubscriber {
     });
     await this.accessControlService.invalidateRoles(
       rolePermissions.map((rp) => ({ id: rp.roleId })),
+    );
+  }
+
+  @OnEvent(AccessControlEventName.ROLE_USER_CREATED)
+  async roleUserCreated(
+    payload: AccessControlEventPayload['accessControl.roleUser.created'],
+  ) {
+    await this.accessControlService.invalidateUsers([{ id: payload.userId }]);
+  }
+
+  @OnEvent(AccessControlEventName.ROLE_USER_DELETED)
+  async roleUserDeleted(
+    payload: AccessControlEventPayload['accessControl.roleUser.deleted'],
+  ) {
+    await this.accessControlService.invalidateUsers(
+      payload.map((p) => ({ id: p.userId })),
+    );
+  }
+
+  @OnEvent(AccessControlEventName.ROLE_PERMISSION_CREATED)
+  async rolePermissionCreated(
+    payload: AccessControlEventPayload['accessControl.rolePermission.created'],
+  ) {
+    await this.accessControlService.invalidateRoles([{ id: payload.roleId }]);
+  }
+
+  @OnEvent(AccessControlEventName.ROLE_PERMISSION_DELETED)
+  async rolePermissionDeleted(
+    payload: AccessControlEventPayload['accessControl.rolePermission.deleted'],
+  ) {
+    await this.accessControlService.invalidateRoles(
+      payload.map((p) => ({ id: p.roleId })),
     );
   }
 }

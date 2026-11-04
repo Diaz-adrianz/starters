@@ -119,6 +119,47 @@ export const PermissionsData: {
         permission: 'role:delete',
         roles: [{ name: RolesData.SUPERADMIN }],
       },
+
+      // role user
+      {
+        description: 'Create role user',
+        permission: 'role-user:create',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Read role user',
+        permission: 'role-user:read',
+        roles: [
+          { name: RolesData.SUPERADMIN },
+          { name: RolesData.ADMIN },
+          {
+            name: RolesData.USER,
+            condition: { userId: { eq: '{{actor.id}}' } },
+          },
+        ],
+      },
+      {
+        description: 'Delete role',
+        permission: 'role-user:delete',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+
+      // role permission
+      {
+        description: 'Create role permission',
+        permission: 'role-permission:create',
+        roles: [{ name: RolesData.SUPERADMIN }],
+      },
+      {
+        description: 'Read role permission',
+        permission: 'role-permission:read',
+        roles: [{ name: RolesData.SUPERADMIN }, { name: RolesData.ADMIN }],
+      },
+      {
+        description: 'Delete role permission',
+        permission: 'role-permisison:delete',
+        roles: [{ name: RolesData.SUPERADMIN }],
+      },
     ],
   },
   {
