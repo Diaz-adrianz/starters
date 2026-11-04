@@ -2,9 +2,9 @@ import {
   ResourceActions,
   type ResourceActionsProps,
 } from '@/components/shared/resource-actions';
-import { RiProhibitedLine } from '@remixicon/react';
+import { RiDeleteBack2Line } from '@remixicon/react';
 
-type Keys = 'revoke';
+type Keys = 'delete';
 
 function RolePermissionActions(
   props: Omit<ResourceActionsProps<Keys>, 'keys' | 'actions'>
@@ -12,10 +12,10 @@ function RolePermissionActions(
   return (
     <ResourceActions<Keys>
       actions={{
-        revoke: {
-          icon: RiProhibitedLine,
-          label: 'Revoke',
-          can: { i: 'update', a: 'access-control:role' },
+        delete: {
+          icon: RiDeleteBack2Line,
+          label: 'Delete',
+          can: { i: 'delete', a: 'access-control:role-permission' },
           variant: 'destructive',
         },
       }}

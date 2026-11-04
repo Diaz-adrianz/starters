@@ -10,8 +10,8 @@ import {
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 
-import type { RolePermission } from '../types/role.type';
-import { useRolePermissions } from '../api/role.query';
+import type { RolePermission } from '../types/role-permission.type';
+import { useRolePermissions } from '../api/role-permission.query';
 import type {
   ColumnDef,
   PaginationState,
@@ -58,11 +58,9 @@ function useRolePermissionList() {
 /* -------------------------------------------------------------------------- */
 function RolePermissionList({
   children,
-  roleId,
   query: controlledQuery,
 }: {
   children: ReactNode;
-  roleId: string;
   query?: ReturnType<typeof useResourceQuery>;
 }) {
   const internalQuery = useResourceQuery(),
@@ -80,7 +78,7 @@ function RolePermissionList({
     ),
     [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const { data, isLoading } = useRolePermissions(roleId, query.params);
+  const { data, isLoading } = useRolePermissions(query.params);
 
   useEffect(() => {
     query.batch([

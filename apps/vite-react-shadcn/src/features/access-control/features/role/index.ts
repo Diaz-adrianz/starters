@@ -20,13 +20,6 @@ export {
   type RoleComboboxItem,
 } from './components/role-combobox';
 
-export {
-  RolePermissionList,
-  RolePermissionListSearchFilter,
-  RolePermissionListTable,
-} from './components/role-permission-list';
-export { RolePermissionActions } from './components/role-permission-actions';
-
 // hooks
 export { useRoleMutations } from './hooks/use-role-mutations';
 

@@ -16,6 +16,7 @@ const RolePermissionsPage = () => {
 
   const roleId = params.id!,
     query = useResourceQuery({
+      eq: { roleId },
       page: 1,
       limit: 10,
       order: { createdAt: 'desc' },
@@ -26,7 +27,7 @@ const RolePermissionsPage = () => {
       <PageSection className="mb-4">
         <Card>
           <CardContent>
-            <RolePermissionList roleId={roleId} query={query}>
+            <RolePermissionList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
                 <RolePermissionListSearchFilter />
               </div>
@@ -65,7 +66,7 @@ const RolePermissionsPage = () => {
                     cell: () => (
                       <RolePermissionActions
                         handlers={{
-                          revoke: () => {},
+                          delete: () => {},
                         }}
                       />
                     ),

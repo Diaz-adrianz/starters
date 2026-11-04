@@ -4,7 +4,7 @@ import type {
   ApiParams,
   ApiResponse,
 } from '@/lib/axios/api.type';
-import type { Role, RolePermission } from '../types/role.type';
+import type { Role } from '../types/role.type';
 import type {
   CreateRoleValues,
   UpdateRoleValues,
@@ -13,13 +13,6 @@ import type {
 const PRE = '/access-control/roles/';
 
 export const RoleApi = {
-  findManyPermission: (id: string, params: ApiParams) =>
-    apiClient.get<ApiPaginatedResponse<RolePermission>>(
-      PRE + id + '/permissions',
-      {
-        params,
-      }
-    ),
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<Role>>(PRE, { params }),
   findOne: (id: string) => apiClient.get<ApiResponse<Role>>(PRE + id),
