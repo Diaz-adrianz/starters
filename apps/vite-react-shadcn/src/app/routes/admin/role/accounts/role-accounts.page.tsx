@@ -16,6 +16,7 @@ const RoleAccountsPage = () => {
 
   const roleId = params.id!,
     query = useResourceQuery({
+      eq: { roleId },
       page: 1,
       limit: 10,
       order: { createdAt: 'desc' },
@@ -26,7 +27,7 @@ const RoleAccountsPage = () => {
       <PageSection className="mb-4">
         <Card>
           <CardContent>
-            <RoleUserList roleId={roleId} query={query}>
+            <RoleUserList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
                 <RoleUserListSearchFilter />
               </div>
@@ -65,7 +66,7 @@ const RoleAccountsPage = () => {
                       <RoleUserActions
                         handlers={{
                           viewUser: `/admin/iam/accounts/${roleUser.userId}`,
-                          unAssign: () => {},
+                          delete: () => {},
                         }}
                       />
                     ),

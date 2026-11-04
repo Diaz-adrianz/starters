@@ -1,4 +1,5 @@
 import type { Permission } from '../../permission/types/permission.type';
+import type { RoleUser } from '../../role-user/types/role-user.type';
 
 export type Role = {
   id: string;
@@ -8,17 +9,6 @@ export type Role = {
 
   users: RoleUser[];
   permissions: RolePermission[];
-};
-
-export type RoleUser = {
-  id: string;
-  roleId: string;
-  userId: string;
-  username: string;
-
-  role: Role;
-
-  createdAt: Date;
 };
 
 export type RolePermission = {

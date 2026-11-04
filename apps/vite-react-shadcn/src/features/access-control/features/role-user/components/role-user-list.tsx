@@ -9,8 +9,6 @@ import {
 } from 'react';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import type { RoleUser } from '../types/role.type';
-import { useRoleUsers } from '../api/role.query';
 import type {
   ColumnDef,
   PaginationState,
@@ -20,6 +18,8 @@ import type {
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
 import { SearchInput } from '@/components/shared/search-input';
+import type { RoleUser } from '../types/role-user.type';
+import { useRoleUsers } from '../api/role-user.query';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -56,11 +56,9 @@ function useRoleUserList() {
 /* -------------------------------------------------------------------------- */
 function RoleUserList({
   children,
-  roleId,
   query: controlledQuery,
 }: {
   children: ReactNode;
-  roleId: string;
   query?: ReturnType<typeof useResourceQuery>;
 }) {
   const internalQuery = useResourceQuery(),
@@ -78,7 +76,7 @@ function RoleUserList({
     ),
     [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const { data, isLoading } = useRoleUsers(roleId, query.params);
+  const { data, isLoading } = useRoleUsers(query.params);
 
   useEffect(() => {
     query.batch([

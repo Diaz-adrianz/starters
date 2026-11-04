@@ -7,24 +7,9 @@ export const queryKeys = {
   lists: () => [...queryKeys.all, 'list'] as const,
   list: (params: ApiParams) => [...queryKeys.lists(), params] as const,
   detail: (id: string) => [...queryKeys.all, 'detail', id] as const,
-  listUser: (id: string, params: ApiParams) =>
-    [...queryKeys.detail(id), 'users', params] as const,
   listPermissions: (id: string, params: ApiParams) =>
     [...queryKeys.detail(id), 'permission', params] as const,
 };
-
-export function useRoleUsers(
-  id: string,
-  params: ApiParams = {},
-  { enabled = true }: { enabled?: boolean } = {}
-) {
-  return useQuery({
-    queryKey: queryKeys.listUser(id, params),
-    queryFn: () => RoleApi.findManyUser(id, params),
-    select: (d) => d.data.data,
-    enabled: !!id && enabled,
-  });
-}
 
 export function useRolePermissions(
   id: string,
