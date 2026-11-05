@@ -14,6 +14,7 @@ import { TokenService } from '../token/token.service';
 import { generateOtp } from '../../../../shared/utils/number.util';
 import { sha256 } from '../../../../shared/utils/string.util';
 import { TokenType } from '../../enums/token-type.enum';
+import { Token } from '../../entities/token.entity';
 
 @Injectable()
 export class UserService {
@@ -32,27 +33,20 @@ export class UserService {
       status: UserStatus.INVITED,
     });
 
-    const otp = generateOtp(6),
-      otpHash = sha256(otp);
-
-    const expire = 86400, // 1d
-      expiresAt = new Date(Date.now() + expire * 1000);
-
-    await this.tokenService.issue(
-      user.id,
-      TokenType.INVITATION,
-      otpHash,
-      expiresAt,
-    );
-
-    this.event.emit('identity.user.invited', {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
-    });
-
+    await this.issueInvitation(user);
     return user;
+  }
+
+  async resendInvite(id: string) {
+    const user = await this.userRepo.findOneByOrFail({ id });
+
+    if (user.status !== UserStatus.INVITED)
+      throw new BadRequestException('User is not in invited state');
+
+    const token = await this.tokenService
+      .findActiveByUser(user.id, TokenType.INVITATION)
+      .catch(() => undefined);
+    await this.issueInvitation(user, token);
   }
 
   findByUsernameOrEmail(value: string) {
@@ -210,5 +204,29 @@ export class UserService {
   private async hashPassword(password: string) {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
+  }
+
+  private async issueInvitation(user: User, token?: Token) {
+    const otp = generateOtp(6),
+      otpHash = sha256(otp);
+
+    const expire = 86400, // 1d
+      expiresAt = new Date(Date.now() + expire * 1000);
+
+    if (token) await this.tokenService.refresh(token.id, otpHash, expiresAt);
+    else
+      await this.tokenService.issue(
+        user.id,
+        TokenType.INVITATION,
+        otpHash,
+        expiresAt,
+      );
+
+    this.event.emit('identity.user.invited', {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
+    });
   }
 }

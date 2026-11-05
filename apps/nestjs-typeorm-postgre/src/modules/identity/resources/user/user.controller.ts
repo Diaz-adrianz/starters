@@ -38,6 +38,13 @@ export class UserController {
     return this.userService.invite(dto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
+  @Permission('identity:user:invite')
+  @Post(':id/resend-invite')
+  resendInvite(@Param('id') id: string) {
+    return this.userService.resendInvite(id);
+  }
+
   // ================================================================
   // Update avatar S3
   // ----------------------------------------------------------------
