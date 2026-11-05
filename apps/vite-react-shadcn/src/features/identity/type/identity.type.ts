@@ -5,3 +5,8 @@ export type AcceptInviteCheckResponse = ApiResponse<{
   email: string;
   username: string;
 }>;
+
+export type SetPasswordCheckResponse = ApiResponse<{
+  expiresAt: string;
+  email: string;
+}>;

@@ -24,9 +24,34 @@ const forgotPasswordSchema = y.object({
 
 type ForgotPasswordValues = y.InferType<typeof forgotPasswordSchema>;
 
-export { acceptInviteCheckSchema, acceptInviteSchema, forgotPasswordSchema };
+const setPasswordCheckSchema = y.object({
+  otp: y.string().length(6).required(),
+});
+
+type SetPasswordCheckValues = y.InferType<typeof setPasswordCheckSchema>;
+
+const setPasswordSchema = y.object({
+  otp: y.string().length(6).required(),
+  password: strongPassword.required(),
+  matchPassword: y
+    .string()
+    .required()
+    .oneOf([y.ref('password')], 'Passwords must match'),
+});
+
+type SetPasswordValues = y.InferType<typeof acceptInviteSchema>;
+
+export {
+  acceptInviteCheckSchema,
+  acceptInviteSchema,
+  forgotPasswordSchema,
+  setPasswordCheckSchema,
+  setPasswordSchema,
+};
 export type {
   AcceptInviteCheckValues,
   AcceptInviteValues,
   ForgotPasswordValues,
+  SetPasswordCheckValues,
+  SetPasswordValues,
 };

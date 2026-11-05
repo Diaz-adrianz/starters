@@ -4,6 +4,7 @@ import SignUpPage from './signup/signup.page';
 import { AuthRoute } from '@/components/shared/auth';
 import AcceptInvitePage from './accept-invite/accept-invite.page';
 import ForgotPasswordPage from './forgot-password/forgot-password.page';
+import SetPasswordPage from './set-password/set-password.page';
 
 const authRoutes: RouteObject[] = [
   {
@@ -29,6 +30,10 @@ const authRoutes: RouteObject[] = [
         <ForgotPasswordPage />
       </AuthRoute>
     ),
+  },
+  {
+    path: 'set-password',
+    element: <SetPasswordPage />,
   },
   {
     path: 'accept-invite',

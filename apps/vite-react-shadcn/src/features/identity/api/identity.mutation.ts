@@ -33,3 +33,23 @@ export function useForgotPassword({
     },
   });
 }
+
+export function useSetPasswordCheck({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.setPasswordCheck,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
+
+export function useSetPassword({ onSuccess }: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.setPassword,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
