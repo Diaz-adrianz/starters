@@ -9,3 +9,6 @@ export {
   RoleUserCreateDialog,
   type RoleUserCreateDialogPayload,
 } from './components/role-user-create-dialog';
+
+// hooks
+export { useRoleUserMutations } from './hooks/use-role-user-mutations';

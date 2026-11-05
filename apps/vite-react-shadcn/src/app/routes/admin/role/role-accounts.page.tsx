@@ -10,6 +10,7 @@ import {
   type RoleUserCreateDialogPayload,
   RoleUserCreateDialog,
   useRole,
+  useRoleUserMutations,
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -26,11 +27,12 @@ const RoleAccountsPage = () => {
     role = useRole(roleId);
 
   const query = useResourceQuery({
-    eq: { roleId },
-    page: 1,
-    limit: 10,
-    order: { createdAt: 'desc' },
-  });
+      eq: { roleId },
+      page: 1,
+      limit: 10,
+      order: { createdAt: 'desc' },
+    }),
+    mutations = useRoleUserMutations();
 
   return (
     <Page className="pt-4">
@@ -93,7 +95,11 @@ const RoleAccountsPage = () => {
                       <RoleUserActions
                         handlers={{
                           viewUser: `/admin/iam/accounts/${roleUser.userId}`,
-                          delete: () => {},
+                          delete: () =>
+                            mutations.del({
+                              ...roleUser,
+                              roleName: roleUser.role?.name,
+                            }),
                         }}
                       />
                     ),

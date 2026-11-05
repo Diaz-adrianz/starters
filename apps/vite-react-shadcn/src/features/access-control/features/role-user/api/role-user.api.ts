@@ -13,4 +13,5 @@ export const RoleUserApi = {
     apiClient.post<ApiResponse>(PRE, data),
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<RoleUser>>(PRE, { params }),
+  delete: (id: string) => apiClient.delete<ApiResponse>(PRE + id),
 };

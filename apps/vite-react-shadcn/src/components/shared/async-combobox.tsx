@@ -110,7 +110,7 @@ function AsyncCombobox<T>({
           {(values: T[]) => (
             <Fragment>
               {values.map((v) => (
-                <ComboboxChip key={getItemKey(v)}>
+                <ComboboxChip key={getItemKey(v)} showRemove={!disabled}>
                   {getItemLabel(v)}
                 </ComboboxChip>
               ))}

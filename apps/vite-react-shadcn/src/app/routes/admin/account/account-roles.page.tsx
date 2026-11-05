@@ -7,6 +7,7 @@ import {
   RoleUserCreateDialog,
   RoleUserList,
   RoleUserListTable,
+  useRoleUserMutations,
   type RoleUserCreateDialogPayload,
 } from '@/features/access-control';
 import { useUser } from '@/features/identity';
@@ -24,11 +25,12 @@ const AccountRolesPage = () => {
     user = useUser(userId);
 
   const query = useResourceQuery({
-    eq: { userId },
-    page: 1,
-    limit: 10,
-    order: { createdAt: 'desc' },
-  });
+      eq: { userId },
+      page: 1,
+      limit: 10,
+      order: { createdAt: 'desc' },
+    }),
+    mutations = useRoleUserMutations();
 
   return (
     <Page className="pt-4">
@@ -70,7 +72,7 @@ const AccountRolesPage = () => {
                     header: ({ column }) => (
                       <SortableHeader column={column} title="Role" />
                     ),
-                    cell: ({ row }) => row.original.role.name,
+                    cell: ({ row }) => row.original.role?.name,
                   },
                   {
                     accessorKey: 'createdAt',
@@ -89,10 +91,14 @@ const AccountRolesPage = () => {
                   {
                     id: 'action',
                     header: '',
-                    cell: () => (
+                    cell: ({ row: { original: roleUser } }) => (
                       <RoleUserActions
                         handlers={{
-                          delete: () => {},
+                          delete: () =>
+                            mutations.del({
+                              ...roleUser,
+                              roleName: roleUser.role?.name,
+                            }),
                         }}
                       />
                     ),

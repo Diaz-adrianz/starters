@@ -14,3 +14,13 @@ export function useCreateRoleUser({
     },
   });
 }
+
+export function useDeleteRoleUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: RoleUserApi.delete,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
+    },
+  });
+}

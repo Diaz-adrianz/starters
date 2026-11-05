@@ -6,7 +6,7 @@ export type RoleUser = {
   userId: string;
   username: string;
 
-  role: Role;
+  role?: Role;
 
   createdAt: Date;
 };
