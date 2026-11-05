@@ -11,6 +11,8 @@ import { RoleUserService } from '../resources/role-user/role-user.service';
 
 @Injectable()
 export class IdentityEventSubscriber {
+  private name = 'access-control/' + this.constructor.name;
+
   constructor(
     private roleService: RoleService,
     private roleUserService: RoleUserService,
@@ -32,16 +34,28 @@ export class IdentityEventSubscriber {
         if (!role) {
           this.logger.warn(
             `Role "${r.name}" not found for new user "${target.id}", skipping role assignment`,
-            this.constructor.name,
+            this.name,
           );
           return;
         }
 
-        await this.roleUserService.create({
-          roleId: role.id,
-          userId: target.id,
-          username: payload.username,
-        });
+        try {
+          await this.roleUserService.create({
+            roleId: role.id,
+            userId: target.id,
+            username: payload.username,
+          });
+          this.logger.debug(
+            `Role "${r.name}" assigned for user "${target.id}" on user.created`,
+            this.name,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Failed to assign role "${r.name}" for user "${target.id}"`,
+            error,
+            this.name,
+          );
+        }
       }
     }
   }
@@ -52,19 +66,58 @@ export class IdentityEventSubscriber {
     payload,
   }: IdentityEventPayload['identity.user.updated']) {
     for (const t of target) {
-      await this.accessControlService.invalidateUsers([{ id: t.id }]);
+      await this.invalidateUsers([{ id: t.id }]);
+
       if (payload?.username)
-        await this.roleUserService.updateByUserId(t.id, {
-          username: payload.username,
-        });
+        try {
+          await this.roleUserService.updateByUserId(t.id, {
+            username: payload.username,
+          });
+        } catch (error) {
+          this.logger.error(
+            `Failed to update role-user for user "${t.id}"`,
+            error,
+            this.name,
+          );
+        }
+
+      this.logger.debug(
+        `user "${t.id}" invalidated and synced on user.updated`,
+        this.name,
+      );
     }
   }
 
   @OnEvent(IdentityEventName.USER_DELETED)
   async userDeleted(payload: IdentityEventPayload['identity.user.deleted']) {
     for (const t of payload.target) {
-      await this.accessControlService.invalidateUsers([{ id: t.id }]);
-      await this.roleUserService.deleteByUserId(t.id);
+      await this.invalidateUsers([{ id: t.id }]);
+      try {
+        await this.roleUserService.deleteByUserId(t.id);
+      } catch (error) {
+        this.logger.error(
+          `Failed to delete role-user for user "${t.id}"`,
+          error,
+          this.name,
+        );
+      }
+
+      this.logger.debug(
+        `user "${t.id}" invalidated and synced on user.deleted`,
+        this.name,
+      );
+    }
+  }
+
+  private async invalidateUsers(users: { id: string }[]) {
+    try {
+      await this.accessControlService.invalidateUsers(users);
+    } catch (error) {
+      this.logger.error(
+        `Failed to invalidate users ${users.map((u) => u.id).join(', ')}`,
+        error,
+        this.name,
+      );
     }
   }
 }

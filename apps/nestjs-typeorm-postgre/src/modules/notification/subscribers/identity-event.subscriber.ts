@@ -13,6 +13,8 @@ import { Channel } from '../enums/channel.enum';
 
 @Injectable()
 export class IdentityEventSubscriber {
+  private name = 'notification/' + this.constructor.name;
+
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private logger: LoggerService,
@@ -40,11 +42,15 @@ export class IdentityEventSubscriber {
           },
         ],
       });
+      this.logger.debug(
+        `Email ${templateKey} sent for user ${payload.email} on user.invited`,
+        this.name,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to send ${templateKey} email: `,
         error,
-        this.constructor.name,
+        this.name,
       );
     }
   }

@@ -9,6 +9,8 @@ import {
 
 @Injectable()
 export class AuditEventSubscriber {
+  private name = 'audit/' + this.constructor.name;
+
   constructor(
     private logger: LoggerService,
     private activityService: ActivityService,
@@ -19,11 +21,7 @@ export class AuditEventSubscriber {
     try {
       await this.activityService.create(payload);
     } catch (error) {
-      this.logger.error(
-        `Failed to create activity: `,
-        error,
-        this.constructor.name,
-      );
+      this.logger.error(`Failed to create activity: `, error, this.name);
     }
   }
 }
