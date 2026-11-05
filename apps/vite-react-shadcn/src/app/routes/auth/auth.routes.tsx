@@ -3,6 +3,7 @@ import SignInPage from './signin/signin.page';
 import SignUpPage from './signup/signup.page';
 import { AuthRoute } from '@/components/shared/auth';
 import AcceptInvitePage from './accept-invite/accept-invite.page';
+import ForgotPasswordPage from './forgot-password/forgot-password.page';
 
 const authRoutes: RouteObject[] = [
   {
@@ -18,6 +19,14 @@ const authRoutes: RouteObject[] = [
     element: (
       <AuthRoute status="unauthenticated">
         <SignUpPage />
+      </AuthRoute>
+    ),
+  },
+  {
+    path: 'forgot-password',
+    element: (
+      <AuthRoute status="unauthenticated">
+        <ForgotPasswordPage />
       </AuthRoute>
     ),
   },

@@ -22,3 +22,14 @@ export function useAcceptInvite({
     },
   });
 }
+
+export function useForgotPassword({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.forgotPassword,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}

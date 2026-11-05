@@ -18,5 +18,15 @@ const acceptInviteSchema = y.object({
 
 type AcceptInviteValues = y.InferType<typeof acceptInviteSchema>;
 
-export { acceptInviteCheckSchema, acceptInviteSchema };
-export type { AcceptInviteCheckValues, AcceptInviteValues };
+const forgotPasswordSchema = y.object({
+  email: y.string().email().required(),
+});
+
+type ForgotPasswordValues = y.InferType<typeof forgotPasswordSchema>;
+
+export { acceptInviteCheckSchema, acceptInviteSchema, forgotPasswordSchema };
+export type {
+  AcceptInviteCheckValues,
+  AcceptInviteValues,
+  ForgotPasswordValues,
+};
