@@ -4,15 +4,15 @@ import AccountsPage from './accounts/accounts.page';
 import RolesPage from './roles/roles.page';
 import PermissionsPage from './permissions/permissions.page';
 import RoleLayout from './role/role.layout';
-import RolePermissionsPage from './role/permissions/role-permissions.page';
-import RoleAccountsPage from './role/accounts/role-accounts.page';
+import RolePermissionsPage from './role/role-permissions.page';
+import RoleAccountsPage from './role/role-accounts.page';
 import RolePage from './role/role.page';
 import { ActivitiesPage } from './activities/activities.page';
 import AccountLayout from './account/account.layout';
 import AccountPage from './account/account.page';
-import AccountProfilePage from './account/profile/account-profile.page';
-import AccountSessionsPage from './account/sessions/account-sessions.page';
-import AccountActivitiesPage from './account/activities/account-activities.page';
+import AccountProfilePage from './account/account-profile.page';
+import AccountSessionsPage from './account/account-sessions.page';
+import AccountActivitiesPage from './account/account-activities.page';
 import AccountRolesPage from './account/account-roles.page';
 
 const adminRoutes: RouteObject[] = [

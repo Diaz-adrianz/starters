@@ -2,7 +2,7 @@ import { Page, PageHeader, PageSection } from '@/components/shared/page';
 import { UserCard, UserCardSkeleton, useUser } from '@/features/identity';
 import authStore from '@/stores/auth.store';
 
-const AccountsPage = () => {
+const ProfileAccountsPage = () => {
   const authUser = authStore((s) => s.user);
 
   const user = useUser(authUser?.id ?? '');
@@ -21,4 +21,4 @@ const AccountsPage = () => {
   );
 };
 
-export default AccountsPage;
+export default ProfileAccountsPage;

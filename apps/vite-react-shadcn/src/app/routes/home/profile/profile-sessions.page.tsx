@@ -12,7 +12,7 @@ import {
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import authStore from '@/stores/auth.store';
 
-const SessionsPage = () => {
+const ProfileSessionsPage = () => {
   const authUser = authStore((s) => s.user);
 
   const query = useResourceQuery({
@@ -64,4 +64,4 @@ const SessionsPage = () => {
   );
 };
 
-export default SessionsPage;
+export default ProfileSessionsPage;

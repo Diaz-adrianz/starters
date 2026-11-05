@@ -1,8 +1,8 @@
 import type { RouteObject } from 'react-router-dom';
 import ProfilePage from './profile/profile.page';
 import ProfileLayout from './profile/profile.layout';
-import AccountsPage from './profile/accounts/accounts.page';
-import SessionsPage from './profile/sessions/sessions.page';
+import ProfileAccountsPage from './profile/profile-accounts.page';
+import ProfileSessionsPage from './profile/profile-sessions.page';
 import SettingsLayout from './settings/settings.layout';
 import SettingsPage from './settings/settings.page';
 import NotificationsPage from './notifications/notifications.page';
@@ -28,11 +28,11 @@ const homeRoutes: RouteObject[] = [
       },
       {
         path: 'accounts',
-        element: <AccountsPage />,
+        element: <ProfileAccountsPage />,
       },
       {
         path: 'sessions',
-        element: <SessionsPage />,
+        element: <ProfileSessionsPage />,
       },
     ],
   },
