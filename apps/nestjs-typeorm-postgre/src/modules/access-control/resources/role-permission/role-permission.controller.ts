@@ -42,6 +42,13 @@ export class RolePermissionController {
     return this.rolePermissionService.findMany(rq);
   }
 
+  @Permission('access-control:role-permission:read')
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.rolePermissionService.findOne(rq);
+  }
+
   @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role-permission:delete')
   @Delete(':id')

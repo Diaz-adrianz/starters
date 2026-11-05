@@ -34,6 +34,21 @@ export class RolePermissionService {
       ...rq.toFindOptions(),
       relations: { role: true, permission: true },
       select: {
+        id: true,
+        createdAt: true,
+        permissionId: true,
+        roleId: true,
+        role: { name: true },
+        permission: { description: true, module: true },
+      },
+    });
+  }
+
+  findOne(rq: ResourceQuery) {
+    return this.rolePermissionRepo.findOneOrFail({
+      ...rq.toFindOptions(),
+      relations: { role: true, permission: true },
+      select: {
         ...this.rolePermissionRepo.select('*'),
         role: { name: true },
         permission: { description: true, module: true },
