@@ -31,5 +31,6 @@ export class IdentityService {
     await this.userService.updatePasswordById(token.userId, dto.password);
     await this.userService.updateStatusById(token.userId, UserStatus.ACTIVE);
     await this.tokenService.markConsumed(token.id);
+    return token;
   }
 }
