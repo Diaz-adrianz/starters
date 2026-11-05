@@ -15,6 +15,7 @@ import { generateOtp } from '../../../../shared/utils/number.util';
 import { sha256 } from '../../../../shared/utils/string.util';
 import { TokenType, TokenTypeExpire } from '../../enums/token-type.enum';
 import { Token } from '../../entities/token.entity';
+import { UserNotInvitedException } from '../../classes/exceptions/user.exception';
 
 @Injectable()
 export class UserService {
@@ -40,8 +41,7 @@ export class UserService {
   async resendInvite(id: string) {
     const user = await this.userRepo.findOneByOrFail({ id });
 
-    if (user.status !== UserStatus.INVITED)
-      throw new BadRequestException('User is not in invited state');
+    if (user.status !== UserStatus.INVITED) throw new UserNotInvitedException();
 
     const token = await this.tokenService
       .findActiveByUser(user.id, TokenType.INVITATION)
@@ -65,9 +65,10 @@ export class UserService {
       { password: await this.hashPassword(password) },
       { returning: ['id'] },
     );
-    this.event.emit('identity.user.updated', {
-      target: result.raw as Pick<User, 'id'>[],
-    });
+    this.event.emit(
+      'identity.user.passwordUpdated',
+      result.raw as Pick<User, 'id'>[],
+    );
     return result;
   }
 

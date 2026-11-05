@@ -4,6 +4,7 @@ export const IdentityEventName = {
   USER_DELETED: 'identity.user.deleted',
   USER_INVITED: 'identity.user.invited',
   USER_FORGOTPASSWORD: 'identity.user.forgotPassword',
+  USER_PASSWORDUPDATED: 'identity.user.passwordUpdated',
 } as const;
 
 export interface IdentityEventPayload {
@@ -30,4 +31,5 @@ export interface IdentityEventPayload {
     email: string;
     otp: { code: string; expiresIn: string };
   };
+  [IdentityEventName.USER_PASSWORDUPDATED]: { id: string }[];
 }

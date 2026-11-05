@@ -19,6 +19,36 @@ export class IdentityController {
   }
 
   @NoAuth()
+  @ResSuccess({ message: 'Set password verified' })
+  @Post('/set-password-check')
+  async setPasswordCheck(@Body() dto: AcceptInviteCheckDto) {
+    const { expiresAt, user } =
+      await this.identityService.setPasswordCheck(dto);
+    return {
+      expiresAt,
+      email: maskEmailString(user.email),
+    };
+  }
+
+  @AuditActivity({
+    module: 'identity',
+    action: 'setPassword',
+    actor: ({ res: result }) => ({
+      type: 'user',
+      id: result.userId,
+      name: result.username,
+    }),
+    redact: ['otp', 'password', 'matchPassword'],
+  })
+  @NoAuth()
+  @ResSuccess({ message: 'Set password accepted' })
+  @Post('/set-password')
+  async setPassword(@Body() dto: AcceptInviteDto) {
+    const { consumedAt, user } = await this.identityService.setPassword(dto);
+    return { consumedAt, userId: user.id, username: user.username };
+  }
+
+  @NoAuth()
   @ResSuccess({ message: 'Invitation verified' })
   @Post('/accept-invite-check')
   async acceptInviteCheck(@Body() dto: AcceptInviteCheckDto) {
@@ -37,7 +67,7 @@ export class IdentityController {
     actor: ({ res: result }) => ({
       type: 'user',
       id: result.userId,
-      name: '',
+      name: result.username,
     }),
     redact: ['otp', 'password', 'matchPassword'],
   })
@@ -45,7 +75,7 @@ export class IdentityController {
   @ResSuccess({ message: 'Invitation accepted' })
   @Post('/accept-invite')
   async acceptInvite(@Body() dto: AcceptInviteDto) {
-    const { consumedAt, userId } = await this.identityService.acceptInvite(dto);
-    return { consumedAt, userId };
+    const { consumedAt, user } = await this.identityService.acceptInvite(dto);
+    return { consumedAt, userId: user.id, username: user.username };
   }
 }

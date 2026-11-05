@@ -1,4 +1,20 @@
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+export class UserNotActiveException extends ForbiddenException {
+  constructor() {
+    super('Account is not active.');
+  }
+}
+
+export class UserNotInvitedException extends BadRequestException {
+  constructor() {
+    super('Account is not in invited state.');
+  }
+}
 
 export class UserDisabledException extends ForbiddenException {
   constructor() {

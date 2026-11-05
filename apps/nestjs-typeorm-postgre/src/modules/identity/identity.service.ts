@@ -6,6 +6,7 @@ import { TokenType, TokenTypeExpire } from './enums/token-type.enum';
 import { UserService } from './resources/user/user.service';
 import { UserStatus } from './enums/user-status.enum';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { SetPasswordCheckDto, SetPasswordDto } from './dto/set-password.dto';
 
 @Injectable()
 export class IdentityService {
@@ -26,6 +27,26 @@ export class IdentityService {
 
     if (!token || !token.isFresh(TokenTypeExpire.set_password * 1000))
       await this.userService.issueSetPassword(user, token);
+  }
+
+  async setPasswordCheck(dto: SetPasswordCheckDto) {
+    const otpHash = sha256(dto.otp);
+
+    const token = await this.tokenService
+      .findActiveByHash(otpHash, TokenType.SET_PASSWORD)
+      .catch(() => null);
+
+    if (!token || token.isExpired())
+      throw new BadRequestException('OTP invalid or expired');
+
+    return token;
+  }
+
+  async setPassword(dto: SetPasswordDto) {
+    const token = await this.setPasswordCheck(dto);
+    await this.userService.updatePasswordById(token.userId, dto.password);
+    await this.tokenService.markConsumed(token.id);
+    return token;
   }
 
   async acceptInviteCheck(dto: AcceptInviteCheckDto) {
