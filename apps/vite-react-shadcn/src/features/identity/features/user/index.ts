@@ -11,6 +11,10 @@ export {
 export { UserActions } from './components/user-actions';
 export { UserItem } from './components/user-item';
 export { UserInviteDialog } from './components/user-invite-dialog';
+export {
+  UserCombobox,
+  type UserComboboxItem,
+} from './components/user-combobox';
 
 // constants
 export { UserStatusMap } from './constants/user.constant';
