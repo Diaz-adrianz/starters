@@ -128,7 +128,7 @@ function RolePermissionListSearchFilter() {
 
   return (
     <SearchInput
-      placeholder="Search permission..."
+      placeholder="Search..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
       onChange={(value) =>
@@ -136,7 +136,9 @@ function RolePermissionListSearchFilter() {
           {
             type: 'set',
             key: 'search',
-            value: value ? { 'permission.description': value } : undefined,
+            value: value
+              ? { 'permission.description': value, 'permission.module': value }
+              : undefined,
           },
           { type: 'set', key: 'page', value: 1 },
         ])

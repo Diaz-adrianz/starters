@@ -7,8 +7,8 @@ export type RolePermission = {
   permissionId: string;
   condition: Record<string, unknown> | null;
 
-  role: Role;
-  permission: Permission;
+  role?: Role;
+  permission?: Permission;
 
   createdAt: Date;
 };
