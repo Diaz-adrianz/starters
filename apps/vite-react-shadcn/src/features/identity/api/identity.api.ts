@@ -4,12 +4,13 @@ import type {
   AcceptInviteValues,
 } from '../schemas/identity.schema';
 import type { ApiResponse } from '@/lib/axios/api.type';
+import type { AcceptInviteCheckResponse } from '../type/identity.type';
 
 const PRE = '/identity/';
 
 export const IdentityApi = {
   acceptInviteCheck: (values: AcceptInviteCheckValues) =>
-    apiClient.post<ApiResponse<{ expiresIn: string; email: string }>>(
+    apiClient.post<AcceptInviteCheckResponse>(
       PRE + 'accept-invite-check',
       values
     ),
