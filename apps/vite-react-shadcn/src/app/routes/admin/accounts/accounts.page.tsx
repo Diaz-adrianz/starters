@@ -173,7 +173,7 @@ const AccountsPage = () => {
                                 remove: () => mutations.archive(user),
                                 resendInvite:
                                   user.status === 'invited'
-                                    ? () => {}
+                                    ? () => mutations.resendInvite(user)
                                     : undefined,
                               }
                         }

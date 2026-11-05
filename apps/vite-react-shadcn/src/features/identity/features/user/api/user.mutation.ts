@@ -13,6 +13,12 @@ export function useInviteUser({ onSuccess }: { onSuccess?: () => void } = {}) {
   });
 }
 
+export function useResendInviteUser() {
+  return useMutation({
+    mutationFn: UserApi.resendInvite,
+  });
+}
+
 export function useArchiveUser() {
   const qc = useQueryClient();
   return useMutation({

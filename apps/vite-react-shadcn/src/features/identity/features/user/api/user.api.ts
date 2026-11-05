@@ -12,6 +12,9 @@ const PRE = '/identity/users/';
 export const UserApi = {
   invite: (values: InviteUserValues) =>
     apiClient.post<ApiResponse>(PRE + 'invite', values),
+  resendInvite: (id: string) =>
+    apiClient.post<ApiResponse>(PRE + id + '/resend-invite'),
+
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<User>>(PRE, { params }),
   findOne: (id: string) => apiClient.get<ApiResponse<User>>(PRE + id),

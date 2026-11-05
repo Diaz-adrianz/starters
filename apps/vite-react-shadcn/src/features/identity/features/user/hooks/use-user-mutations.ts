@@ -2,6 +2,7 @@ import { useConfirm } from '@/components/shared/confirm';
 import {
   useArchiveUser,
   useDeleteUser,
+  useResendInviteUser,
   useRestoreUser,
 } from '../api/user.mutation';
 import type { User } from '../types/user.type';
@@ -10,9 +11,24 @@ import { toast } from 'sonner';
 function useUserMutations() {
   const confirm = useConfirm();
 
+  const resendInviteApi = useResendInviteUser();
+
   const archiveApi = useArchiveUser(),
     restoreApi = useRestoreUser(),
     deleteApi = useDeleteUser();
+
+  const resendInvite = async (user: Pick<User, 'id' | 'username'>) => {
+    const ok = await confirm({
+      title: 'Resend invitation?',
+      description: `A new invitation email will be sent to "${user.username}". Any previous invitation will stop working.`,
+      confirmText: 'Resend',
+    });
+    if (ok)
+      toast.promise(resendInviteApi.mutateAsync(user.id), {
+        loading: 'Sending invitation...',
+        success: `Invitation sent to ${user.username}`,
+      });
+  };
 
   const archive = async (user: Pick<User, 'id' | 'username'>) => {
     const ok = await confirm({
@@ -52,7 +68,7 @@ function useUserMutations() {
       });
   };
 
-  return { archive, restore, del };
+  return { resendInvite, archive, restore, del };
 }
 
 export { useUserMutations };
