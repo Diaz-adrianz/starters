@@ -30,6 +30,9 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RiAlarmWarningLine } from '@remixicon/react';
 
 type RolePermissionCreateDialogPayload = {
   role?: RoleComboboxItem;
@@ -63,11 +66,20 @@ function RolePermissionCreateDialog({
   });
 
   const create = (values: CreateRolePermissionValues) => {
+    let condition = null;
+    if (values.condition)
+      try {
+        condition = JSON.parse(values.condition);
+      } catch {
+        form.setError('condition', { message: 'JSON invalid' });
+        return;
+      }
+
     toast.promise(
       createApi.mutateAsync({
         roleId: values.role.id,
         permissionId: values.permission.id,
-        condition: {},
+        condition,
       }),
       { loading: 'Granting permission...', success: 'Permission granted' }
     );
@@ -131,6 +143,35 @@ function RolePermissionCreateDialog({
                     invalid={fieldState.invalid}
                     disabled={field.disabled || !!payload?.permission}
                     onBlur={field.onBlur}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="condition"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Condition</FieldLabel>
+                  <Alert variant="destructive">
+                    <RiAlarmWarningLine />
+                    <AlertTitle>This field controls access</AlertTitle>
+                    <AlertDescription>
+                      The condition decides what users with this role can
+                      access. A mistake here can grant or block access
+                      unexpectedly. Double-check the JSON before saving.
+                    </AlertDescription>
+                  </Alert>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    id={field.name}
+                    placeholder="{ userId: { eq: '{{actor.id}}' } }"
+                    aria-invalid={fieldState.invalid}
+                    className="font-mono"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
