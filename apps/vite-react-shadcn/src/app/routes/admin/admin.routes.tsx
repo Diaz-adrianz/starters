@@ -13,6 +13,7 @@ import AccountPage from './account/account.page';
 import AccountProfilePage from './account/profile/account-profile.page';
 import AccountSessionsPage from './account/sessions/account-sessions.page';
 import AccountActivitiesPage from './account/activities/account-activities.page';
+import AccountRolesPage from './account/account-roles.page';
 
 const adminRoutes: RouteObject[] = [
   {
@@ -29,6 +30,7 @@ const adminRoutes: RouteObject[] = [
         children: [
           { path: '', element: <AccountPage /> },
           { path: 'profile', element: <AccountProfilePage /> },
+          { path: 'roles', element: <AccountRolesPage /> },
           { path: 'sessions', element: <AccountSessionsPage /> },
           { path: 'activities', element: <AccountActivitiesPage /> },
         ],

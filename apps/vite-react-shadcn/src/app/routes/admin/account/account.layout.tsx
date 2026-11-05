@@ -17,6 +17,8 @@ import {
   RiEmotionHappyLine,
   RiHistoryFill,
   RiHistoryLine,
+  RiKeyFill,
+  RiKeyLine,
 } from '@remixicon/react';
 import { useMemo } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
@@ -33,6 +35,12 @@ const Menu: Menu[] = [
     label: 'Profile',
     Icon: RiEmotionHappyLine,
     IconActive: RiEmotionHappyFill,
+  },
+  {
+    path: '/admin/iam/accounts/:id/roles',
+    label: 'Roles',
+    Icon: RiKeyLine,
+    IconActive: RiKeyFill,
   },
   {
     path: '/admin/iam/accounts/:id/sessions',
