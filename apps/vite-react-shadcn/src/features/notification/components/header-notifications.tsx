@@ -53,6 +53,7 @@ function HeaderNotifications() {
 
   const unreadCount = useMessagesCount(query.params, {
       enabled: authStatus == 'authenticated',
+      silent: true,
     }),
     unreadCountText = unreadCount.data
       ? unreadCount.data > 99
