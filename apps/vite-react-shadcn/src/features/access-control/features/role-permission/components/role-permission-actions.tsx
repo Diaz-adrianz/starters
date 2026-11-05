@@ -2,9 +2,9 @@ import {
   ResourceActions,
   type ResourceActionsProps,
 } from '@/components/shared/resource-actions';
-import { RiDeleteBack2Line } from '@remixicon/react';
+import { RiDeleteBack2Line, RiExpandDiagonalLine } from '@remixicon/react';
 
-type Keys = 'delete';
+type Keys = 'view' | 'delete';
 
 function RolePermissionActions(
   props: Omit<ResourceActionsProps<Keys>, 'keys' | 'actions'>
@@ -12,6 +12,11 @@ function RolePermissionActions(
   return (
     <ResourceActions<Keys>
       actions={{
+        view: {
+          icon: RiExpandDiagonalLine,
+          label: 'View',
+          can: { i: 'read', a: 'access-control:role-permission' },
+        },
         delete: {
           icon: RiDeleteBack2Line,
           label: 'Delete',

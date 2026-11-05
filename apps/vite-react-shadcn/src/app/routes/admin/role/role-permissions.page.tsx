@@ -11,6 +11,8 @@ import {
   useRolePermissionMutations,
   type RolePermissionCreateDialogPayload,
   RolePermissionCreateDialog,
+  type RolePermissionDialogPayload,
+  RolePermissionDialog,
 } from '@/features/access-control';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -19,7 +21,8 @@ import { Can } from '@casl/react';
 import { useParams } from 'react-router-dom';
 
 const RolePermissionsPage = () => {
-  const createDialog = useDialogState<RolePermissionCreateDialogPayload>();
+  const createDialog = useDialogState<RolePermissionCreateDialogPayload>(),
+    detailDialog = useDialogState<RolePermissionDialogPayload>();
 
   const params = useParams();
 
@@ -37,6 +40,7 @@ const RolePermissionsPage = () => {
   return (
     <Page className="pt-4">
       <RolePermissionCreateDialog {...createDialog} />
+      <RolePermissionDialog {...detailDialog} />
 
       <PageSection className="mb-4">
         <Card>
@@ -106,6 +110,7 @@ const RolePermissionsPage = () => {
                     cell: ({ row: { original: item } }) => (
                       <RolePermissionActions
                         handlers={{
+                          view: () => detailDialog.show({ id: item.id }),
                           delete: () =>
                             mutations.del({
                               id: item.id,

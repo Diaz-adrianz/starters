@@ -16,5 +16,6 @@ export const RolePermissionApi = {
   }) => apiClient.post<ApiResponse>(PRE, data),
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<RolePermission>>(PRE, { params }),
+  findOne: (id: string) => apiClient.get<ApiResponse<RolePermission>>(PRE + id),
   delete: (id: string) => apiClient.delete<ApiResponse>(PRE + id),
 };
