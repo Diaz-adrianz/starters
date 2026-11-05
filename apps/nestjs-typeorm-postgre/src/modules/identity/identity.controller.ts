@@ -5,10 +5,18 @@ import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { AcceptInviteCheckDto, AcceptInviteDto } from './dto/accept-invite.dto';
 import { maskEmailString } from '../../shared/utils/string.util';
 import { AuditActivity } from '../audit/decorators/audit-activity.decorator';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('identity')
 export class IdentityController {
   constructor(private identityService: IdentityService) {}
+
+  @NoAuth()
+  @ResSuccess({ message: 'If the email exists, a reset code has been sent' })
+  @Post('/forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.identityService.forgotPassword(dto);
+  }
 
   @NoAuth()
   @ResSuccess({ message: 'Invitation verified' })

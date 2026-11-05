@@ -54,4 +54,38 @@ export class IdentityEventSubscriber {
       );
     }
   }
+
+  @OnEvent(IdentityEventName.USER_FORGOTPASSWORD)
+  async userForgotPassword(
+    payload: IdentityEventPayload['identity.user.forgotPassword'],
+  ) {
+    const templateKey = 'identity.user-password-reset';
+    try {
+      await this.deliveryService.create({
+        type: DeliveryType.TRANSACTIONAL,
+        priority: DeliveryPriority.CRITICAL,
+        templateKey,
+        channels: [Channel.EMAIL],
+        recipients: [
+          {
+            email: payload.email,
+            payload: {
+              otp: payload.otp.code,
+              expiresIn: payload.otp.expiresIn,
+            },
+          },
+        ],
+      });
+      this.logger.debug(
+        `Email ${templateKey} sent for user ${payload.email} on user.forgotPassword`,
+        this.name,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send ${templateKey} email: `,
+        error,
+        this.name,
+      );
+    }
+  }
 }

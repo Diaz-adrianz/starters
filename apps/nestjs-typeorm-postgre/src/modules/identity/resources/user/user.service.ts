@@ -13,7 +13,7 @@ import { InviteUserDto } from './dto/invite-user.dto';
 import { TokenService } from '../token/token.service';
 import { generateOtp } from '../../../../shared/utils/number.util';
 import { sha256 } from '../../../../shared/utils/string.util';
-import { TokenType } from '../../enums/token-type.enum';
+import { TokenType, TokenTypeExpire } from '../../enums/token-type.enum';
 import { Token } from '../../entities/token.entity';
 
 @Injectable()
@@ -210,7 +210,7 @@ export class UserService {
     const otp = generateOtp(6),
       otpHash = sha256(otp);
 
-    const expire = 86400, // 1d
+    const expire = TokenTypeExpire.invitation,
       expiresAt = new Date(Date.now() + expire * 1000);
 
     if (token) await this.tokenService.refresh(token.id, otpHash, expiresAt);
@@ -227,6 +227,30 @@ export class UserService {
       email: user.email,
       username: user.username,
       otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
+    });
+  }
+
+  async issueSetPassword(user: User, token?: Token) {
+    const otp = generateOtp(6),
+      otpHash = sha256(otp);
+
+    const expire = TokenTypeExpire.set_password,
+      expiresAt = new Date(Date.now() + expire * 1000);
+
+    if (token) await this.tokenService.refresh(token.id, otpHash, expiresAt);
+    else
+      await this.tokenService.issue(
+        user.id,
+        TokenType.SET_PASSWORD,
+        otpHash,
+        expiresAt,
+      );
+
+    this.event.emit('identity.user.forgotPassword', {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      otp: { code: otp, expiresIn: `${expire / 60} minutes` },
     });
   }
 }

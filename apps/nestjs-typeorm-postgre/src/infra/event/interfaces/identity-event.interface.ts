@@ -3,6 +3,7 @@ export const IdentityEventName = {
   USER_UPDATED: 'identity.user.updated',
   USER_DELETED: 'identity.user.deleted',
   USER_INVITED: 'identity.user.invited',
+  USER_FORGOTPASSWORD: 'identity.user.forgotPassword',
 } as const;
 
 export interface IdentityEventPayload {
@@ -18,6 +19,12 @@ export interface IdentityEventPayload {
     target: { id: string }[];
   };
   [IdentityEventName.USER_INVITED]: {
+    id: string;
+    username: string;
+    email: string;
+    otp: { code: string; expiresIn: string };
+  };
+  [IdentityEventName.USER_FORGOTPASSWORD]: {
     id: string;
     username: string;
     email: string;
