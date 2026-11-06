@@ -98,7 +98,7 @@ export const ActivitiesPage = () => {
                       <div className="grid gap-1">
                         {row.original.actorType === 'user' ? (
                           <InlineLink
-                            to={`/admin/identity/accounts/${row.original.actorId}`}
+                            to={`/admin/iam/accounts/${row.original.actorId}`}
                           >
                             {row.original.actorName}
                           </InlineLink>

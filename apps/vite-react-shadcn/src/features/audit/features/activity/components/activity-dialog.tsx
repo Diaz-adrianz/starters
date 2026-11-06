@@ -107,9 +107,7 @@ function ActivityDialog({
                   <ItemContent>
                     <ItemDescription>
                       {data.actorType === 'user' ? (
-                        <InlineLink
-                          to={`/admin/identity/accounts/${data.actorId}`}
-                        >
+                        <InlineLink to={`/admin/iam/accounts/${data.actorId}`}>
                           {data.actorName}
                         </InlineLink>
                       ) : (
