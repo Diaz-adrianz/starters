@@ -5,7 +5,7 @@ import { FcmEnablerSetting } from '@/lib/firebase/components/fcm-settings';
 
 const SettingsNotificationPage = () => {
   return (
-    <Page>
+    <Page className="not-md:pt-8">
       <PageHeader title="Notification Settings" />
 
       <PageSection>

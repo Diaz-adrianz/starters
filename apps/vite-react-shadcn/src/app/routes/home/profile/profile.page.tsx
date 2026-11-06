@@ -28,7 +28,7 @@ const ProfilePage = () => {
   const profile = useProfile('me', { silent: true });
 
   return (
-    <Page>
+    <Page className="not-md:pt-8">
       <ProfileCreateDialog
         {...createDialog}
         onSuccess={() => profile.refetch()}

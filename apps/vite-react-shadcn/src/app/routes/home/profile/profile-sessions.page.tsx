@@ -24,7 +24,7 @@ const ProfileSessionsPage = () => {
     mutations = useSessionMutations();
 
   return (
-    <Page>
+    <Page className="not-md:pt-8">
       <PageHeader
         title="Sessions"
         description="Manage devices where you're signed in"

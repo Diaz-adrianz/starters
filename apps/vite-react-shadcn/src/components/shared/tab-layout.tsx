@@ -48,7 +48,7 @@ function TabLayout({
 
   return (
     <div className={cn('flex flex-col', cls.root, className)}>
-      <aside className={cn('pt-4', cls.side)}>
+      <aside className={cn(cls.side)}>
         <Tabs
           value={activeMenu?.path}
           orientation={isMobile ? 'horizontal' : 'vertical'}

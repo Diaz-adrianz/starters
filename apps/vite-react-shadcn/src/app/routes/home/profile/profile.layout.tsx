@@ -37,7 +37,7 @@ const ProfileLayout = () => {
   const { menus, activeMenu } = useMenu(Menu);
 
   return (
-    <Page className="min-h-svh pt-0">
+    <Page className="min-h-svh md:pt-0">
       <PageSection dense>
         <TabLayout menus={menus} activeMenu={activeMenu}>
           <Outlet />

@@ -8,7 +8,7 @@ const ProfileAccountsPage = () => {
   const user = useUser(authUser?.id ?? '');
 
   return (
-    <Page>
+    <Page className="not-md:pt-8">
       <PageHeader
         title="Accounts"
         description="Manage this app and connected external accounts"

@@ -29,7 +29,7 @@ const SettingsPage = () => {
   const { locale, setLocale, language, setLanguage } = regionStore();
 
   return (
-    <Page>
+    <Page className="not-md:pt-8">
       <PageHeader title="General Settings" />
 
       <PageSection>
