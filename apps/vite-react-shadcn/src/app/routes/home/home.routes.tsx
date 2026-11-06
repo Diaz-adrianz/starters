@@ -8,6 +8,7 @@ import SettingsPage from './settings/settings.page';
 import NotificationsPage from './notifications/notifications.page';
 import HomePage from './home.page';
 import { AuthRoute } from '@/components/shared/auth';
+import SettingsNotificationPage from './settings/settings-notification.page';
 
 const homeRoutes: RouteObject[] = [
   {
@@ -47,6 +48,10 @@ const homeRoutes: RouteObject[] = [
       {
         path: '',
         element: <SettingsPage />,
+      },
+      {
+        path: 'notification',
+        element: <SettingsNotificationPage />,
       },
     ],
   },

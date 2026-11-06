@@ -1,4 +1,6 @@
 .env
+.DS_Store
+**/.DS_Store
 
 # nginx
 /nginx/certs/default.*

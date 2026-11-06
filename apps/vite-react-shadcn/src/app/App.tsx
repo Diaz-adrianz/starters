@@ -6,6 +6,13 @@ import { ConfirmProvider } from '@/components/shared/confirm';
 import { ThemeProvider } from './providers/theme.provider';
 import { QueryProvider } from './providers/query.provider';
 import { AbilityProvider } from './providers/ability.provider';
+import { useFcmForeground } from '@/lib/firebase/hooks/use-fcm-foreground';
+
+function Main() {
+  useFcmForeground();
+
+  return <RouterProvider router={router} />;
+}
 
 export function App() {
   return (
@@ -14,7 +21,7 @@ export function App() {
         <ThemeProvider defaultTheme="light">
           <TooltipProvider>
             <ConfirmProvider>
-              <RouterProvider router={router} />
+              <Main />
               <Toaster position="top-center" richColors />
             </ConfirmProvider>
           </TooltipProvider>
