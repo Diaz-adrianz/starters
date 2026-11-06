@@ -9,17 +9,25 @@ services:
       context: ./apps/nestjs-typeorm-postgre
       dockerfile: Dockerfile
     ports:
-      - '5001:5001'
+      - '127.0.0.1:5001:5001'
     env_file:
-      - ./apps/nestjs-typeorm-postgre/.env.production
+      - ./apps/nestjs-typeorm-postgre/.env
     volumes:
       - ./apps/nestjs-typeorm-postgre/logs:/usr/src/app/logs
-      - ./apps/nestjs-typeorm-postgre/secrets:/usr/src/app/secrets
+      - ./apps/nestjs-typeorm-postgre/secrets:/usr/src/app/secrets:ro
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
+
+  app-vite-react-shadcn:
+    build:
+      context: ./apps/vite-react-shadcn
+      dockerfile: Dockerfile
+    ports:
+      - '127.0.0.1:5173:80'
     restart: unless-stopped
 
   # ------------------------------------------------------------------
