@@ -57,7 +57,7 @@ function ActivityDialog({
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {formatDate(data.createdAt, 'EEE, dd MMM yyyy, HH:mm')}
+                      {formatDate(data.createdAt, 'PPPppp')}
                     </ItemDescription>
                   </ItemContent>
                 </Item>

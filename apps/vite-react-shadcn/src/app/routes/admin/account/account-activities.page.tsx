@@ -59,10 +59,7 @@ const AccountActivitiesPage = () => {
                     ),
                     cell: ({ row }) => (
                       <p className="text-muted-foreground">
-                        {formatDate(
-                          row.original.createdAt,
-                          'dd MMM yyyy, HH:mm'
-                        )}
+                        {formatDate(row.original.createdAt, 'PPp')}
                       </p>
                     ),
                   },

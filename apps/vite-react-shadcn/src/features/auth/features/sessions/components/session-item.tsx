@@ -8,7 +8,7 @@ import {
 import { type ComponentProps, type ReactNode } from 'react';
 import type { Session } from '../types/session.type';
 import { Badge } from '@/components/ui/badge';
-import { dateToNow } from '@/utils/date';
+import { formatDateToNow } from '@/utils/date';
 import { cn } from 'cn';
 import {
   RiComputerLine,
@@ -43,7 +43,7 @@ function SessionItem({
           {session.os} · {session.browser}
         </ItemDescription>
         <ItemDescription>
-          Last used {dateToNow(session.lastUsedAt)}
+          Last used {formatDateToNow(session.lastUsedAt)}
         </ItemDescription>
       </ItemContent>
       <ItemContent className="flex-row items-center gap-4">

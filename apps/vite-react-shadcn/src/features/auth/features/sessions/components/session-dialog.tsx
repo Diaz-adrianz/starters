@@ -142,7 +142,7 @@ function SessionDialog({
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {formatDate(data.lastUsedAt, 'd MMM yyyy, hh:mm a')}
+                      {formatDate(data.lastUsedAt, 'PPPppp')}
                     </ItemDescription>
                   </ItemContent>
                 </Item>
@@ -153,7 +153,7 @@ function SessionDialog({
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {formatDate(data.expiresAt, 'd MMM yyyy, hh:mm a')}
+                      {formatDate(data.expiresAt, 'PPPppp')}
                     </ItemDescription>
                   </ItemContent>
                 </Item>

@@ -94,10 +94,7 @@ const AccountSessionsPage = () => {
                     ),
                     cell: ({ row }) => (
                       <p className="text-muted-foreground">
-                        {formatDate(
-                          row.original.lastUsedAt,
-                          'dd MMM yyyy, hh:mm a'
-                        )}
+                        {formatDate(row.original.lastUsedAt, 'PPp')}
                       </p>
                     ),
                   },

@@ -51,7 +51,7 @@ function RolePermissionDialog({
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {formatDate(data.createdAt, 'EEE, dd MMM yyyy, HH:mm')}
+                      {formatDate(data.createdAt, 'PPPp')}
                     </ItemDescription>
                   </ItemContent>
                 </Item>

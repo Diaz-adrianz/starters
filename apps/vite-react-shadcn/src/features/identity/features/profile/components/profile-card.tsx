@@ -67,7 +67,7 @@ function ProfileCard({
             </ItemContent>
             <ItemContent>
               <ItemDescription>
-                {formatDate(profile.dateOfBirth, 'dd MMM yyyy')}
+                {formatDate(profile.dateOfBirth, 'PP')}
               </ItemDescription>
             </ItemContent>
           </Item>
@@ -98,7 +98,7 @@ function ProfileCard({
             </ItemContent>
             <ItemContent>
               <ItemDescription>
-                {formatDate(profile.updatedAt, 'dd MMM yyyy, HH:mm')}
+                {formatDate(profile.updatedAt, 'PPp')}
               </ItemDescription>
             </ItemContent>
           </Item>

@@ -69,7 +69,7 @@ function UserCard({
             </ItemContent>
             <ItemContent>
               <ItemDescription>
-                {formatDate(user.createdAt, 'dd MMMM yyyy')}
+                {formatDate(user.createdAt, 'PP')}
               </ItemDescription>
             </ItemContent>
           </Item>

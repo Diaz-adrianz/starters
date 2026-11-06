@@ -7,7 +7,7 @@ import {
 import { type ComponentProps, type ReactNode } from 'react';
 import type { Message } from '../types/message.type';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dateToNow } from '@/utils/date';
+import { formatDateToNow } from '@/utils/date';
 import { useMarkReadMessage } from '../api/message.mutation';
 
 function MessageItem({
@@ -63,7 +63,9 @@ function MessageItemCreatedDate({
 }: ComponentProps<typeof ItemDescription> & {
   createdAt: Message['createdAt'];
 }) {
-  return <ItemDescription {...props}>{dateToNow(createdAt)}</ItemDescription>;
+  return (
+    <ItemDescription {...props}>{formatDateToNow(createdAt)}</ItemDescription>
+  );
 }
 
 export { MessageItem, MessageItemSkeleton, MessageItemCreatedDate };

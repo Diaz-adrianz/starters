@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/input-group';
 import { RiCalendar2Line, RiTimeLine } from '@remixicon/react';
 import { useState } from 'react';
-import { format, parse } from 'date-fns';
-import { isValidDateString } from '@/utils/date';
+import { parse } from 'date-fns';
+import { formatDate, isValidDateString } from '@/utils/date';
 import type { DateRange } from 'react-day-picker';
 
 /* ---------------------------------------------------------------------------- */
@@ -42,7 +42,7 @@ function DatePickerSingle({
       : undefined;
 
   const updateDate = (date: Date | undefined) => {
-    const nextValue = date ? format(date, 'yyyy-MM-dd') : null;
+    const nextValue = date ? formatDate(date, 'yyyy-MM-dd') : null;
 
     if (!isControlled) setInternalValue(nextValue);
     onValueChange?.(nextValue);
@@ -59,7 +59,7 @@ function DatePickerSingle({
         >
           <RiCalendar2Line className="mr-2 size-4" />
           {selectedDate ? (
-            format(selectedDate, 'dd MMM yyyy')
+            formatDate(selectedDate, 'PP')
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>
           )}
@@ -121,8 +121,8 @@ function DatePickerRange({
 
   const updateRange = (range: DateRange | undefined) => {
     const next: DateRangeValue = {
-      from: range?.from ? format(range.from, 'yyyy-MM-dd') : null,
-      to: range?.to ? format(range.to, 'yyyy-MM-dd') : null,
+      from: range?.from ? formatDate(range.from, 'yyyy-MM-dd') : null,
+      to: range?.to ? formatDate(range.to, 'yyyy-MM-dd') : null,
     };
 
     if (!isControlled) setInternalValue(next);
@@ -131,11 +131,11 @@ function DatePickerRange({
     if (closeOnComplete && next.from && next.to) setOpen(false);
   };
 
-  const fmt = (d: Date) => format(d, 'dd MMM yyyy');
+  const fmt = (d: Date) => formatDate(d, 'PP');
   const label = selectedRange.from
     ? selectedRange.to
-      ? `${fmt(selectedRange.from)} – ${fmt(selectedRange.to)}`
-      : `${fmt(selectedRange.from)} – ...`
+      ? `${fmt(selectedRange.from)} - ${fmt(selectedRange.to)}`
+      : `${fmt(selectedRange.from)} - ...`
     : null;
 
   return (
@@ -231,7 +231,7 @@ function DatetimePickerSingle({
         >
           <RiCalendar2Line className="mr-2 size-4" />
           {selectedDate ? (
-            format(selectedDate, 'dd MMM yyyy hh:mm a')
+            formatDate(selectedDate, 'PPp')
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>
           )}
@@ -267,7 +267,7 @@ function DatetimePickerSingle({
               type="time"
               step="60"
               disabled={!selectedDate}
-              value={selectedDate ? format(selectedDate, 'HH:mm') : ''}
+              value={selectedDate ? formatDate(selectedDate, 'p') : ''}
               onChange={(event) => updateTime(event.target.value)}
             />
             <InputGroupAddon>
