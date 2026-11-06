@@ -1,0 +1,24 @@
+import { Page, PageHeader, PageSection } from '@/components/shared/page';
+import { UserCard, UserCardSkeleton, useUser } from '@/features/identity';
+import authStore from '@/stores/auth.store';
+
+const ProfileAccountsPage = () => {
+  const authUser = authStore((s) => s.user);
+
+  const user = useUser(authUser?.id ?? '');
+
+  return (
+    <Page className="not-md:pt-8">
+      <PageHeader
+        title="Accounts"
+        description="Manage this app and connected external accounts"
+      />
+      <PageSection>
+        {user.isLoading && <UserCardSkeleton hides={['status']} />}
+        {user.data && <UserCard user={user.data} hides={['status']} />}
+      </PageSection>
+    </Page>
+  );
+};
+
+export default ProfileAccountsPage;

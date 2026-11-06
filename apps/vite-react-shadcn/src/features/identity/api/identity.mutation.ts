@@ -1,0 +1,55 @@
+import { useMutation } from '@tanstack/react-query';
+import { IdentityApi } from './identity.api';
+
+export function useAcceptInviteCheck({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.acceptInviteCheck,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
+
+export function useAcceptInvite({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.acceptInvite,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
+
+export function useForgotPassword({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.forgotPassword,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
+
+export function useSetPasswordCheck({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.setPasswordCheck,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
+
+export function useSetPassword({ onSuccess }: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: IdentityApi.setPassword,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+}
