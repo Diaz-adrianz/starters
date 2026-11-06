@@ -25,7 +25,12 @@ export class ProfileController {
 
   // Base
   // ----------------------------------------------------------------
-  @AuditActivity({ targetId: ({ res }) => res.id })
+  @AuditActivity({
+    module: 'identity',
+    action: 'create',
+    targetType: 'profile',
+    targetId: ({ res }) => res.id,
+  })
   @Post()
   create(@Body() dto: CreateProfileDto) {
     return this.profileService.create(this.store.actor.id, dto);
