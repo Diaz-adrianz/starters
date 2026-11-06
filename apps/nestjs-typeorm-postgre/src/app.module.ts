@@ -20,6 +20,10 @@ import { DeviceMiddleware } from './common/middlewares/device.middleware';
 import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
 import { WebsocketModule } from './infra/websocket/websocket.module';
 import { HealthModule } from './infra/health/health.module';
+import { RolesGuard } from './modules/access-control/guards/roles.guard';
+import { PermissionGuard } from './modules/access-control/guards/permission.guard';
+import { AuditModule } from './modules/audit/audit.module';
+import { ActivityInterceptor } from './modules/audit/interceptors/activity.interceptor';
 
 @Module({
   imports: [
@@ -42,6 +46,7 @@ import { HealthModule } from './infra/health/health.module';
     AuthModule,
     NotificationModule,
     AccessControlModule,
+    AuditModule,
   ],
   providers: [
     // Guard providers
@@ -49,6 +54,14 @@ import { HealthModule } from './infra/health/health.module';
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
 
     // Pipe providers
@@ -78,6 +91,10 @@ import { HealthModule } from './infra/health/health.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ActivityInterceptor,
     },
   ],
 })

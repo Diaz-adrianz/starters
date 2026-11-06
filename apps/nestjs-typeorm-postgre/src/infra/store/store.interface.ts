@@ -1,5 +1,5 @@
 import { ClsStore } from 'nestjs-cls';
-import { Scope } from '../../shared/interfaces/resource-scope.interface';
+import { Condition } from '../../modules/access-control/interfaces/condition.interface';
 
 export interface Store extends ClsStore {
   requestId: string;
@@ -7,13 +7,10 @@ export interface Store extends ClsStore {
     type: 'user';
     id: string;
     name: string;
-    roles: { id: string; name: string }[];
   } | null;
   permission: {
-    module: string;
-    resource: string;
-    action: string;
-    scopes: Scope[];
+    key: string;
+    conditions: Condition[];
   } | null;
   session: {
     id: string;

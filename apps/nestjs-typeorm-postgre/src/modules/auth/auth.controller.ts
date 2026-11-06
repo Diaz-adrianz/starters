@@ -14,16 +14,7 @@ import { LocalGuard } from './guards/local.guard';
 import { AuthService } from './auth.service';
 import { User } from '../identity/entities/user.entity';
 import { ReqUser } from '../../common/decorators/req-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
-import { SignUpLocalDto } from './dto/sign-up-local.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import {
-  ResetPasswordCheckDto,
-  ResetPasswordDto,
-} from './dto/reset-password.dto';
-import { ResourceScope } from '../../shared/classes/resource-scope.class';
 import { UserService } from '../identity/resources/user/user.service';
 import { StoreService } from '../../infra/store/store.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
@@ -35,6 +26,9 @@ import {
   CookiePath,
 } from '../../shared/constants/cookie-keys.constant';
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
+import { NoAuth } from '../../common/decorators/no-auth.decorator';
+import { ResourceQuery } from '../../shared/classes/resource-query.class';
+import { AuditActivity } from '../audit/decorators/audit-activity.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -46,19 +40,19 @@ export class AuthController {
   ) {}
 
   // ================================================================
-  // Sign up handlers per strategy
-  // ----------------------------------------------------------------
-  @Public()
-  @ResSuccess({ message: 'Verification email sent' })
-  @Post('sign-up')
-  async signUpLocal(@Body() signUpLocalDto: SignUpLocalDto) {
-    return this.authService.signUpLocal(signUpLocalDto);
-  }
-
-  // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  @Public()
+  @AuditActivity({
+    module: 'auth',
+    action: 'signIn',
+    actor: ({ res: result }) => ({
+      type: 'user',
+      id: result.user.id,
+      name: result.user.username,
+    }),
+    redact: ['password'],
+  })
+  @NoAuth()
   @UseGuards(LocalGuard)
   @Post('sign-in')
   async signInLocal(
@@ -76,7 +70,7 @@ export class AuthController {
   // ================================================================
   // Access and refresh tokens rotation
   // ----------------------------------------------------------------
-  @Public()
+  @NoAuth()
   @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
   async refresh(
@@ -94,6 +88,7 @@ export class AuthController {
   // ================================================================
   // Sign out handlers
   // ----------------------------------------------------------------
+  @AuditActivity({ module: 'auth', action: 'signOut' })
   @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
   async signOut(
@@ -105,6 +100,7 @@ export class AuthController {
     return;
   }
 
+  @AuditActivity({ module: 'auth', action: 'signOutAll' })
   @ResSuccess({ message: 'Signed out from all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
@@ -127,44 +123,9 @@ export class AuthController {
   @Get('/me')
   async me(@ReqUser() { payload }: JwtAccessAuthResult) {
     const user = await this.userService.findOne(
-      new ResourceScope([{ field: 'id', op: 'where', value: payload.user.id }]),
+      new ResourceQuery([['id', 'eq', payload.user.id]]),
     );
     return { user };
-  }
-
-  // ================================================================
-  // User verification
-  // ----------------------------------------------------------------
-  @Public()
-  @ResSuccess({ message: 'Email verified' })
-  @Post('/verify-email')
-  verifyEmail(@Body() dto: VerifyEmailDto) {
-    return this.authService.verifyEmail(dto);
-  }
-
-  // ================================================================
-  // Reset password
-  // ----------------------------------------------------------------
-  @Public()
-  @ResSuccess({ message: "If that email exists, we've sent a reset code" })
-  @Post('/forgot-password')
-  forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto);
-  }
-
-  @Public()
-  @ResSuccess({ message: 'Code verified' })
-  @Post('/reset-password-check')
-  async resetPasswordCheck(@Body() dto: ResetPasswordCheckDto) {
-    const { expiresAt } = await this.authService.resetPasswordCheck(dto);
-    return { expiresAt };
-  }
-
-  @Public()
-  @ResSuccess({ message: 'Password reset' })
-  @Post('/reset-password')
-  resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
   }
 
   // ================================================================

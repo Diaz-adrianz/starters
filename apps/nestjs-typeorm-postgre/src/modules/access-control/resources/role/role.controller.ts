@@ -10,10 +10,11 @@ import {
 } from '@nestjs/common';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { RoleService } from './role.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -25,6 +26,7 @@ export class RoleController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
+  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('access-control:role:create')
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
@@ -34,48 +36,46 @@ export class RoleController {
   @Permission('access-control:role:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.roleService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.roleService.findMany(rq);
   }
 
   @Permission('access-control:role:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.roleService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.update(scope, updateRoleDto);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.roleService.update(rq, updateRoleDto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.archive(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.roleService.archive(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.restore(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.roleService.restore(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.roleService.delete(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.roleService.delete(rq);
   }
 }

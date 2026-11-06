@@ -33,9 +33,9 @@ export class Permission {
   @OneToMany(() => RolePermission, (rp) => rp.permission)
   roles: RolePermission[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

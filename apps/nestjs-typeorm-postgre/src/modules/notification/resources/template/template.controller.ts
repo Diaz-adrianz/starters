@@ -9,11 +9,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { TemplateService } from './template.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('notification/templates')
 export class TemplateController {
@@ -25,6 +26,7 @@ export class TemplateController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
+  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('notification:template:create')
   @Post()
   create(@Body() dto: CreateTemplateDto) {
@@ -34,48 +36,46 @@ export class TemplateController {
   @Permission('notification:template:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.templateService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.templateService.findMany(rq);
   }
 
   @Permission('notification:template:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.templateService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('notification:template:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateTemplateDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.update(scope, dto);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.templateService.update(rq, dto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('notification:template:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.archive(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.templateService.archive(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('notification:template:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.restore(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.templateService.restore(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('notification:template:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.templateService.delete(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.templateService.delete(rq);
   }
 }

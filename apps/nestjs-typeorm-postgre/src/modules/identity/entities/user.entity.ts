@@ -1,17 +1,17 @@
 import { Exclude } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../../access-control/entities/user-role.entity';
-import { VerificationToken } from './verification-token.entity';
+import { Profile } from './profile.entity';
+import { UserStatus } from '../enums/user-status.enum';
+import { Token } from './token.entity';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
@@ -28,41 +28,24 @@ export class User {
   @Column('varchar', { nullable: true })
   password?: string | null;
 
-  @Column('bool', { default: false })
-  enabled: boolean;
+  @Column('enum', { enum: UserStatus })
+  status: UserStatus;
 
   @Column('varchar', { nullable: true })
   avatar?: string | null;
 
-  @Column('timestamptz', { nullable: true })
-  verifiedAt?: Date | null;
+  @OneToOne(() => Profile, (p) => p.user)
+  profile: Profile | null;
 
-  @OneToMany(() => VerificationToken, (ur) => ur.user)
-  verificationTokens: VerificationToken[];
+  @OneToMany(() => Token, (t) => t.user)
+  tokens: Token[];
 
-  // Access control
-  @OneToMany(() => UserRole, (ur) => ur.user)
-  roles: UserRole[];
-  // ---------------------------------
-
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
-
-  @BeforeInsert()
-  async hashPassword() {
-    if (!this.password) return;
-
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
-
-  isActive(): boolean {
-    return this.enabled && !!this.verifiedAt;
-  }
 }

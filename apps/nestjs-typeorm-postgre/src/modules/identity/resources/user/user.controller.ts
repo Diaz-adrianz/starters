@@ -17,9 +17,11 @@ import {
   UserAvatarMaxBytes,
 } from './dto/update-user-avatar.dto';
 import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
-import { Permission } from '../../../../common/decorators/permission.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
+import { InviteUserDto } from './dto/invite-user.dto';
 
 @Controller('identity/users')
 export class UserController {
@@ -28,6 +30,20 @@ export class UserController {
     private storageService: DefaultStorageService,
     private store: StoreService,
   ) {}
+
+  @AuditActivity({ targetId: ({ res }) => res.id })
+  @Permission('identity:user:invite')
+  @Post('/invite')
+  invite(@Body() dto: InviteUserDto) {
+    return this.userService.invite(dto);
+  }
+
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
+  @Permission('identity:user:invite')
+  @Post(':id/resend-invite')
+  resendInvite(@Param('id') id: string) {
+    return this.userService.resendInvite(id);
+  }
 
   // ================================================================
   // Update avatar S3
@@ -38,9 +54,8 @@ export class UserController {
     @Param('id') id: string,
     @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
   ) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    const data = await this.userService.findOne(rq);
     return this.storageService.getSignedUploadUrl(
       (k) => k.tmp(k.avatar(data.id)),
       mimeType,
@@ -54,21 +69,22 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto,
   ) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    const data = await this.userService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    const data = await this.userService.findOne(rq);
     const avatar = await this.storageService.moveObject(
       updateUserAvatarDto.avatar,
       (k) => k.avatar(data.id),
     );
-    return this.userService.updateById(data.id, {
-      avatar: avatar.key,
-    });
+    return this.userService.update(rq, { avatar: avatar.key });
   }
 
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
+  @AuditActivity({
+    targetId: ({ res }) => res.id,
+    redact: ['password', 'matchPassword'],
+  })
   @Permission('identity:user:create')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -78,48 +94,52 @@ export class UserController {
   @Permission('identity:user:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.userService.findMany(scope);
+    const q = this.store
+      .buildResourceQuery()
+      .addFromDto(query, 'and', [
+        'profile.firstName',
+        'profile.lastName',
+        'profile.phoneNumber',
+      ]);
+    return this.userService.findMany(q);
   }
 
   @Permission('identity:user:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.findOne(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id, redact: [] })
   @Permission('identity:user:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.update(scope, updateUserDto);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.update(rq, updateUserDto);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.archive(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.archive(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.restore(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.restore(rq);
   }
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.userService.delete(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.delete(rq);
   }
 }

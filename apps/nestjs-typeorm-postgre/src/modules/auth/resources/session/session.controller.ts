@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { Permission } from '../../../../common/decorators/permission.decorator';
+import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { SessionService } from './session.service';
+import { Permission } from '../../../access-control/decorators/permission.decorator';
+import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('auth/sessions')
 export class SessionController {
@@ -11,12 +12,11 @@ export class SessionController {
     private store: StoreService,
   ) {}
 
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('auth:session:revoke')
   @Patch(':id/revoke')
   revokeOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.sessionService.revoke(scope);
+    return this.sessionService.revokeById(id);
   }
 
   // ================================================================
@@ -25,16 +25,22 @@ export class SessionController {
   @Permission('auth:session:read')
   @Get()
   findMany(@Query() query: ResourceQueryDto) {
-    const scope = this.store.buildResourceScope();
-    scope.addQuery(query);
-    return this.sessionService.findMany(scope);
+    const rq = this.store.buildResourceQuery().addFromDto(query);
+    return this.sessionService.findMany(rq);
   }
 
   @Permission('auth:session:read')
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const scope = this.store.buildResourceScope();
-    scope.add([{ field: 'id', op: 'where', value: id }]);
-    return this.sessionService.findOne(scope);
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.sessionService.findOne(rq);
+  }
+
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
+  @Permission('auth:session:delete')
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.sessionService.delete(rq);
   }
 }

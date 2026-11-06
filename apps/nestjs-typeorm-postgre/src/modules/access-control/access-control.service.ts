@@ -1,0 +1,123 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AppRepository } from '../../database/typeorm/app-repository';
+import { DatabaseKeys } from '../../database/database-keys.constant';
+import { RoleUser } from './entities/role-user.entity';
+import { CacheService } from '../../infra/cache/cache.service';
+import { LoggerService } from '../../infra/logger/logger.service';
+import { HOUR } from '../../shared/utils/number.util';
+import { RolePermission } from './entities/role-permission.entity';
+import { Condition } from './interfaces/condition.interface';
+
+type UserRolesCache = { id: string; name: string }[];
+
+type RolePermissionsCache = { key: string; condition: Condition | null }[];
+
+@Injectable()
+export class AccessControlService {
+  constructor(
+    @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
+    private roleUserRepo: AppRepository<RoleUser>,
+    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
+    private rolePermissionRepo: AppRepository<RolePermission>,
+    private cache: CacheService,
+    private logger: LoggerService,
+  ) {}
+
+  async findUserAccesses(userId: string) {
+    const roles = await this.findUserActiveRoles(userId),
+      permissions = await Promise.all(
+        roles.map((role) => this.findRoleActivePermissions(role.id)),
+      );
+
+    return {
+      roles: roles.map((r) => r.name),
+      permissions: permissions.flat().map((p) => p.key),
+    };
+  }
+
+  async validateUserRoles(userId: string, roleNames: string[]) {
+    const roles = await this.findUserActiveRoles(userId);
+    return roles.some((role) => roleNames.includes(role.name)) ? roles : null;
+  }
+
+  async validateUserPermission(userId: string, key: string) {
+    const roles = await this.findUserActiveRoles(userId);
+
+    const conditions: (Condition | null)[] = [];
+    for (const role of roles) {
+      const permissions = await this.findRoleActivePermissions(role.id);
+      permissions.forEach((p) => {
+        if (p.key === key) conditions.push(p.condition);
+      });
+    }
+
+    return conditions.length ? conditions : null;
+  }
+
+  invalidateRoles(roles: { id: string }[]) {
+    return this.cache.delMany((k) =>
+      roles.map((role) => k.rolePermissions(role.id)),
+    );
+  }
+
+  invalidateUsers(users: { id: string }[]) {
+    return this.cache.delMany((k) => users.map((user) => k.userRoles(user.id)));
+  }
+
+  // Utils
+  // ----------------------------------------------------------------
+  private async findUserActiveRoles(userId: string) {
+    let roles = await this.cache.get<UserRolesCache>((k) =>
+      k.userRoles(userId),
+    );
+
+    if (!roles) {
+      this.logger.debug(
+        `Roles cache missed for user "${userId}"`,
+        this.constructor.name,
+      );
+      const userRoles = await this.roleUserRepo.find({
+        where: { userId, role: { enabled: true } },
+        relations: { role: true },
+      });
+
+      roles = userRoles.map((ur) => ({
+        id: ur.role.id,
+        name: ur.role.name,
+      }));
+      await this.cache.set((k) => k.userRoles(userId), roles, 1 * HOUR);
+    }
+
+    return roles;
+  }
+
+  private async findRoleActivePermissions(roleId: string) {
+    let permissions = await this.cache.get<RolePermissionsCache>((k) =>
+      k.rolePermissions(roleId),
+    );
+
+    if (!permissions) {
+      this.logger.debug(
+        `Permissions cache missed for role "${roleId}"`,
+        this.constructor.name,
+      );
+      const rolePermissions = await this.rolePermissionRepo.find({
+        where: { roleId, permission: { enabled: true } },
+        relations: { permission: true },
+      });
+
+      permissions = rolePermissions.map(({ permission, condition }) => ({
+        key: `${permission.module}:${permission.resource}:${permission.action}`,
+        condition: condition,
+      }));
+      await this.cache.set(
+        (k) => k.rolePermissions(roleId),
+        permissions,
+        1 * HOUR,
+      );
+    }
+
+    return permissions;
+  }
+}

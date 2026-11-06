@@ -13,6 +13,8 @@ import { DeliveryPriority } from '../enums/delivery-priority.enum';
 
 @Injectable()
 export class AuthEventSubscriber {
+  private name = 'notification/' + this.constructor.name;
+
   constructor(
     @Inject(APP_CONFIG_KEY) private appConfig: AppConfig,
     private logger: LoggerService,
@@ -23,12 +25,13 @@ export class AuthEventSubscriber {
   async signIn(payload: AuthEventPayload['auth.signIn']) {
     if (this.appConfig.mode == 'development') return;
 
+    const templateKey = 'auth.signin-alert';
     try {
       await this.deliveryService.create({
         type: DeliveryType.SYSTEM,
         priority: DeliveryPriority.HIGH,
         channels: [Channel.EMAIL],
-        templateKey: 'auth.signin-alert',
+        templateKey,
         recipients: [
           {
             email: payload.email,
@@ -43,11 +46,15 @@ export class AuthEventSubscriber {
           },
         ],
       });
+      this.logger.debug(
+        `Email ${templateKey} sent for user ${payload.email} on user.signIn`,
+        this.name,
+      );
     } catch (error) {
       this.logger.error(
-        `Failed to send sign-in alert email: `,
+        `Failed to send ${templateKey} email: `,
         error,
-        this.constructor.name,
+        this.name,
       );
     }
   }

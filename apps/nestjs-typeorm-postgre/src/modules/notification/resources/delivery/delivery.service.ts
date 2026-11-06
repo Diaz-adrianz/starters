@@ -10,7 +10,6 @@ import {
 } from '../../queue/push-delivery/push-delivery.config';
 import { Channel } from '../../enums/channel.enum';
 import { Injectable } from '@nestjs/common';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { CreateDeliveryLogDto } from './dto/create-delivery-log.dto';
 import { DeliveryLog } from '../../entities/delivery-log.entity';
 import {
@@ -20,6 +19,7 @@ import {
 import { DeliveryPriorityWeight } from '../../enums/delivery-priority.enum';
 import { MessageService } from '../message/message.service';
 import { LoggerService } from '../../../../infra/logger/logger.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class DeliveryService {
@@ -145,15 +145,15 @@ export class DeliveryService {
     return delivery;
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.deliveryRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.deliveryRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 

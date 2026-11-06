@@ -3,12 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Session } from '../../entities/session.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { createHash } from 'crypto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { LoggerService } from '../../../../infra/logger/logger.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { In, Not } from 'typeorm';
 
 @Injectable()
 export class SessionService {
@@ -26,9 +27,7 @@ export class SessionService {
 
     const isExpired = new Date() > session.expiresAt;
     if (isExpired) {
-      await this.revoke(
-        new ResourceScope([{ field: 'id', op: 'where', value: session.id }]),
-      );
+      await this.revokeById(session.id);
       throw new UnauthorizedException('Session has expired');
     }
 
@@ -40,18 +39,30 @@ export class SessionService {
   }
 
   rotate(id: string, newRefreshToken: string) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.update(scope, {
-      refreshTokenHash: this.hashRefreshToken(newRefreshToken),
-      lastUsedAt: new Date(),
-    });
+    return this.sessionRepo.update(
+      { id },
+      {
+        refreshTokenHash: this.hashRefreshToken(newRefreshToken),
+        lastUsedAt: new Date(),
+      },
+    );
   }
 
-  // Base extensions
-  // ----------------------------------------------------------------
-  revoke(scope: ResourceScope) {
-    scope.add([{ field: 'isActive', op: 'where', value: true }]);
-    return this.update(scope, { isActive: false });
+  revokeById(id: string) {
+    return this.sessionRepo.update({ id, isActive: true }, { isActive: false });
+  }
+
+  revokeManyByUser(userId: string, excludedSessionIds: string[] = []) {
+    return this.sessionRepo.update(
+      {
+        userId,
+        isActive: true,
+        ...(excludedSessionIds.length && {
+          id: Not(In(excludedSessionIds)),
+        }),
+      },
+      { isActive: false },
+    );
   }
 
   // Base
@@ -61,9 +72,9 @@ export class SessionService {
     return this.sessionRepo.save(data);
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(rq: ResourceQuery) {
     return this.sessionRepo.findAndCount({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       select: this.sessionRepo.select([
         'id',
         'deviceId',
@@ -77,18 +88,18 @@ export class SessionService {
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.sessionRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
     });
   }
 
-  update(scope: ResourceScope, dto: UpdateSessionDto) {
-    return this.sessionRepo.update(scope.toFindOptions().where, dto);
+  update(rq: ResourceQuery, dto: UpdateSessionDto) {
+    return this.sessionRepo.update(rq.toFindOptions().where, dto);
   }
 
-  delete(scope: ResourceScope) {
-    return this.sessionRepo.delete(scope.toFindOptions().where);
+  delete(rq: ResourceQuery) {
+    return this.sessionRepo.delete(rq.toFindOptions().where);
   }
 
   // Utils
@@ -101,10 +112,8 @@ export class SessionService {
   // ----------------------------------------------------------------
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupExpired() {
-    const scope = new ResourceScope([
-      { field: 'expiresAt', op: 'lte', value: new Date() },
-    ]);
-    const result = await this.delete(scope);
+    const rq = new ResourceQuery([['expiresAt', 'lte', new Date()]]);
+    const result = await this.delete(rq);
     this.logger.log(
       `Cleaned up ${result.affected ?? 0} expired session(s)`,
       this.constructor.name,

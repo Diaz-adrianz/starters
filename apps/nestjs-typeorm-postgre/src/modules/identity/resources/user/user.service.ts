@@ -1,35 +1,52 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdateUserRolesAction } from './dto/update-user.dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
-import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { CacheService } from '../../../../infra/cache/cache.service';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
-import { UserRole } from '../../../access-control/entities/user-role.entity';
 import { EventService } from '../../../../infra/event/event.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { UserStatus } from '../../enums/user-status.enum';
+import { InviteUserDto } from './dto/invite-user.dto';
+import { TokenService } from '../token/token.service';
+import { generateOtp } from '../../../../shared/utils/number.util';
+import { sha256 } from '../../../../shared/utils/string.util';
+import { TokenType, TokenTypeExpire } from '../../enums/token-type.enum';
+import { Token } from '../../entities/token.entity';
+import { UserNotInvitedException } from '../../classes/exceptions/user.exception';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(User, DatabaseKeys.DEFAULT)
     private userRepo: AppRepository<User>,
-    private cache: CacheService,
+    private tokenService: TokenService,
     private event: EventService,
   ) {}
 
-  // Misc / Shared with other modules
-  // ----------------------------------------------------------------
-  findById(id: string) {
-    return this.userRepo.findOneOrFail({
-      where: { id },
-      relations: { roles: { role: true } },
+  async invite(dto: InviteUserDto) {
+    const user = await this.create({
+      email: dto.email,
+      username: dto.username,
+      roles: dto.roles,
+      status: UserStatus.INVITED,
     });
+
+    await this.issueInvitation(user);
+    return user;
+  }
+
+  async resendInvite(id: string) {
+    const user = await this.userRepo.findOneByOrFail({ id });
+
+    if (user.status !== UserStatus.INVITED) throw new UserNotInvitedException();
+
+    const token = await this.tokenService
+      .findActiveByUser(user.id, TokenType.INVITATION)
+      .catch(() => undefined);
+    await this.issueInvitation(user, token);
   }
 
   findByUsernameOrEmail(value: string) {
@@ -38,31 +55,39 @@ export class UserService {
     });
   }
 
+  findById(id: string) {
+    return this.userRepo.findOneOrFail({ where: { id } });
+  }
+
   async updatePasswordById(id: string, password: string) {
-    const salt = await bcrypt.genSalt(10),
-      hashed = await bcrypt.hash(password, salt);
     const result = await this.userRepo.update(
       id,
-      { password: hashed },
+      { password: await this.hashPassword(password) },
       { returning: ['id'] },
     );
-    this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
-    });
+    this.event.emit(
+      'identity.user.passwordUpdated',
+      result.raw as Pick<User, 'id'>[],
+    );
     return result;
   }
 
-  // Base extensions
-  // ----------------------------------------------------------------
-  updateById(id: string, updateUserDto: UpdateUserDto) {
-    const scope = new ResourceScope([{ field: 'id', op: 'where', value: id }]);
-    return this.update(scope, updateUserDto);
+  async updateStatusById(id: string, status: UserStatus) {
+    const result = await this.userRepo.update(
+      id,
+      { status },
+      { returning: ['id'] },
+    );
+    this.event.emit('identity.user.updated', {
+      target: result.raw as Pick<User, 'id'>[],
+    });
+    return result;
   }
 
   // Base
   // ----------------------------------------------------------------
   async create(createUserDto: CreateUserDto) {
-    const { email, username, password } = createUserDto;
+    const { email, username, password, roles, status } = createUserDto;
     const sameEmail = await this.userRepo.count({
       where: { email: email },
     });
@@ -76,114 +101,157 @@ export class UserService {
     const user = this.userRepo.create({
       email,
       username,
-      password,
-      enabled: true,
+      password: password ? await this.hashPassword(password) : undefined,
+      status: status ?? UserStatus.ACTIVE,
     });
     await this.userRepo.save(user);
+    this.event.emit('identity.user.created', {
+      target: { id: user.id },
+      payload: {
+        id: user.id,
+        username: username,
+        roles: roles,
+      },
+    });
     return user;
   }
 
-  findMany(scope: ResourceScope) {
+  findMany(q: ResourceQuery) {
     return this.userRepo.findAndCount({
-      ...scope.toFindOptions(),
-      relations: { roles: { role: true } },
+      ...q.toFindOptions(),
+      relations: { profile: true },
       select: {
         ...this.userRepo.select([
           'id',
           'username',
           'email',
-          'enabled',
+          'status',
           'avatar',
+          'createdAt',
         ]),
-        roles: { id: true, role: { id: true, name: true } },
+        profile: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phoneNumber: true,
+          gender: true,
+        },
       },
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.userRepo.findOneOrFail({
-      ...scope.toFindOptions(),
-      relations: { roles: { role: true } },
+      ...rq.toFindOptions(),
+      relations: { profile: true },
       select: {
         ...this.userRepo.select('*'),
-        roles: { id: true, role: { id: true, name: true } },
+        profile: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phoneNumber: true,
+          gender: true,
+        },
       },
     });
   }
 
-  async update(scope: ResourceScope, updateUserDto: UpdateUserDto) {
-    const { roles, ...payload } = updateUserDto;
-
-    const result = await this.dataSource.transaction(async (manager) => {
-      const options = scope.toFindOptions();
-      const data = await manager.findOneOrFail(User, options);
-      const result = await manager.update(User, options.where, payload, {
-        returning: ['id'],
-      });
-
-      if (roles) {
-        const { items, action } = roles;
-
-        if (action === UpdateUserRolesAction.SET) {
-          await manager.delete(UserRole, { userId: data.id });
-          await manager.insert(
-            UserRole,
-            items.map((i) => ({
-              userId: data.id,
-              roleId: i.roleId,
-            })),
-          );
-        } else if (action === UpdateUserRolesAction.ADD)
-          await manager.upsert(
-            UserRole,
-            items.map((i) => ({
-              userId: data.id,
-              roleId: i.roleId,
-            })),
-            ['userId', 'roleId'],
-          );
-        else if (action === UpdateUserRolesAction.REM)
-          await manager.delete(UserRole, {
-            userId: data.id,
-            roleId: In(items.map((i) => i.roleId)),
-          });
-      }
-
-      return result;
-    });
+  async update(rq: ResourceQuery, updateUserDto: UpdateUserDto) {
+    const result = await this.userRepo.update(
+      rq.toFindOptions().where,
+      updateUserDto,
+      { returning: ['id'] },
+    );
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
+      payload: { username: updateUserDto.username },
     });
     return result;
   }
 
-  async archive(scope: ResourceScope) {
-    const result = await this.userRepo.softDelete(scope.toFindOptions().where, {
+  async archive(rq: ResourceQuery) {
+    const result = await this.userRepo.softDelete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }
 
-  async restore(scope: ResourceScope) {
-    const result = await this.userRepo.restore(scope.toFindOptions().where, {
+  async restore(rq: ResourceQuery) {
+    const result = await this.userRepo.restore(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.updated', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
   }
 
-  async delete(scope: ResourceScope) {
-    const result = await this.userRepo.delete(scope.toFindOptions().where, {
+  async delete(rq: ResourceQuery) {
+    const result = await this.userRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('identity.user.deleted', {
-      users: result.raw as Pick<User, 'id'>[],
+      target: result.raw as Pick<User, 'id'>[],
     });
     return result;
+  }
+
+  // Utils
+  // ----------------------------------------------------------------
+  private async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  }
+
+  private async issueInvitation(user: User, token?: Token) {
+    const otp = generateOtp(6),
+      otpHash = sha256(otp);
+
+    const expire = TokenTypeExpire.invitation,
+      expiresAt = new Date(Date.now() + expire * 1000);
+
+    if (token) await this.tokenService.refresh(token.id, otpHash, expiresAt);
+    else
+      await this.tokenService.issue(
+        user.id,
+        TokenType.INVITATION,
+        otpHash,
+        expiresAt,
+      );
+
+    this.event.emit('identity.user.invited', {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
+    });
+  }
+
+  async issueSetPassword(user: User, token?: Token) {
+    const otp = generateOtp(6),
+      otpHash = sha256(otp);
+
+    const expire = TokenTypeExpire.set_password,
+      expiresAt = new Date(Date.now() + expire * 1000);
+
+    if (token) await this.tokenService.refresh(token.id, otpHash, expiresAt);
+    else
+      await this.tokenService.issue(
+        user.id,
+        TokenType.SET_PASSWORD,
+        otpHash,
+        expiresAt,
+      );
+
+    this.event.emit('identity.user.forgotPassword', {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      otp: { code: otp, expiresIn: `${expire / 60} minutes` },
+    });
   }
 }

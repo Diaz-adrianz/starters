@@ -4,23 +4,21 @@ import { DefaultStorageModule } from '../../lib/storage/default/default-storage.
 import { User } from './entities/user.entity';
 import { UserController } from './resources/user/user.controller';
 import { UserService } from './resources/user/user.service';
-import { VerificationToken } from './entities/verification-token.entity';
-import { VerificationTokenService } from './resources/verification-token/verification-token.service';
-import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber';
+import { ProfileService } from './resources/profile/profile.service';
+import { ProfileController } from './resources/profile/profile.controller';
+import { Profile } from './entities/profile.entity';
+import { Token } from './entities/token.entity';
+import { TokenService } from './resources/token/token.service';
+import { IdentityService } from './identity.service';
+import { IdentityController } from './identity.controller';
 
 @Module({
   imports: [
-    DefaultDatabaseModule.forFeature([User, VerificationToken]),
+    DefaultDatabaseModule.forFeature([User, Profile, Token]),
     DefaultStorageModule,
   ],
-  controllers: [UserController],
-  providers: [
-    UserService,
-    VerificationTokenService,
-
-    // subscribers
-    IdentityEventSubscriber,
-  ],
-  exports: [UserService, VerificationTokenService],
+  controllers: [UserController, ProfileController, IdentityController],
+  providers: [UserService, ProfileService, TokenService, IdentityService],
+  exports: [UserService],
 })
 export class IdentityModule {}

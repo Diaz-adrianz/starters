@@ -1,29 +1,23 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import * as yup from 'yup';
+import { z } from 'zod';
 
-const schema = yup.object({
-  REDIS_DEFAULT_HOST: yup.string().required(),
-  REDIS_DEFAULT_PORT: yup.number().required(),
+const schema = z.object({
+  REDIS_DEFAULT_HOST: z.string(),
+  REDIS_DEFAULT_PORT: z.coerce.number(),
 });
 
 export const redisConfig = registerAs('redis', () => {
-  try {
-    const value = schema.validateSync(process.env, {
-      abortEarly: false,
-      stripUnknown: false,
-    });
+  const { success, error, data } = schema.safeParse(process.env);
 
-    return {
-      default: {
-        host: value.REDIS_DEFAULT_HOST,
-        port: value.REDIS_DEFAULT_PORT,
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `[redis.config] validation failed:\n- ${(error as yup.ValidationError).errors.join('\n- ')}`,
-    );
-  }
+  if (!success)
+    throw new Error(`[redis.config] validation failed:\n- ${error.message}`);
+
+  return {
+    default: {
+      host: data.REDIS_DEFAULT_HOST,
+      port: data.REDIS_DEFAULT_PORT,
+    },
+  };
 });
 
 export const REDIS_CONFIG_KEY = redisConfig.KEY;

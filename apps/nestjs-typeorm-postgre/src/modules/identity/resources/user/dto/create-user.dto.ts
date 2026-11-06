@@ -1,32 +1,50 @@
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
+  IsString,
   IsStrongPassword,
-  Matches,
-  MaxLength,
-  MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { MatchWith } from '../../../../../common/decorators/validators/match-with.validator';
+import { IsUsername } from '../../../decorators/validators/is-username.validator';
+import { Exclude, Type } from 'class-transformer';
+import { UserStatus } from '../../../enums/user-status.enum';
+
+export class CreateUserRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
 
 export class CreateUserDto {
   @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches(/^[a-zA-Z][a-zA-Z0-9._]*$/, {
-    message:
-      'Username must start with a letter and contain only letters, numbers, dots, or underscores',
-  })
+  @IsUsername()
   username: string;
 
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsStrongPassword()
-  password: string;
+  password?: string | null;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MatchWith('password')
-  matchPassword: string;
+  matchPassword?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateUserRoleDto)
+  roles?: CreateUserRoleDto[];
+
+  // Internal
+  // --------------------------
+  @Exclude()
+  status?: UserStatus;
 }

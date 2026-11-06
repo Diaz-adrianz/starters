@@ -10,7 +10,6 @@ export interface JwtAccessAuthResult {
   token: string;
   payload: {
     user: { id: string; name: string };
-    roles: { id: string; name: string }[];
     session: { id: string };
   };
 }

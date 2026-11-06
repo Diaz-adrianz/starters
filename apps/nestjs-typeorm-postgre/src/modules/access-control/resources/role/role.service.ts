@@ -1,132 +1,101 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { In } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppDataSource } from '../../../../database/typeorm/app-data-source';
 import { AppRepository } from '../../../../database/typeorm/app-repository';
-import { ResourceScope } from '../../../../shared/classes/resource-scope.class';
-import { RolePermission } from '../../entities/role-permission.entity';
 import { Role } from '../../entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
-import {
-  UpdateRoleDto,
-  UpdateRolePermissionsAction,
-} from './dto/update-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { EventService } from '../../../../infra/event/event.service';
+import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectDataSource(DatabaseKeys.DEFAULT) private dataSource: AppDataSource,
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: AppRepository<Role>,
     private event: EventService,
   ) {}
 
   // ================================================================
-  // Basic CRUD
+  // Misc / shared
   // ----------------------------------------------------------------
-  create(createRoleDto: CreateRoleDto) {
-    return this.roleRepo.insert(createRoleDto);
+  findOneByName(name: string) {
+    return this.roleRepo.findOneOrFail({ where: { name } });
   }
 
-  findMany(scope: ResourceScope) {
+  // ================================================================
+  // Base
+  // ----------------------------------------------------------------
+  create(createRoleDto: CreateRoleDto) {
+    const data = this.roleRepo.create(createRoleDto);
+    return this.roleRepo.save(data);
+  }
+
+  findMany(rq: ResourceQuery) {
     return this.roleRepo.findAndCount({
-      ...scope.toFindOptions(),
-      select: { id: true, name: true, isDefault: true },
+      ...rq.toFindOptions(),
+      select: { id: true, name: true, default: true, enabled: true },
     });
   }
 
-  findOne(scope: ResourceScope) {
+  findOne(rq: ResourceQuery) {
     return this.roleRepo.findOneOrFail({
-      ...scope.toFindOptions(),
+      ...rq.toFindOptions(),
       relations: { permissions: { permission: true } },
       select: {
         ...this.roleRepo.select('*'),
         permissions: {
           id: true,
           createdAt: true,
-          scope: true,
+          condition: true,
           permission: { id: true, module: true, description: true },
         },
       },
     });
   }
 
-  async update(scope: ResourceScope, updateRoleDto: UpdateRoleDto) {
-    const { permissions, ...payload } = updateRoleDto;
-
-    const result = await this.dataSource.transaction(async (manager) => {
-      const options = scope.toFindOptions();
-      const data = await manager.findOneOrFail(Role, options);
-      const result = await manager.update(Role, options.where, payload, {
-        returning: ['id'],
-      });
-
-      if (permissions) {
-        const { items, action } = permissions;
-
-        if (action === UpdateRolePermissionsAction.SET) {
-          await manager.delete(RolePermission, { roleId: data.id });
-          await manager.insert(
-            RolePermission,
-            items.map((i) => ({
-              roleId: data.id,
-              permissionId: i.permissionId,
-              scope: i.scope,
-            })),
-          );
-        } else if (action === UpdateRolePermissionsAction.ADD)
-          await manager.upsert(
-            RolePermission,
-            items.map((i) => ({
-              roleId: data.id,
-              permissionId: i.permissionId,
-              scope: i.scope,
-            })),
-            ['roleId', 'permissionId'],
-          );
-        else if (action === UpdateRolePermissionsAction.REM)
-          await manager.delete(RolePermission, {
-            roleId: data.id,
-            permissionId: In(items.map((i) => i.permissionId)),
-          });
-      }
-
-      return result;
-    });
+  async update(rq: ResourceQuery, updateRoleDto: UpdateRoleDto) {
+    const result = await this.roleRepo.update(
+      rq.toFindOptions().where,
+      updateRoleDto,
+      { returning: ['id'] },
+    );
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
 
-  async archive(scope: ResourceScope) {
-    const result = await this.roleRepo.softDelete(scope.toFindOptions().where, {
+  async archive(rq: ResourceQuery) {
+    const result = await this.roleRepo.softDelete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
 
-  async restore(scope: ResourceScope) {
-    const result = await this.roleRepo.restore(scope.toFindOptions().where, {
+  async restore(rq: ResourceQuery) {
+    const result = await this.roleRepo.restore(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.updated', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
 
-  async delete(scope: ResourceScope) {
-    const result = await this.roleRepo.delete(scope.toFindOptions().where, {
+  async delete(rq: ResourceQuery) {
+    rq.add([
+      ['default', 'eq', false],
+      ['deletedAt', 'neq', null],
+    ]);
+    const result = await this.roleRepo.delete(rq.toFindOptions().where, {
       returning: ['id'],
     });
     this.event.emit('accessControl.role.deleted', {
-      roles: result.raw as Pick<Role, 'id'>[],
+      target: result.raw as Pick<Role, 'id'>[],
     });
     return result;
   }
