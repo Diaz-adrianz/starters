@@ -6,6 +6,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from 'axios';
+import { getClientId, getClientLabel } from './api.util';
 
 type ApiRequestConfig = AxiosRequestConfig & {
   refreshed?: boolean;
@@ -23,6 +24,11 @@ class ApiClient {
       baseURL: EnvConfig.API_URL,
       withCredentials: true,
       timeout: 10000,
+      headers: {
+        'x-client-id': getClientId(),
+        'x-client-label': getClientLabel(),
+        'x-client-type': 'web',
+      },
     });
 
     this.setupInterceptors();

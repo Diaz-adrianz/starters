@@ -61,7 +61,7 @@ const fcmStore = create<FcmState & FcmAction>()(
         set({ loading: true, error: null });
         try {
           const { token } = get();
-          if (token) await PushTokenApi.revokeByToken(token);
+          if (token) await PushTokenApi.revokeByToken(token).catch(() => {});
           const messaging = await getMessagingInstance();
           if (messaging) await deleteToken(messaging);
           set({ enabled: false, token: null });

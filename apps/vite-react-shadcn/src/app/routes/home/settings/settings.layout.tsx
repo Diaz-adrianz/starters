@@ -19,7 +19,7 @@ const Menu: Menu[] = [
   },
   {
     path: '/settings/notification',
-    label: 'Notication',
+    label: 'Notification',
     Icon: RiNotification3Line,
     IconActive: RiNotification3Fill,
   },
