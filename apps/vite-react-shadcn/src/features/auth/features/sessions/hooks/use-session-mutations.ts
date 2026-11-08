@@ -9,10 +9,10 @@ function useSessionMutations() {
   const deleteApi = useDeleteSession(),
     revokeApi = useRevokeSession();
 
-  const revoke = async (session: Pick<Session, 'id' | 'deviceLabel'>) => {
+  const revoke = async (session: Pick<Session, 'id' | 'clientLabel'>) => {
     const ok = await confirm({
       title: 'Terminate session?',
-      description: `"${session.deviceLabel || 'Unknown'}" will be signed out and must sign in again.`,
+      description: `"${session.clientLabel || 'Unknown'}" will be signed out and must sign in again.`,
       confirmVariant: 'destructive',
     });
     if (ok)
@@ -22,10 +22,10 @@ function useSessionMutations() {
       });
   };
 
-  const del = async (session: Pick<Session, 'id' | 'deviceLabel'>) => {
+  const del = async (session: Pick<Session, 'id' | 'clientLabel'>) => {
     const ok = await confirm({
       title: 'Delete session?',
-      description: `Delete "${session.deviceLabel || 'Unknown'}"? This cannot be undone.`,
+      description: `Delete "${session.clientLabel || 'Unknown'}"? This cannot be undone.`,
       confirmVariant: 'destructive',
     });
     if (ok)

@@ -29,16 +29,16 @@ function SessionItem({
   return (
     <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia variant={'icon'}>
-        {session.deviceType === 'mobile' ? (
+        {session.clientDevice === 'mobile' ? (
           <RiSmartphoneLine className="size-6" />
-        ) : session.deviceType === 'tablet' ? (
+        ) : session.clientDevice === 'tablet' ? (
           <RiTabletLine className="size-6" />
         ) : (
           <RiComputerLine className="size-6" />
         )}
       </ItemMedia>
       <ItemContent>
-        <ItemTitle>{session.deviceLabel || 'Unknown'}</ItemTitle>
+        <ItemTitle>{session.clientLabel || 'Unknown'}</ItemTitle>
         <ItemDescription>
           {session.os} · {session.browser}
         </ItemDescription>

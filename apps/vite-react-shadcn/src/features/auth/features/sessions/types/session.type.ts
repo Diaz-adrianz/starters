@@ -1,9 +1,10 @@
 export type Session = {
   id: string;
   userId: string;
-  deviceId?: string | null;
-  deviceLabel?: string | null;
-  deviceType?: string | null;
+  clientId?: string | null;
+  clientLabel?: string | null;
+  clientType?: string | null;
+  clientDevice?: string | null;
   browser?: string | null;
   os?: string | null;
   ipAddress?: string | null;
