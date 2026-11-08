@@ -26,13 +26,6 @@ export class PushTokenController {
   @Post('register')
   register(@Body() dto: RegisterPushTokenDto) {
     dto.userId = this.store.get('actor')?.id;
-
-    const device = this.store.get('device');
-    dto.deviceId = device?.id;
-    dto.deviceLabel = device?.label;
-    dto.deviceType = device?.type;
-    dto.os = device?.os;
-
     return this.pushTokenService.register(dto);
   }
 
