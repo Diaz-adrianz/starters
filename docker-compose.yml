@@ -8,8 +8,6 @@ services:
     build:
       context: ./apps/nestjs-typeorm-postgre
       dockerfile: Dockerfile
-    ports:
-      - '127.0.0.1:5001:5001'
     env_file:
       - ./apps/nestjs-typeorm-postgre/.env
     volumes:
@@ -21,30 +19,30 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    ports:
+      - '127.0.0.1:5001:5001'
 
   app-vite-react-shadcn:
     build:
       context: ./apps/vite-react-shadcn
       dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
       - '127.0.0.1:5173:80'
-    restart: unless-stopped
 
   # ------------------------------------------------------------------
   # SeaweedFS
   # ------------------------------------------------------------------
   seaweedfs-master:
     image: chrislusf/seaweedfs:latest
-    container_name: seaweedfs-master
-    command: master -ip.bind=0.0.0.0 -port=${SEAWEEDFS_MASTER_PORT}
+    command: master -ip=seaweedfs-master -port=9333 -mdir=/data
     volumes:
       - seaweedfs-master-data:/data
     restart: unless-stopped
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs:latest
-    container_name: seaweedfs-volume
-    command: volume -mserver=seaweedfs-master:${SEAWEEDFS_MASTER_PORT} -port=${SEAWEEDFS_VOLUME_PORT} -ip.bind=0.0.0.0
+    command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data
     volumes:
       - seaweedfs-volume-data:/data
     depends_on:
@@ -53,8 +51,7 @@ services:
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs:latest
-    container_name: seaweedfs-filer
-    command: filer -master=seaweedfs-master:${SEAWEEDFS_MASTER_PORT} -port=${SEAWEEDFS_FILER_PORT} -ip.bind=0.0.0.0
+    command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -port=8888 -defaultStoreDir=/data
     volumes:
       - seaweedfs-filer-data:/data
     depends_on:
@@ -64,51 +61,39 @@ services:
 
   seaweedfs-s3:
     image: chrislusf/seaweedfs:latest
-    container_name: seaweedfs-s3
-    command: s3 -filer=seaweedfs-filer:${SEAWEEDFS_FILER_PORT} -port=${SEAWEEDFS_S3_PORT} -ip.bind=0.0.0.0 -config=/etc/seaweedfs/s3-config.json
-    volumes:
-      - ./seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json
+    command: s3 -filer=seaweedfs-filer:8888 -port=8333
     depends_on:
       - seaweedfs-filer
     restart: unless-stopped
     ports:
-      - ${SEAWEEDFS_S3_PORT}:${SEAWEEDFS_S3_PORT}
+      - 127.0.0.1:8333:8333
 
   seaweedfs-admin:
     image: chrislusf/seaweedfs:latest
-    container_name: seaweedfs-admin
-    command: 'admin -masters="seaweedfs-master:${SEAWEEDFS_MASTER_PORT}" -port=${SEAWEEDFS_ADMIN_PORT} -adminUser=${SEAWEEDFS_ADMIN_USER} -adminPassword=${SEAWEEDFS_ADMIN_PASSWORD} -dataDir=/data'
+    command: admin -master=seaweedfs-master:9333 -port=23646 -dataDir=/data -adminUser=${SEAWEEDFS_ADMIN_USER} -adminPassword=${SEAWEEDFS_ADMIN_PASSWORD}
     volumes:
       - seaweedfs-admin-data:/data
     depends_on:
       - seaweedfs-master
+      - seaweedfs-filer
     restart: unless-stopped
     ports:
-      - ${SEAWEEDFS_ADMIN_PORT}:${SEAWEEDFS_ADMIN_PORT}
+      - 127.0.0.1:23646:23646
 
-  seaweedfs-init:
-    image: amazon/aws-cli
-    entrypoint: ['/bin/sh', '-c', 'for f in /init-scripts/*.sh; do sh "$$f"; done']
-    depends_on:
-      seaweedfs-s3:
-        condition: service_started
+  awscli:
+    image: amazon/aws-cli:latest
+    profiles: ['tools']
+    entrypoint: aws
     environment:
-      - S3_ENDPOINT=http://seaweedfs-s3:${SEAWEEDFS_S3_PORT}
-      - S3_BUCKETS=${SEAWEEDFS_BUCKETS}
-      - S3_TMP_EXPIRES=${SEAWEEDFS_TMP_EXPIRES}
-      - AWS_ACCESS_KEY_ID=${SEAWEEDFS_CLI_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${SEAWEEDFS_CLI_SECRET_ACCESS_KEY}
-    volumes:
-      - ./seaweedfs/init:/init-scripts:ro
-    restart: 'no'
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      - seaweedfs-s3
 
   # ------------------------------------------------------------------
   # Databases
   # ------------------------------------------------------------------
   redis:
     image: redis:7-alpine
-    ports:
-      - '6379'
     volumes:
       - redis-data:/data
     healthcheck:
@@ -117,14 +102,14 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    ports:
+      - '6379'
 
   postgres:
     image: postgres:18
     restart: unless-stopped
     env_file:
       - ./postgres/.env
-    ports:
-      - '127.0.0.1:5433:5432'
     volumes:
       - postgres-data:/var/lib/postgresql
     healthcheck:
@@ -132,6 +117,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    ports:
+      - '127.0.0.1:5433:5432'
 
   mysql:
     image: mysql:8.4
@@ -158,11 +145,11 @@ services:
     init: true
     env_file:
       - ./n8n/.env
-    ports:
-      - '127.0.0.1:5678:5678'
     volumes:
       - n8n-data:/home/node/.n8n
       - ./n8n/local-files:/files
+    ports:
+      - '127.0.0.1:5678:5678'
 
 volumes:
   seaweedfs-master-data:
