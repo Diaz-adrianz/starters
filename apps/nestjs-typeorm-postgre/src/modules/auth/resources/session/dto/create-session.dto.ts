@@ -1,4 +1,8 @@
 import { Exclude } from 'class-transformer';
+import {
+  ClientType,
+  DeviceType,
+} from '../../../../../shared/constants/device.constant';
 
 export class CreateSessionDto {
   @Exclude()
@@ -17,13 +21,19 @@ export class CreateSessionDto {
   deviceLabel?: string | null;
 
   @Exclude()
-  deviceType?: string | null;
+  deviceType?: DeviceType | null;
+
+  @Exclude()
+  clientType?: ClientType | null;
 
   @Exclude()
   browser?: string | null;
 
   @Exclude()
   os?: string | null;
+
+  @Exclude()
+  osVersion?: string | null;
 
   @Exclude()
   ipAddress?: string | null;

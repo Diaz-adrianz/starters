@@ -58,8 +58,10 @@ export class AuthService {
       deviceId: device.id,
       deviceLabel: device.label,
       deviceType: device.type,
+      clientType: device.client,
       browser: device.browser,
       os: device.os,
+      osVersion: device.osVersion,
       ipAddress: device.ipAddress,
       userAgent: device.userAgent,
       expiresAt: new Date(
