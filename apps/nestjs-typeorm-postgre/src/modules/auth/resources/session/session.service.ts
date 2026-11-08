@@ -77,10 +77,10 @@ export class SessionService {
       ...rq.toFindOptions(),
       select: this.sessionRepo.select([
         'id',
-        'deviceId',
-        'deviceLabel',
-        'deviceType',
+        'clientId',
+        'clientLabel',
         'clientType',
+        'clientDevice',
         'browser',
         'os',
         'osVersion',

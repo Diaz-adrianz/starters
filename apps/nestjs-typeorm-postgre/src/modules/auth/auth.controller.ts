@@ -61,7 +61,7 @@ export class AuthController {
   ) {
     const result = await this.authService.signIn(
       user,
-      this.store.getOrThrow('device'),
+      this.store.getOrThrow('client'),
     );
     this.setRefreshTokenCookie(res, result.tokens.refresh);
     return result;
@@ -79,7 +79,7 @@ export class AuthController {
   ) {
     const result = await this.authService.refresh(
       refreshAuthResult,
-      this.store.get('device'),
+      this.store.get('client'),
     );
     this.setRefreshTokenCookie(res, result.tokens.refresh);
     return result;

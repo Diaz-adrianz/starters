@@ -59,4 +59,40 @@ export const maskEmailString = (
 
   return `${local}@${maskString(name, { start: 0, ...opts.domain })}${tld}`;
 };
+
+export const maskIp = (ip: string | null | undefined): string => {
+  if (!ip || ip === 'unknown') return '';
+
+  const v4 = ip.replace(/^::ffff:/i, '');
+
+  if (v4.includes('.')) {
+    const [first, ...rest] = v4.split('.');
+    return [
+      first,
+      ...rest
+        .slice(0, -1)
+        .map(() => maskString('x', { full: true, fixedLength: 3 })),
+      rest.at(-1),
+    ].join('.');
+  }
+
+  if (ip.includes(':')) {
+    const parts = ip.split(':').filter(Boolean);
+    return (
+      parts.slice(0, 3).join(':') + ':' + maskString('', { full: true }) + '…'
+    );
+  }
+
+  return '';
+};
+
 // ------------------------------------------------------------------------------------
+
+export const clean = (v: string | null | undefined, max = 80) => {
+  return (v ?? '')
+    .normalize('NFKC')
+    .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+};

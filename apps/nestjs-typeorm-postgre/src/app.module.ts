@@ -16,7 +16,6 @@ import { EventModule } from './infra/event/event.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { StoreModule } from './infra/store/store.module';
 import { RequestMiddleware } from './common/middlewares/request.middleware';
-import { DeviceMiddleware } from './common/middlewares/device.middleware';
 import { JwtAccessGuard } from './modules/auth/guards/jwt-access.guard';
 import { WebsocketModule } from './infra/websocket/websocket.module';
 import { HealthModule } from './infra/health/health.module';
@@ -24,6 +23,7 @@ import { RolesGuard } from './modules/access-control/guards/roles.guard';
 import { PermissionGuard } from './modules/access-control/guards/permission.guard';
 import { AuditModule } from './modules/audit/audit.module';
 import { ActivityInterceptor } from './modules/audit/interceptors/activity.interceptor';
+import { ClientMiddleware } from './common/middlewares/client.middleware';
 
 @Module({
   imports: [
@@ -101,6 +101,6 @@ import { ActivityInterceptor } from './modules/audit/interceptors/activity.inter
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestMiddleware).forRoutes('*');
-    consumer.apply(DeviceMiddleware).forRoutes('*');
+    consumer.apply(ClientMiddleware).forRoutes('*');
   }
 }

@@ -4,14 +4,14 @@ import { Request } from 'express';
 import { HeaderKeys } from '../../shared/constants/header-keys.constant';
 import { StoreService } from '../../infra/store/store.service';
 import {
+  ClientDevice,
+  ClientDevices,
   ClientType,
   ClientTypes,
-  DeviceType,
-  DeviceTypes,
-} from '../../shared/constants/device.constant';
+} from '../../shared/constants/client.constant';
 
 @Injectable()
-export class DeviceMiddleware implements NestMiddleware {
+export class ClientMiddleware implements NestMiddleware {
   constructor(private store: StoreService) {}
 
   private header(req: Request, key: string): string | undefined {
@@ -32,10 +32,10 @@ export class DeviceMiddleware implements NestMiddleware {
         ? (rawClientType as ClientType)
         : 'web';
 
-    const deviceId = this.header(req, HeaderKeys.DEVICE_ID),
-      headerDeviceLabel = this.header(req, HeaderKeys.DEVICE_LABEL);
+    const clientId = this.header(req, HeaderKeys.CLIENT_ID),
+      rawClientLabel = this.header(req, HeaderKeys.CLIENT_LABEL);
 
-    let deviceType: DeviceType | undefined,
+    let clientDevice: ClientDevice | undefined,
       browser: string | undefined,
       os: string | undefined,
       osVersion: string | undefined;
@@ -44,7 +44,7 @@ export class DeviceMiddleware implements NestMiddleware {
       const result = new UAParser(userAgent).getResult(),
         parsedType = result.device.type;
 
-      deviceType =
+      clientDevice =
         parsedType === 'tablet'
           ? 'tablet'
           : parsedType === 'mobile'
@@ -54,9 +54,9 @@ export class DeviceMiddleware implements NestMiddleware {
       os = result.os.name;
       osVersion = result.os.version;
     } else {
-      const rawDeviceType = this.header(req, HeaderKeys.DEVICE_TYPE);
-      deviceType = DeviceTypes.includes(rawDeviceType as DeviceType)
-        ? (rawDeviceType as DeviceType)
+      const rawDevice = this.header(req, HeaderKeys.CLIENT_DEVICE);
+      clientDevice = ClientDevices.includes(rawDevice as ClientDevice)
+        ? (rawDevice as ClientDevice)
         : 'mobile';
       os =
         this.header(req, HeaderKeys.OS_NAME) ||
@@ -64,14 +64,14 @@ export class DeviceMiddleware implements NestMiddleware {
       osVersion = this.header(req, HeaderKeys.OS_VERSION);
     }
 
-    const deviceLabel =
-      headerDeviceLabel || [browser, os].filter(Boolean).join(' on ');
+    const clientLabel =
+      rawClientLabel || [browser, os].filter(Boolean).join(' on ');
 
-    this.store.set('device', {
-      id: deviceId,
-      label: deviceLabel,
-      type: deviceType,
-      client: clientType,
+    this.store.set('client', {
+      id: clientId,
+      label: clientLabel,
+      type: clientType,
+      device: clientDevice,
       browser,
       os,
       osVersion,

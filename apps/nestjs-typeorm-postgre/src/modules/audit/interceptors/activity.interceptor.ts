@@ -94,7 +94,7 @@ export class ActivityInterceptor implements NestInterceptor {
         return;
       }
 
-      const device = this.store.get('device');
+      const client = this.store.get('client');
 
       this.event.emit('audit.activity.create', {
         actorType: ActorTypeMap[actor.type],
@@ -111,8 +111,8 @@ export class ActivityInterceptor implements NestInterceptor {
         requestId: this.store.get('requestId'),
         context: {
           path: req.path,
-          ip: device?.ipAddress,
-          userAgent: device?.userAgent,
+          ip: client?.ipAddress,
+          userAgent: client?.userAgent,
         },
         changes:
           req.body && Object.keys(req.body).length

@@ -1,6 +1,9 @@
 import { ClsStore } from 'nestjs-cls';
 import { Condition } from '../../modules/access-control/interfaces/condition.interface';
-import { ClientType, DeviceType } from '../../shared/constants/device.constant';
+import {
+  ClientDevice,
+  ClientType,
+} from '../../shared/constants/client.constant';
 
 export interface Store extends ClsStore {
   requestId: string;
@@ -16,11 +19,11 @@ export interface Store extends ClsStore {
   session: {
     id: string;
   } | null;
-  device?: {
+  client?: {
     id?: string;
     label?: string;
-    type?: DeviceType;
-    client?: ClientType;
+    type?: ClientType;
+    device?: ClientDevice;
     browser?: string;
     os?: string;
     osVersion?: string;
