@@ -2,7 +2,8 @@ import { ConfigType, registerAs } from '@nestjs/config';
 import { z } from 'zod';
 
 const schema = z.object({
-  STORAGE_DEFAULT_ENDPOINT: z.string(),
+  STORAGE_DEFAULT_ENDPOINT: z.url(),
+  STORAGE_DEFAULT_PUBLIC_ENDPOINT: z.url(),
   STORAGE_DEFAULT_REGION: z.string(),
   STORAGE_DEFAULT_ACCESS_KEY_ID: z.string(),
   STORAGE_DEFAULT_SECRET_ACCESS_KEY: z.string(),
@@ -21,6 +22,7 @@ export const storageConfig = registerAs('storage', () => {
   return {
     default: {
       endpoint: data.STORAGE_DEFAULT_ENDPOINT,
+      publicEndpoint: data.STORAGE_DEFAULT_PUBLIC_ENDPOINT,
       region: data.STORAGE_DEFAULT_REGION,
       accessKeyId: data.STORAGE_DEFAULT_ACCESS_KEY_ID,
       secretAccessKey: data.STORAGE_DEFAULT_SECRET_ACCESS_KEY,

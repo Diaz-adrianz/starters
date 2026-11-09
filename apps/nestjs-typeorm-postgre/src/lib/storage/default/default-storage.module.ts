@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
 import { DefaultStorageController } from './default-storage.controller';
-import { IsStorageFileConstraint } from './validators/is-storage-file';
 import {
   STORAGE_CONFIG_KEY,
   storageConfig,
@@ -44,7 +43,7 @@ import { LoggerService } from '../../../infra/logger/logger.service';
       }),
     }),
   ],
-  providers: [DefaultStorageService, IsStorageFileConstraint],
+  providers: [DefaultStorageService],
   controllers: [DefaultStorageController],
   exports: [DefaultStorageService],
 })
