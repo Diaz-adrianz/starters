@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { DefaultDatabaseModule } from '../../database/default/default-database.module';
-import { DefaultStorageModule } from '../../lib/storage/default/default-storage.module';
 import { User } from './entities/user.entity';
 import { UserController } from './resources/user/user.controller';
 import { UserService } from './resources/user/user.service';
@@ -13,10 +12,7 @@ import { IdentityService } from './identity.service';
 import { IdentityController } from './identity.controller';
 
 @Module({
-  imports: [
-    DefaultDatabaseModule.forFeature([User, Profile, Token]),
-    DefaultStorageModule,
-  ],
+  imports: [DefaultDatabaseModule.forFeature([User, Profile, Token])],
   controllers: [UserController, ProfileController, IdentityController],
   providers: [UserService, ProfileService, TokenService, IdentityService],
   exports: [UserService],

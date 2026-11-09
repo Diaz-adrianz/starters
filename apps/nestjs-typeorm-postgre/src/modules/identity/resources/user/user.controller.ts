@@ -11,12 +11,6 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {
-  CreateUserAvatarUploadUrlDto,
-  UpdateUserAvatarDto,
-  UserAvatarMaxBytes,
-} from './dto/update-user-avatar.dto';
-import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
@@ -27,7 +21,6 @@ import { InviteUserDto } from './dto/invite-user.dto';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private storageService: DefaultStorageService,
     private store: StoreService,
   ) {}
 
@@ -43,39 +36,6 @@ export class UserController {
   @Post(':id/resend-invite')
   resendInvite(@Param('id') id: string) {
     return this.userService.resendInvite(id);
-  }
-
-  // ================================================================
-  // Update avatar S3
-  // ----------------------------------------------------------------
-  @Permission('identity:user:update-avatar')
-  @Post(':id/avatar/upload-url')
-  async createAvatarUploadUrl(
-    @Param('id') id: string,
-    @Body() { mimeType }: CreateUserAvatarUploadUrlDto,
-  ) {
-    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
-    const data = await this.userService.findOne(rq);
-    return this.storageService.getSignedUploadUrl(
-      (k) => k.tmp(k.avatar(data.id)),
-      mimeType,
-      UserAvatarMaxBytes,
-    );
-  }
-
-  @Permission('identity:user:update-avatar')
-  @Patch(':id/avatar')
-  async updateAvatar(
-    @Param('id') id: string,
-    @Body() updateUserAvatarDto: UpdateUserAvatarDto,
-  ) {
-    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
-    const data = await this.userService.findOne(rq);
-    const avatar = await this.storageService.moveObject(
-      updateUserAvatarDto.avatar,
-      (k) => k.avatar(data.id),
-    );
-    return this.userService.update(rq, { avatar: avatar.key });
   }
 
   // ================================================================
