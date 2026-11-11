@@ -23,7 +23,6 @@ import {
   MediaExtensions,
   MediaMimeType,
 } from '../../../shared/constants/media-types.constant';
-import { StorageFileValidationError } from './classes/exceptions/storage.exception';
 import { stringifyBytes } from '../../../shared/utils/string.util';
 import { fileTypeFromStream } from 'file-type';
 
@@ -77,24 +76,23 @@ export class DefaultStorageService {
     try {
       head = await this.headObject(key);
     } catch {
-      throw new StorageFileValidationError(`${name} does not exist`);
+      throw new BadRequestException(`${name} does not exist`);
     }
 
     if (options.maxSize && (head.ContentLength ?? 0) > options.maxSize)
-      throw new StorageFileValidationError(
+      throw new BadRequestException(
         `${name} size exceeds maximum of ${stringifyBytes(options.maxSize)}`,
       );
 
     if (options.mimeTypes?.length) {
       const stream = await this.getObject(key, 'bytes=0-4095');
-      if (!stream)
-        throw new StorageFileValidationError(`${name} is not readable`);
+      if (!stream) throw new BadRequestException(`${name} is not readable`);
 
       const fileType = await fileTypeFromStream(stream.transformToWebStream());
       const mime = fileType?.mime ?? '';
 
       if (!options.mimeTypes.includes(mime as MediaMimeType))
-        throw new StorageFileValidationError(
+        throw new BadRequestException(
           `${name} type ${MediaExtensions[mime] ?? 'unknown'} is not allowed`,
         );
     }

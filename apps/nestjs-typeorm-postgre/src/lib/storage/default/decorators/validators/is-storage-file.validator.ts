@@ -9,7 +9,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { MediaMimeType } from '../../../../../shared/constants/media-types.constant';
 import { DefaultStorageService } from '../../default-storage.service';
 import { StoreService } from '../../../../../infra/store/store.service';
-import { StorageFileValidationError } from '../../classes/exceptions/storage.exception';
 import { LoggerService } from '../../../../../infra/logger/logger.service';
 
 interface IsStorageFileOptions {
@@ -58,9 +57,7 @@ export class IsStorageFileValidator implements ValidatorConstraintInterface {
       args.object[args.property] = result;
       return true;
     } catch (e) {
-      if (!(
-        e instanceof StorageFileValidationError || e instanceof HttpException
-      ))
+      if (!(e instanceof HttpException))
         this.logger.error(
           `Failed to validate ${prop} ${key}:`,
           e,
@@ -68,7 +65,7 @@ export class IsStorageFileValidator implements ValidatorConstraintInterface {
         );
 
       this.lastError =
-        e instanceof StorageFileValidationError || e instanceof HttpException
+        e instanceof HttpException
           ? e.message
           : `${args.property} could not be verified`;
 
