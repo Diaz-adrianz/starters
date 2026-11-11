@@ -24,6 +24,7 @@ import { PermissionGuard } from './modules/access-control/guards/permission.guar
 import { AuditModule } from './modules/audit/audit.module';
 import { ActivityInterceptor } from './modules/audit/interceptors/activity.interceptor';
 import { ClientMiddleware } from './common/middlewares/client.middleware';
+import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
 
 @Module({
   imports: [
@@ -39,6 +40,10 @@ import { ClientMiddleware } from './common/middlewares/client.middleware';
     StoreModule,
     WebsocketModule,
     HealthModule,
+
+    // Infra
+    // ---------------------------------
+    DefaultStorageModule,
 
     // App modules
     // ---------------------------------

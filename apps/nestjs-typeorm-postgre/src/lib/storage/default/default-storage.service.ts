@@ -10,6 +10,9 @@ import {
   STORAGE_CONFIG_KEY,
   type StorageConfig,
 } from '../../../config/storage.config';
+import { CreatePresignedPostDto } from './dto/create-presigned-post.dto';
+import { randomUUID } from 'crypto';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 @Injectable()
 export class DefaultStorageService {
@@ -20,6 +23,21 @@ export class DefaultStorageService {
     @Inject(STORAGE_CONFIG_KEY) private storageConfig: StorageConfig,
   ) {
     this.bucket = storageConfig.default.bucket;
+  }
+
+  async createPresignedPost(dto: CreatePresignedPostDto) {
+    const key = `tmp/${dto.ownerId}/${randomUUID()}`;
+    const { url, fields } = await createPresignedPost(this.s3, {
+      Bucket: this.bucket,
+      Key: key,
+      Conditions: [
+        ['content-length-range', dto.size, dto.size],
+        ['eq', '$Content-Type', dto.mimeType],
+      ],
+      Fields: { 'Content-Type': dto.mimeType },
+      Expires: 300,
+    });
+    return { url, fields };
   }
 
   async getObject(key: string, range?: string) {
