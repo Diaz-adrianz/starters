@@ -9,6 +9,7 @@ import {
 } from '../../../config/storage.config';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerService } from '../../../infra/logger/logger.service';
+import { IsStorageFileValidator } from './decorators/validators/is-storage-file.validator';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { LoggerService } from '../../../infra/logger/logger.service';
       }),
     }),
   ],
-  providers: [DefaultStorageService],
+  providers: [DefaultStorageService, IsStorageFileValidator],
   controllers: [DefaultStorageController],
   exports: [DefaultStorageService],
 })
