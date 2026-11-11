@@ -37,6 +37,8 @@ Add the following variables to the project's root `.env` file:
 ```
 SEAWEEDFS_ADMIN_USER=admin
 SEAWEEDFS_ADMIN_PASSWORD=change-this-password
+SEAWEEDFS_S3_ADMIN_ACCESS_KEY=admin-ak
+SEAWEEDFS_S3_ADMIN_SECRET_KEY=replace-with-a-strong-secret
 ```
 
 These credentials are used by the SeaweedFS Admin service.
@@ -82,6 +84,8 @@ Example:
 ```
 
 Keep `s3-config.json` out of version control because it contains credentials.
+
+**Important:** The admin identity's accessKey and secretKey are required and must exactly match SEAWEEDFS_S3_ADMIN_ACCESS_KEY and SEAWEEDFS_S3_ADMIN_SECRET_KEY in the root `.env` file. These credentials are used by the setup scripts to perform administrative S3 operations.
 
 ## Scripts
 
