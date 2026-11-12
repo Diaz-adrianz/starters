@@ -1,4 +1,6 @@
 import {
+  CopyObjectCommand,
+  CopyObjectCommandOutput,
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -6,9 +8,11 @@ import {
 } from '@aws-sdk/client-s3';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectS3, type S3 } from 'nestjs-s3';
 
@@ -25,6 +29,7 @@ import {
 } from '../../../shared/constants/media-types.constant';
 import { stringifyBytes } from '../../../shared/utils/string.util';
 import { fileTypeFromStream } from 'file-type';
+import { LoggerService } from '../../../infra/logger/logger.service';
 
 const TEMP_PREFIX = 'temp';
 
@@ -35,6 +40,7 @@ export class DefaultStorageService {
   constructor(
     @InjectS3() private readonly s3: S3,
     @Inject(STORAGE_CONFIG_KEY) private storageConfig: StorageConfig,
+    private logger: LoggerService,
   ) {
     this.bucket = storageConfig.default.bucket;
   }
@@ -97,7 +103,53 @@ export class DefaultStorageService {
         );
     }
 
-    return { key, etag: head.ETag?.replaceAll('"', '') ?? '' };
+    return { key, etag: head.ETag ?? '' };
+  }
+
+  async moveObject(
+    sourceKey: string,
+    destinationKey: string,
+    etag: string,
+    cacheControl?: string,
+  ) {
+    if (sourceKey === destinationKey)
+      throw new BadRequestException('Source and destination must differ');
+
+    let copied: CopyObjectCommandOutput;
+    try {
+      const head = await this.headObject(sourceKey);
+      copied = await this.s3.send(
+        new CopyObjectCommand({
+          Bucket: this.bucket,
+          Key: destinationKey,
+          CopySource: `${this.bucket}/${this.encodeKey(sourceKey)}`,
+          CopySourceIfMatch: etag,
+          MetadataDirective: 'REPLACE',
+          CacheControl: cacheControl,
+          ContentType: head.ContentType,
+          ContentDisposition: head.ContentDisposition,
+          ContentEncoding: head.ContentEncoding,
+          ContentLanguage: head.ContentLanguage,
+          Metadata: head.Metadata,
+        }),
+      );
+    } catch (e: any) {
+      if (
+        e?.name === 'PreconditionFailed' ||
+        e?.$metadata?.httpStatusCode === 412
+      )
+        throw new ConflictException('File changed since validation');
+      if (e?.name === 'NoSuchKey' || e?.name === 'NotFound')
+        throw new NotFoundException('Source file not found');
+      throw e;
+    }
+
+    await this.deleteObject(sourceKey).catch();
+
+    return {
+      key: destinationKey,
+      etag: copied.CopyObjectResult?.ETag ?? '',
+    };
   }
 
   async getObject(key: string, range?: string) {
@@ -114,8 +166,21 @@ export class DefaultStorageService {
   }
 
   async deleteObject(key: string) {
-    await this.s3.send(
-      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
-    );
+    try {
+      return this.s3.send(
+        new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+      );
+    } catch (e) {
+      this.logger.error(
+        `Failed to delete object ${key}: `,
+        e,
+        this.constructor.name,
+      );
+      throw e;
+    }
+  }
+
+  encodeKey(key: string) {
+    return key.split('/').map(encodeURIComponent).join('/');
   }
 }

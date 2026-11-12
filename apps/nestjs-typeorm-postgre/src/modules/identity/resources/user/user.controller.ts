@@ -16,6 +16,7 @@ import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
 import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 import { InviteUserDto } from './dto/invite-user.dto';
+import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 
 @Controller('identity/users')
 export class UserController {
@@ -36,6 +37,14 @@ export class UserController {
   @Post(':id/resend-invite')
   resendInvite(@Param('id') id: string) {
     return this.userService.resendInvite(id);
+  }
+
+  @AuditActivity({ targetId: ({ req }) => req.params.id })
+  @Permission('identity:user:update-avatar')
+  @Patch(':id/avatar')
+  updateAvatar(@Param('id') id: string, @Body() dto: UpdateUserAvatarDto) {
+    const rq = this.store.buildResourceQuery().add([['id', 'eq', id]]);
+    return this.userService.updateAvatar(rq, dto);
   }
 
   // ================================================================

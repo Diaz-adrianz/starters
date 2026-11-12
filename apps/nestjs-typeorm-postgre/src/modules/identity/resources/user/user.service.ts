@@ -16,6 +16,9 @@ import { sha256 } from '../../../../shared/utils/string.util';
 import { TokenType, TokenTypeExpire } from '../../enums/token-type.enum';
 import { Token } from '../../entities/token.entity';
 import { UserNotInvitedException } from '../../classes/exceptions/user.exception';
+import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
+import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -24,6 +27,7 @@ export class UserService {
     private userRepo: AppRepository<User>,
     private tokenService: TokenService,
     private event: EventService,
+    private storage: DefaultStorageService,
   ) {}
 
   async invite(dto: InviteUserDto) {
@@ -82,6 +86,28 @@ export class UserService {
       target: result.raw as Pick<User, 'id'>[],
     });
     return result;
+  }
+
+  async updateAvatar(rq: ResourceQuery, dto: UpdateUserAvatarDto) {
+    const user = await this.userRepo.findOneOrFail({ ...rq.toFindOptions() });
+
+    const avatar = await this.storage.moveObject(
+      dto.avatar.key,
+      `public/identity/user-avatars/${user.id}/${randomUUID()}`,
+      dto.avatar.etag,
+      'public, max-age=31536000, immutable',
+    );
+
+    try {
+      await this.userRepo.update({ id: user.id }, { avatar: avatar.key });
+    } catch (e) {
+      await this.storage.deleteObject(avatar.key).catch();
+      throw e;
+    }
+
+    if (user.avatar) {
+      await this.storage.deleteObject(user.avatar);
+    }
   }
 
   // Base
