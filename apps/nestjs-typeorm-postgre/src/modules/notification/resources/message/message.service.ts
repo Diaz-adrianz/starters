@@ -2,20 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from '../../entities/message.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { TemplateService } from '../template/template.service';
 import { Channel } from '../../enums/channel.enum';
 import { NotificationGateway } from '../../notification.gateway';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { Repository } from 'typeorm';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class MessageService {
+export class MessageService extends ResourceService<Message> {
   constructor(
     @InjectRepository(Message, DatabaseKeys.DEFAULT)
-    private messageRepo: AppRepository<Message>,
+    private messageRepo: Repository<Message>,
     private templateService: TemplateService,
     private gateway: NotificationGateway,
-  ) {}
+  ) {
+    super(messageRepo);
+  }
 
   count(rq: ResourceQuery) {
     return this.messageRepo.count(rq.toFindOptions());
@@ -51,7 +54,7 @@ export class MessageService {
       ),
     );
 
-    await this.messageRepo.save(messages);
+    const res = await this.messageRepo.save(messages);
 
     messages.forEach((message) =>
       this.gateway.emitToUser(message.userId, 'message.created', {
@@ -61,18 +64,17 @@ export class MessageService {
       }),
     );
 
-    return messages;
+    return res;
   }
 
-  // ================================================================
-  // Basic CRUD
+  // Base
   // ----------------------------------------------------------------
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.messageRepo.findAndCount({
       ...rq.toFindOptions(),
       relations: { delivery: true },
       select: {
-        ...this.messageRepo.select('*'),
+        ...this.select('*'),
         delivery: {
           id: true,
           type: true,
@@ -81,7 +83,8 @@ export class MessageService {
     });
   }
 
-  delete(rq: ResourceQuery) {
-    return this.messageRepo.delete(rq.toFindOptions().where);
+  async delete(rq: ResourceQuery) {
+    const data = await this.load(rq.toFindOptions());
+    return this.messageRepo.remove(data);
   }
 }

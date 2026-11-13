@@ -8,11 +8,11 @@ import { Channel } from '../../enums/channel.enum';
 import { PushProvider } from '../../enums/push-provider.enum';
 import { chunk } from '../../../../shared/utils/array.util';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { PushToken } from '../../entities/push-token.entity';
 import { DeliveryLogStatus } from '../../enums/delivery-log-status.enum';
-import { In } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { DeliveryService } from '../../resources/delivery/delivery.service';
 
 interface SendMessageResult {
@@ -26,7 +26,7 @@ export class PushDeliveryProcessor extends WorkerHost {
   constructor(
     private logger: LoggerService,
     @InjectRepository(PushToken, DatabaseKeys.DEFAULT)
-    private pushTokenRepo: AppRepository<PushToken>,
+    private pushTokenRepo: Repository<PushToken>,
     private deliveryService: DeliveryService,
     private templateService: TemplateService,
     private firebaseService: DefaultFirebaseService,
