@@ -178,8 +178,12 @@ export class AuthService {
     if (user.status === UserStatus.DISABLED) throw new UserDisabledException();
   }
 
-  invalidateUsers(...userIds: string[]) {
-    return this.cache.delMany((k) => userIds.map((id) => k.user(id)));
+  async invalidateUsers(...userIds: string[]) {
+    await this.cache.delMany((k) => userIds.map((id) => k.user(id)));
+    this.logger.debug(
+      `User cache invalidated: ${userIds.join(', ')}`,
+      this.constructor.name,
+    );
   }
 
   // ================================================================

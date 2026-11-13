@@ -34,31 +34,20 @@ export class IdentityEventSubscriber {
           this.name,
         );
       }
-
-    this.logger.debug(`User ${user.id} invalidated on user.updated`, this.name);
   }
 
   @OnEvent(IdentityEventName.USER_ARCHIVED)
   async userArchived(user: IdentityEventPayload['identity.user.archived']) {
     await this.authService.invalidateUsers(user.id);
-    this.logger.debug(
-      `User ${user.id} invalidated on user.archived`,
-      this.name,
-    );
   }
 
   @OnEvent(IdentityEventName.USER_RESTORED)
   async userRestored(user: IdentityEventPayload['identity.user.restored']) {
     await this.authService.invalidateUsers(user.id);
-    this.logger.debug(
-      `User ${user.id} invalidated on user.restored`,
-      this.name,
-    );
   }
 
   @OnEvent(IdentityEventName.USER_DELETED)
   async userDeleted(user: IdentityEventPayload['identity.user.deleted']) {
     await this.authService.invalidateUsers(user.id);
-    this.logger.debug(`User ${user.id} invalidated on user.deleted`, this.name);
   }
 }

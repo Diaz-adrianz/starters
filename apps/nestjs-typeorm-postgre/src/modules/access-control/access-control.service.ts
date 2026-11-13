@@ -66,7 +66,7 @@ export class AccessControlService {
   async invalidateUsers(...userIds: string[]) {
     await this.cache.delMany((k) => userIds.map((id) => k.userRoles(id)));
     this.logger.debug(
-      `Users cache invalidated: ${userIds.join(', ')}`,
+      `User roles cache invalidated: ${userIds.join(', ')}`,
       this.constructor.name,
     );
   }
