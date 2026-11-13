@@ -59,12 +59,16 @@ export class IdentityEventSubscriber {
 
   @OnEvent(IdentityEventName.USER_UPDATED)
   async userUpdated(user: IdentityEventPayload['identity.user.updated']) {
-    await this.service.invalidateUsers([{ id: user.id }]);
+    await this.service.invalidateUsers(user.id);
 
     try {
       await this.roleUserService.updateByUserId(user.id, {
         username: user.username,
       });
+      this.logger.debug(
+        `role-users updated for user ${user.id} on user.updated`,
+        this.name,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to update role-user for user "${user.id}"`,
@@ -72,18 +76,18 @@ export class IdentityEventSubscriber {
         this.name,
       );
     }
-
-    this.logger.debug(
-      `User "${user.id}" invalidated and synced on user.updated`,
-      this.name,
-    );
   }
 
   @OnEvent(IdentityEventName.USER_DELETED)
   async userDeleted(user: IdentityEventPayload['identity.user.deleted']) {
-    await this.service.invalidateUsers([{ id: user.id }]);
+    await this.service.invalidateUsers(user.id);
+
     try {
       await this.roleUserService.deleteByUserId(user.id);
+      this.logger.debug(
+        `role-users deleted for user ${user.id} on user.deleted`,
+        this.name,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to delete role-user for user "${user.id}"`,
@@ -91,10 +95,5 @@ export class IdentityEventSubscriber {
         this.name,
       );
     }
-
-    this.logger.debug(
-      `User "${user.id}" invalidated and synced on user.deleted`,
-      this.name,
-    );
   }
 }

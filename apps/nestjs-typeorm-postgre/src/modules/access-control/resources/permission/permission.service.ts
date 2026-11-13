@@ -6,12 +6,17 @@ import { Permission } from '../../entities/permission.entity';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { ResourceService } from '../../../../common/services/resource.service';
 import { Repository } from 'typeorm';
+import { RolePermission } from '../../entities/role-permission.entity';
+import { AccessControlService } from '../../access-control.service';
 
 @Injectable()
 export class PermissionService extends ResourceService<Permission> {
   constructor(
     @InjectRepository(Permission, DatabaseKeys.DEFAULT)
     private permissionRepo: Repository<Permission>,
+    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
+    private rolePermissionRepo: Repository<RolePermission>,
+    private accessControlService: AccessControlService,
   ) {
     super(permissionRepo);
   }
@@ -45,6 +50,16 @@ export class PermissionService extends ResourceService<Permission> {
   async update(rq: ResourceQuery, dto: UpdatePermissionDto) {
     const data = await this.load(rq.toFindOptions());
     this.permissionRepo.merge(data, dto);
-    return this.permissionRepo.save(data);
+
+    const res = await this.permissionRepo.save(data),
+      roles = await this.rolePermissionRepo.find({
+        where: { permissionId: res.id },
+        select: { roleId: true },
+        withDeleted: true,
+      });
+    await this.accessControlService.invalidateRoles(
+      ...roles.map((r) => r.roleId),
+    );
+    return res;
   }
 }

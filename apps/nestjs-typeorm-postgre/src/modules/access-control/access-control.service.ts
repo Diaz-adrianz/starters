@@ -55,14 +55,20 @@ export class AccessControlService {
     return conditions.length ? conditions : null;
   }
 
-  invalidateRoles(roles: { id: string }[]) {
-    return this.cache.delMany((k) =>
-      roles.map((role) => k.rolePermissions(role.id)),
+  async invalidateRoles(...roleIds: string[]) {
+    await this.cache.delMany((k) => roleIds.map((id) => k.rolePermissions(id)));
+    this.logger.debug(
+      `Role permissions cache invalidated: ${roleIds.join(', ')}`,
+      this.constructor.name,
     );
   }
 
-  invalidateUsers(users: { id: string }[]) {
-    return this.cache.delMany((k) => users.map((user) => k.userRoles(user.id)));
+  async invalidateUsers(...userIds: string[]) {
+    await this.cache.delMany((k) => userIds.map((id) => k.userRoles(id)));
+    this.logger.debug(
+      `Users cache invalidated: ${userIds.join(', ')}`,
+      this.constructor.name,
+    );
   }
 
   // Utils

@@ -7,12 +7,14 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { ResourceService } from '../../../../common/services/resource.service';
 import { Repository } from 'typeorm';
+import { AccessControlService } from '../../access-control.service';
 
 @Injectable()
 export class RoleService extends ResourceService<Role> {
   constructor(
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
     private roleRepo: Repository<Role>,
+    private accessControlService: AccessControlService,
   ) {
     super(roleRepo);
   }
@@ -52,24 +54,33 @@ export class RoleService extends ResourceService<Role> {
   async update(rq: ResourceQuery, dto: UpdateRoleDto) {
     const data = await this.load(rq.toFindOptions());
     this.roleRepo.merge(data, dto);
-    return this.roleRepo.save(data);
+
+    const res = this.roleRepo.save(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async archive(rq: ResourceQuery) {
-    const data = await this.load(rq.toFindOptions());
-    return this.roleRepo.softRemove(data);
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.softRemove(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async restore(rq: ResourceQuery) {
     rq.setTrash(true);
-    const data = await this.load(rq.toFindOptions());
-    return this.roleRepo.recover(data);
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.recover(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async delete(rq: ResourceQuery) {
     rq.add([['default', 'eq', false]]);
     rq.setTrash(true);
-    const data = await this.load(rq.toFindOptions());
-    return this.roleRepo.remove(data);
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.remove(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 }

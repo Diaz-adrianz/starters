@@ -7,12 +7,14 @@ import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { UpdateRoleUserDto } from './dto/update-role-user.dto';
 import { ResourceService } from '../../../../common/services/resource.service';
 import { Repository } from 'typeorm';
+import { AccessControlService } from '../../access-control.service';
 
 @Injectable()
 export class RoleUserService extends ResourceService<RoleUser> {
   constructor(
     @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
     private roleUserRepo: Repository<RoleUser>,
+    private accessControlService: AccessControlService,
   ) {
     super(roleUserRepo);
   }
@@ -28,8 +30,10 @@ export class RoleUserService extends ResourceService<RoleUser> {
   }
 
   async create(dto: CreateRoleUserDto) {
-    const data = this.roleUserRepo.create(dto);
-    return this.roleUserRepo.save(data);
+    const data = this.roleUserRepo.create(dto),
+      res = await this.roleUserRepo.save(data);
+    await this.accessControlService.invalidateUsers(res.userId);
+    return res;
   }
 
   async findMany(rq: ResourceQuery) {
@@ -43,11 +47,16 @@ export class RoleUserService extends ResourceService<RoleUser> {
   async update(rq: ResourceQuery, dto: UpdateRoleUserDto) {
     const data = await this.load(rq.toFindOptions());
     this.roleUserRepo.merge(data, dto);
-    return this.roleUserRepo.save(data);
+
+    const res = await this.roleUserRepo.save(data);
+    await this.accessControlService.invalidateUsers(res.userId);
+    return res;
   }
 
   async delete(rq: ResourceQuery) {
-    const data = await this.load(rq.toFindOptions());
-    return this.roleUserRepo.remove(data);
+    const data = await this.load(rq.toFindOptions()),
+      res = await this.roleUserRepo.remove(data);
+    await this.accessControlService.invalidateUsers(res.userId);
+    return res;
   }
 }
