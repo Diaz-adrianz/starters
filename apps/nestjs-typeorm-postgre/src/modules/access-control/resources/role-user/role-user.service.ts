@@ -41,13 +41,13 @@ export class RoleUserService extends ResourceService<RoleUser> {
   }
 
   async update(rq: ResourceQuery, dto: UpdateRoleUserDto) {
-    const data = await this.load({ ...rq.toFindOptions() });
+    const data = await this.load(rq.toFindOptions());
     this.roleUserRepo.merge(data, dto);
     return this.roleUserRepo.save(data);
   }
 
   async delete(rq: ResourceQuery) {
-    const data = await this.load({ ...rq.toFindOptions() }, true);
+    const data = await this.load(rq.toFindOptions());
     return this.roleUserRepo.remove(data);
   }
 }

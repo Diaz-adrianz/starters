@@ -51,7 +51,7 @@ export class RolePermissionService extends ResourceService<RolePermission> {
   }
 
   async delete(rq: ResourceQuery) {
-    const data = await this.load({ ...rq.toFindOptions() }, true);
+    const data = await this.load(rq.toFindOptions());
     return this.rolePermissionRepo.remove(data);
   }
 }

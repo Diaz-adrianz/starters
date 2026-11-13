@@ -50,28 +50,26 @@ export class RoleService extends ResourceService<Role> {
   }
 
   async update(rq: ResourceQuery, dto: UpdateRoleDto) {
-    const data = await this.load({ ...rq.toFindOptions() });
+    const data = await this.load(rq.toFindOptions());
     this.roleRepo.merge(data, dto);
     return this.roleRepo.save(data);
   }
 
   async archive(rq: ResourceQuery) {
-    const data = await this.load({ ...rq.toFindOptions() });
+    const data = await this.load(rq.toFindOptions());
     return this.roleRepo.softRemove(data);
   }
 
   async restore(rq: ResourceQuery) {
-    rq.add([['deletedAt', 'neq', null]]);
-    const data = await this.load({ ...rq.toFindOptions() }, true);
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions());
     return this.roleRepo.recover(data);
   }
 
   async delete(rq: ResourceQuery) {
-    rq.add([
-      ['default', 'eq', false],
-      ['deletedAt', 'neq', null],
-    ]);
-    const data = await this.load({ ...rq.toFindOptions() }, true);
+    rq.add([['default', 'eq', false]]);
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions());
     return this.roleRepo.remove(data);
   }
 }

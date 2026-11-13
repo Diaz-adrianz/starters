@@ -8,11 +8,8 @@ import {
 export class ResourceService<Entity extends ObjectLiteral> {
   constructor(private repo: Repository<Entity>) {}
 
-  protected async load(
-    options: FindOneOptions<Entity>,
-    withDeleted: boolean = false,
-  ) {
-    return this.repo.findOneOrFail({ ...options, withDeleted });
+  protected async load(options: FindOneOptions<Entity>) {
+    return this.repo.findOneOrFail(options);
   }
 
   protected select(

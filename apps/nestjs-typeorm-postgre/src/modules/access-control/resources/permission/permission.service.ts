@@ -43,7 +43,7 @@ export class PermissionService extends ResourceService<Permission> {
   }
 
   async update(rq: ResourceQuery, dto: UpdatePermissionDto) {
-    const data = await this.load({ ...rq.toFindOptions() });
+    const data = await this.load(rq.toFindOptions());
     this.permissionRepo.merge(data, dto);
     return this.permissionRepo.save(data);
   }
