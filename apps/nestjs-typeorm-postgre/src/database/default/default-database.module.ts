@@ -1,7 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { defaultDataSourceFactory } from './datasource';
-import { AppDataSource } from '../typeorm/app-data-source';
 import { APP_CONFIG_KEY, appConfig, AppConfig } from '../../config/app.config';
 import {
   DATABASE_CONFIG_KEY,
@@ -23,13 +22,6 @@ import { DatabaseKeys } from '../database-keys.constant';
       inject: [APP_CONFIG_KEY, DATABASE_CONFIG_KEY],
       useFactory: (appConfig: AppConfig, databaseConfig: DatabaseConfig) =>
         defaultDataSourceFactory(appConfig.mode, databaseConfig),
-      dataSourceFactory: async (options) => {
-        if (!options)
-          throw new Error(
-            `No DataSource options provided for "${DatabaseKeys.DEFAULT}"`,
-          );
-        return new AppDataSource(options).initialize();
-      },
     }),
   ],
   exports: [TypeOrmModule],
