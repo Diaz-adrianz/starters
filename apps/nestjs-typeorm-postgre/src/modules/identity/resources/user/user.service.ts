@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { User } from '../../entities/user.entity';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { UserStatus } from '../../enums/user-status.enum';
@@ -19,16 +18,20 @@ import { UserNotInvitedException } from '../../classes/exceptions/user.exception
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
 import { randomUUID } from 'crypto';
+import { Repository } from 'typeorm';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends ResourceService<User> {
   constructor(
     @InjectRepository(User, DatabaseKeys.DEFAULT)
-    private userRepo: AppRepository<User>,
+    private userRepo: Repository<User>,
     private tokenService: TokenService,
     private event: EventService,
     private storage: DefaultStorageService,
-  ) {}
+  ) {
+    super(userRepo);
+  }
 
   async invite(dto: InviteUserDto) {
     const user = await this.create({
@@ -53,43 +56,25 @@ export class UserService {
     await this.issueInvitation(user, token);
   }
 
-  findByUsernameOrEmail(value: string) {
+  async findByUsernameOrEmail(value: string) {
     return this.userRepo.findOneOrFail({
       where: [{ username: value }, { email: value }],
     });
   }
 
-  findById(id: string) {
+  async findById(id: string) {
     return this.userRepo.findOneOrFail({ where: { id } });
   }
 
-  async updatePasswordById(id: string, password: string) {
-    const result = await this.userRepo.update(
-      id,
-      { password: await this.hashPassword(password) },
-      { returning: ['id'] },
-    );
-    this.event.emit(
-      'identity.user.passwordUpdated',
-      result.raw as Pick<User, 'id'>[],
-    );
-    return result;
-  }
-
-  async updateStatusById(id: string, status: UserStatus) {
-    const result = await this.userRepo.update(
-      id,
-      { status },
-      { returning: ['id'] },
-    );
-    this.event.emit('identity.user.updated', {
-      target: result.raw as Pick<User, 'id'>[],
-    });
-    return result;
+  // Base extension
+  // ----------------------------------------------------------------
+  async updateById(id: string, dto: UpdateUserDto) {
+    const rq = new ResourceQuery([['id', 'eq', id]]);
+    return this.update(rq, dto);
   }
 
   async updateAvatar(rq: ResourceQuery, dto: UpdateUserAvatarDto) {
-    const user = await this.userRepo.findOneOrFail({ ...rq.toFindOptions() });
+    const user = await this.load(rq.toFindOptions());
 
     const avatar = await this.storage.moveObject(
       dto.avatar.key,
@@ -99,21 +84,19 @@ export class UserService {
     );
 
     try {
-      await this.userRepo.update({ id: user.id }, { avatar: avatar.key });
+      const result = await this.update(rq, { avatar: avatar.key });
+      if (user.avatar) await this.storage.deleteObject(user.avatar).catch();
+      return result;
     } catch (e) {
       await this.storage.deleteObject(avatar.key).catch();
       throw e;
-    }
-
-    if (user.avatar) {
-      await this.storage.deleteObject(user.avatar);
     }
   }
 
   // Base
   // ----------------------------------------------------------------
-  async create(createUserDto: CreateUserDto) {
-    const { email, username, password, roles, status } = createUserDto;
+  async create(dto: CreateUserDto) {
+    const { email, username, password, roles = [], status } = dto;
     const sameEmail = await this.userRepo.count({
       where: { email: email },
     });
@@ -130,24 +113,21 @@ export class UserService {
       password: password ? await this.hashPassword(password) : undefined,
       status: status ?? UserStatus.ACTIVE,
     });
-    await this.userRepo.save(user);
+    const res = await this.userRepo.save(user);
     this.event.emit('identity.user.created', {
-      target: { id: user.id },
-      payload: {
-        id: user.id,
-        username: username,
-        roles: roles,
-      },
+      id: user.id,
+      username: username,
+      roles: roles,
     });
-    return user;
+    return res;
   }
 
-  findMany(q: ResourceQuery) {
+  async findMany(q: ResourceQuery) {
     return this.userRepo.findAndCount({
       ...q.toFindOptions(),
       relations: { profile: true },
       select: {
-        ...this.userRepo.select([
+        ...this.select([
           'id',
           'username',
           'email',
@@ -166,12 +146,12 @@ export class UserService {
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.userRepo.findOneOrFail({
       ...rq.toFindOptions(),
       relations: { profile: true },
       select: {
-        ...this.userRepo.select('*'),
+        ...this.select('*'),
         profile: {
           id: true,
           firstName: true,
@@ -183,47 +163,42 @@ export class UserService {
     });
   }
 
-  async update(rq: ResourceQuery, updateUserDto: UpdateUserDto) {
-    const result = await this.userRepo.update(
-      rq.toFindOptions().where,
-      updateUserDto,
-      { returning: ['id'] },
-    );
+  async update(rq: ResourceQuery, { password, ...dto }: UpdateUserDto) {
+    const data = await this.load(rq.toFindOptions());
+    this.userRepo.merge(data, dto);
+    if (password !== undefined)
+      data.password = password ? await this.hashPassword(password) : null;
+
+    const res = await this.userRepo.save(data);
     this.event.emit('identity.user.updated', {
-      target: result.raw as Pick<User, 'id'>[],
-      payload: { username: updateUserDto.username },
+      id: res.id,
+      username: res.username,
+      password: !!password,
     });
-    return result;
+    return res;
   }
 
   async archive(rq: ResourceQuery) {
-    const result = await this.userRepo.softDelete(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('identity.user.updated', {
-      target: result.raw as Pick<User, 'id'>[],
-    });
-    return result;
+    const data = await this.load(rq.toFindOptions()),
+      res = await this.userRepo.softRemove(data);
+    this.event.emit('identity.user.archived', { id: res.id });
+    return res;
   }
 
   async restore(rq: ResourceQuery) {
-    const result = await this.userRepo.restore(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('identity.user.updated', {
-      target: result.raw as Pick<User, 'id'>[],
-    });
-    return result;
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions()),
+      res = await this.userRepo.recover(data);
+    this.event.emit('identity.user.restored', { id: res.id });
+    return res;
   }
 
   async delete(rq: ResourceQuery) {
-    const result = await this.userRepo.delete(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('identity.user.deleted', {
-      target: result.raw as Pick<User, 'id'>[],
-    });
-    return result;
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions()),
+      res = await this.userRepo.remove(data);
+    this.event.emit('identity.user.deleted', { id: res.id });
+    return res;
   }
 
   // Utils

@@ -44,7 +44,7 @@ export class IdentityService {
 
   async setPassword(dto: SetPasswordDto) {
     const token = await this.setPasswordCheck(dto);
-    await this.userService.updatePasswordById(token.userId, dto.password);
+    await this.userService.updateById(token.userId, { password: dto.password });
     await this.tokenService.markConsumed(token.id);
     return token;
   }
@@ -64,8 +64,10 @@ export class IdentityService {
 
   async acceptInvite(dto: AcceptInviteDto) {
     const token = await this.acceptInviteCheck(dto);
-    await this.userService.updatePasswordById(token.userId, dto.password);
-    await this.userService.updateStatusById(token.userId, UserStatus.ACTIVE);
+    await this.userService.updateById(token.userId, {
+      password: dto.password,
+      status: UserStatus.ACTIVE,
+    });
     await this.tokenService.markConsumed(token.id);
     return token;
   }

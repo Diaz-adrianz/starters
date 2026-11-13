@@ -16,15 +16,17 @@ export class IdentityEventSubscriber {
     private logger: LoggerService,
   ) {}
 
-  @OnEvent(IdentityEventName.USER_PASSWORDUPDATED)
-  async userPasswordUpdated(
-    payload: IdentityEventPayload['identity.user.passwordUpdated'],
-  ) {
-    await this.invalidateUsers(payload);
+  @OnEvent(IdentityEventName.USER_UPDATED)
+  async userUpdated(user: IdentityEventPayload['identity.user.updated']) {
+    await this.authService.invalidateUsers(user.id);
 
-    for (const user of payload) {
+    if (user.password)
       try {
         await this.authService.signOutAll(user.id);
+        this.logger.debug(
+          `User ${user.id} signed out on user.updated with password`,
+          this.name,
+        );
       } catch (error) {
         this.logger.error(
           `Failed to sign out all sessions for user ${user.id}`,
@@ -32,40 +34,31 @@ export class IdentityEventSubscriber {
           this.name,
         );
       }
-    }
+
+    this.logger.debug(`User ${user.id} invalidated on user.updated`, this.name);
+  }
+
+  @OnEvent(IdentityEventName.USER_ARCHIVED)
+  async userArchived(user: IdentityEventPayload['identity.user.archived']) {
+    await this.authService.invalidateUsers(user.id);
     this.logger.debug(
-      `User ${payload.map((p) => p.id).join(', ')} invalidated and signed out on user.passwordUpdated`,
+      `User ${user.id} invalidated on user.archived`,
       this.name,
     );
   }
 
-  @OnEvent(IdentityEventName.USER_UPDATED)
-  async userUpdated(payload: IdentityEventPayload['identity.user.updated']) {
-    await this.invalidateUsers(payload.target);
+  @OnEvent(IdentityEventName.USER_RESTORED)
+  async userRestored(user: IdentityEventPayload['identity.user.restored']) {
+    await this.authService.invalidateUsers(user.id);
     this.logger.debug(
-      `User ${payload.target.map((t) => t.id).join(', ')} invalidated on user.updated`,
+      `User ${user.id} invalidated on user.restored`,
       this.name,
     );
   }
 
   @OnEvent(IdentityEventName.USER_DELETED)
-  async userDeleted(payload: IdentityEventPayload['identity.user.deleted']) {
-    await this.invalidateUsers(payload.target);
-    this.logger.debug(
-      `User ${payload.target.map((t) => t.id).join(', ')} invalidated on user.updated`,
-      this.name,
-    );
-  }
-
-  private async invalidateUsers(users: { id: string }[]) {
-    try {
-      await this.authService.invalidateUsers(users);
-    } catch (error) {
-      this.logger.error(
-        `Failed to invalidate users ${users.map((u) => u.id).join(', ')}`,
-        error,
-        this.name,
-      );
-    }
+  async userDeleted(user: IdentityEventPayload['identity.user.deleted']) {
+    await this.authService.invalidateUsers(user.id);
+    this.logger.debug(`User ${user.id} invalidated on user.deleted`, this.name);
   }
 }

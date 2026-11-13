@@ -17,23 +17,20 @@ export class IdentityEventSubscriber {
     private roleService: RoleService,
     private roleUserService: RoleUserService,
     private logger: LoggerService,
-    private accessControlService: AccessControlService,
+    private service: AccessControlService,
   ) {}
 
   @OnEvent(IdentityEventName.USER_CREATED)
-  async userCreated({
-    target,
-    payload,
-  }: IdentityEventPayload['identity.user.created']) {
-    if (payload.roles?.length) {
-      for (const r of payload.roles) {
+  async userCreated(user: IdentityEventPayload['identity.user.created']) {
+    if (user.roles?.length) {
+      for (const r of user.roles) {
         const role = await this.roleService
           .findOneByName(r.name)
           .catch(() => null);
 
         if (!role) {
           this.logger.warn(
-            `Role "${r.name}" not found for new user "${target.id}", skipping role assignment`,
+            `Role "${r.name}" not found for new user "${user.id}", skipping role assignment`,
             this.name,
           );
           return;
@@ -42,16 +39,16 @@ export class IdentityEventSubscriber {
         try {
           await this.roleUserService.create({
             roleId: role.id,
-            userId: target.id,
-            username: payload.username,
+            userId: user.id,
+            username: user.username,
           });
           this.logger.debug(
-            `Role "${r.name}" assigned for user "${target.id}" on user.created`,
+            `Role "${r.name}" assigned for user "${user.id}" on user.created`,
             this.name,
           );
         } catch (error) {
           this.logger.error(
-            `Failed to assign role "${r.name}" for user "${target.id}"`,
+            `Failed to assign role "${r.name}" for user "${user.id}"`,
             error,
             this.name,
           );
@@ -61,63 +58,43 @@ export class IdentityEventSubscriber {
   }
 
   @OnEvent(IdentityEventName.USER_UPDATED)
-  async userUpdated({
-    target,
-    payload,
-  }: IdentityEventPayload['identity.user.updated']) {
-    for (const t of target) {
-      await this.invalidateUsers([{ id: t.id }]);
+  async userUpdated(user: IdentityEventPayload['identity.user.updated']) {
+    await this.service.invalidateUsers([{ id: user.id }]);
 
-      if (payload?.username)
-        try {
-          await this.roleUserService.updateByUserId(t.id, {
-            username: payload.username,
-          });
-        } catch (error) {
-          this.logger.error(
-            `Failed to update role-user for user "${t.id}"`,
-            error,
-            this.name,
-          );
-        }
-
-      this.logger.debug(
-        `user "${t.id}" invalidated and synced on user.updated`,
-        this.name,
-      );
-    }
-  }
-
-  @OnEvent(IdentityEventName.USER_DELETED)
-  async userDeleted(payload: IdentityEventPayload['identity.user.deleted']) {
-    for (const t of payload.target) {
-      await this.invalidateUsers([{ id: t.id }]);
-      try {
-        await this.roleUserService.deleteByUserId(t.id);
-      } catch (error) {
-        this.logger.error(
-          `Failed to delete role-user for user "${t.id}"`,
-          error,
-          this.name,
-        );
-      }
-
-      this.logger.debug(
-        `user "${t.id}" invalidated and synced on user.deleted`,
-        this.name,
-      );
-    }
-  }
-
-  private async invalidateUsers(users: { id: string }[]) {
     try {
-      await this.accessControlService.invalidateUsers(users);
+      await this.roleUserService.updateByUserId(user.id, {
+        username: user.username,
+      });
     } catch (error) {
       this.logger.error(
-        `Failed to invalidate users ${users.map((u) => u.id).join(', ')}`,
+        `Failed to update role-user for user "${user.id}"`,
         error,
         this.name,
       );
     }
+
+    this.logger.debug(
+      `User "${user.id}" invalidated and synced on user.updated`,
+      this.name,
+    );
+  }
+
+  @OnEvent(IdentityEventName.USER_DELETED)
+  async userDeleted(user: IdentityEventPayload['identity.user.deleted']) {
+    await this.service.invalidateUsers([{ id: user.id }]);
+    try {
+      await this.roleUserService.deleteByUserId(user.id);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete role-user for user "${user.id}"`,
+        error,
+        this.name,
+      );
+    }
+
+    this.logger.debug(
+      `User "${user.id}" invalidated and synced on user.deleted`,
+      this.name,
+    );
   }
 }
