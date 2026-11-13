@@ -2,22 +2,24 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Session } from '../../entities/session.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { createHash } from 'crypto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { LoggerService } from '../../../../infra/logger/logger.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
-import { In, Not } from 'typeorm';
+import { In, LessThanOrEqual, Not, Repository } from 'typeorm';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class SessionService {
+export class SessionService extends ResourceService<Session> {
   constructor(
     @InjectRepository(Session, DatabaseKeys.DEFAULT)
-    private sessionRepo: AppRepository<Session>,
+    private sessionRepo: Repository<Session>,
     private logger: LoggerService,
-  ) {}
+  ) {
+    super(sessionRepo);
+  }
 
   async validate(id: string, refreshToken: string) {
     const session = await this.sessionRepo.findOne({
@@ -38,7 +40,7 @@ export class SessionService {
     return session;
   }
 
-  rotate(id: string, newRefreshToken: string) {
+  async rotate(id: string, newRefreshToken: string) {
     return this.sessionRepo.update(
       { id },
       {
@@ -48,11 +50,11 @@ export class SessionService {
     );
   }
 
-  revokeById(id: string) {
+  async revokeById(id: string) {
     return this.sessionRepo.update({ id, isActive: true }, { isActive: false });
   }
 
-  revokeManyByUser(userId: string, excludedSessionIds: string[] = []) {
+  async revokeManyByUser(userId: string, excludedSessionIds: string[] = []) {
     return this.sessionRepo.update(
       {
         userId,
@@ -67,15 +69,15 @@ export class SessionService {
 
   // Base
   // ----------------------------------------------------------------
-  create(dto: CreateSessionDto) {
+  async create(dto: CreateSessionDto) {
     const data = this.sessionRepo.create(dto);
     return this.sessionRepo.save(data);
   }
 
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.sessionRepo.findAndCount({
       ...rq.toFindOptions(),
-      select: this.sessionRepo.select([
+      select: this.select([
         'id',
         'clientId',
         'clientLabel',
@@ -90,18 +92,21 @@ export class SessionService {
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.sessionRepo.findOneOrFail({
       ...rq.toFindOptions(),
     });
   }
 
-  update(rq: ResourceQuery, dto: UpdateSessionDto) {
-    return this.sessionRepo.update(rq.toFindOptions().where, dto);
+  async update(rq: ResourceQuery, dto: UpdateSessionDto) {
+    const data = await this.load(rq.toFindOptions());
+    this.sessionRepo.merge(data, dto);
+    return this.sessionRepo.save(data);
   }
 
-  delete(rq: ResourceQuery) {
-    return this.sessionRepo.delete(rq.toFindOptions().where);
+  async delete(rq: ResourceQuery) {
+    const data = await this.load(rq.toFindOptions());
+    return this.sessionRepo.remove(data);
   }
 
   // Utils
@@ -114,10 +119,12 @@ export class SessionService {
   // ----------------------------------------------------------------
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupExpired() {
-    const rq = new ResourceQuery([['expiresAt', 'lte', new Date()]]);
-    const result = await this.delete(rq);
+    const res = await this.sessionRepo.delete([
+      { expiresAt: LessThanOrEqual(new Date()) },
+      { isActive: false },
+    ]);
     this.logger.log(
-      `Cleaned up ${result.affected ?? 0} expired session(s)`,
+      `Cleaned ${res.affected ?? 0} sessions`,
       this.constructor.name,
     );
   }
