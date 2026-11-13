@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppRepository } from '../../database/typeorm/app-repository';
 import { DatabaseKeys } from '../../database/database-keys.constant';
 import { RoleUser } from './entities/role-user.entity';
 import { CacheService } from '../../infra/cache/cache.service';
@@ -8,6 +7,7 @@ import { LoggerService } from '../../infra/logger/logger.service';
 import { HOUR } from '../../shared/utils/number.util';
 import { RolePermission } from './entities/role-permission.entity';
 import { Condition } from './interfaces/condition.interface';
+import { Repository } from 'typeorm';
 
 type UserRolesCache = { id: string; name: string }[];
 
@@ -17,9 +17,9 @@ type RolePermissionsCache = { key: string; condition: Condition | null }[];
 export class AccessControlService {
   constructor(
     @InjectRepository(RoleUser, DatabaseKeys.DEFAULT)
-    private roleUserRepo: AppRepository<RoleUser>,
+    private roleUserRepo: Repository<RoleUser>,
     @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
-    private rolePermissionRepo: AppRepository<RolePermission>,
+    private rolePermissionRepo: Repository<RolePermission>,
     private cache: CacheService,
     private logger: LoggerService,
   ) {}
