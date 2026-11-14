@@ -4,6 +4,9 @@ import { ActivityMetadata } from '../../../entities/activity.entity';
 
 export class CreateActivityDto {
   @Exclude()
+  occuredAt: Date;
+
+  @Exclude()
   requestId?: string | null;
 
   @Exclude()

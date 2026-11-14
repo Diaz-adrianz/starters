@@ -1,9 +1,9 @@
 import { CreateActivityDto } from '../../../modules/audit/resources/activity/dto/create-activity.dto';
 
 export const AuditEventName = {
-  ACTIVITY_CREATE: 'audit.activity.create',
+  ACTIVITY_LOG: 'audit.activity.log',
 } as const;
 
 export interface AuditEventPayload {
-  [AuditEventName.ACTIVITY_CREATE]: CreateActivityDto;
+  [AuditEventName.ACTIVITY_LOG]: CreateActivityDto;
 }

@@ -14,6 +14,9 @@ export class Activity {
   id: string;
 
   // when
+  @Column('timestamptz')
+  occuredAt: Date;
+
   @CreateDateColumn({ type: 'timestamptz' })
   loggedAt: Date;
 

@@ -4,14 +4,31 @@ import { Activity } from './entities/activity.entity';
 import { ActivityService } from './resources/activity/activity.service';
 import { ActivityController } from './resources/activity/activity.controller';
 import { AuditEventSubscriber } from './subscribers/audit-event.subscriber';
+import { DefaultQueueModule } from '../../lib/queue/default/default-queue.module';
+import {
+  ACTIVITY_LOG_QUEUE,
+  ActivityLogJobOptions,
+} from './queue/activity-log/activity-log.config';
+import { ActivityLogProcessor } from './queue/activity-log/activity-log.processor';
 
 @Module({
-  imports: [DefaultDatabaseModule.forFeature([Activity])],
+  imports: [
+    DefaultDatabaseModule.forFeature([Activity]),
+
+    // queue
+    DefaultQueueModule.registerQueue({
+      name: ACTIVITY_LOG_QUEUE,
+      defaultJobOptions: ActivityLogJobOptions,
+    }),
+  ],
   providers: [
     ActivityService,
 
     // subscribers
     AuditEventSubscriber,
+
+    // processors
+    ActivityLogProcessor,
   ],
   controllers: [ActivityController],
 })

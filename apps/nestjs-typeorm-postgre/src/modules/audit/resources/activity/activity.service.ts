@@ -18,6 +18,10 @@ export class ActivityService extends ResourceService<Activity> {
 
   // Base
   // ----------------------------------------------------------------
+  createMany(dtos: CreateActivityDto[]) {
+    return this.activityRepo.insert(dtos);
+  }
+
   create(dto: CreateActivityDto) {
     const data = this.activityRepo.create(dto);
     return this.activityRepo.save(data);
