@@ -10,6 +10,7 @@ import {
   ActivityLogJobOptions,
 } from './queue/activity-log/activity-log.config';
 import { ActivityLogProcessor } from './queue/activity-log/activity-log.processor';
+import { AuditEntitySubscriber } from './subscribers/audit-entity.subscriber';
 
 @Module({
   imports: [
@@ -26,6 +27,9 @@ import { ActivityLogProcessor } from './queue/activity-log/activity-log.processo
 
     // subscribers
     AuditEventSubscriber,
+
+    // entity subscribers
+    AuditEntitySubscriber,
 
     // processors
     ActivityLogProcessor,

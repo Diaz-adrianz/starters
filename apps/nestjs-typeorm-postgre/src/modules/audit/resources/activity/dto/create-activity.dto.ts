@@ -34,5 +34,5 @@ export class CreateActivityDto {
   outcome: ActivityOutcome = ActivityOutcome.SUCCESS;
 
   @Exclude()
-  meta?: ActivityMetadata | null;
+  metadata?: ActivityMetadata | null;
 }

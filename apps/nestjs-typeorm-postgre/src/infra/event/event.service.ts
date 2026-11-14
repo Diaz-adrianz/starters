@@ -21,7 +21,12 @@ export class EventService {
   emitAuditActivityLog(
     payload: Pick<
       AuditEventPayload['audit.activity.log'],
-      'module' | 'action' | 'resourceType' | 'resourceId' | 'outcome' | 'meta'
+      | 'module'
+      | 'action'
+      | 'resourceType'
+      | 'resourceId'
+      | 'outcome'
+      | 'metadata'
     >,
   ) {
     const actor = this.store.actor;
