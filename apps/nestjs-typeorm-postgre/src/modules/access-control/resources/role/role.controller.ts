@@ -14,7 +14,6 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../decorators/permission.decorator';
-import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('access-control/roles')
 export class RoleController {
@@ -26,7 +25,6 @@ export class RoleController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('access-control:role:create')
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
@@ -47,7 +45,6 @@ export class RoleController {
     return this.roleService.findOne(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
@@ -55,7 +52,6 @@ export class RoleController {
     return this.roleService.update(rq, updateRoleDto);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
@@ -63,7 +59,6 @@ export class RoleController {
     return this.roleService.archive(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
@@ -71,7 +66,6 @@ export class RoleController {
     return this.roleService.restore(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

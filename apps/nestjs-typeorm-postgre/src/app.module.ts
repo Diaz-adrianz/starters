@@ -22,7 +22,6 @@ import { HealthModule } from './infra/health/health.module';
 import { RolesGuard } from './modules/access-control/guards/roles.guard';
 import { PermissionGuard } from './modules/access-control/guards/permission.guard';
 import { AuditModule } from './modules/audit/audit.module';
-import { ActivityInterceptor } from './modules/audit/interceptors/activity.interceptor';
 import { ClientMiddleware } from './common/middlewares/client.middleware';
 import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
 
@@ -96,10 +95,6 @@ import { DefaultStorageModule } from './lib/storage/default/default-storage.modu
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ActivityInterceptor,
     },
   ],
 })

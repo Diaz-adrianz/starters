@@ -1,80 +1,35 @@
-import {
-  IsEnum,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ActorType } from '../../../enums/actor-type.enum';
-import { ActivityStatus } from '../../../enums/activity-status.enum';
-import {
-  ActivityChanges,
-  ActivityMeta,
-} from '../../../entities/activity.entity';
-
-export class ActivityContextDto {
-  @IsOptional()
-  @IsString()
-  path?: string;
-
-  @IsOptional()
-  @IsString()
-  ip?: string;
-
-  @IsOptional()
-  @IsString()
-  userAgent?: string;
-}
+import { Exclude } from 'class-transformer';
+import { ActivityOutcome } from '../../../enums/activity-outcome.enum';
+import { ActivityMetadata } from '../../../entities/activity.entity';
 
 export class CreateActivityDto {
-  @IsEnum(ActorType)
-  actorType: ActorType;
-
-  @IsOptional()
-  @IsString()
-  actorId?: string | null;
-
-  @IsOptional()
-  @IsString()
-  actorName?: string | null;
-
-  @IsString()
-  module: string;
-
-  @IsString()
-  action: string;
-
-  @IsOptional()
-  @IsEnum(ActivityStatus)
-  status?: ActivityStatus;
-
-  @IsOptional()
-  @IsString()
-  targetType?: string | null;
-
-  @IsOptional()
-  @IsString()
-  targetId?: string | null;
-
-  @IsOptional()
-  @IsString()
-  targetName?: string | null;
-
-  @IsOptional()
-  @IsString()
+  @Exclude()
   requestId?: string | null;
 
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ActivityContextDto)
-  context?: ActivityContextDto | null;
+  @Exclude()
+  module: string;
 
-  @IsOptional()
-  @IsObject()
-  changes?: ActivityChanges | null;
+  @Exclude()
+  actorType: string;
 
-  @IsOptional()
-  @IsObject()
-  meta?: ActivityMeta | null;
+  @Exclude()
+  actorId?: string | null;
+
+  @Exclude()
+  actorName?: string | null;
+
+  @Exclude()
+  action: string;
+
+  @Exclude()
+  resourceType?: string | null;
+
+  @Exclude()
+  resourceId?: string | null;
+
+  @Exclude()
+  outcome: ActivityOutcome = ActivityOutcome.SUCCESS;
+
+  @Exclude()
+  meta?: ActivityMetadata | null;
 }

@@ -26,19 +26,18 @@ export class ActivityService extends ResourceService<Activity> {
   findMany(rq: ResourceQuery) {
     return this.activityRepo.findAndCount({
       ...rq.toFindOptions(),
-      select: {
-        id: true,
-        createdAt: true,
-        actorType: true,
-        actorId: true,
-        actorName: true,
-        module: true,
-        action: true,
-        status: true,
-        targetType: true,
-        targetId: true,
-        targetName: true,
-      },
+      select: this.select([
+        'id',
+        'loggedAt',
+        'module',
+        'actorType',
+        'actorId',
+        'actorName',
+        'action',
+        'resourceType',
+        'resourceId',
+        'outcome',
+      ]),
     });
   }
 

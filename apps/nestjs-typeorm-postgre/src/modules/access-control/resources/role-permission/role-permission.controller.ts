@@ -8,7 +8,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { StoreService } from '../../../../infra/store/store.service';
-import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 import { Permission } from '../../decorators/permission.decorator';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { RolePermissionService } from './role-permission.service';
@@ -23,7 +22,6 @@ export class RolePermissionController {
 
   // Base
   // ----------------------------------------------------------------
-  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('access-control:role-permission:create')
   @Post()
   create(@Body() dto: CreateRolePermissionDto) {
@@ -49,7 +47,6 @@ export class RolePermissionController {
     return this.rolePermissionService.findOne(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role-permission:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

@@ -14,7 +14,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
-import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
 
@@ -25,21 +24,18 @@ export class UserController {
     private store: StoreService,
   ) {}
 
-  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('identity:user:invite')
   @Post('/invite')
   invite(@Body() dto: InviteUserDto) {
     return this.userService.invite(dto);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:invite')
   @Post(':id/resend-invite')
   resendInvite(@Param('id') id: string) {
     return this.userService.resendInvite(id);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:update-avatar')
   @Patch(':id/avatar')
   updateAvatar(@Param('id') id: string, @Body() dto: UpdateUserAvatarDto) {
@@ -50,10 +46,6 @@ export class UserController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @AuditActivity({
-    targetId: ({ res }) => res.id,
-    redact: ['password', 'matchPassword'],
-  })
   @Permission('identity:user:create')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -80,7 +72,6 @@ export class UserController {
     return this.userService.findOne(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id, redact: [] })
   @Permission('identity:user:update')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -88,7 +79,6 @@ export class UserController {
     return this.userService.update(rq, updateUserDto);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:archive')
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
@@ -96,7 +86,6 @@ export class UserController {
     return this.userService.archive(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:restore')
   @Patch(':id/restore')
   restore(@Param('id') id: string) {
@@ -104,7 +93,6 @@ export class UserController {
     return this.userService.restore(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('identity:user:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

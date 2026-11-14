@@ -28,7 +28,6 @@ import {
 import { AUTH_CONFIG_KEY, type AuthConfig } from '../../config/auth.config';
 import { NoAuth } from '../../common/decorators/no-auth.decorator';
 import { ResourceQuery } from '../../shared/classes/resource-query.class';
-import { AuditActivity } from '../audit/decorators/audit-activity.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -42,16 +41,6 @@ export class AuthController {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  @AuditActivity({
-    module: 'auth',
-    action: 'signIn',
-    actor: ({ res: result }) => ({
-      type: 'user',
-      id: result.user.id,
-      name: result.user.username,
-    }),
-    redact: ['password'],
-  })
   @NoAuth()
   @UseGuards(LocalGuard)
   @Post('sign-in')
@@ -88,7 +77,6 @@ export class AuthController {
   // ================================================================
   // Sign out handlers
   // ----------------------------------------------------------------
-  @AuditActivity({ module: 'auth', action: 'signOut' })
   @ResSuccess({ message: 'Signed out' })
   @Post('/sign-out')
   async signOut(
@@ -100,7 +88,6 @@ export class AuthController {
     return;
   }
 
-  @AuditActivity({ module: 'auth', action: 'signOutAll' })
   @ResSuccess({ message: 'Signed out from all sessions' })
   @Post('/sign-out-all')
   async signOutAll(
