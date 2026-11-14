@@ -7,6 +7,7 @@ import {
 } from './interfaces/audit-event.interface';
 import { StoreService } from '../store/store.service';
 import { StoreActor } from '../store/store.interface';
+import { ActivityOutcome } from '../../modules/audit/enums/activity-outcome.enum';
 
 @Injectable()
 export class EventService {
@@ -22,13 +23,11 @@ export class EventService {
   emitAuditActivityLog(
     payload: Pick<
       AuditEventPayload['audit.activity.log'],
-      | 'module'
-      | 'action'
-      | 'resourceType'
-      | 'resourceId'
-      | 'outcome'
-      | 'metadata'
-    > & { actor?: StoreActor },
+      'module' | 'action' | 'resourceType' | 'resourceId' | 'metadata'
+    > & {
+      outcome?: ActivityOutcome;
+      actor?: StoreActor;
+    },
   ) {
     const actor = payload.actor ?? this.store.actor,
       client = this.store.get('client'),
@@ -52,6 +51,7 @@ export class EventService {
         ipAddress: client?.ipAddress ?? null,
         userAgent: client?.userAgent ?? null,
       },
+      outcome: payload.outcome ?? ActivityOutcome.SUCCESS,
       ...payload,
     } satisfies AuditEventPayload['audit.activity.log']);
   }

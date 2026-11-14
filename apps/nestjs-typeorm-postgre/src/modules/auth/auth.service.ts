@@ -24,7 +24,6 @@ import {
 } from '../identity/classes/exceptions/user.exception';
 import { CacheService } from '../../infra/cache/cache.service';
 import { UserStatus } from '../identity/enums/user-status.enum';
-import { ActivityOutcome } from '../audit/enums/activity-outcome.enum';
 
 type UserCache = {
   id: string;
@@ -77,7 +76,6 @@ export class AuthService {
     this.event.emitAuditActivityLog({
       module: 'auth',
       action: 'signIn',
-      outcome: ActivityOutcome.SUCCESS,
       actor: { type: 'user', id: user.id, name: user.username },
     });
 
@@ -130,6 +128,8 @@ export class AuthService {
   async signOut(sessionId: string) {
     const result = await this.sessionService.revokeById(sessionId);
 
+    this.event.emitAuditActivityLog({ module: 'auth', action: 'signOut' });
+
     if (!result.affected)
       this.logger.debug(
         `Session ${sessionId} signOut not found or already revoked`,
@@ -142,6 +142,8 @@ export class AuthService {
       userId,
       excludedSessionIds,
     );
+
+    this.event.emitAuditActivityLog({ module: 'auth', action: 'signOutAll' });
 
     this.logger.debug(
       `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,
