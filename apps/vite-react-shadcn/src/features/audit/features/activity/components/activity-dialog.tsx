@@ -105,6 +105,15 @@ function ActivityDialog({
                     <ItemDescription>{data.module}</ItemDescription>
                   </ItemContent>
                 </Item>
+                <ItemSeparator className="m-0" />
+                <Item size={'xs'} className="scrollbar-none overflow-x-auto">
+                  <ItemContent>
+                    <ItemTitle>Context</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <JsonBlock value={data.context} />
+                  </ItemContent>
+                </Item>
               </ItemGroup>
 
               <ItemGroup className="mb-4 rounded-2xl border py-2">
