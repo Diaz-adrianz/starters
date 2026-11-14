@@ -25,7 +25,7 @@ export class PushTokenController {
   @OptionalAuth()
   @Post('register')
   register(@Body() dto: RegisterPushTokenDto) {
-    dto.userId = this.store.get('actor')?.id;
+    dto.userId = this.store.userOrNull?.id;
     return this.pushTokenService.register(dto);
   }
 

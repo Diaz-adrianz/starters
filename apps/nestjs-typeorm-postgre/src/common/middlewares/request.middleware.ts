@@ -13,6 +13,7 @@ export class RequestMiddleware implements NestMiddleware {
       this.generateRequestId();
 
     this.store.set('requestId', requestId);
+    this.store.set('actor', { type: 'anon' });
     next();
   }
 

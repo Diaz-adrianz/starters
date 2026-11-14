@@ -5,13 +5,14 @@ import {
   ClientType,
 } from '../../shared/constants/client.constant';
 
+export type StoreActor =
+  | { type: 'anon' }
+  | { type: 'user'; id: string; name: string }
+  | { type: 'system'; name: string };
+
 export interface Store extends ClsStore {
   requestId: string;
-  actor: {
-    type: 'user';
-    id: string;
-    name: string;
-  } | null;
+  actor: StoreActor;
   permission: {
     key: string;
     conditions: Condition[];

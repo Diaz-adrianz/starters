@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import { Store } from './store.interface';
 import { ResourceQuery } from '../../shared/classes/resource-query.class';
@@ -20,6 +25,23 @@ export class StoreService {
   // --------------------------------
   get actor() {
     return this.getOrThrow('actor');
+  }
+
+  get user() {
+    const actor = this.actor;
+    switch (actor.type) {
+      case 'user':
+        return actor;
+      case 'anon':
+        throw new UnauthorizedException('Authentication required');
+      case 'system':
+        throw new ForbiddenException('User account required');
+    }
+  }
+
+  get userOrNull() {
+    const actor = this.actor;
+    return actor.type === 'user' ? actor : null;
   }
 
   // Session

@@ -26,14 +26,14 @@ export class ProfileController {
   // ----------------------------------------------------------------
   @Post()
   create(@Body() dto: CreateProfileDto) {
-    return this.profileService.create(this.store.actor.id, dto);
+    return this.profileService.create(this.store.user.id, dto);
   }
 
   @Get('me')
   findMe() {
     const rq = this.store
       .buildResourceQuery()
-      .add([['userId', 'eq', this.store.actor.id]]);
+      .add([['userId', 'eq', this.store.user.id]]);
     return this.profileService.findOne(rq);
   }
 

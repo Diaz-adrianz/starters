@@ -11,6 +11,6 @@ export class AccessControlController {
 
   @Get('me')
   me() {
-    return this.accessControlService.findUserAccesses(this.store.actor.id);
+    return this.accessControlService.findUserAccesses(this.store.user.id);
   }
 }

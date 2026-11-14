@@ -43,7 +43,7 @@ export class IsStorageFileValidator implements ValidatorConstraintInterface {
     const [options] = args.constraints as [IsStorageFileOptions];
 
     try {
-      this.storageService.validateTempOwner(key, this.store.actor.id);
+      this.storageService.validateTempOwner(key, this.store.user.id);
 
       const validated = await this.storageService.validateFile(
         key,

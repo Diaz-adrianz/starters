@@ -12,7 +12,7 @@ export class DefaultStorageController {
 
   @Post('/presigned-post')
   createPresignedPost(@Body() dto: CreatePresignedPostDto) {
-    dto.ownerId = this.store.actor.id;
+    dto.ownerId = this.store.user.id;
     return this.storageService.createPresignedPost(dto);
   }
 }
