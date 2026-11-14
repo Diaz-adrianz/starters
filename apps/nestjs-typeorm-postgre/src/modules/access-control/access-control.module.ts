@@ -15,10 +15,6 @@ import { RoleUserService } from './resources/role-user/role-user.service';
 import { RolePermissionService } from './resources/role-permission/role-permission.service';
 import { RolePermissionController } from './resources/role-permission/role-permission.controller';
 import { RoleUserController } from './resources/role-user/role-user.controller';
-import { RoleSubscriber } from './entities/subscribers/role.subscriber';
-import { PermissionSubscriber } from './entities/subscribers/permission.subscriber';
-import { RoleUserSubscriber } from './entities/subscribers/role-user.subscriber';
-import { RolePermissionSubscriber } from './entities/subscribers/role-permission.subscriber';
 
 @Module({
   imports: [
@@ -45,12 +41,6 @@ import { RolePermissionSubscriber } from './entities/subscribers/role-permission
 
     // subscribers
     IdentityEventSubscriber,
-
-    // entity subscribers
-    RoleSubscriber,
-    PermissionSubscriber,
-    RoleUserSubscriber,
-    RolePermissionSubscriber,
   ],
   exports: [AccessControlService],
 })
