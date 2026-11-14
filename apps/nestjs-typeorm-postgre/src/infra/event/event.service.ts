@@ -6,6 +6,7 @@ import {
   AuditEventPayload,
 } from './interfaces/audit-event.interface';
 import { StoreService } from '../store/store.service';
+import { StoreActor } from '../store/store.interface';
 
 @Injectable()
 export class EventService {
@@ -27,9 +28,9 @@ export class EventService {
       | 'resourceId'
       | 'outcome'
       | 'metadata'
-    >,
+    > & { actor?: StoreActor },
   ) {
-    const actor = this.store.actor,
+    const actor = payload.actor ?? this.store.actor,
       client = this.store.get('client'),
       session = this.store.get('session'),
       permission = this.store.get('permission');

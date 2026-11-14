@@ -19,9 +19,12 @@ import {
   UserDisabledException,
   UserNoPasswordException,
   UserInvitedException,
+  UserNotFoundException,
+  UserInvalidPasswordException,
 } from '../identity/classes/exceptions/user.exception';
 import { CacheService } from '../../infra/cache/cache.service';
 import { UserStatus } from '../identity/enums/user-status.enum';
+import { ActivityOutcome } from '../audit/enums/activity-outcome.enum';
 
 type UserCache = {
   id: string;
@@ -69,6 +72,13 @@ export class AuthService {
       ),
       isActive: true,
       lastUsedAt: new Date(),
+    });
+
+    this.event.emitAuditActivityLog({
+      module: 'auth',
+      action: 'signIn',
+      outcome: ActivityOutcome.SUCCESS,
+      actor: { type: 'user', id: user.id, name: user.username },
     });
 
     this.event.emit('auth.signIn', {
@@ -143,12 +153,15 @@ export class AuthService {
   // Strategy validation
   // ----------------------------------------------------------------
   async validateLocalStrategy(username: string, password: string) {
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService
+      .findByUsernameOrEmail(username)
+      .catch(() => null);
 
-    if (!user.password) throw new UserNoPasswordException();
+    if (!user) throw new UserNotFoundException();
+    if (!user.password) throw new UserNoPasswordException(user);
 
     const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) return null;
+    if (!passwordValid) throw new UserInvalidPasswordException(user);
 
     this.validateUser(user);
     return user;
@@ -174,8 +187,10 @@ export class AuthService {
   }
 
   private validateUser(user: User) {
-    if (user.status === UserStatus.INVITED) throw new UserInvitedException();
-    if (user.status === UserStatus.DISABLED) throw new UserDisabledException();
+    if (user.status === UserStatus.INVITED)
+      throw new UserInvitedException(user);
+    if (user.status === UserStatus.DISABLED)
+      throw new UserDisabledException(user);
   }
 
   async invalidateUsers(...userIds: string[]) {
