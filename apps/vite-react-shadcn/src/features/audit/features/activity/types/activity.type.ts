@@ -1,21 +1,17 @@
-export type ActivityActorType = 'user';
-
-export type ActivityStatus = 'success' | 'failure' | 'denied';
+export type ActivityOutcome = 'success' | 'failure';
 
 export type Activity = {
   id: string;
-  actorType: ActivityActorType;
+  occuredAt: string;
+  loggedAt: string;
+  requestId: string | null;
+  module: string;
+  actorType: string;
   actorId: string | null;
   actorName: string | null;
-  module: string;
   action: string;
-  status: ActivityStatus;
-  targetType: string | null;
-  targetId: string | null;
-  targetName: string | null;
-  requestId: string | null;
-  context: { path?: string; ip?: string; userAgent?: string } | null;
-  changes: { before?: any; after?: any } | null;
-  meta: Record<string, any> | null;
-  createdAt: Date;
+  resourceType: string | null;
+  resourceId: string | null;
+  outcome: ActivityOutcome;
+  metadata: Record<string, any> | null;
 };
