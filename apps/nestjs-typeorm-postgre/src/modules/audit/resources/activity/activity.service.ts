@@ -32,6 +32,7 @@ export class ActivityService extends ResourceService<Activity> {
       ...rq.toFindOptions(),
       select: this.select([
         'id',
+        'occuredAt',
         'loggedAt',
         'module',
         'actorType',

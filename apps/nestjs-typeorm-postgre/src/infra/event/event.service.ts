@@ -29,7 +29,10 @@ export class EventService {
       | 'metadata'
     >,
   ) {
-    const actor = this.store.actor;
+    const actor = this.store.actor,
+      client = this.store.get('client'),
+      session = this.store.get('session'),
+      permission = this.store.get('permission');
 
     return this.eventEmitter.emit(AuditEventName.ACTIVITY_LOG, {
       occuredAt: new Date(),
@@ -37,6 +40,17 @@ export class EventService {
       actorType: actor.type,
       actorId: actor.type === 'user' ? actor.id : null,
       actorName: actor.type === 'anon' ? null : actor.name,
+      context: {
+        sessionId: session?.id ?? null,
+        permissionKey: permission?.key ?? null,
+        clientId: client?.id ?? null,
+        clientType: client?.type ?? null,
+        device: client?.device ?? null,
+        browser: client?.browser ?? null,
+        os: client?.os ?? null,
+        ipAddress: client?.ipAddress ?? null,
+        userAgent: client?.userAgent ?? null,
+      },
       ...payload,
     } satisfies AuditEventPayload['audit.activity.log']);
   }

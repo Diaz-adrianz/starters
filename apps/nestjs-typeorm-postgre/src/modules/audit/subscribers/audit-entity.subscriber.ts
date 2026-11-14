@@ -164,7 +164,7 @@ export class AuditEntitySubscriber implements EntitySubscriberInterface {
   ) {
     try {
       this.event.emitAuditActivityLog({
-        module: meta.tableName,
+        module: meta.schema ?? 'app',
         action,
         resourceType: meta.name,
         resourceId: resourceId ?? null,

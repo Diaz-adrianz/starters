@@ -1,6 +1,9 @@
 import { Exclude } from 'class-transformer';
 import { ActivityOutcome } from '../../../enums/activity-outcome.enum';
-import { ActivityMetadata } from '../../../entities/activity.entity';
+import {
+  ActivityContext,
+  ActivityMetadata,
+} from '../../../entities/activity.entity';
 
 export class CreateActivityDto {
   @Exclude()
@@ -11,6 +14,9 @@ export class CreateActivityDto {
 
   @Exclude()
   module: string;
+
+  @Exclude()
+  context?: ActivityContext | null;
 
   @Exclude()
   actorType: string;

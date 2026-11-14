@@ -6,6 +6,8 @@ import {
 } from 'typeorm';
 import { ActivityOutcome } from '../enums/activity-outcome.enum';
 
+export type ActivityContext = Record<string, any>;
+
 export type ActivityMetadata = Record<string, any>;
 
 @Entity({ schema: 'audit', name: 'activities' })
@@ -26,6 +28,9 @@ export class Activity {
   // where
   @Column('varchar')
   module: string;
+
+  @Column('jsonb', { nullable: true })
+  context: ActivityContext | null;
 
   // who
   @Column('varchar')
