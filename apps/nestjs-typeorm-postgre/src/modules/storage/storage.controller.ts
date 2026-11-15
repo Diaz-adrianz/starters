@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { DefaultStorageService } from './default-storage.service';
+import { StoreService } from '../../infra/store/store.service';
+import { StorageService } from './storage.service';
 import { CreatePresignedPostDto } from './dto/create-presigned-post.dto';
-import { StoreService } from '../../../infra/store/store.service';
 
-@Controller('storage/default')
-export class DefaultStorageController {
+@Controller('storage')
+export class StorageController {
   constructor(
-    private storageService: DefaultStorageService,
+    private storageService: StorageService,
     private store: StoreService,
   ) {}
 

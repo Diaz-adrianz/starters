@@ -23,7 +23,7 @@ import { RolesGuard } from './modules/access-control/guards/roles.guard';
 import { PermissionGuard } from './modules/access-control/guards/permission.guard';
 import { AuditModule } from './modules/audit/audit.module';
 import { ClientMiddleware } from './common/middlewares/client.middleware';
-import { DefaultStorageModule } from './lib/storage/default/default-storage.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -40,10 +40,6 @@ import { DefaultStorageModule } from './lib/storage/default/default-storage.modu
     WebsocketModule,
     HealthModule,
 
-    // Infra
-    // ---------------------------------
-    DefaultStorageModule,
-
     // App modules
     // ---------------------------------
     IdentityModule,
@@ -51,6 +47,7 @@ import { DefaultStorageModule } from './lib/storage/default/default-storage.modu
     NotificationModule,
     AccessControlModule,
     AuditModule,
+    StorageModule,
   ],
   providers: [
     // Guard providers

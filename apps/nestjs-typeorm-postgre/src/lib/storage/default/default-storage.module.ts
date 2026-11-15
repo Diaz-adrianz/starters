@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DefaultStorageService } from './default-storage.service';
 import { S3Module } from 'nestjs-s3';
-import { DefaultStorageController } from './default-storage.controller';
 import {
   STORAGE_CONFIG_KEY,
   storageConfig,
@@ -45,7 +44,6 @@ import { IsStorageFileValidator } from './decorators/validators/is-storage-file.
     }),
   ],
   providers: [DefaultStorageService, IsStorageFileValidator],
-  controllers: [DefaultStorageController],
   exports: [DefaultStorageService],
 })
 export class DefaultStorageModule {}
