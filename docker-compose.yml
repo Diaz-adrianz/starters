@@ -35,14 +35,14 @@ services:
   # ------------------------------------------------------------------
   seaweedfs-master:
     image: chrislusf/seaweedfs:latest
-    command: master -ip=seaweedfs-master -port=9333 -mdir=/data
+    command: master -ip=seaweedfs-master -port=9333 -mdir=/data -volumeSizeLimitMB=1024
     volumes:
       - seaweedfs-master-data:/data
     restart: unless-stopped
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs:latest
-    command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data
+    command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -port=8080 -dir=/data -max=100
     volumes:
       - seaweedfs-volume-data:/data
     depends_on:
