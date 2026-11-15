@@ -1,6 +1,9 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
-import { PUSH_DELIVERY_QUEUE, PushDeliveryJob } from './push-delivery.config';
+import { UnrecoverableError } from 'bullmq';
+import {
+  PUSH_DELIVERY_QUEUE,
+  type PushDeliveryJob,
+} from './push-delivery.config';
 import { LoggerService } from '../../../../infra/logger/logger.service';
 import { DefaultFirebaseService } from '../../../../lib/firebase/default/default-firebase.service';
 import { TemplateService } from '../../resources/template/template.service';
@@ -8,12 +11,9 @@ import { Channel } from '../../enums/channel.enum';
 import { PushProvider } from '../../enums/push-provider.enum';
 import { chunk } from '../../../../shared/utils/array.util';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { PushToken } from '../../entities/push-token.entity';
-import { DeliveryLogStatus } from '../../enums/delivery-log-status.enum';
 import { In, Repository } from 'typeorm';
-import { DeliveryService } from '../../resources/delivery/delivery.service';
 
 interface SendMessageResult {
   sent: number;
@@ -27,7 +27,6 @@ export class PushDeliveryProcessor extends WorkerHost {
     private logger: LoggerService,
     @InjectRepository(PushToken, DatabaseKeys.DEFAULT)
     private pushTokenRepo: Repository<PushToken>,
-    private deliveryService: DeliveryService,
     private templateService: TemplateService,
     private firebaseService: DefaultFirebaseService,
   ) {
@@ -38,32 +37,21 @@ export class PushDeliveryProcessor extends WorkerHost {
     switch (job.name) {
       case 'send-to-user': {
         const data = job.data;
-        const log = {
-          channel: Channel.PUSH,
-          recipient: data.userId,
-          attemptsCount: job.attemptsMade,
-        };
-        const isLastAttempt = log.attemptsCount + 1 >= (job.opts.attempts ?? 1);
+        const isLastAttempt = job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
+        const tag = `delivery ${data.deliveryId} user ${data.userId}`;
 
-        await this.deliveryService.upsertLog(data.deliveryId, {
-          ...log,
-          status:
-            log.attemptsCount === 0
-              ? DeliveryLogStatus.PENDING
-              : DeliveryLogStatus.RETRYING,
-        });
-
-        const template = await this.templateService
-          .render(data.templateKey, log.channel, data.payload)
-          .catch(async (e: Error) => {
-            await this.deliveryService.upsertLog(data.deliveryId, {
-              ...log,
-              status: DeliveryLogStatus.FAILED,
-              statusMessage: `Template render error: ${e.message}`,
-            });
-            return null;
-          });
-        if (!template) return;
+        let template: Awaited<ReturnType<TemplateService['render']>>;
+        try {
+          template = await this.templateService.render(
+            data.templateKey,
+            Channel.PUSH,
+            data.payload,
+          );
+        } catch (e) {
+          throw new UnrecoverableError(
+            `Template render error: ${(e as Error).message}`,
+          );
+        }
 
         let pushTokens = data.pushTokens;
         if (!pushTokens) {
@@ -77,14 +65,8 @@ export class PushDeliveryProcessor extends WorkerHost {
           }));
         }
 
-        if (!pushTokens.length) {
-          await this.deliveryService.upsertLog(data.deliveryId, {
-            ...log,
-            status: DeliveryLogStatus.FAILED,
-            statusMessage: 'User does not have any active tokens',
-          });
-          return;
-        }
+        if (!pushTokens.length)
+          throw new UnrecoverableError('User does not have any active tokens');
 
         const tokensByProvider = new Map<PushProvider, string[]>();
 
@@ -109,7 +91,7 @@ export class PushDeliveryProcessor extends WorkerHost {
         const revoked: string[] = [];
         const retryable: { token: string; provider: PushProvider }[] = [];
 
-        [...tokensByProvider].forEach(([provider], i) => {
+        [...tokensByProvider].forEach(([provider, tokens], i) => {
           const result = providerResults[i];
           if (result.status === 'fulfilled') {
             sent += result.value.sent;
@@ -121,12 +103,12 @@ export class PushDeliveryProcessor extends WorkerHost {
               })),
             );
           } else {
-            retryable.push(
-              ...(tokensByProvider.get(provider) ?? []).map((token) => ({
-                token,
-                provider,
-              })),
+            this.logger.error(
+              `${tag} provider ${provider} failed: `,
+              result.reason,
+              this.constructor.name,
             );
+            retryable.push(...tokens.map((token) => ({ token, provider })));
           }
         });
 
@@ -143,44 +125,31 @@ export class PushDeliveryProcessor extends WorkerHost {
         };
 
         if (retryable.length && !isLastAttempt) {
-          await job.updateData({
-            ...data,
-            pushTokens: retryable,
-            stats: stats,
-          });
-          await this.deliveryService.upsertLog(data.deliveryId, {
-            ...log,
-            status: DeliveryLogStatus.RETRYING,
-            statusMessage: `${stats.sent}/${stats.total} sent, ${stats.revoked} revoked, ${retryable.length} pending retry`,
-          });
+          await job.updateData({ ...data, pushTokens: retryable, stats });
+          this.logger.log(
+            `${tag} ${stats.sent}/${stats.total} sent, ${stats.revoked} revoked, ${retryable.length} pending retry`,
+            this.constructor.name,
+          );
           throw new Error(`${retryable.length} tokens pending retry`);
         }
 
         if (stats.sent >= 1) {
-          await this.deliveryService.upsertLog(data.deliveryId, {
-            ...log,
-            status: DeliveryLogStatus.SENT,
-            statusMessage: `${stats.sent}/${stats.total} tokens sent${stats.revoked ? `, ${stats.revoked} revoked` : ''}`,
-            sentAt: new Date(),
-            payload: template.maskedPayload,
-          });
-        } else {
-          await this.deliveryService.upsertLog(data.deliveryId, {
-            ...log,
-            status: DeliveryLogStatus.FAILED,
-            statusMessage:
-              stats.revoked === stats.total
-                ? 'All tokens revoked'
-                : `All ${stats.total} tokens failed across attempts`,
-          });
+          this.logger.log(
+            `${tag} ${stats.sent}/${stats.total} tokens sent, ${stats.revoked} revoked`,
+            this.constructor.name,
+          );
+          break;
         }
 
-        break;
+        throw new UnrecoverableError(
+          stats.revoked === stats.total
+            ? 'All tokens revoked'
+            : `All ${stats.total} tokens failed across attempts`,
+        );
       }
     }
   }
 
-  // ================================================================
   // Provider deliveries
   // ----------------------------------------------------------------
   private async sendMessageByProvider(
@@ -230,24 +199,18 @@ export class PushDeliveryProcessor extends WorkerHost {
     return { sent, revokedTokens, retryableTokens };
   }
 
-  // ================================================================
   // Listener
   // ----------------------------------------------------------------
-  @OnWorkerEvent('completed')
-  onCompleted(job: Job) {
-    this.logger.log(
-      `[${job.queueName}] job ${job.name} (${job.id}) completed`,
-      this.constructor.name,
-    );
-  }
-
   @OnWorkerEvent('failed')
-  onFailed(job: Job, err: Error) {
-    // TODO: send dev alert event after reached max attempts
-    this.logger.error(
-      `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): `,
-      err,
-      this.constructor.name,
-    );
+  onFailed(job: PushDeliveryJob, err: Error) {
+    switch (job.name) {
+      case 'send-to-user':
+        this.logger.error(
+          `Delivery ${job.data.deliveryId} to user ${job.data.userId} failed after ${job.attemptsMade} attempts`,
+          err,
+          this.constructor.name,
+        );
+        break;
+    }
   }
 }

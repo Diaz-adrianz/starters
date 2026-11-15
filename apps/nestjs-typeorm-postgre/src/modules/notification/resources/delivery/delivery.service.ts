@@ -9,8 +9,6 @@ import {
 } from '../../queue/push-delivery/push-delivery.config';
 import { Channel } from '../../enums/channel.enum';
 import { Injectable } from '@nestjs/common';
-import { CreateDeliveryLogDto } from './dto/create-delivery-log.dto';
-import { DeliveryLog } from '../../entities/delivery-log.entity';
 import {
   EMAIL_DELIVERY_QUEUE,
   type EmailDeliveryQueue,
@@ -28,8 +26,6 @@ export class DeliveryService extends ResourceService<Delivery> {
     private logger: LoggerService,
     @InjectRepository(Delivery, DatabaseKeys.DEFAULT)
     private deliveryRepo: Repository<Delivery>,
-    @InjectRepository(DeliveryLog, DatabaseKeys.DEFAULT)
-    private deliveryLogRepo: Repository<DeliveryLog>,
     @InjectQueue(PUSH_DELIVERY_QUEUE)
     private pushDeliveryQueue: PushDeliveryQueue,
     @InjectQueue(EMAIL_DELIVERY_QUEUE)
@@ -37,13 +33,6 @@ export class DeliveryService extends ResourceService<Delivery> {
     private messageService: MessageService,
   ) {
     super(deliveryRepo);
-  }
-
-  upsertLog(id: string, dto: CreateDeliveryLogDto) {
-    return this.deliveryLogRepo.upsert(
-      { deliveryId: id, ...dto },
-      { conflictPaths: ['deliveryId', 'channel', 'recipient'] },
-    );
   }
 
   // Base

@@ -21,7 +21,6 @@ const AUDIT_BLACKLIST = new Set<string>([
   'audit.Activity',
   'auth.Session',
   'identity.Token',
-  'notification.DeliveryLog',
   'notification.Message',
   'notification.PushToken',
 ]);

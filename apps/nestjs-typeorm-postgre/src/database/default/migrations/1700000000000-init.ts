@@ -59,15 +59,6 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "notification"."deliveries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "type" "notification"."deliveries_type_enum" NOT NULL, "priority" "notification"."deliveries_priority_enum" NOT NULL, "template_key" character varying NOT NULL, "sender" jsonb, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_a6ef225c5c5f0974e503bfb731f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "notification"."delivery_logs_channel_enum" AS ENUM('email', 'push', 'in_app')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "notification"."delivery_logs_status_enum" AS ENUM('pending', 'sent', 'failed', 'retrying')`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "notification"."delivery_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "channel" "notification"."delivery_logs_channel_enum" NOT NULL, "recipient" character varying NOT NULL, "status" "notification"."delivery_logs_status_enum" NOT NULL, "status_message" character varying, "sent_at" TIMESTAMP WITH TIME ZONE, "attempts_count" integer, "payload" jsonb, CONSTRAINT "UQ_78f84e530afd2b7d31f93592b68" UNIQUE ("delivery_id", "channel", "recipient"), CONSTRAINT "PK_c647802ec5e927513f2d0beec47" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
       `CREATE TYPE "notification"."push_tokens_provider_enum" AS ENUM('fcm')`,
     );
     await queryRunner.query(
@@ -97,15 +88,9 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "notification"."messages" ADD CONSTRAINT "FK_d030aa5e7c96396b592ba647e33" FOREIGN KEY ("delivery_id") REFERENCES "notification"."deliveries"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "notification"."delivery_logs" ADD CONSTRAINT "FK_390fbb5da0cd08bb753e4b3bcaf" FOREIGN KEY ("delivery_id") REFERENCES "notification"."deliveries"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "notification"."delivery_logs" DROP CONSTRAINT "FK_390fbb5da0cd08bb753e4b3bcaf"`,
-    );
     await queryRunner.query(
       `ALTER TABLE "notification"."messages" DROP CONSTRAINT "FK_d030aa5e7c96396b592ba647e33"`,
     );
@@ -131,13 +116,6 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "notification"."push_tokens"`);
     await queryRunner.query(
       `DROP TYPE "notification"."push_tokens_provider_enum"`,
-    );
-    await queryRunner.query(`DROP TABLE "notification"."delivery_logs"`);
-    await queryRunner.query(
-      `DROP TYPE "notification"."delivery_logs_status_enum"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE "notification"."delivery_logs_channel_enum"`,
     );
     await queryRunner.query(`DROP TABLE "notification"."deliveries"`);
     await queryRunner.query(
