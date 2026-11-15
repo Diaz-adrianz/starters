@@ -6,5 +6,9 @@
 /n8n/local-files
 !/n8n/local-files/README.MD
 
+# postgres 
+/postgres/.env
+/postgres/backups
+
 # seaweedfs
 /seaweedfs/s3-config.json
