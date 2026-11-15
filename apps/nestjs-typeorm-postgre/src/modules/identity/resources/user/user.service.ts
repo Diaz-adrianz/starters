@@ -41,7 +41,15 @@ export class UserService extends ResourceService<User> {
       status: UserStatus.INVITED,
     });
 
-    await this.issueInvitation(user);
+    const invitation = await this.issueInvitation(user);
+
+    this.event.emitAuditActivityLog({
+      module: 'identity',
+      action: 'invite',
+      resourceId: user.id,
+      resourceType: 'User',
+      metadata: { invitationExpiresAt: invitation.expiresAt },
+    });
     return user;
   }
 
@@ -53,7 +61,16 @@ export class UserService extends ResourceService<User> {
     const token = await this.tokenService
       .findActiveByUser(user.id, TokenType.INVITATION)
       .catch(() => undefined);
-    await this.issueInvitation(user, token);
+
+    const invitation = await this.issueInvitation(user, token);
+
+    this.event.emitAuditActivityLog({
+      module: 'identity',
+      action: 'resendInvite',
+      resourceId: user.id,
+      resourceType: 'User',
+      metadata: { invitationExpiresAt: invitation.expiresAt },
+    });
   }
 
   async findByUsernameOrEmail(value: string) {
@@ -230,6 +247,8 @@ export class UserService extends ResourceService<User> {
       username: user.username,
       otp: { code: otp, expiresIn: `${expire / 60 / 60} hours` },
     });
+
+    return { expiresAt };
   }
 
   async issueSetPassword(user: User, token?: Token) {
@@ -254,5 +273,7 @@ export class UserService extends ResourceService<User> {
       username: user.username,
       otp: { code: otp, expiresIn: `${expire / 60} minutes` },
     });
+
+    return { expiresAt };
   }
 }
