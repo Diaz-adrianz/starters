@@ -1,8 +1,8 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { LoggerService } from '../../../../infra/logger/logger.service';
-import { ACTIVITY_LOG_QUEUE, ActivityLogJob } from './activity-log.config';
+import { ACTIVITY_LOG_QUEUE, type ActivityLogJob } from './activity-log.config';
 import { ActivityService } from '../../resources/activity/activity.service';
-import { Job } from 'bullmq';
+import { UnrecoverableError } from 'bullmq';
 
 @Processor(ACTIVITY_LOG_QUEUE, { concurrency: 2 })
 export class ActivityLogProcessor extends WorkerHost {
@@ -27,19 +27,22 @@ export class ActivityLogProcessor extends WorkerHost {
     );
   }
 
-  @OnWorkerEvent('completed')
-  onCompleted(job: Job) {
-    this.logger.log(
-      `[${job.queueName}] job ${job.name} (${job.id}) completed`,
-      this.constructor.name,
-    );
-  }
-
   @OnWorkerEvent('failed')
-  onFailed(job: Job, err: Error) {
-    // TODO: send dev alert event after reached max attempts
+  onFailed(job: ActivityLogJob, err: Error) {
+    const final =
+      job.attemptsMade >= (job.opts.attempts ?? 1) ||
+      err instanceof UnrecoverableError;
+
+    if (!final) {
+      this.logger.warn(
+        `[${job.queueName}] job ${job.id} failed, attempt ${job.attemptsMade}, retrying: ${err.message}`,
+        this.constructor.name,
+      );
+      return;
+    }
+
     this.logger.error(
-      `[${job.queueName}] job ${job.name} (${job.id}) failed after ${job.attemptsMade} attempt(s): `,
+      `[${job.queueName}] job ${job.id} DEAD: ${job.data.entries.length} audit entries not saved after ${job.attemptsMade} attempt(s): `,
       err,
       this.constructor.name,
     );
