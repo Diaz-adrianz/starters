@@ -12,11 +12,10 @@ import { CacheService } from './cache.service';
 @Global()
 @Module({
   imports: [
-    NestCacheModule.register({
+    NestCacheModule.registerAsync({
       imports: [ConfigModule.forFeature(cacheConfig)],
       inject: [CACHE_CONFIG_KEY],
       useFactory: (config: CacheConfig) => ({
-        max: config.max,
         ttl: config.ttl,
       }),
     }),

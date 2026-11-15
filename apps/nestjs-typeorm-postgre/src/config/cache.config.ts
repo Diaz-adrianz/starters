@@ -2,8 +2,7 @@ import { ConfigType, registerAs } from '@nestjs/config';
 import { z } from 'zod';
 
 const schema = z.object({
-  CACHE_TTL: z.string(),
-  CACHE_MAX: z.coerce.number(),
+  CACHE_TTL: z.coerce.number(),
 });
 
 export const cacheConfig = registerAs('cache', () => {
@@ -14,7 +13,6 @@ export const cacheConfig = registerAs('cache', () => {
 
   return {
     ttl: data.CACHE_TTL,
-    max: data.CACHE_MAX,
   };
 });
 
