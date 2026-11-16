@@ -12,12 +12,20 @@ function AbilityProvider({ children }: { children: ReactNode }) {
   const abilities = abilityStore((s) => s.abilities),
     setAbilities = abilityStore((s) => s.setAbilities);
 
-  const { data } = useUserAccessList({
+  const { refetch } = useUserAccessList({
     enabled: authStatus === 'authenticated',
   });
 
   useEffect(() => {
-    if (data) {
+    if (authStatus === 'unauthenticated') {
+      setAbilities([]);
+      return;
+    }
+    if (authStatus !== 'authenticated') return;
+
+    refetch().then(({ data }) => {
+      if (!data) return;
+
       const items: AbilityItem[] = [];
 
       data.permissions.forEach((permission) => {
@@ -28,12 +36,8 @@ function AbilityProvider({ children }: { children: ReactNode }) {
       });
 
       setAbilities(items);
-    }
-  }, [data, setAbilities]);
-
-  useEffect(() => {
-    if (authStatus === 'unauthenticated') setAbilities([]);
-  }, [authStatus, setAbilities]);
+    });
+  }, [authStatus, refetch, setAbilities]);
 
   const ability = useMemo(() => defineAbilityFor(abilities), [abilities]);
 
