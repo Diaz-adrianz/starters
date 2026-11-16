@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { StoreService } from '../../infra/store/store.service';
 import { StorageService } from './storage.service';
-import { CreatePresignedPostDto } from './dto/create-presigned-post.dto';
+import { CreateUploadDto } from './dto/create-upload.dto';
 
 @Controller('storage')
 export class StorageController {
@@ -10,9 +10,9 @@ export class StorageController {
     private store: StoreService,
   ) {}
 
-  @Post('/presigned-post')
-  createPresignedPost(@Body() dto: CreatePresignedPostDto) {
+  @Post('/upload')
+  createUpload(@Body() dto: CreateUploadDto) {
     dto.ownerId = this.store.user.id;
-    return this.storageService.createPresignedPost(dto);
+    return this.storageService.createUpload(dto);
   }
 }

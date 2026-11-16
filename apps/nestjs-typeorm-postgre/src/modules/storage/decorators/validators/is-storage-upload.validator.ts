@@ -6,28 +6,28 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { HttpException, Injectable } from '@nestjs/common';
-import { MediaMimeType } from '../../../../../shared/constants/media-types.constant';
-import { DefaultStorageService } from '../../default-storage.service';
-import { StoreService } from '../../../../../infra/store/store.service';
-import { LoggerService } from '../../../../../infra/logger/logger.service';
+import { MediaMimeType } from '../../../../shared/constants/media-types.constant';
+import { StorageService } from '../../storage.service';
+import { StoreService } from '../../../../infra/store/store.service';
+import { LoggerService } from '../../../../infra/logger/logger.service';
 
-interface IsStorageFileOptions {
+interface IsStorageUploadOptions {
   mimeTypes?: MediaMimeType[];
   maxSize?: number;
 }
 
-export interface IsStorageFileResult {
+export interface IsStorageUploadResult {
   key: string;
   etag: string;
 }
 
-@ValidatorConstraint({ name: 'IsStorageFile', async: true })
+@ValidatorConstraint({ name: 'IsStorageUpload', async: true })
 @Injectable()
-export class IsStorageFileValidator implements ValidatorConstraintInterface {
+export class IsStorageUploadValidator implements ValidatorConstraintInterface {
   private lastError = '';
 
   constructor(
-    private readonly storageService: DefaultStorageService,
+    private readonly storageService: StorageService,
     private readonly store: StoreService,
     private readonly logger: LoggerService,
   ) {}
@@ -40,17 +40,16 @@ export class IsStorageFileValidator implements ValidatorConstraintInterface {
       return false;
     }
 
-    const [options] = args.constraints as [IsStorageFileOptions];
+    const [options] = args.constraints as [IsStorageUploadOptions];
 
     try {
-      this.storageService.validateTempOwner(key, this.store.user.id);
-
-      const validated = await this.storageService.validateFile(
+      const validated = await this.storageService.validateUpload({
+        name: prop,
         key,
-        options,
-        prop,
-      );
-      const result: IsStorageFileResult = {
+        ownerId: this.store.user.id,
+        format: { mimeTypes: options.mimeTypes, maxSize: options.maxSize },
+      });
+      const result: IsStorageUploadResult = {
         key: validated.key,
         etag: validated.etag,
       };
@@ -78,18 +77,18 @@ export class IsStorageFileValidator implements ValidatorConstraintInterface {
   }
 }
 
-export function IsStorageFile(
-  options?: IsStorageFileOptions,
+export function IsStorageUpload(
+  options?: IsStorageUploadOptions,
   validationOptions?: ValidationOptions,
 ) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'IsStorageFile',
+      name: 'IsStorageUpload',
       target: object.constructor,
       propertyName,
       constraints: [options],
       options: validationOptions,
-      validator: IsStorageFileValidator,
+      validator: IsStorageUploadValidator,
     });
   };
 }

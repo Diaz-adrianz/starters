@@ -1,14 +1,14 @@
 import { IsIn, IsInt, IsNotEmpty, Max, Min } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { MB } from '../../../shared/utils/number.util';
 import {
   type MediaMimeType,
   MediaMimeTypes,
-} from '../../../../shared/constants/media-types.constant';
-import { MB } from '../../../../shared/utils/number.util';
-import { Exclude } from 'class-transformer';
+} from '../../../shared/constants/media-types.constant';
 
 export const MAX_UPLOAD_SIZE = 50 * MB;
 
-export class CreatePresignedPostDto {
+export class CreateUploadDto {
   @IsNotEmpty()
   @IsIn(MediaMimeTypes)
   mimeType: MediaMimeType;

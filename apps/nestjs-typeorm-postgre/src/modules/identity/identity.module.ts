@@ -10,12 +10,12 @@ import { Token } from './entities/token.entity';
 import { TokenService } from './resources/token/token.service';
 import { IdentityService } from './identity.service';
 import { IdentityController } from './identity.controller';
-import { DefaultStorageModule } from '../../lib/storage/default/default-storage.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
     DefaultDatabaseModule.forFeature([User, Profile, Token]),
-    DefaultStorageModule,
+    StorageModule,
   ],
   controllers: [UserController, ProfileController, IdentityController],
   providers: [UserService, ProfileService, TokenService, IdentityService],

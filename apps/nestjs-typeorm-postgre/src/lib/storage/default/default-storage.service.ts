@@ -4,117 +4,65 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  HeadObjectCommandOutput,
 } from '@aws-sdk/client-s3';
 import {
-  BadRequestException,
   ConflictException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectS3, type S3 } from 'nestjs-s3';
-
 import {
   STORAGE_CONFIG_KEY,
   type StorageConfig,
 } from '../../../config/storage.config';
-import { CreatePresignedPostDto } from './dto/create-presigned-post.dto';
-import { randomUUID } from 'crypto';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
-import {
-  MediaExtensions,
-  MediaMimeType,
-} from '../../../shared/constants/media-types.constant';
-import { stringifyBytes } from '../../../shared/utils/string.util';
-import { fileTypeFromStream } from 'file-type';
+import { MediaMimeType } from '../../../shared/constants/media-types.constant';
 import { LoggerService } from '../../../infra/logger/logger.service';
-
-const TEMP_PREFIX = 'temp';
 
 @Injectable()
 export class DefaultStorageService {
   private readonly bucket: string;
 
   constructor(
+    @Inject(STORAGE_CONFIG_KEY) storageConfig: StorageConfig,
     @InjectS3() private readonly s3: S3,
-    @Inject(STORAGE_CONFIG_KEY) private storageConfig: StorageConfig,
     private logger: LoggerService,
   ) {
     this.bucket = storageConfig.default.bucket;
   }
 
-  async createPresignedPost(dto: CreatePresignedPostDto) {
-    const key = `${TEMP_PREFIX}/${dto.ownerId}/${randomUUID()}`;
+  async createPresignedPost({
+    key,
+    mimeType,
+    size,
+  }: {
+    key: string;
+    mimeType: MediaMimeType;
+    size: number;
+  }) {
     const { url, fields } = await createPresignedPost(this.s3, {
       Bucket: this.bucket,
       Key: key,
       Conditions: [
-        ['content-length-range', dto.size, dto.size],
-        ['eq', '$Content-Type', dto.mimeType],
+        ['content-length-range', size, size],
+        ['eq', '$Content-Type', mimeType],
       ],
-      Fields: { 'Content-Type': dto.mimeType },
+      Fields: { 'Content-Type': mimeType },
       Expires: 300,
     });
     return { url, fields };
   }
 
-  validateTempOwner(key: string, ownerId: string, name = 'file'): void {
-    const expectedPrefix = `${TEMP_PREFIX}/${ownerId}/`;
-
-    if (!key.startsWith(expectedPrefix))
-      throw new ForbiddenException(
-        `Unauthorized access to this uploaded ${name}`,
-      );
-
-    const objectId = key.slice(expectedPrefix.length);
-    if (!objectId || objectId.includes('/'))
-      throw new BadRequestException(`Invalid ${name} temporary key`);
-  }
-
-  async validateFile(
-    key: string,
-    options: { mimeTypes?: MediaMimeType[]; maxSize?: number } = {},
-    name = 'file',
-  ) {
-    let head: HeadObjectCommandOutput;
-    try {
-      head = await this.headObject(key);
-    } catch {
-      throw new BadRequestException(`${name} does not exist`);
-    }
-
-    if (options.maxSize && (head.ContentLength ?? 0) > options.maxSize)
-      throw new BadRequestException(
-        `${name} size exceeds maximum of ${stringifyBytes(options.maxSize)}`,
-      );
-
-    if (options.mimeTypes?.length) {
-      const stream = await this.getObject(key, 'bytes=0-4095');
-      if (!stream) throw new BadRequestException(`${name} is not readable`);
-
-      const fileType = await fileTypeFromStream(stream.transformToWebStream());
-      const mime = fileType?.mime ?? '';
-
-      if (!options.mimeTypes.includes(mime as MediaMimeType))
-        throw new BadRequestException(
-          `${name} type ${MediaExtensions[mime] ?? 'unknown'} is not allowed`,
-        );
-    }
-
-    return { key, etag: head.ETag ?? '' };
-  }
-
-  async moveObject(
+  async copyObject(
     sourceKey: string,
     destinationKey: string,
-    etag: string,
-    cacheControl?: string,
+    metadata: {
+      etag: string;
+      cacheControl?: string;
+    },
   ) {
-    if (sourceKey === destinationKey)
-      throw new BadRequestException('Source and destination must differ');
-
     let copied: CopyObjectCommandOutput;
     try {
       const head = await this.headObject(sourceKey);
@@ -122,10 +70,10 @@ export class DefaultStorageService {
         new CopyObjectCommand({
           Bucket: this.bucket,
           Key: destinationKey,
-          CopySource: `${this.bucket}/${this.encodeKey(sourceKey)}`,
-          CopySourceIfMatch: etag,
+          CopySource: `${this.bucket}/${sourceKey}`,
+          CopySourceIfMatch: metadata.etag,
           MetadataDirective: 'REPLACE',
-          CacheControl: cacheControl,
+          CacheControl: metadata.cacheControl,
           ContentType: head.ContentType,
           ContentDisposition: head.ContentDisposition,
           ContentEncoding: head.ContentEncoding,
@@ -144,12 +92,18 @@ export class DefaultStorageService {
       throw e;
     }
 
-    await this.deleteObject(sourceKey).catch();
+    const etag = copied.CopyObjectResult?.ETag;
+    if (!etag) {
+      this.logger.warn(
+        `CopyObject of from ${sourceKey} to ${destinationKey} returned no ETag`,
+        this.constructor.name,
+      );
+      throw new UnprocessableEntityException(
+        'Copied file could not be verified.',
+      );
+    }
 
-    return {
-      key: destinationKey,
-      etag: copied.CopyObjectResult?.ETag ?? '',
-    };
+    return { key: destinationKey, etag };
   }
 
   async getObject(key: string, range?: string) {
@@ -178,9 +132,5 @@ export class DefaultStorageService {
       );
       throw e;
     }
-  }
-
-  encodeKey(key: string) {
-    return key.split('/').map(encodeURIComponent).join('/');
   }
 }

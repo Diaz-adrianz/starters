@@ -16,10 +16,10 @@ import { TokenType, TokenTypeExpire } from '../../enums/token-type.enum';
 import { Token } from '../../entities/token.entity';
 import { UserNotInvitedException } from '../../classes/exceptions/user.exception';
 import { UpdateUserAvatarDto } from './dto/update-user-avatar.dto';
-import { DefaultStorageService } from '../../../../lib/storage/default/default-storage.service';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import { ResourceService } from '../../../../common/services/resource.service';
+import { StorageService } from '../../../storage/storage.service';
 
 @Injectable()
 export class UserService extends ResourceService<User> {
@@ -28,7 +28,7 @@ export class UserService extends ResourceService<User> {
     private userRepo: Repository<User>,
     private tokenService: TokenService,
     private event: EventService,
-    private storage: DefaultStorageService,
+    private storage: StorageService,
   ) {
     super(userRepo);
   }
@@ -93,19 +93,21 @@ export class UserService extends ResourceService<User> {
   async updateAvatar(rq: ResourceQuery, dto: UpdateUserAvatarDto) {
     const user = await this.load(rq.toFindOptions());
 
-    const avatar = await this.storage.moveObject(
+    const avatar = await this.storage.move(
       dto.avatar.key,
       `public/identity/user-avatars/${user.id}/${randomUUID()}`,
-      dto.avatar.etag,
-      'public, max-age=31536000, immutable',
+      {
+        etag: dto.avatar.etag,
+        cacheControl: 'public, max-age=31536000, immutable',
+      },
     );
 
     try {
       const result = await this.update(rq, { avatar: avatar.key });
-      if (user.avatar) await this.storage.deleteObject(user.avatar).catch();
+      if (user.avatar) await this.storage.delete(user.avatar).catch();
       return result;
     } catch (e) {
-      await this.storage.deleteObject(avatar.key).catch();
+      await this.storage.delete(avatar.key).catch();
       throw e;
     }
   }
