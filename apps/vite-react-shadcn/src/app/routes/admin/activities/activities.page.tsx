@@ -9,15 +9,14 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import {
   ActivityList,
-  ActivityListStatusFilter,
   ActivityListTable,
-  ActivityStatusMap,
   ActivityActions,
-  ActivityActorTypeMap,
   ActivityListSearchFilter,
   type ActivityDialogPayload,
   ActivityDialog,
-  ActivityListCreatedAtFilter,
+  ActivityListOccuredAtFilter,
+  ActivityListOutcomeFilter,
+  ActivityOutcomeMap,
 } from '@/features/audit';
 import { useDialogState } from '@/hooks/use-dialog';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
@@ -30,7 +29,7 @@ export const ActivitiesPage = () => {
   const query = useResourceQuery({
     page: 1,
     limit: 10,
-    order: { createdAt: 'desc' },
+    order: { occuredAt: 'desc' },
   });
 
   return (
@@ -50,8 +49,8 @@ export const ActivitiesPage = () => {
           <CardContent>
             <ActivityList query={query}>
               <div className="mb-8 flex flex-wrap gap-2">
-                <ActivityListCreatedAtFilter />
-                <ActivityListStatusFilter />
+                <ActivityListOccuredAtFilter />
+                <ActivityListOutcomeFilter />
                 <div className="grow">
                   <ActivityListSearchFilter />
                 </div>
@@ -66,27 +65,28 @@ export const ActivitiesPage = () => {
                     enableSorting: false,
                   },
                   {
-                    id: 'createdAt',
+                    id: 'occuredAt',
                     header: ({ column }) => (
-                      <SortableHeader column={column} title="Timestamp" />
+                      <SortableHeader column={column} title="Occured date" />
                     ),
                     cell: ({ row }) => (
                       <p className="text-muted-foreground">
-                        {formatDate(row.original.createdAt, 'PPp')}
+                        {formatDate(row.original.occuredAt, 'PPp')}
                       </p>
                     ),
                   },
                   {
-                    id: 'status',
-                    header: () => 'Status',
+                    id: 'outcome',
+                    header: () => 'Outcome',
                     cell: ({ row }) => (
                       <p
                         className={cn(
                           'font-bold uppercase',
-                          ActivityStatusMap[row.original.status].meta?.className
+                          ActivityOutcomeMap[row.original.outcome].meta
+                            ?.className
                         )}
                       >
-                        {ActivityStatusMap[row.original.status].label}
+                        {ActivityOutcomeMap[row.original.outcome].label}
                       </p>
                     ),
                     enableSorting: false,
@@ -106,7 +106,7 @@ export const ActivitiesPage = () => {
                           <p className="text-muted-foreground">N/A</p>
                         )}
                         <span className="typo-caption text-muted-foreground">
-                          {ActivityActorTypeMap[row.original.actorType].label}
+                          {row.original.actorType}
                         </span>
                       </div>
                     ),
@@ -129,16 +129,9 @@ export const ActivitiesPage = () => {
                     enableSorting: false,
                   },
                   {
-                    id: 'target',
-                    header: () => 'Target',
-                    cell: ({ row }) => (
-                      <div className="grid">
-                        <p>{row.original.targetType}</p>
-                        <span className="typo-caption text-muted-foreground">
-                          {row.original.targetName}
-                        </span>
-                      </div>
-                    ),
+                    id: 'resourceType',
+                    header: () => 'Resource',
+                    cell: ({ row }) => row.original.resourceType,
                     enableSorting: false,
                   },
                   {

@@ -16,14 +16,14 @@ function UserItem({
   slotActions,
   ...props
 }: ComponentProps<typeof Item> & {
-  user: Pick<User, 'id' | 'avatar' | 'username' | 'email'>;
+  user: Pick<User, 'id' | 'avatarUrl' | 'username' | 'email'>;
   slotActions?: ReactNode;
 }) {
   return (
     <Item {...props}>
       <ItemMedia>
         <Avatar className="size-10">
-          <AvatarImage src={user.avatar ?? ''} />
+          <AvatarImage src={user.avatarUrl ?? ''} />
           <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
         </Avatar>
       </ItemMedia>

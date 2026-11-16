@@ -10,12 +10,8 @@ import type { Session } from '../types/session.type';
 import { Badge } from '@/components/ui/badge';
 import { formatDateToNow } from '@/utils/date';
 import { cn } from 'cn';
-import {
-  RiComputerLine,
-  RiSmartphoneLine,
-  RiTabletLine,
-} from '@remixicon/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SessionClientDeviceMap } from '../constants/session.constant';
 
 function SessionItem({
   session,
@@ -26,19 +22,19 @@ function SessionItem({
   session: Session;
   slotRight?: ReactNode;
 }) {
+  const clientDevice = session.clientDevice
+    ? SessionClientDeviceMap[session.clientDevice]
+    : null;
+
   return (
     <Item size={'xs'} className={cn(className)} {...props}>
       <ItemMedia variant={'icon'}>
-        {session.deviceType === 'mobile' ? (
-          <RiSmartphoneLine className="size-6" />
-        ) : session.deviceType === 'tablet' ? (
-          <RiTabletLine className="size-6" />
-        ) : (
-          <RiComputerLine className="size-6" />
+        {clientDevice?.meta?.Icon && (
+          <clientDevice.meta.Icon className="size-6" />
         )}
       </ItemMedia>
       <ItemContent>
-        <ItemTitle>{session.deviceLabel || 'Unknown'}</ItemTitle>
+        <ItemTitle>{session.clientLabel || 'Unknown'}</ItemTitle>
         <ItemDescription>
           {session.os} · {session.browser}
         </ItemDescription>

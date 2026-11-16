@@ -7,11 +7,19 @@ import {
   RiDeleteBack2Line,
   RiDeleteBinLine,
   RiEdit2Line,
+  RiEmotionLine,
   RiExpandDiagonalLine,
   RiMailSendLine,
 } from '@remixicon/react';
 
-type Keys = 'view' | 'edit' | 'remove' | 'restore' | 'delete' | 'resendInvite';
+type Keys =
+  | 'view'
+  | 'edit'
+  | 'remove'
+  | 'restore'
+  | 'delete'
+  | 'resendInvite'
+  | 'updateAvatar';
 
 function UserActions(
   props: Omit<ResourceActionsProps<Keys>, 'keys' | 'actions'>
@@ -50,6 +58,11 @@ function UserActions(
           label: 'Delete',
           can: { i: 'delete', a: 'identity:user' },
           variant: 'destructive',
+        },
+        updateAvatar: {
+          icon: RiEmotionLine,
+          label: 'Update avatar',
+          can: { i: 'update-avatar', a: 'identity:user' },
         },
       }}
       {...props}

@@ -16,14 +16,11 @@ import {
   ItemSeparator,
   ItemTitle,
 } from '@/components/ui/item';
-import {
-  ActivityActorTypeMap,
-  ActivityStatusMap,
-} from '../constants/activity.constant';
 import { formatDate } from '@/utils/date';
 import { cn } from 'cn';
 import { JsonBlock } from '@/components/shared/json-block';
 import { InlineLink } from '@/components/shared/inline-link';
+import { ActivityOutcomeMap } from '../constants/activity.constant';
 
 type ActivityDialogPayload = { id: string };
 
@@ -53,28 +50,68 @@ function ActivityDialog({
               <ItemGroup className="mb-4 rounded-2xl border py-2">
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Timestamp</ItemTitle>
+                    <ItemTitle>Occured date</ItemTitle>
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {formatDate(data.createdAt, 'PPPppp')}
+                      {formatDate(data.occuredAt, 'PPPppp')}
                     </ItemDescription>
                   </ItemContent>
                 </Item>
                 <ItemSeparator className="m-0" />
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Status</ItemTitle>
+                    <ItemTitle>Recorded date</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <ItemDescription>
+                      {formatDate(data.loggedAt, 'PPPppp')}
+                    </ItemDescription>
+                  </ItemContent>
+                </Item>
+                <ItemSeparator className="m-0" />
+                <Item size={'xs'}>
+                  <ItemContent>
+                    <ItemTitle>Request ID</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <ItemDescription>{data.requestId}</ItemDescription>
+                  </ItemContent>
+                </Item>
+                <ItemSeparator className="m-0" />
+                <Item size={'xs'}>
+                  <ItemContent>
+                    <ItemTitle>Outcome</ItemTitle>
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription
                       className={cn(
                         'font-bold text-foreground uppercase',
-                        ActivityStatusMap[data.status].meta?.className
+                        ActivityOutcomeMap[data.outcome].meta?.className
                       )}
                     >
-                      {ActivityStatusMap[data.status].label}
+                      {ActivityOutcomeMap[data.outcome].label}
                     </ItemDescription>
+                  </ItemContent>
+                </Item>
+              </ItemGroup>
+
+              <ItemGroup className="mb-4 rounded-2xl border py-2">
+                <Item size={'xs'}>
+                  <ItemContent>
+                    <ItemTitle>Module</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <ItemDescription>{data.module}</ItemDescription>
+                  </ItemContent>
+                </Item>
+                <ItemSeparator className="m-0" />
+                <Item size={'xs'} className="scrollbar-none overflow-x-auto">
+                  <ItemContent>
+                    <ItemTitle>Context</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <JsonBlock value={data.context} />
                   </ItemContent>
                 </Item>
               </ItemGroup>
@@ -85,9 +122,7 @@ function ActivityDialog({
                     <ItemTitle>Actor type</ItemTitle>
                   </ItemContent>
                   <ItemContent>
-                    <ItemDescription>
-                      {ActivityActorTypeMap[data.actorType].label}
-                    </ItemDescription>
+                    <ItemDescription>{data.actorType}</ItemDescription>
                   </ItemContent>
                 </Item>
                 <ItemSeparator className="m-0" />
@@ -121,15 +156,6 @@ function ActivityDialog({
               <ItemGroup className="mb-4 rounded-2xl border py-2">
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Module</ItemTitle>
-                  </ItemContent>
-                  <ItemContent>
-                    <ItemDescription>{data.module}</ItemDescription>
-                  </ItemContent>
-                </Item>
-                <ItemSeparator className="m-0" />
-                <Item size={'xs'}>
-                  <ItemContent>
                     <ItemTitle>Action</ItemTitle>
                   </ItemContent>
                   <ItemContent>
@@ -139,28 +165,19 @@ function ActivityDialog({
                 <ItemSeparator className="m-0" />
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Target type</ItemTitle>
+                    <ItemTitle>Resource</ItemTitle>
                   </ItemContent>
                   <ItemContent>
-                    <ItemDescription>{data.targetType}</ItemDescription>
-                  </ItemContent>
-                </Item>
-                <ItemSeparator className="m-0" />
-                <Item size={'xs'}>
-                  <ItemContent>
-                    <ItemTitle>Target ID</ItemTitle>
-                  </ItemContent>
-                  <ItemContent>
-                    <ItemDescription>{data.targetId}</ItemDescription>
+                    <ItemDescription>{data.resourceType}</ItemDescription>
                   </ItemContent>
                 </Item>
                 <ItemSeparator className="m-0" />
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Target name</ItemTitle>
+                    <ItemTitle>Resource ID</ItemTitle>
                   </ItemContent>
                   <ItemContent>
-                    <ItemDescription>{data.targetName}</ItemDescription>
+                    <ItemDescription>{data.resourceId}</ItemDescription>
                   </ItemContent>
                 </Item>
               </ItemGroup>
@@ -168,28 +185,10 @@ function ActivityDialog({
               <ItemGroup className="overflow-hidden rounded-2xl border py-2">
                 <Item size={'xs'} className="scrollbar-none overflow-x-auto">
                   <ItemContent>
-                    <ItemTitle>Context</ItemTitle>
+                    <ItemTitle>Metadata</ItemTitle>
                   </ItemContent>
                   <ItemContent>
-                    <JsonBlock value={data.context} />
-                  </ItemContent>
-                </Item>
-                <ItemSeparator className="m-0" />
-                <Item size={'xs'}>
-                  <ItemContent>
-                    <ItemTitle>Changes</ItemTitle>
-                  </ItemContent>
-                  <ItemContent>
-                    <JsonBlock value={data.changes} />
-                  </ItemContent>
-                </Item>
-                <ItemSeparator className="m-0" />
-                <Item size={'xs'}>
-                  <ItemContent>
-                    <ItemTitle>Meta</ItemTitle>
-                  </ItemContent>
-                  <ItemContent>
-                    <JsonBlock value={data.meta} />
+                    <JsonBlock value={data.metadata} />
                   </ItemContent>
                 </Item>
               </ItemGroup>

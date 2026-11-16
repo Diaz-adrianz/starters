@@ -49,7 +49,7 @@ const AccountRolesPage = () => {
                           user: {
                             id: user.data.id,
                             username: user.data.username,
-                            avatar: user.data.avatar,
+                            avatarUrl: user.data.avatarUrl,
                           },
                         })
                       }

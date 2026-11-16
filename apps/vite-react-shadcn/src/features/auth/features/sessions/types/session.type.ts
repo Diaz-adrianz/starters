@@ -1,9 +1,14 @@
+export type SessionClientType = 'web' | 'ios' | 'android';
+
+export type SessionClientDevice = 'desktop' | 'tablet' | 'mobile';
+
 export type Session = {
   id: string;
   userId: string;
-  deviceId?: string | null;
-  deviceLabel?: string | null;
-  deviceType?: string | null;
+  clientId?: string | null;
+  clientLabel?: string | null;
+  clientType?: SessionClientType | null;
+  clientDevice?: SessionClientDevice | null;
   browser?: string | null;
   os?: string | null;
   ipAddress?: string | null;

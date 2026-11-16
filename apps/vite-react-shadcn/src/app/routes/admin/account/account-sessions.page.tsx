@@ -46,16 +46,9 @@ const AccountSessionsPage = () => {
                     enableSorting: false,
                   },
                   {
-                    id: 'device',
-                    header: 'Device',
-                    cell: ({ row }) => (
-                      <div>
-                        <p>{row.original.deviceLabel || 'Unknown'}</p>
-                        <small className="typo-caption text-muted-foreground">
-                          {row.original.deviceType}
-                        </small>
-                      </div>
-                    ),
+                    id: 'clientLabel',
+                    header: 'Name',
+                    cell: ({ row }) => row.original.clientLabel || 'Unknown',
                     enableSorting: false,
                   },
                   {

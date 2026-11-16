@@ -15,6 +15,10 @@ export {
   UserCombobox,
   type UserComboboxItem,
 } from './components/user-combobox';
+export {
+  UserUpdateAvatarDialog,
+  type UserUpdateAvatarDialogPayload,
+} from './components/user-update-avatar-dialog';
 
 // constants
 export { UserStatusMap } from './constants/user.constant';

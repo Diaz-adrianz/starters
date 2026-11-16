@@ -69,19 +69,27 @@ function PageHeader({
     <div
       className={cn(
         'container px-4 md:px-6 lg:px-8',
-        'mb-8 flex flex-wrap items-start justify-between gap-4',
+        'mb-8 flex flex-wrap justify-between gap-4',
+        description ? 'items-start' : 'items-center',
         className
       )}
       {...props}
     >
-      <div>
+      <div className="max-w-xl">
         <h1 className="typo-heading-xl">{title}</h1>
         {!!description && (
           <p className="typo-body-md text-muted-foreground">{description}</p>
         )}
       </div>
       {!!action && (
-        <div className="flex flex-wrap items-center gap-2">{action}</div>
+        <div
+          className={cn(
+            'flex flex-wrap items-center gap-2',
+            description ? 'mt-2' : ''
+          )}
+        >
+          {action}
+        </div>
       )}
     </div>
   );

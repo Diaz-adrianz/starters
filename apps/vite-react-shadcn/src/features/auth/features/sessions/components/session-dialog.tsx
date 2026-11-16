@@ -67,21 +67,30 @@ function SessionDialog({
               <ItemGroup className="mb-4 rounded-2xl border py-2">
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Device</ItemTitle>
+                    <ItemTitle>Name</ItemTitle>
                   </ItemContent>
                   <ItemContent>
                     <ItemDescription>
-                      {data.deviceLabel || 'Unknown'}
+                      {data.clientLabel || 'Unknown'}
                     </ItemDescription>
                   </ItemContent>
                 </Item>
                 <ItemSeparator className="m-0" />
                 <Item size={'xs'}>
                   <ItemContent>
-                    <ItemTitle>Device type</ItemTitle>
+                    <ItemTitle>Platform</ItemTitle>
                   </ItemContent>
                   <ItemContent>
-                    <ItemDescription>{data.deviceType}</ItemDescription>
+                    <ItemDescription>{data.clientType}</ItemDescription>
+                  </ItemContent>
+                </Item>
+                <ItemSeparator className="m-0" />
+                <Item size={'xs'}>
+                  <ItemContent>
+                    <ItemTitle>Device</ItemTitle>
+                  </ItemContent>
+                  <ItemContent>
+                    <ItemDescription>{data.clientDevice}</ItemDescription>
                   </ItemContent>
                 </Item>
                 <ItemSeparator className="m-0" />

@@ -26,9 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ActivityStatusOptions } from '../constants/activity.constant';
 import { SearchInput } from '@/components/shared/search-input';
 import { DatePickerRange } from '@/components/shared/date-picker';
+import { ActivityOutcomeOptions } from '../constants/activity.constant';
 
 const DEFAULT_PAGE = 1,
   DEFAULT_LIMIT = 10;
@@ -144,11 +144,11 @@ function ActivityListSearchFilter() {
             key: 'search',
             value: value
               ? {
-                  actorName: value,
+                  requestId: value,
                   module: value,
+                  actorName: value,
                   action: value,
-                  targetType: value,
-                  targetName: value,
+                  resourceType: value,
                 }
               : undefined,
           },
@@ -159,22 +159,22 @@ function ActivityListSearchFilter() {
   );
 }
 
-function ActivityListStatusFilter() {
+function ActivityListOutcomeFilter() {
   const { query } = useActivityList();
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    if (value) query.add('eq', 'status', value);
-    else query.del('eq', 'status');
+    if (value) query.add('eq', 'outcome', value);
+    else query.del('eq', 'outcome');
   }, [value]);
 
   return (
     <Select value={value} onValueChange={setValue}>
       <SelectTrigger>
-        <SelectValue placeholder="Status" />
+        <SelectValue placeholder="Outcome" />
       </SelectTrigger>
       <SelectContent>
-        {ActivityStatusOptions.map((o) => (
+        {ActivityOutcomeOptions.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             {o.label}
           </SelectItem>
@@ -184,7 +184,7 @@ function ActivityListStatusFilter() {
   );
 }
 
-function ActivityListCreatedAtFilter() {
+function ActivityListOccuredAtFilter() {
   const { query } = useActivityList();
 
   return (
@@ -194,11 +194,11 @@ function ActivityListCreatedAtFilter() {
       onValueChange={({ from, to }) =>
         query.batch([
           from
-            ? { type: 'add', key: 'gte', field: 'createdAt', value: from }
-            : { type: 'del', key: 'gte', field: 'createdAt' },
+            ? { type: 'add', key: 'gte', field: 'occuredAt', value: from }
+            : { type: 'del', key: 'gte', field: 'occuredAt' },
           to
-            ? { type: 'add', key: 'lte', field: 'createdAt', value: to }
-            : { type: 'del', key: 'lte', field: 'createdAt' },
+            ? { type: 'add', key: 'lte', field: 'occuredAt', value: to }
+            : { type: 'del', key: 'lte', field: 'occuredAt' },
         ])
       }
     />
@@ -247,7 +247,7 @@ function ActivityListTable({
 export {
   ActivityList,
   ActivityListSearchFilter,
-  ActivityListStatusFilter,
-  ActivityListCreatedAtFilter,
+  ActivityListOutcomeFilter,
+  ActivityListOccuredAtFilter,
   ActivityListTable,
 };

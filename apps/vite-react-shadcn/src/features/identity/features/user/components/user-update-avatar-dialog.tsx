@@ -1,0 +1,140 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useUser } from '../api/user.query';
+import { LoadingOverlay } from '@/components/shared/loading';
+import type { DialogState } from '@/hooks/use-dialog';
+import { NotFoundResourceEmpty } from '@/components/shared/not-found-empty';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getInitials } from '@/utils/string';
+import { Button } from '@/components/ui/button';
+import { useEffect, useRef } from 'react';
+import { useUpload } from '@/features/storage';
+import {
+  USER_AVATAR_MAX_SIZE,
+  USER_AVATAR_MIME_TYPES,
+} from '../schemas/user.schema';
+import { useUpdateUserAvatar } from '../api/user.mutation';
+import { toast } from 'sonner';
+
+type UserUpdateAvatarDialogPayload = { id: string };
+
+function UserUpdateAvatarDialog({
+  open,
+  onOpenChange,
+  payload,
+}: DialogState<UserUpdateAvatarDialogPayload>) {
+  const upload = useUpload({
+    mimeTypes: USER_AVATAR_MIME_TYPES,
+    maxSize: USER_AVATAR_MAX_SIZE,
+  });
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { data, isLoading } = useUser(payload?.id ?? '', {
+      enabled: !!payload?.id && open,
+    }),
+    updateApi = useUpdateUserAvatar({
+      onSuccess() {
+        upload.reset();
+      },
+    });
+
+  const isUpdateLoading = upload.isLoading || updateApi.isPending;
+
+  useEffect(() => {
+    if (!open) upload.reset();
+  }, [open]);
+
+  const selectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file) upload.select(file);
+  };
+
+  const save = async () => {
+    if (!data) return;
+
+    const key = await upload.submit();
+    if (key)
+      toast.promise(
+        updateApi.mutateAsync({ id: data.id, data: { avatar: key } }),
+        { loading: 'Updating avatar...', success: 'Avatar updated' }
+      );
+  };
+
+  const remove = async () => {
+    if (!data) return;
+    toast.promise(
+      updateApi.mutateAsync({ id: data.id, data: { avatar: null } }),
+      { loading: 'Removing avatar...', success: 'Avatar removed' }
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        {isLoading && <LoadingOverlay />}
+
+        <DialogHeader>
+          <DialogTitle>Update Avatar</DialogTitle>
+        </DialogHeader>
+
+        {!data && !isLoading && open ? (
+          <NotFoundResourceEmpty resource="Account" />
+        ) : (
+          <>
+            <button
+              type="button"
+              className="mx-auto mb-8 block overflow-hidden rounded-full"
+              disabled={isUpdateLoading}
+              onClick={() => inputRef.current?.click()}
+            >
+              {isUpdateLoading && <LoadingOverlay text="Uploading..." />}
+              <Avatar className="size-60">
+                <AvatarImage src={upload.preview ?? data?.avatarUrl ?? ''} />
+                <AvatarFallback className="text-5xl">
+                  {getInitials(data?.username ?? '')}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+
+            <input
+              ref={inputRef}
+              type="file"
+              accept={USER_AVATAR_MIME_TYPES.join(',')}
+              hidden
+              onChange={selectFile}
+            />
+
+            <DialogFooter>
+              {data?.avatarUrl && (
+                <Button
+                  variant={'destructive'}
+                  className="grow"
+                  disabled={isUpdateLoading}
+                  onClick={() => remove()}
+                >
+                  Remove
+                </Button>
+              )}
+              <Button
+                className="grow"
+                disabled={!upload.file || isUpdateLoading}
+                onClick={() => save()}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export { UserUpdateAvatarDialog };
+export type { UserUpdateAvatarDialogPayload };

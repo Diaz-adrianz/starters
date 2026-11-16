@@ -8,6 +8,10 @@ export type User = {
   email: string;
   status: UserStatus;
   avatar?: string | null;
+  avatarUrl?: string | null;
   createdAt?: string | null;
   profile?: Profile | null;
 };
+
+// api
+export type UpdateAvatarData = { avatar: string | null };

@@ -1,9 +1,9 @@
 // components
 export {
   ActivityList,
-  ActivityListStatusFilter,
+  ActivityListOutcomeFilter,
   ActivityListSearchFilter,
-  ActivityListCreatedAtFilter,
+  ActivityListOccuredAtFilter,
   ActivityListTable,
 } from './components/activity-list';
 export { ActivityActions } from './components/activity-actions';
@@ -13,10 +13,7 @@ export {
 } from './components/activity-dialog';
 
 // constants
-export {
-  ActivityStatusMap,
-  ActivityActorTypeMap,
-} from './constants/activity.constant';
+export { ActivityOutcomeMap } from './constants/activity.constant';
 
 // types
 export { type Activity } from './types/activity.type';

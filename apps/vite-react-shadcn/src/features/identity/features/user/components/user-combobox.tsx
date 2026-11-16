@@ -8,7 +8,7 @@ import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/utils/string';
 
-type UserComboboxItem = Pick<User, 'id' | 'username' | 'avatar'>;
+type UserComboboxItem = Pick<User, 'id' | 'username' | 'avatarUrl'>;
 
 function UserCombobox({
   ...props
@@ -32,7 +32,7 @@ function UserCombobox({
         <Item size="xs" className="p-0">
           <ItemMedia>
             <Avatar size="sm">
-              <AvatarImage src={item.avatar ?? ''} alt="" />
+              <AvatarImage src={item.avatarUrl ?? ''} alt="" />
               <AvatarFallback>{getInitials(item.username)}</AvatarFallback>
             </Avatar>
           </ItemMedia>
