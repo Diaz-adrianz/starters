@@ -4,7 +4,6 @@ import { NoAuth } from '../../common/decorators/no-auth.decorator';
 import { ResSuccess } from '../../common/decorators/res-success.decorator';
 import { AcceptInviteCheckDto, AcceptInviteDto } from './dto/accept-invite.dto';
 import { maskEmailString } from '../../shared/utils/string.util';
-import { AuditActivity } from '../audit/decorators/audit-activity.decorator';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('identity')
@@ -30,16 +29,6 @@ export class IdentityController {
     };
   }
 
-  @AuditActivity({
-    module: 'identity',
-    action: 'setPassword',
-    actor: ({ res: result }) => ({
-      type: 'user',
-      id: result.userId,
-      name: result.username,
-    }),
-    redact: ['otp', 'password', 'matchPassword'],
-  })
   @NoAuth()
   @ResSuccess({ message: 'Set password accepted' })
   @Post('/set-password')
@@ -61,16 +50,6 @@ export class IdentityController {
     };
   }
 
-  @AuditActivity({
-    module: 'identity',
-    action: 'acceptInvite',
-    actor: ({ res: result }) => ({
-      type: 'user',
-      id: result.userId,
-      name: result.username,
-    }),
-    redact: ['otp', 'password', 'matchPassword'],
-  })
   @NoAuth()
   @ResSuccess({ message: 'Invitation accepted' })
   @Post('/accept-invite')

@@ -5,6 +5,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import {
+  ClientDevice,
+  ClientType,
+} from '../../../shared/constants/client.constant';
 
 @Entity({ schema: 'auth', name: 'sessions' })
 export class Session {
@@ -19,19 +23,25 @@ export class Session {
   refreshTokenHash: string;
 
   @Column('varchar', { nullable: true })
-  deviceId: string | null;
+  clientId: string | null;
 
   @Column('varchar', { nullable: true })
-  deviceLabel: string | null;
+  clientLabel: string | null;
 
   @Column('varchar', { nullable: true })
-  deviceType: string | null;
+  clientType: ClientType | null;
+
+  @Column('varchar', { nullable: true })
+  clientDevice: ClientDevice | null;
 
   @Column('varchar', { nullable: true })
   browser: string | null;
 
   @Column('varchar', { nullable: true })
   os: string | null;
+
+  @Column('varchar', { nullable: true })
+  osVersion: string | null;
 
   @Column('varchar', { nullable: true })
   ipAddress: string | null;

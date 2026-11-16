@@ -23,16 +23,4 @@ export class RegisterPushTokenDto {
 
   @Exclude()
   userId?: string | null;
-
-  @Exclude()
-  deviceId?: string | null;
-
-  @Exclude()
-  deviceLabel?: string | null;
-
-  @Exclude()
-  deviceType?: string | null;
-
-  @Exclude()
-  os?: string | null;
 }

@@ -19,6 +19,8 @@ import {
   UserDisabledException,
   UserNoPasswordException,
   UserInvitedException,
+  UserNotFoundException,
+  UserInvalidPasswordException,
 } from '../identity/classes/exceptions/user.exception';
 import { CacheService } from '../../infra/cache/cache.service';
 import { UserStatus } from '../identity/enums/user-status.enum';
@@ -43,7 +45,7 @@ export class AuthService {
   // ================================================================
   // Sign in
   // ----------------------------------------------------------------
-  async signIn(user: User, device: NonNullable<Store['device']>) {
+  async signIn(user: User, client: NonNullable<Store['client']>) {
     const sessionId = randomUUID();
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -55,13 +57,15 @@ export class AuthService {
       id: sessionId,
       userId: user.id,
       refreshTokenHash: this.sessionService.hashRefreshToken(refreshToken),
-      deviceId: device.id,
-      deviceLabel: device.label,
-      deviceType: device.type,
-      browser: device.browser,
-      os: device.os,
-      ipAddress: device.ipAddress,
-      userAgent: device.userAgent,
+      clientId: client.id,
+      clientLabel: client.label,
+      clientType: client.type,
+      clientDevice: client.device,
+      browser: client.browser,
+      os: client.os,
+      osVersion: client.osVersion,
+      ipAddress: client.ipAddress,
+      userAgent: client.userAgent,
       expiresAt: new Date(
         Date.now() + this.authConfig.jwt.refresh.expire * 1000,
       ),
@@ -69,15 +73,23 @@ export class AuthService {
       lastUsedAt: new Date(),
     });
 
+    this.event.emitAuditActivityLog({
+      module: 'auth',
+      action: 'signIn',
+      actor: { type: 'user', id: user.id, name: user.username },
+    });
+
     this.event.emit('auth.signIn', {
       userId: session.userId,
       email: user.email,
-      device: {
-        label: device.label,
-        type: device.type,
-        browser: device.browser,
-        os: device.os,
-        ipAddress: device.ipAddress,
+      date: new Date(),
+      client: {
+        label: client.label,
+        type: client.type,
+        browser: client.browser,
+        os: client.os,
+        osVersion: client.osVersion,
+        ipAddress: client.ipAddress,
       },
     });
 
@@ -90,7 +102,7 @@ export class AuthService {
   // ================================================================
   // Refresh
   // ----------------------------------------------------------------
-  async refresh({ token, payload }: JwtRefreshAuthResult, _?: Store['device']) {
+  async refresh({ token, payload }: JwtRefreshAuthResult, _?: Store['client']) {
     const session = await this.sessionService.validate(
       payload.session.id,
       token,
@@ -116,6 +128,8 @@ export class AuthService {
   async signOut(sessionId: string) {
     const result = await this.sessionService.revokeById(sessionId);
 
+    this.event.emitAuditActivityLog({ module: 'auth', action: 'signOut' });
+
     if (!result.affected)
       this.logger.debug(
         `Session ${sessionId} signOut not found or already revoked`,
@@ -129,6 +143,8 @@ export class AuthService {
       excludedSessionIds,
     );
 
+    this.event.emitAuditActivityLog({ module: 'auth', action: 'signOutAll' });
+
     this.logger.debug(
       `Signed out ${result.affected ?? 0} session(s) for user ${userId}`,
       this.constructor.name,
@@ -139,12 +155,15 @@ export class AuthService {
   // Strategy validation
   // ----------------------------------------------------------------
   async validateLocalStrategy(username: string, password: string) {
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService
+      .findByUsernameOrEmail(username)
+      .catch(() => null);
 
-    if (!user.password) throw new UserNoPasswordException();
+    if (!user) throw new UserNotFoundException();
+    if (!user.password) throw new UserNoPasswordException(user);
 
     const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) return null;
+    if (!passwordValid) throw new UserInvalidPasswordException(user);
 
     this.validateUser(user);
     return user;
@@ -170,12 +189,18 @@ export class AuthService {
   }
 
   private validateUser(user: User) {
-    if (user.status === UserStatus.INVITED) throw new UserInvitedException();
-    if (user.status === UserStatus.DISABLED) throw new UserDisabledException();
+    if (user.status === UserStatus.INVITED)
+      throw new UserInvitedException(user);
+    if (user.status === UserStatus.DISABLED)
+      throw new UserDisabledException(user);
   }
 
-  invalidateUsers(users: { id: string }[]) {
-    return this.cache.delMany((k) => users.map((user) => k.user(user.id)));
+  async invalidateUsers(...userIds: string[]) {
+    await this.cache.delMany((k) => userIds.map((id) => k.user(id)));
+    this.logger.debug(
+      `User cache invalidated: ${userIds.join(', ')}`,
+      this.constructor.name,
+    );
   }
 
   // ================================================================

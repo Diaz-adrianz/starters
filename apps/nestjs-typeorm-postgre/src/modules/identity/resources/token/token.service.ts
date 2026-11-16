@@ -1,25 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
-import { IsNull } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Token } from '../../entities/token.entity';
 import { TokenType } from '../../enums/token-type.enum';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class TokenService {
+export class TokenService extends ResourceService<Token> {
   constructor(
     @InjectRepository(Token, DatabaseKeys.DEFAULT)
-    private tokenRepo: AppRepository<Token>,
-  ) {}
+    private tokenRepo: Repository<Token>,
+  ) {
+    super(tokenRepo);
+  }
 
   findActiveByUser(userId: string, type: TokenType) {
     return this.tokenRepo.findOneOrFail({
       where: { userId, type, consumedAt: IsNull() },
       relations: { user: true },
       select: {
-        ...this.tokenRepo.select('*'),
+        ...this.select('*'),
         user: { id: true, username: true, email: true },
       },
     });
@@ -30,7 +32,7 @@ export class TokenService {
       where: { hash, type, consumedAt: IsNull() },
       relations: { user: true },
       select: {
-        ...this.tokenRepo.select('*'),
+        ...this.select('*'),
         user: { id: true, username: true, email: true },
       },
     });
@@ -65,13 +67,7 @@ export class TokenService {
       ...rq.toFindOptions(),
       relations: { user: true },
       select: {
-        ...this.tokenRepo.select([
-          'id',
-          'consumedAt',
-          'createdAt',
-          'expiresAt',
-          'type',
-        ]),
+        ...this.select(['id', 'consumedAt', 'createdAt', 'expiresAt', 'type']),
         user: { id: true, username: true, avatar: true },
       },
     });
@@ -82,7 +78,7 @@ export class TokenService {
       ...rq.toFindOptions(),
       relations: { user: true },
       select: {
-        ...this.tokenRepo.select('*'),
+        ...this.select('*'),
         user: { id: true, username: true, avatar: true },
       },
     });

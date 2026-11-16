@@ -1,13 +1,18 @@
 import { ClsStore } from 'nestjs-cls';
 import { Condition } from '../../modules/access-control/interfaces/condition.interface';
+import {
+  ClientDevice,
+  ClientType,
+} from '../../shared/constants/client.constant';
+
+export type StoreActor =
+  | { type: 'anon' }
+  | { type: 'user'; id: string; name: string }
+  | { type: 'system'; name: string };
 
 export interface Store extends ClsStore {
   requestId: string;
-  actor: {
-    type: 'user';
-    id: string;
-    name: string;
-  } | null;
+  actor: StoreActor;
   permission: {
     key: string;
     conditions: Condition[];
@@ -15,12 +20,14 @@ export interface Store extends ClsStore {
   session: {
     id: string;
   } | null;
-  device?: {
+  client?: {
     id?: string;
     label?: string;
-    type?: string;
+    type?: ClientType;
+    device?: ClientDevice;
     browser?: string;
     os?: string;
+    osVersion?: string;
     userAgent?: string;
     ipAddress?: string;
   };

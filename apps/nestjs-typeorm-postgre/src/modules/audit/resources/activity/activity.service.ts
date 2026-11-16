@@ -2,39 +2,47 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../../entities/activity.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
 import { CreateActivityDto } from './dto/create-activity.dto';
+import { Repository } from 'typeorm';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class ActivityService {
+export class ActivityService extends ResourceService<Activity> {
   constructor(
     @InjectRepository(Activity, DatabaseKeys.DEFAULT)
-    private activityRepo: AppRepository<Activity>,
-  ) {}
+    private activityRepo: Repository<Activity>,
+  ) {
+    super(activityRepo);
+  }
 
   // Base
   // ----------------------------------------------------------------
+  createMany(dtos: CreateActivityDto[]) {
+    return this.activityRepo.insert(dtos);
+  }
+
   create(dto: CreateActivityDto) {
-    return this.activityRepo.insert(dto);
+    const data = this.activityRepo.create(dto);
+    return this.activityRepo.save(data);
   }
 
   findMany(rq: ResourceQuery) {
     return this.activityRepo.findAndCount({
       ...rq.toFindOptions(),
-      select: {
-        id: true,
-        createdAt: true,
-        actorType: true,
-        actorId: true,
-        actorName: true,
-        module: true,
-        action: true,
-        status: true,
-        targetType: true,
-        targetId: true,
-        targetName: true,
-      },
+      select: this.select([
+        'id',
+        'occuredAt',
+        'loggedAt',
+        'module',
+        'actorType',
+        'actorId',
+        'actorName',
+        'action',
+        'resourceType',
+        'resourceId',
+        'outcome',
+      ]),
     });
   }
 

@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeliveryType } from '../enums/delivery-type.enum';
-import { DeliveryLog } from './delivery-log.entity';
 import { Message } from './message.entity';
 import { DeliveryPriority } from '../enums/delivery-priority.enum';
 
@@ -32,9 +31,6 @@ export class Delivery {
 
   @Column('jsonb', { nullable: true })
   sender: DeliverySender | null;
-
-  @OneToMany(() => DeliveryLog, (dl) => dl.delivery)
-  logs: DeliveryLog[];
 
   @OneToMany(() => Message, (m) => m.delivery)
   messages: Message[];

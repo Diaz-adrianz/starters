@@ -21,23 +21,22 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const actor = this.store.get('actor'),
-      metadata = this.reflector.getAllAndOverride<RolesMetadata | undefined>(
-        ROLES_METADATA_KEY,
-        [context.getHandler(), context.getClass()],
-      );
+    const metadata = this.reflector.getAllAndOverride<
+      RolesMetadata | undefined
+    >(ROLES_METADATA_KEY, [context.getHandler(), context.getClass()]);
 
-    if (actor && metadata) {
-      const valid = await this.accessControlService.validateUserRoles(
-        actor.id,
-        metadata.roleNames,
-      );
+    if (!metadata) return true;
 
-      if (valid === null)
-        throw new ForbiddenException(
-          metadata.forbiddenMessage ?? 'Role access denied',
-        );
-    }
+    const user = this.store.user;
+    const valid = await this.accessControlService.validateUserRoles(
+      user.id,
+      metadata.roleNames,
+    );
+
+    if (valid === null)
+      throw new ForbiddenException(
+        metadata.forbiddenMessage ?? 'Role access denied',
+      );
 
     return true;
   }

@@ -1,80 +1,44 @@
+import { Exclude } from 'class-transformer';
+import { ActivityOutcome } from '../../../enums/activity-outcome.enum';
 import {
-  IsEnum,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ActorType } from '../../../enums/actor-type.enum';
-import { ActivityStatus } from '../../../enums/activity-status.enum';
-import {
-  ActivityChanges,
-  ActivityMeta,
+  ActivityContext,
+  ActivityMetadata,
 } from '../../../entities/activity.entity';
 
-export class ActivityContextDto {
-  @IsOptional()
-  @IsString()
-  path?: string;
-
-  @IsOptional()
-  @IsString()
-  ip?: string;
-
-  @IsOptional()
-  @IsString()
-  userAgent?: string;
-}
-
 export class CreateActivityDto {
-  @IsEnum(ActorType)
-  actorType: ActorType;
+  @Exclude()
+  occuredAt: Date;
 
-  @IsOptional()
-  @IsString()
-  actorId?: string | null;
-
-  @IsOptional()
-  @IsString()
-  actorName?: string | null;
-
-  @IsString()
-  module: string;
-
-  @IsString()
-  action: string;
-
-  @IsOptional()
-  @IsEnum(ActivityStatus)
-  status?: ActivityStatus;
-
-  @IsOptional()
-  @IsString()
-  targetType?: string | null;
-
-  @IsOptional()
-  @IsString()
-  targetId?: string | null;
-
-  @IsOptional()
-  @IsString()
-  targetName?: string | null;
-
-  @IsOptional()
-  @IsString()
+  @Exclude()
   requestId?: string | null;
 
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ActivityContextDto)
-  context?: ActivityContextDto | null;
+  @Exclude()
+  module: string;
 
-  @IsOptional()
-  @IsObject()
-  changes?: ActivityChanges | null;
+  @Exclude()
+  context?: ActivityContext | null;
 
-  @IsOptional()
-  @IsObject()
-  meta?: ActivityMeta | null;
+  @Exclude()
+  actorType: string;
+
+  @Exclude()
+  actorId?: string | null;
+
+  @Exclude()
+  actorName?: string | null;
+
+  @Exclude()
+  action: string;
+
+  @Exclude()
+  resourceType?: string | null;
+
+  @Exclude()
+  resourceId?: string | null;
+
+  @Exclude()
+  outcome: ActivityOutcome = ActivityOutcome.SUCCESS;
+
+  @Exclude()
+  metadata?: ActivityMetadata | null;
 }

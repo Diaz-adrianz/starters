@@ -4,7 +4,6 @@ import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
 import { StoreService } from '../../../../infra/store/store.service';
 import { Permission } from '../../../access-control/decorators/permission.decorator';
-import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 
 @Controller('notification/deliveries')
 export class DeliveryController {
@@ -16,7 +15,6 @@ export class DeliveryController {
   // ================================================================
   // Basic CRUD
   // ----------------------------------------------------------------
-  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('notification:delivery:create')
   @Post()
   create(@Body() dto: CreateDeliveryDto) {

@@ -1,5 +1,4 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { Delivery } from '../../entities/delivery.entity';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
@@ -10,8 +9,6 @@ import {
 } from '../../queue/push-delivery/push-delivery.config';
 import { Channel } from '../../enums/channel.enum';
 import { Injectable } from '@nestjs/common';
-import { CreateDeliveryLogDto } from './dto/create-delivery-log.dto';
-import { DeliveryLog } from '../../entities/delivery-log.entity';
 import {
   EMAIL_DELIVERY_QUEUE,
   type EmailDeliveryQueue,
@@ -20,38 +17,25 @@ import { DeliveryPriorityWeight } from '../../enums/delivery-priority.enum';
 import { MessageService } from '../message/message.service';
 import { LoggerService } from '../../../../infra/logger/logger.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { Repository } from 'typeorm';
+import { ResourceService } from '../../../../common/services/resource.service';
 
 @Injectable()
-export class DeliveryService {
+export class DeliveryService extends ResourceService<Delivery> {
   constructor(
     private logger: LoggerService,
     @InjectRepository(Delivery, DatabaseKeys.DEFAULT)
-    private deliveryRepo: AppRepository<Delivery>,
-    @InjectRepository(DeliveryLog, DatabaseKeys.DEFAULT)
-    private deliveryLogRepo: AppRepository<DeliveryLog>,
+    private deliveryRepo: Repository<Delivery>,
     @InjectQueue(PUSH_DELIVERY_QUEUE)
     private pushDeliveryQueue: PushDeliveryQueue,
     @InjectQueue(EMAIL_DELIVERY_QUEUE)
     private emailDeliveryQueue: EmailDeliveryQueue,
     private messageService: MessageService,
-  ) {}
-
-  retry() {}
-
-  // ================================================================
-  // Basic CRUD DeliveryLog
-  // ----------------------------------------------------------------
-  findManyLog() {}
-
-  upsertLog(id: string, dto: CreateDeliveryLogDto) {
-    return this.deliveryLogRepo.upsert(
-      { deliveryId: id, ...dto },
-      { conflictPaths: ['deliveryId', 'channel', 'recipient'] },
-    );
+  ) {
+    super(deliveryRepo);
   }
 
-  // ================================================================
-  // Basic CRUD
+  // Base
   // ----------------------------------------------------------------
   async create(dto: CreateDeliveryDto) {
     const delivery = this.deliveryRepo.create({
@@ -145,17 +129,15 @@ export class DeliveryService {
     return delivery;
   }
 
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.deliveryRepo.findAndCount({
       ...rq.toFindOptions(),
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.deliveryRepo.findOneOrFail({
       ...rq.toFindOptions(),
     });
   }
-
-  delete() {}
 }

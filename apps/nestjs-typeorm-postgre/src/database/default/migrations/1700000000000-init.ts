@@ -17,16 +17,13 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "access_control"."permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "module" character varying NOT NULL, "resource" character varying NOT NULL, "action" character varying NOT NULL, "description" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_534580365a9abdb3120b7307312" UNIQUE ("module", "resource", "action"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "audit"."activities_actor_type_enum" AS ENUM('user', 'system')`,
+      `CREATE TYPE "audit"."activities_outcome_enum" AS ENUM('success', 'failure')`,
     );
     await queryRunner.query(
-      `CREATE TYPE "audit"."activities_status_enum" AS ENUM('success', 'failure', 'denied')`,
+      `CREATE TABLE "audit"."activities" ("id" BIGSERIAL NOT NULL, "occured_at" TIMESTAMP WITH TIME ZONE NOT NULL, "logged_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "request_id" character varying, "module" character varying NOT NULL, "context" jsonb, "actor_type" character varying NOT NULL, "actor_id" character varying, "actor_name" character varying, "action" character varying NOT NULL, "resource_type" character varying, "resource_id" character varying, "outcome" "audit"."activities_outcome_enum" NOT NULL, "metadata" jsonb, CONSTRAINT "PK_7f4004429f731ffb9c88eb486a8" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "audit"."activities" ("id" BIGSERIAL NOT NULL, "actor_type" "audit"."activities_actor_type_enum" NOT NULL, "actor_id" character varying, "actor_name" character varying, "module" character varying NOT NULL, "action" character varying NOT NULL, "status" "audit"."activities_status_enum" NOT NULL DEFAULT 'success', "target_type" character varying, "target_id" character varying, "target_name" character varying, "request_id" character varying, "context" jsonb, "changes" jsonb, "meta" jsonb, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_7f4004429f731ffb9c88eb486a8" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "device_id" character varying, "device_label" character varying, "device_type" character varying, "browser" character varying, "os" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "auth"."sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid NOT NULL, "refresh_token_hash" character varying NOT NULL, "client_id" character varying, "client_label" character varying, "client_type" character varying, "client_device" character varying, "browser" character varying, "os" character varying, "os_version" character varying, "ip_address" character varying, "user_agent" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "last_used_at" TIMESTAMP WITH TIME ZONE, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TYPE "identity"."tokens_type_enum" AS ENUM('invitation', 'set_password')`,
@@ -62,19 +59,10 @@ export class Init1700000000000 implements MigrationInterface {
       `CREATE TABLE "notification"."deliveries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "type" "notification"."deliveries_type_enum" NOT NULL, "priority" "notification"."deliveries_priority_enum" NOT NULL, "template_key" character varying NOT NULL, "sender" jsonb, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_a6ef225c5c5f0974e503bfb731f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "notification"."delivery_logs_channel_enum" AS ENUM('email', 'push', 'in_app')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "notification"."delivery_logs_status_enum" AS ENUM('pending', 'sent', 'failed', 'retrying')`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "notification"."delivery_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "delivery_id" uuid NOT NULL, "channel" "notification"."delivery_logs_channel_enum" NOT NULL, "recipient" character varying NOT NULL, "status" "notification"."delivery_logs_status_enum" NOT NULL, "status_message" character varying, "sent_at" TIMESTAMP WITH TIME ZONE, "attempts_count" integer, "payload" jsonb, CONSTRAINT "UQ_78f84e530afd2b7d31f93592b68" UNIQUE ("delivery_id", "channel", "recipient"), CONSTRAINT "PK_c647802ec5e927513f2d0beec47" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
       `CREATE TYPE "notification"."push_tokens_provider_enum" AS ENUM('fcm')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "notification"."push_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid, "provider" "notification"."push_tokens_provider_enum" NOT NULL, "token" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT true, "device_id" character varying, "device_label" character varying, "device_type" character varying, "os" character varying, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_3470f186e712e35b679da817270" UNIQUE ("provider", "token"), CONSTRAINT "PK_32734e87f299c29ca3878861f4f" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "notification"."push_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "user_id" uuid, "provider" "notification"."push_tokens_provider_enum" NOT NULL, "token" character varying NOT NULL, "enabled" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_3470f186e712e35b679da817270" UNIQUE ("provider", "token"), CONSTRAINT "PK_32734e87f299c29ca3878861f4f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TYPE "notification"."templates_channel_enum" AS ENUM('email', 'push', 'in_app')`,
@@ -100,15 +88,9 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "notification"."messages" ADD CONSTRAINT "FK_d030aa5e7c96396b592ba647e33" FOREIGN KEY ("delivery_id") REFERENCES "notification"."deliveries"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "notification"."delivery_logs" ADD CONSTRAINT "FK_390fbb5da0cd08bb753e4b3bcaf" FOREIGN KEY ("delivery_id") REFERENCES "notification"."deliveries"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "notification"."delivery_logs" DROP CONSTRAINT "FK_390fbb5da0cd08bb753e4b3bcaf"`,
-    );
     await queryRunner.query(
       `ALTER TABLE "notification"."messages" DROP CONSTRAINT "FK_d030aa5e7c96396b592ba647e33"`,
     );
@@ -135,13 +117,6 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(
       `DROP TYPE "notification"."push_tokens_provider_enum"`,
     );
-    await queryRunner.query(`DROP TABLE "notification"."delivery_logs"`);
-    await queryRunner.query(
-      `DROP TYPE "notification"."delivery_logs_status_enum"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE "notification"."delivery_logs_channel_enum"`,
-    );
     await queryRunner.query(`DROP TABLE "notification"."deliveries"`);
     await queryRunner.query(
       `DROP TYPE "notification"."deliveries_priority_enum"`,
@@ -157,8 +132,7 @@ export class Init1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "identity"."tokens_type_enum"`);
     await queryRunner.query(`DROP TABLE "auth"."sessions"`);
     await queryRunner.query(`DROP TABLE "audit"."activities"`);
-    await queryRunner.query(`DROP TYPE "audit"."activities_status_enum"`);
-    await queryRunner.query(`DROP TYPE "audit"."activities_actor_type_enum"`);
+    await queryRunner.query(`DROP TYPE "audit"."activities_outcome_enum"`);
     await queryRunner.query(`DROP TABLE "access_control"."permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."role_permissions"`);
     await queryRunner.query(`DROP TABLE "access_control"."roles"`);

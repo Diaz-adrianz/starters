@@ -4,29 +4,37 @@ import {
   CreateDateColumn,
   Column,
 } from 'typeorm';
-import { ActorType } from '../enums/actor-type.enum';
-import { ActivityStatus } from '../enums/activity-status.enum';
+import { ActivityOutcome } from '../enums/activity-outcome.enum';
 
-export type ActivityContext = {
-  path?: string;
-  ip?: string;
-  userAgent?: string;
-};
+export type ActivityContext = Record<string, any>;
 
-export type ActivityChanges = {
-  before?: any;
-  after?: any;
-};
-
-export type ActivityMeta = Record<string, any>;
+export type ActivityMetadata = Record<string, any>;
 
 @Entity({ schema: 'audit', name: 'activities' })
 export class Activity {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: string;
 
-  @Column('enum', { enum: ActorType })
-  actorType: ActorType;
+  // when
+  @Column('timestamptz')
+  occuredAt: Date;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  loggedAt: Date;
+
+  @Column('varchar', { nullable: true })
+  requestId: string | null;
+
+  // where
+  @Column('varchar')
+  module: string;
+
+  @Column('jsonb', { nullable: true })
+  context: ActivityContext | null;
+
+  // who
+  @Column('varchar')
+  actorType: string;
 
   @Column('varchar', { nullable: true })
   actorId: string | null;
@@ -34,36 +42,19 @@ export class Activity {
   @Column('varchar', { nullable: true })
   actorName: string | null;
 
-  @Column('varchar')
-  module: string;
-
+  // what
   @Column('varchar')
   action: string;
 
-  @Column('enum', { enum: ActivityStatus, default: ActivityStatus.SUCCESS })
-  status: ActivityStatus;
+  @Column('varchar', { nullable: true })
+  resourceType: string | null;
 
   @Column('varchar', { nullable: true })
-  targetType: string | null;
+  resourceId: string | null;
 
-  @Column('varchar', { nullable: true })
-  targetId: string | null;
-
-  @Column('varchar', { nullable: true })
-  targetName: string | null;
-
-  @Column('varchar', { nullable: true })
-  requestId: string | null;
+  @Column('enum', { enum: ActivityOutcome })
+  outcome: ActivityOutcome;
 
   @Column('jsonb', { nullable: true })
-  context: ActivityContext | null;
-
-  @Column('jsonb', { nullable: true })
-  changes: ActivityChanges | null;
-
-  @Column('jsonb', { nullable: true })
-  meta: ActivityMeta | null;
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
+  metadata: ActivityMetadata | null;
 }

@@ -26,18 +26,6 @@ export class PushToken {
   @Column('bool', { default: true })
   enabled: boolean;
 
-  @Column('varchar', { nullable: true })
-  deviceId: string | null;
-
-  @Column('varchar', { nullable: true })
-  deviceLabel: string | null;
-
-  @Column('varchar', { nullable: true })
-  deviceType: string | null;
-
-  @Column('varchar', { nullable: true })
-  os: string | null;
-
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

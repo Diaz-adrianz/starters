@@ -1,49 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { Role } from '../../entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { ResourceService } from '../../../../common/services/resource.service';
+import { Repository } from 'typeorm';
+import { AccessControlService } from '../../access-control.service';
 
 @Injectable()
-export class RoleService {
+export class RoleService extends ResourceService<Role> {
   constructor(
     @InjectRepository(Role, DatabaseKeys.DEFAULT)
-    private roleRepo: AppRepository<Role>,
-    private event: EventService,
-  ) {}
+    private roleRepo: Repository<Role>,
+    private accessControlService: AccessControlService,
+  ) {
+    super(roleRepo);
+  }
 
-  // ================================================================
-  // Misc / shared
-  // ----------------------------------------------------------------
-  findOneByName(name: string) {
+  async findOneByName(name: string) {
     return this.roleRepo.findOneOrFail({ where: { name } });
   }
 
-  // ================================================================
-  // Base
-  // ----------------------------------------------------------------
-  create(createRoleDto: CreateRoleDto) {
-    const data = this.roleRepo.create(createRoleDto);
+  async create(dto: CreateRoleDto) {
+    const data = this.roleRepo.create(dto);
     return this.roleRepo.save(data);
   }
 
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.roleRepo.findAndCount({
       ...rq.toFindOptions(),
       select: { id: true, name: true, default: true, enabled: true },
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.roleRepo.findOneOrFail({
       ...rq.toFindOptions(),
       relations: { permissions: { permission: true } },
       select: {
-        ...this.roleRepo.select('*'),
+        ...this.select('*'),
         permissions: {
           id: true,
           createdAt: true,
@@ -54,49 +51,36 @@ export class RoleService {
     });
   }
 
-  async update(rq: ResourceQuery, updateRoleDto: UpdateRoleDto) {
-    const result = await this.roleRepo.update(
-      rq.toFindOptions().where,
-      updateRoleDto,
-      { returning: ['id'] },
-    );
-    this.event.emit('accessControl.role.updated', {
-      target: result.raw as Pick<Role, 'id'>[],
-    });
-    return result;
+  async update(rq: ResourceQuery, dto: UpdateRoleDto) {
+    const data = await this.load(rq.toFindOptions());
+    this.roleRepo.merge(data, dto);
+
+    const res = this.roleRepo.save(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async archive(rq: ResourceQuery) {
-    const result = await this.roleRepo.softDelete(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('accessControl.role.updated', {
-      target: result.raw as Pick<Role, 'id'>[],
-    });
-    return result;
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.softRemove(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async restore(rq: ResourceQuery) {
-    const result = await this.roleRepo.restore(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('accessControl.role.updated', {
-      target: result.raw as Pick<Role, 'id'>[],
-    });
-    return result;
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.recover(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 
   async delete(rq: ResourceQuery) {
-    rq.add([
-      ['default', 'eq', false],
-      ['deletedAt', 'neq', null],
-    ]);
-    const result = await this.roleRepo.delete(rq.toFindOptions().where, {
-      returning: ['id'],
-    });
-    this.event.emit('accessControl.role.deleted', {
-      target: result.raw as Pick<Role, 'id'>[],
-    });
-    return result;
+    rq.add([['default', 'eq', false]]);
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions()),
+      res = this.roleRepo.remove(data);
+    await this.accessControlService.invalidateRoles(data.id);
+    return res;
   }
 }

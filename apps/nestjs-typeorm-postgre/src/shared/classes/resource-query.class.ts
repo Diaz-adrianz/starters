@@ -36,7 +36,7 @@ export class ResourceQuery {
 
   private skip?: number;
   private take?: number;
-  private withDeleted?: boolean;
+  private trash?: boolean;
   private search: QuerySearch = {};
   private order: QueryOrder = {};
 
@@ -75,7 +75,7 @@ export class ResourceQuery {
 
     this.take = dto.limit;
     this.skip = (dto.page - 1) * (this.take || 0);
-    this.withDeleted = dto.trash;
+    this.trash = dto.trash;
 
     if (dto.search)
       dto.search.split(QUERY_SEPARATOR).forEach((condition) => {
@@ -90,6 +90,10 @@ export class ResourceQuery {
       });
 
     return this;
+  }
+
+  public setTrash(state: boolean) {
+    this.trash = state;
   }
 
   // ----------------------------------------------------------------
@@ -171,7 +175,7 @@ export class ResourceQuery {
   }
 
   public toFindOptions(): TypeOrmFindOptions {
-    if (this.withDeleted) this.add([['deletedAt', 'neq', null]], 'and', '*');
+    if (this.trash) this.add([['deletedAt', 'neq', null]], 'and', '*');
 
     const buildSubWhere = (
       subWhere: TypeOrmFindOptions['where'][number],
@@ -277,7 +281,7 @@ export class ResourceQuery {
       order,
       take: this.take,
       skip: this.skip,
-      withDeleted: this.withDeleted,
+      withDeleted: this.trash,
     };
   }
 

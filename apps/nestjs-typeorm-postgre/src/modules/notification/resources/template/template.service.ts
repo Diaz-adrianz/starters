@@ -2,19 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Template } from '../../entities/template.entity';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
 import { Channel } from '../../enums/channel.enum';
 import * as Handlebars from 'handlebars';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { ResourceService } from '../../../../common/services/resource.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class TemplateService {
+export class TemplateService extends ResourceService<Template> {
   constructor(
     @InjectRepository(Template, DatabaseKeys.DEFAULT)
-    private templateRepo: AppRepository<Template>,
-  ) {}
+    private templateRepo: Repository<Template>,
+  ) {
+    super(templateRepo);
+  }
 
   async render(key: string, channel: Channel, payload: Record<string, any>) {
     const data = await this.templateRepo.findOneOrFail({
@@ -44,46 +47,45 @@ export class TemplateService {
     );
   }
 
-  // ================================================================
-  // Basic CRUD
+  // Base
   // ----------------------------------------------------------------
-  create(dto: CreateTemplateDto) {
+  async create(dto: CreateTemplateDto) {
     const data = this.templateRepo.create(dto);
     return this.templateRepo.save(data);
   }
 
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.templateRepo.findAndCount({
       ...rq.toFindOptions(),
-      select: this.templateRepo.select([
-        'id',
-        'key',
-        'channel',
-        'title',
-        'availableKeys',
-      ]),
+      select: this.select(['id', 'key', 'channel', 'title', 'availableKeys']),
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.templateRepo.findOneOrFail({
       ...rq.toFindOptions(),
     });
   }
 
-  update(rq: ResourceQuery, dto: UpdateTemplateDto) {
-    return this.templateRepo.update(rq.toFindOptions().where, dto);
+  async update(rq: ResourceQuery, dto: UpdateTemplateDto) {
+    const data = await this.load(rq.toFindOptions());
+    this.templateRepo.merge(data, dto);
+    return this.templateRepo.save(data);
   }
 
-  archive(rq: ResourceQuery) {
-    return this.templateRepo.softDelete(rq.toFindOptions().where);
+  async archive(rq: ResourceQuery) {
+    const data = await this.load(rq.toFindOptions());
+    return this.templateRepo.softRemove(data);
   }
 
-  restore(rq: ResourceQuery) {
-    return this.templateRepo.restore(rq.toFindOptions().where);
+  async restore(rq: ResourceQuery) {
+    rq.setTrash(true);
+    const data = await this.load(rq.toFindOptions());
+    return this.templateRepo.recover(data);
   }
 
-  delete(rq: ResourceQuery) {
-    return this.templateRepo.delete(rq.toFindOptions().where);
+  async delete(rq: ResourceQuery) {
+    const data = await this.load(rq.toFindOptions());
+    return this.templateRepo.remove(data);
   }
 }

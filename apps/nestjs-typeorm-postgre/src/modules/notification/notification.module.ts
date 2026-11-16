@@ -8,7 +8,6 @@ import { DefaultQueueModule } from '../../lib/queue/default/default-queue.module
 import { DefaultMailerModule } from '../../lib/mailer/default/default-mailer.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from '../../config/app.config';
-import { DeliveryLog } from './entities/delivery-log.entity';
 import { Template } from './entities/template.entity';
 import { Message } from './entities/message.entity';
 import { MessageController } from './resources/message/message.controller';
@@ -35,13 +34,7 @@ import { IdentityEventSubscriber } from './subscribers/identity-event.subscriber
 @Module({
   imports: [
     ConfigModule.forFeature(appConfig),
-    DefaultDatabaseModule.forFeature([
-      DeliveryLog,
-      Delivery,
-      Message,
-      PushToken,
-      Template,
-    ]),
+    DefaultDatabaseModule.forFeature([Delivery, Message, PushToken, Template]),
 
     // queue
     DefaultQueueModule.registerQueue({

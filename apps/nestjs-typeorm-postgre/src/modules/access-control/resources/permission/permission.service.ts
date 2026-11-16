@@ -1,19 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseKeys } from '../../../../database/database-keys.constant';
-import { AppRepository } from '../../../../database/typeorm/app-repository';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from '../../entities/permission.entity';
-import { EventService } from '../../../../infra/event/event.service';
 import { ResourceQuery } from '../../../../shared/classes/resource-query.class';
+import { ResourceService } from '../../../../common/services/resource.service';
+import { Repository } from 'typeorm';
+import { RolePermission } from '../../entities/role-permission.entity';
+import { AccessControlService } from '../../access-control.service';
 
 @Injectable()
-export class PermissionService {
+export class PermissionService extends ResourceService<Permission> {
   constructor(
     @InjectRepository(Permission, DatabaseKeys.DEFAULT)
-    private permissionRepo: AppRepository<Permission>,
-    private event: EventService,
-  ) {}
+    private permissionRepo: Repository<Permission>,
+    @InjectRepository(RolePermission, DatabaseKeys.DEFAULT)
+    private rolePermissionRepo: Repository<RolePermission>,
+    private accessControlService: AccessControlService,
+  ) {
+    super(permissionRepo);
+  }
 
   async findModules() {
     const result: { module: string; count: string }[] =
@@ -30,35 +36,30 @@ export class PermissionService {
     }));
   }
 
-  // ================================================================
-  // Basic CRUD
-  // ----------------------------------------------------------------
-  findMany(rq: ResourceQuery) {
+  async findMany(rq: ResourceQuery) {
     return this.permissionRepo.findAndCount({
       ...rq.toFindOptions(),
-      select: this.permissionRepo.select([
-        'id',
-        'module',
-        'description',
-        'enabled',
-      ]),
+      select: this.select(['id', 'module', 'description', 'enabled']),
     });
   }
 
-  findOne(rq: ResourceQuery) {
+  async findOne(rq: ResourceQuery) {
     return this.permissionRepo.findOneOrFail({ ...rq.toFindOptions() });
   }
 
-  async update(rq: ResourceQuery, updatePermissionDto: UpdatePermissionDto) {
-    const result = await this.permissionRepo.update(
-      rq.toFindOptions().where,
-      updatePermissionDto,
-      { returning: ['id'] },
-    );
+  async update(rq: ResourceQuery, dto: UpdatePermissionDto) {
+    const data = await this.load(rq.toFindOptions());
+    this.permissionRepo.merge(data, dto);
 
-    this.event.emit('accessControl.permission.updated', {
-      target: result.raw as Pick<Permission, 'id'>[],
-    });
-    return;
+    const res = await this.permissionRepo.save(data),
+      roles = await this.rolePermissionRepo.find({
+        where: { permissionId: res.id },
+        select: { roleId: true },
+        withDeleted: true,
+      });
+    await this.accessControlService.invalidateRoles(
+      ...roles.map((r) => r.roleId),
+    );
+    return res;
   }
 }

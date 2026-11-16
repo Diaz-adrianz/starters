@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { RoleUserService } from './role-user.service';
 import { StoreService } from '../../../../infra/store/store.service';
-import { AuditActivity } from '../../../audit/decorators/audit-activity.decorator';
 import { Permission } from '../../decorators/permission.decorator';
 import { CreateRoleUserDto } from './dto/create-role-user.dto';
 import { ResourceQueryDto } from '../../../../shared/dto/resource-query.dto';
@@ -23,7 +22,6 @@ export class RoleUserController {
 
   // Base
   // ----------------------------------------------------------------
-  @AuditActivity({ targetId: ({ res }) => res.id })
   @Permission('access-control:role-user:create')
   @Post()
   create(@Body() dto: CreateRoleUserDto) {
@@ -37,7 +35,6 @@ export class RoleUserController {
     return this.roleUserService.findMany(rq);
   }
 
-  @AuditActivity({ targetId: ({ req }) => req.params.id })
   @Permission('access-control:role-user:delete')
   @Delete(':id')
   delete(@Param('id') id: string) {

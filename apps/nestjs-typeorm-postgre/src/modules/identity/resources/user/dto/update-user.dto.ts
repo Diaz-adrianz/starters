@@ -16,4 +16,7 @@ export class UpdateUserDto {
   // --------------------------
   @Exclude()
   avatar?: string | null;
+
+  @Exclude()
+  password?: string | null;
 }

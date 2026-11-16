@@ -1,12 +1,20 @@
 import {
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { User } from '../../entities/user.entity';
 
-export class UserNotActiveException extends ForbiddenException {
+export class UserNotFoundException extends NotFoundException {
   constructor() {
-    super('Account is not active.');
+    super('Account not found.');
+  }
+}
+
+export class UserInvalidPasswordException extends UnauthorizedException {
+  constructor(public user: Pick<User, 'id'>) {
+    super('Password invalid.');
   }
 }
 
@@ -17,13 +25,13 @@ export class UserNotInvitedException extends BadRequestException {
 }
 
 export class UserDisabledException extends ForbiddenException {
-  constructor() {
+  constructor(public user: Pick<User, 'id'>) {
     super('Account has been disabled.');
   }
 }
 
 export class UserInvitedException extends ForbiddenException {
-  constructor() {
+  constructor(public user: Pick<User, 'id'>) {
     super(
       "This account hasn't been set up yet. If you're the account owner, please check your email for the invitation.",
     );
@@ -31,7 +39,7 @@ export class UserInvitedException extends ForbiddenException {
 }
 
 export class UserNoPasswordException extends UnauthorizedException {
-  constructor() {
+  constructor(public user: Pick<User, 'id'>) {
     super(
       'This account is not registered with a password. Please try using another method.',
     );

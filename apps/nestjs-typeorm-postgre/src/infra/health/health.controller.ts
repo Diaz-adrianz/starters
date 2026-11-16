@@ -8,8 +8,8 @@ import {
 } from '@nestjs/terminus';
 import { DatabaseKeys } from '../../database/database-keys.constant';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { AppDataSource } from '../../database/typeorm/app-data-source';
 import { NoAuth } from '../../common/decorators/no-auth.decorator';
+import { DataSource } from 'typeorm';
 
 @Controller('health')
 export class HealthController {
@@ -19,7 +19,7 @@ export class HealthController {
     // ---------------------------------
     private db: TypeOrmHealthIndicator,
     @InjectDataSource(DatabaseKeys.DEFAULT)
-    private defaultDatabase: AppDataSource,
+    private defaultDatabase: DataSource,
 
     // ---------------------------------
     private memory: MemoryHealthIndicator,
