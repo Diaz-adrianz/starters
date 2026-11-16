@@ -4,7 +4,6 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { DefaultStorageService } from '../../lib/storage/default/default-storage.service';
 import { CreateUploadDto } from './dto/create-upload.dto';
 import { randomUUID } from 'crypto';
 import {
@@ -15,6 +14,7 @@ import { HeadObjectCommandOutput } from '@aws-sdk/client-s3';
 import { stringifyBytes } from '../../shared/utils/string.util';
 import { fileTypeFromStream } from 'file-type';
 import { LoggerService } from '../../infra/logger/logger.service';
+import { DefaultS3Service } from '../../lib/s3/default/default-s3.service';
 
 const UPLOAD_PREFIX = 'temp';
 
@@ -22,7 +22,7 @@ const UPLOAD_PREFIX = 'temp';
 export class StorageService {
   constructor(
     private logger: LoggerService,
-    private s3: DefaultStorageService,
+    private s3: DefaultS3Service,
   ) {}
 
   async createUpload({ ownerId, mimeType, size }: CreateUploadDto) {

@@ -13,24 +13,21 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectS3, type S3 } from 'nestjs-s3';
-import {
-  STORAGE_CONFIG_KEY,
-  type StorageConfig,
-} from '../../../config/storage.config';
+import { S3_CONFIG_KEY, type S3Config } from '../../../config/s3.config';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { MediaMimeType } from '../../../shared/constants/media-types.constant';
 import { LoggerService } from '../../../infra/logger/logger.service';
 
 @Injectable()
-export class DefaultStorageService {
+export class DefaultS3Service {
   private readonly bucket: string;
 
   constructor(
-    @Inject(STORAGE_CONFIG_KEY) storageConfig: StorageConfig,
-    @InjectS3() private readonly s3: S3,
+    @Inject(S3_CONFIG_KEY) s3Config: S3Config,
+    @InjectS3() private readonly client: S3,
     private logger: LoggerService,
   ) {
-    this.bucket = storageConfig.default.bucket;
+    this.bucket = s3Config.default.bucket;
   }
 
   async createPresignedPost({
@@ -42,7 +39,7 @@ export class DefaultStorageService {
     mimeType: MediaMimeType;
     size: number;
   }) {
-    const { url, fields } = await createPresignedPost(this.s3, {
+    const { url, fields } = await createPresignedPost(this.client, {
       Bucket: this.bucket,
       Key: key,
       Conditions: [
@@ -66,7 +63,7 @@ export class DefaultStorageService {
     let copied: CopyObjectCommandOutput;
     try {
       const head = await this.headObject(sourceKey);
-      copied = await this.s3.send(
+      copied = await this.client.send(
         new CopyObjectCommand({
           Bucket: this.bucket,
           Key: destinationKey,
@@ -107,21 +104,21 @@ export class DefaultStorageService {
   }
 
   async getObject(key: string, range?: string) {
-    const result = await this.s3.send(
+    const result = await this.client.send(
       new GetObjectCommand({ Bucket: this.bucket, Key: key, Range: range }),
     );
     return result.Body;
   }
 
   async headObject(key: string) {
-    return this.s3.send(
+    return this.client.send(
       new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
     );
   }
 
   async deleteObject(key: string) {
     try {
-      return this.s3.send(
+      return this.client.send(
         new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
       );
     } catch (e) {

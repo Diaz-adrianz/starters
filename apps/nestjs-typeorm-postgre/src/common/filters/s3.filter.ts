@@ -26,7 +26,7 @@ export class S3Filter implements ExceptionFilter {
 
     const body: ExceptionResponseDto = {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: isProd ? 'Storage error' : exception.message,
+      message: isProd ? 'S3 error' : exception.message,
     };
 
     if (
