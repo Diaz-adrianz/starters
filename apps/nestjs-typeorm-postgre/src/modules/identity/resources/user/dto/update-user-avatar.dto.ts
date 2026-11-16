@@ -1,10 +1,10 @@
-import { IsNotEmpty } from 'class-validator';
 import { type MediaMimeType } from '../../../../../shared/constants/media-types.constant';
 import { MB } from '../../../../../shared/utils/number.util';
 import {
   IsStorageUpload,
   type IsStorageUploadResult,
 } from '../../../../storage/decorators/validators/is-storage-upload.validator';
+import { IsNullable } from '../../../../../common/decorators/validators/is-nullable';
 
 export const UserAvatarMimeTypes: MediaMimeType[] = [
   'image/jpeg',
@@ -15,10 +15,10 @@ export const UserAvatarMimeTypes: MediaMimeType[] = [
 export const UserAvatarMaxSize = 2 * MB;
 
 export class UpdateUserAvatarDto {
-  @IsNotEmpty()
+  @IsNullable()
   @IsStorageUpload({
     mimeTypes: UserAvatarMimeTypes,
     maxSize: UserAvatarMaxSize,
   })
-  avatar: IsStorageUploadResult;
+  avatar: IsStorageUploadResult | null;
 }

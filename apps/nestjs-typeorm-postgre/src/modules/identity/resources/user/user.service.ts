@@ -93,21 +93,25 @@ export class UserService extends ResourceService<User> {
   async updateAvatar(rq: ResourceQuery, dto: UpdateUserAvatarDto) {
     const user = await this.load(rq.toFindOptions());
 
-    const avatar = await this.storage.move(
-      dto.avatar.key,
-      `public/identity/user-avatars/${user.id}/${randomUUID()}`,
-      {
-        etag: dto.avatar.etag,
-        cacheControl: 'public, max-age=31536000, immutable',
-      },
-    );
+    const avatar = dto.avatar
+      ? (
+          await this.storage.move(
+            dto.avatar.key,
+            `public/identity/user-avatars/${user.id}/${randomUUID()}`,
+            {
+              etag: dto.avatar.etag,
+              cacheControl: 'public, max-age=31536000, immutable',
+            },
+          )
+        ).key
+      : null;
 
     try {
-      const result = await this.update(rq, { avatar: avatar.key });
+      const result = await this.update(rq, { avatar });
       if (user.avatar) await this.storage.delete(user.avatar).catch();
       return result;
     } catch (e) {
-      await this.storage.delete(avatar.key).catch();
+      if (avatar) await this.storage.delete(avatar).catch();
       throw e;
     }
   }
