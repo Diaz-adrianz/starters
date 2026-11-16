@@ -4,7 +4,7 @@ import type {
   ApiParams,
   ApiResponse,
 } from '@/lib/axios/api.type';
-import type { User } from '../types/user.type';
+import type { UpdateAvatarData, User } from '../types/user.type';
 import type { InviteUserValues } from '../schemas/user.schema';
 
 const PRE = '/identity/users/';
@@ -14,6 +14,8 @@ export const UserApi = {
     apiClient.post<ApiResponse>(PRE + 'invite', values),
   resendInvite: (id: string) =>
     apiClient.post<ApiResponse>(PRE + id + '/resend-invite'),
+  updateAvatar: (id: string, data: UpdateAvatarData) =>
+    apiClient.patch<ApiResponse>(PRE + id + '/avatar', data),
 
   findMany: (params: ApiParams) =>
     apiClient.get<ApiPaginatedResponse<User>>(PRE, { params }),

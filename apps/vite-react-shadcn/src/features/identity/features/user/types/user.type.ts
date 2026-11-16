@@ -12,3 +12,6 @@ export type User = {
   createdAt?: string | null;
   profile?: Profile | null;
 };
+
+// api
+export type UpdateAvatarData = { avatar: string };

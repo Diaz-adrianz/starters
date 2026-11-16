@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from './user.query';
 import { UserApi } from './user.api';
+import type { UpdateAvatarData } from '../types/user.type';
 
 export function useInviteUser({ onSuccess }: { onSuccess?: () => void } = {}) {
   const qc = useQueryClient();
@@ -16,6 +17,22 @@ export function useInviteUser({ onSuccess }: { onSuccess?: () => void } = {}) {
 export function useResendInviteUser() {
   return useMutation({
     mutationFn: UserApi.resendInvite,
+  });
+}
+
+export function useUpdateUserAvatar({
+  onSuccess,
+}: { onSuccess?: () => void } = {}) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateAvatarData }) =>
+      UserApi.updateAvatar(id, data),
+    meta: {},
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: queryKeys.detail(id) });
+      qc.invalidateQueries({ queryKey: queryKeys.lists() });
+      onSuccess?.();
+    },
   });
 }
 

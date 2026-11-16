@@ -14,10 +14,12 @@ import { getInitials } from '@/utils/string';
 import { Button } from '@/components/ui/button';
 import { useEffect, useRef } from 'react';
 import { useUpload } from '@/features/storage';
-import type { MimeType } from '@/constants/mimetype.constant';
-
-const MIME_TYPES: MimeType[] = ['image/png', 'image/jpeg', 'image/jpg'];
-const MAX_SIZE = 3 * 1024 * 1024;
+import {
+  USER_AVATAR_MAX_SIZE,
+  USER_AVATAR_MIME_TYPES,
+} from '../schemas/user.schema';
+import { useUpdateUserAvatar } from '../api/user.mutation';
+import { toast } from 'sonner';
 
 type UserUpdateAvatarDialogPayload = { id: string };
 
@@ -26,15 +28,20 @@ function UserUpdateAvatarDialog({
   onOpenChange,
   payload,
 }: DialogState<UserUpdateAvatarDialogPayload>) {
-  const { data, isLoading } = useUser(payload?.id ?? '', {
-    enabled: !!payload?.id && open,
-  });
-
   const upload = useUpload({
-    mimeTypes: MIME_TYPES,
-    maxSize: MAX_SIZE,
+    mimeTypes: USER_AVATAR_MIME_TYPES,
+    maxSize: USER_AVATAR_MAX_SIZE,
   });
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { data, isLoading } = useUser(payload?.id ?? '', {
+      enabled: !!payload?.id && open,
+    }),
+    updateApi = useUpdateUserAvatar({
+      onSuccess() {
+        upload.reset();
+      },
+    });
 
   useEffect(() => {
     if (!open) upload.reset();
@@ -47,8 +54,14 @@ function UserUpdateAvatarDialog({
   };
 
   const save = async () => {
+    if (!data) return;
+
     const key = await upload.submit();
-    console.log(key);
+    if (key)
+      toast.promise(
+        updateApi.mutateAsync({ id: data.id, data: { avatar: key } }),
+        { loading: 'Updating avatar...', success: 'Avatar updated' }
+      );
   };
 
   const remove = async () => {};
@@ -84,7 +97,7 @@ function UserUpdateAvatarDialog({
             <input
               ref={inputRef}
               type="file"
-              accept={MIME_TYPES.join(',')}
+              accept={USER_AVATAR_MIME_TYPES.join(',')}
               hidden
               onChange={selectFile}
             />
