@@ -30,12 +30,14 @@ type ResourceActionsProps<K extends string> = {
   actions: Record<K, ActionConfig>;
   handlers?: Partial<Record<K, ActionHandler>>;
   collapsed?: K[];
+  CollapsedIcon?: RemixiconComponentType;
 };
 
 function ResourceActions<K extends string>({
   actions,
   handlers,
   collapsed,
+  CollapsedIcon = RiMore2Line,
 }: ResourceActionsProps<K>) {
   const ability = useAbility();
 
@@ -91,7 +93,7 @@ function ResourceActions<K extends string>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size={'icon'} variant={'ghost'}>
-              <RiMore2Line />
+              <CollapsedIcon />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
