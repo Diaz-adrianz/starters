@@ -43,6 +43,8 @@ function UserUpdateAvatarDialog({
       },
     });
 
+  const isUpdateLoading = upload.isLoading || updateApi.isPending;
+
   useEffect(() => {
     if (!open) upload.reset();
   }, [open]);
@@ -64,7 +66,13 @@ function UserUpdateAvatarDialog({
       );
   };
 
-  const remove = async () => {};
+  const remove = async () => {
+    if (!data) return;
+    toast.promise(
+      updateApi.mutateAsync({ id: data.id, data: { avatar: null } }),
+      { loading: 'Removing avatar...', success: 'Avatar removed' }
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,10 +90,10 @@ function UserUpdateAvatarDialog({
             <button
               type="button"
               className="mx-auto mb-8 block overflow-hidden rounded-full"
-              disabled={upload.isLoading}
+              disabled={isUpdateLoading}
               onClick={() => inputRef.current?.click()}
             >
-              {upload.isLoading && <LoadingOverlay text="Uploading..." />}
+              {isUpdateLoading && <LoadingOverlay text="Uploading..." />}
               <Avatar className="size-60">
                 <AvatarImage src={upload.preview ?? data?.avatarUrl ?? ''} />
                 <AvatarFallback className="text-5xl">
@@ -107,7 +115,7 @@ function UserUpdateAvatarDialog({
                 <Button
                   variant={'destructive'}
                   className="grow"
-                  disabled={upload.isLoading}
+                  disabled={isUpdateLoading}
                   onClick={() => remove()}
                 >
                   Remove
@@ -115,7 +123,7 @@ function UserUpdateAvatarDialog({
               )}
               <Button
                 className="grow"
-                disabled={!upload.file || upload.isLoading}
+                disabled={!upload.file || isUpdateLoading}
                 onClick={() => save()}
               >
                 Save

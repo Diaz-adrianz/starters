@@ -14,4 +14,4 @@ export type User = {
 };
 
 // api
-export type UpdateAvatarData = { avatar: string };
+export type UpdateAvatarData = { avatar: string | null };
