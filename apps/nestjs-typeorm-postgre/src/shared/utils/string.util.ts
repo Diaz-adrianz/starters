@@ -96,3 +96,13 @@ export const clean = (v: string | null | undefined, max = 80) => {
     .trim()
     .slice(0, max);
 };
+
+export const joinUrl = (...parts: string[]) => {
+  return parts
+    .filter(Boolean)
+    .map((part, i) =>
+      i === 0 ? part.replace(/\/+$/, '') : part.replace(/^\/+|\/+$/g, ''),
+    )
+    .filter(Boolean)
+    .join('/');
+};

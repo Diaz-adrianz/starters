@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import {
+  AfterLoad,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -12,6 +13,8 @@ import {
 import { Profile } from './profile.entity';
 import { UserStatus } from '../enums/user-status.enum';
 import { Token } from './token.entity';
+import { joinUrl } from '../../../shared/utils/string.util';
+import { s3ConfigGlobal } from '../../../config/s3.config';
 
 @Entity({ schema: 'identity', name: 'users' })
 export class User {
@@ -48,4 +51,13 @@ export class User {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
+
+  // --------------------------
+  avatarUrl?: string | null;
+
+  @AfterLoad()
+  setAvatarUrl() {
+    if (this.avatar)
+      this.avatarUrl = joinUrl(s3ConfigGlobal().default.publicUrl, this.avatar);
+  }
 }

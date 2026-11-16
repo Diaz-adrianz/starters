@@ -1,5 +1,6 @@
 import { ConfigType, registerAs } from '@nestjs/config';
 import { z } from 'zod';
+import { joinUrl } from '../shared/utils/string.util';
 
 const schema = z.object({
   S3_DEFAULT_ENDPOINT: z.url(),
@@ -35,3 +36,19 @@ export const s3Config = registerAs('s3', () => {
 export const S3_CONFIG_KEY = s3Config.KEY;
 
 export type S3Config = ConfigType<typeof s3Config>;
+
+let globalValue: { default: { publicUrl: string } } | undefined;
+export const s3ConfigGlobal = () => {
+  if (!globalValue) {
+    const config = s3Config();
+    globalValue = {
+      default: {
+        publicUrl: joinUrl(
+          config.default.publicEndpoint,
+          config.default.bucket,
+        ),
+      },
+    };
+  }
+  return globalValue;
+};
