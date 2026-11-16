@@ -47,7 +47,7 @@ const AccountSessionsPage = () => {
                   },
                   {
                     id: 'clientLabel',
-                    header: 'Device',
+                    header: 'Name',
                     cell: ({ row }) => row.original.clientLabel || 'Unknown',
                     enableSorting: false,
                   },
