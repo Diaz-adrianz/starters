@@ -18,7 +18,7 @@ import { UserStatusMap } from '../constants/user.constant';
 
 type UserCardData = Pick<
   User,
-  'id' | 'avatar' | 'email' | 'username' | 'status' | 'createdAt'
+  'id' | 'avatarUrl' | 'email' | 'username' | 'status' | 'createdAt'
 >;
 
 type UserCardHideableData = (keyof Pick<UserCardData, 'status'>)[];
@@ -37,7 +37,7 @@ function UserCard({
       <CardContent>
         <div className="flex flex-col items-center self-center pt-4 pb-8">
           <Avatar className="mb-4 size-32">
-            <AvatarImage src={user.avatar ?? ''} />
+            <AvatarImage src={user.avatarUrl ?? ''} />
             <AvatarFallback className="text-5xl">
               {getInitials(user.username)}
             </AvatarFallback>

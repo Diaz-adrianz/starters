@@ -84,7 +84,10 @@ const AccountsPage = () => {
                     cell: ({ row }) => (
                       <div className="flex items-center gap-2">
                         <Avatar size="sm">
-                          <AvatarImage src={row.original.avatar ?? ''} alt="" />
+                          <AvatarImage
+                            src={row.original.avatarUrl ?? ''}
+                            alt=""
+                          />
                           <AvatarFallback>
                             {getInitials(row.original.username)}
                           </AvatarFallback>

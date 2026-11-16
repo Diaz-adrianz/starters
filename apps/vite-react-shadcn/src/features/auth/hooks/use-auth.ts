@@ -21,7 +21,7 @@ export function useAuth() {
       {
         id: data.data.user.id,
         name: data.data.user.username,
-        avatar: data.data.user.avatar,
+        avatar: data.data.user.avatarUrl,
       },
       data.data.tokens.access,
       data.data.tokens.refresh
