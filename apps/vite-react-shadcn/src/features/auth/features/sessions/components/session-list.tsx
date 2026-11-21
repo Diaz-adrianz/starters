@@ -2,7 +2,6 @@ import {
   createContext,
   Fragment,
   useContext,
-  useEffect,
   useState,
   type ComponentProps,
   type Dispatch,
@@ -13,20 +12,12 @@ import type { Session } from '../types/session.type';
 import { useSessions } from '../api/session.query';
 import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query';
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
-import type {
-  ColumnDef,
-  PaginationState,
-  RowSelectionState,
-  SortingState,
-} from '@tanstack/react-table';
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { ItemGroup, ItemSeparator } from '@/components/ui/item';
-import { usePagination } from '@/hooks/use-pagination';
 import { DataTable } from '@/components/shared/data-table';
 import { ResourceListPagination } from '@/components/shared/resource-list';
-
-const DEFAULT_PAGE = 1,
-  DEFAULT_LIMIT = 10;
+import { usePagination } from '@/hooks/use-pagination';
 
 /* -------------------------------------------------------------------------- */
 /*  Context
@@ -35,10 +26,6 @@ type SessionListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<Session>['data'] | undefined;
   isLoading: boolean;
-  pagination: PaginationState;
-  setPagination: Dispatch<SetStateAction<PaginationState>>;
-  sorting: SortingState;
-  setSorting: Dispatch<SetStateAction<SortingState>>;
   rowSelection: RowSelectionState;
   setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
@@ -66,40 +53,9 @@ function SessionList({
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
-  const [pagination, setPagination] = useState<PaginationState>({
-      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
-      pageSize: query.state.limit ?? DEFAULT_LIMIT,
-    }),
-    [sorting, setSorting] = useState<SortingState>(
-      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
-        id: k,
-        desc: v === 'desc',
-      }))
-    ),
-    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { data, isLoading } = useSessions(query.params);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'order',
-        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
-          acc[id] = desc ? 'desc' : 'asc';
-          return acc;
-        }, {}),
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [sorting]);
-
-  useEffect(() => {
-    query.batch([
-      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
-      { type: 'set', key: 'limit', value: pagination.pageSize },
-    ]);
-  }, [pagination]);
 
   return (
     <SessionListContext.Provider
@@ -107,10 +63,6 @@ function SessionList({
         query,
         data,
         isLoading,
-        pagination,
-        setPagination,
-        sorting,
-        setSorting,
         rowSelection,
         setRowSelection,
       }}
@@ -123,20 +75,6 @@ function SessionList({
 /* -------------------------------------------------------------------------- */
 /*  Content
 /* -------------------------------------------------------------------------- */
-function SessionListContent({
-  children,
-}: {
-  children: (
-    opts: {
-      items: NonNullable<SessionListContextProps['data']>['items'];
-    } & Pick<SessionListContextProps, 'isLoading' | 'pagination'>
-  ) => ReactNode;
-}) {
-  const { data, isLoading, pagination } = useSessionList();
-
-  return children({ items: data?.items ?? [], isLoading, pagination });
-}
-
 function SessionListItemGroup({
   children,
   skeleton,
@@ -145,23 +83,20 @@ function SessionListItemGroup({
   children: (session: Session) => ReactNode;
   skeleton?: ReactNode;
 }) {
+  const { data, isLoading, query } = useSessionList();
   return (
-    <SessionListContent>
-      {({ items, isLoading, pagination }) => (
-        <ItemGroup {...props}>
-          {isLoading
-            ? Array.from({ length: pagination.pageSize }).map((_, i) => (
-                <Fragment key={i}>{skeleton}</Fragment>
-              ))
-            : items.map((s, i) => (
-                <Fragment key={s.id}>
-                  {children(s)}
-                  {i < items.length - 1 && <ItemSeparator className="m-0" />}
-                </Fragment>
-              ))}
-        </ItemGroup>
-      )}
-    </SessionListContent>
+    <ItemGroup {...props}>
+      {isLoading
+        ? Array.from({ length: query.state.limit }).map((_, i) => (
+            <Fragment key={i}>{skeleton}</Fragment>
+          ))
+        : data?.items.map((s, i) => (
+            <Fragment key={s.id}>
+              {children(s)}
+              {i < data.items.length - 1 && <ItemSeparator className="m-0" />}
+            </Fragment>
+          ))}
+    </ItemGroup>
   );
 }
 
@@ -169,10 +104,21 @@ function SessionListItemGroup({
 /*  Pagination
 /* -------------------------------------------------------------------------- */
 function SessionListPagination() {
-  const { pagination, setPagination, data } = useSessionList();
+  const { query, data } = useSessionList();
+  const pagination = {
+    pageIndex: query.state.page - 1,
+    pageSize: query.state.limit,
+  };
+
   const table = usePagination({
     pagination,
-    onPaginationChange: setPagination,
+    onPaginationChange: (up) => {
+      const p = typeof up === 'function' ? up(pagination) : up;
+      query.batch([
+        { type: 'set', key: 'page', value: p.pageIndex + 1 },
+        { type: 'set', key: 'limit', value: p.pageSize },
+      ]);
+    },
     pageCount: data?.totalPages ?? 0,
   });
 
@@ -195,16 +141,18 @@ function SessionListTable({
     NonNullable<SessionListContextProps['data']>['items'][number]
   >[];
 }) {
-  const {
-    data,
-    isLoading,
-    pagination,
-    setPagination,
-    sorting,
-    setSorting,
-    rowSelection,
-    setRowSelection,
-  } = useSessionList();
+  const { data, isLoading, query, rowSelection, setRowSelection } =
+    useSessionList();
+
+  const pagination = {
+    pageIndex: query.state.page - 1,
+    pageSize: query.state.limit,
+  };
+
+  const sorting = Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+    id: k,
+    desc: v === 'desc',
+  }));
 
   return (
     <DataTable
@@ -214,9 +162,24 @@ function SessionListTable({
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={setPagination}
+      onPaginationChange={(up) => {
+        const p = typeof up === 'function' ? up(pagination) : up;
+        query.batch([
+          { type: 'set', key: 'page', value: p.pageIndex + 1 },
+          { type: 'set', key: 'limit', value: p.pageSize },
+        ]);
+      }}
       sorting={sorting}
-      onSortingChange={setSorting}
+      onSortingChange={(up) => {
+        const s = typeof up === 'function' ? up(sorting) : up;
+        query.set(
+          'order',
+          s.reduce<ConditionMap>((acc, { id, desc }) => {
+            acc[id] = desc ? 'desc' : 'asc';
+            return acc;
+          }, {})
+        );
+      }}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       isLoading={isLoading}

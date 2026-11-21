@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   type Dispatch,
   type ReactNode,
@@ -11,19 +10,11 @@ import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query'
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import type { Role } from '../types/role.type';
 import { useRoles } from '../api/role.query';
-import type {
-  ColumnDef,
-  PaginationState,
-  RowSelectionState,
-  SortingState,
-} from '@tanstack/react-table';
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { DataTable } from '@/components/shared/data-table';
 import { SearchInput } from '@/components/shared/search-input';
 import { ResourceListTrashFilter } from '@/components/shared/resource-list';
-
-const DEFAULT_PAGE = 1,
-  DEFAULT_LIMIT = 10;
 
 /* -------------------------------------------------------------------------- */
 /*  Context
@@ -32,10 +23,6 @@ type RoleListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<Role>['data'] | undefined;
   isLoading: boolean;
-  pagination: PaginationState;
-  setPagination: Dispatch<SetStateAction<PaginationState>>;
-  sorting: SortingState;
-  setSorting: Dispatch<SetStateAction<SortingState>>;
   rowSelection: RowSelectionState;
   setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
@@ -62,40 +49,9 @@ function RoleList({
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
-  const [pagination, setPagination] = useState<PaginationState>({
-      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
-      pageSize: query.state.limit ?? DEFAULT_LIMIT,
-    }),
-    [sorting, setSorting] = useState<SortingState>(
-      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
-        id: k,
-        desc: v === 'desc',
-      }))
-    ),
-    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { data, isLoading } = useRoles(query.params);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'order',
-        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
-          acc[id] = desc ? 'desc' : 'asc';
-          return acc;
-        }, {}),
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [sorting]);
-
-  useEffect(() => {
-    query.batch([
-      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
-      { type: 'set', key: 'limit', value: pagination.pageSize },
-    ]);
-  }, [pagination]);
 
   return (
     <RoleListContext.Provider
@@ -103,10 +59,6 @@ function RoleList({
         query,
         data,
         isLoading,
-        pagination,
-        setPagination,
-        sorting,
-        setSorting,
         rowSelection,
         setRowSelection,
       }}
@@ -124,18 +76,10 @@ function RoleListSearchFilter() {
 
   return (
     <SearchInput
-      placeholder="Search name..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
       onChange={(value) =>
-        query.batch([
-          {
-            type: 'set',
-            key: 'search',
-            value: value ? { name: value } : undefined,
-          },
-          { type: 'set', key: 'page', value: 1 },
-        ])
+        query.set('search', value ? { name: value } : undefined)
       }
     />
   );
@@ -162,16 +106,18 @@ function RoleListTable({
     NonNullable<RoleListContextProps['data']>['items'][number]
   >[];
 }) {
-  const {
-    data,
-    isLoading,
-    pagination,
-    setPagination,
-    sorting,
-    setSorting,
-    rowSelection,
-    setRowSelection,
-  } = useRoleList();
+  const { data, isLoading, query, rowSelection, setRowSelection } =
+    useRoleList();
+
+  const pagination = {
+    pageIndex: query.state.page - 1,
+    pageSize: query.state.limit,
+  };
+
+  const sorting = Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+    id: k,
+    desc: v === 'desc',
+  }));
 
   return (
     <DataTable
@@ -181,9 +127,24 @@ function RoleListTable({
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={setPagination}
+      onPaginationChange={(up) => {
+        const p = typeof up === 'function' ? up(pagination) : up;
+        query.batch([
+          { type: 'set', key: 'page', value: p.pageIndex + 1 },
+          { type: 'set', key: 'limit', value: p.pageSize },
+        ]);
+      }}
       sorting={sorting}
-      onSortingChange={setSorting}
+      onSortingChange={(up) => {
+        const s = typeof up === 'function' ? up(sorting) : up;
+        query.set(
+          'order',
+          s.reduce<ConditionMap>((acc, { id, desc }) => {
+            acc[id] = desc ? 'desc' : 'asc';
+            return acc;
+          }, {})
+        );
+      }}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       isLoading={isLoading}

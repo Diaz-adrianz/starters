@@ -53,9 +53,10 @@ function SortableHeader<T>({
       variant="ghost"
       size="sm"
       className="-ml-3"
-      onClick={() => {
-        if (!sorted) column.toggleSorting(false);
-        else if (sorted === 'asc') column.toggleSorting(true);
+      onClick={(e) => {
+        const multi = e.shiftKey;
+        if (!sorted) column.toggleSorting(false, multi);
+        else if (sorted === 'asc') column.toggleSorting(true, multi);
         else column.clearSorting();
       }}
     >
@@ -122,7 +123,7 @@ function DataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     manualSorting: true,
-    enableMultiSort: false,
+    enableMultiSort: true,
     enableRowSelection: true,
   });
 

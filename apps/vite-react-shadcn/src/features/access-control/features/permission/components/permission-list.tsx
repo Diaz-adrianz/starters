@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   type Dispatch,
   type ReactNode,
@@ -11,18 +10,10 @@ import { useResourceQuery } from '@/lib/resource-query/hooks/use-resource-query'
 import type { ApiPaginatedResponse } from '@/lib/axios/api.type';
 import type { Permission } from '../types/permission.type';
 import { usePermissions } from '../api/permission.query';
-import type {
-  ColumnDef,
-  PaginationState,
-  RowSelectionState,
-  SortingState,
-} from '@tanstack/react-table';
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table';
 import { DataTable } from '@/components/shared/data-table';
 import type { ConditionMap } from '@/lib/resource-query/resource-query.type';
 import { SearchInput } from '@/components/shared/search-input';
-
-const DEFAULT_PAGE = 1,
-  DEFAULT_LIMIT = 10;
 
 /* -------------------------------------------------------------------------- */
 /*  Context
@@ -31,10 +22,6 @@ type PermissionListContextProps = {
   query: ReturnType<typeof useResourceQuery>;
   data: ApiPaginatedResponse<Permission>['data'] | undefined;
   isLoading: boolean;
-  pagination: PaginationState;
-  setPagination: Dispatch<SetStateAction<PaginationState>>;
-  sorting: SortingState;
-  setSorting: Dispatch<SetStateAction<SortingState>>;
   rowSelection: RowSelectionState;
   setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 };
@@ -64,40 +51,9 @@ function PermissionList({
   const internalQuery = useResourceQuery(),
     query = controlledQuery ?? internalQuery;
 
-  const [pagination, setPagination] = useState<PaginationState>({
-      pageIndex: (query.state.page ?? DEFAULT_PAGE) - 1,
-      pageSize: query.state.limit ?? DEFAULT_LIMIT,
-    }),
-    [sorting, setSorting] = useState<SortingState>(
-      Object.entries(query.state.order ?? {}).map(([k, v]) => ({
-        id: k,
-        desc: v === 'desc',
-      }))
-    ),
-    [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { data, isLoading } = usePermissions(query.params);
-
-  useEffect(() => {
-    query.batch([
-      {
-        type: 'set',
-        key: 'order',
-        value: sorting.reduce<ConditionMap>((acc, { id, desc }) => {
-          acc[id] = desc ? 'desc' : 'asc';
-          return acc;
-        }, {}),
-      },
-      { type: 'set', key: 'page', value: 1 },
-    ]);
-  }, [sorting]);
-
-  useEffect(() => {
-    query.batch([
-      { type: 'set', key: 'page', value: pagination.pageIndex + 1 },
-      { type: 'set', key: 'limit', value: pagination.pageSize },
-    ]);
-  }, [pagination]);
 
   return (
     <PermissionListContext.Provider
@@ -105,10 +61,6 @@ function PermissionList({
         query,
         data,
         isLoading,
-        pagination,
-        setPagination,
-        sorting,
-        setSorting,
         rowSelection,
         setRowSelection,
       }}
@@ -126,18 +78,10 @@ function PermissionListSearchFilter() {
 
   return (
     <SearchInput
-      placeholder="Search description..."
       isLoading={isLoading}
       resultsCount={data?.totalItems}
       onChange={(value) =>
-        query.batch([
-          {
-            type: 'set',
-            key: 'search',
-            value: value ? { description: value } : undefined,
-          },
-          { type: 'set', key: 'page', value: 1 },
-        ])
+        query.set('search', value ? { description: value } : undefined)
       }
     />
   );
@@ -153,16 +97,18 @@ function PermissionListTable({
     NonNullable<PermissionListContextProps['data']>['items'][number]
   >[];
 }) {
-  const {
-    data,
-    isLoading,
-    pagination,
-    setPagination,
-    sorting,
-    setSorting,
-    rowSelection,
-    setRowSelection,
-  } = usePermissionList();
+  const { data, isLoading, query, rowSelection, setRowSelection } =
+    usePermissionList();
+
+  const pagination = {
+    pageIndex: query.state.page - 1,
+    pageSize: query.state.limit,
+  };
+
+  const sorting = Object.entries(query.state.order ?? {}).map(([k, v]) => ({
+    id: k,
+    desc: v === 'desc',
+  }));
 
   return (
     <DataTable
@@ -172,9 +118,24 @@ function PermissionListTable({
       totalItems={data?.totalItems ?? 0}
       getRowId={(row) => row.id}
       pagination={pagination}
-      onPaginationChange={setPagination}
+      onPaginationChange={(up) => {
+        const p = typeof up === 'function' ? up(pagination) : up;
+        query.batch([
+          { type: 'set', key: 'page', value: p.pageIndex + 1 },
+          { type: 'set', key: 'limit', value: p.pageSize },
+        ]);
+      }}
       sorting={sorting}
-      onSortingChange={setSorting}
+      onSortingChange={(up) => {
+        const s = typeof up === 'function' ? up(sorting) : up;
+        query.set(
+          'order',
+          s.reduce<ConditionMap>((acc, { id, desc }) => {
+            acc[id] = desc ? 'desc' : 'asc';
+            return acc;
+          }, {})
+        );
+      }}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       isLoading={isLoading}

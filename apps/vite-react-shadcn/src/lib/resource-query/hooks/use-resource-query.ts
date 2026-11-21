@@ -22,7 +22,9 @@ type ConditionPatch = {
 
 type Patch = FieldPatch | ConditionPatch;
 
-function useResourceQuery(initial: ResourceQueryState = {}) {
+function useResourceQuery(
+  initial: ResourceQueryState = { limit: 10, page: 1 }
+) {
   const [state, setState] = useState<ResourceQueryState>(initial);
 
   const set = useCallback(
@@ -30,7 +32,11 @@ function useResourceQuery(initial: ResourceQueryState = {}) {
       key: K,
       value: ResourceQueryState[K]
     ) => {
-      setState((prev) => ({ ...prev, [key]: value }));
+      setState((prev) => ({
+        ...prev,
+        [key]: value,
+        ...(key !== 'page' && { page: 1 }),
+      }));
     },
     []
   );
@@ -40,6 +46,7 @@ function useResourceQuery(initial: ResourceQueryState = {}) {
       setState((prev) => ({
         ...prev,
         [key]: { ...prev[key], [field]: value },
+        page: 1,
       }));
     },
     []
@@ -49,7 +56,7 @@ function useResourceQuery(initial: ResourceQueryState = {}) {
     setState((prev) => {
       const map = { ...prev[key] };
       delete map[field];
-      return { ...prev, [key]: map };
+      return { ...prev, [key]: map, page: 1 };
     });
   }, []);
 
@@ -57,7 +64,10 @@ function useResourceQuery(initial: ResourceQueryState = {}) {
     setState((prev) => {
       let next = { ...prev };
 
+      let hasPage = false;
       for (const patch of patches) {
+        if (patch.key === 'page') hasPage = true;
+
         if (patch.type === 'set') {
           next = { ...next, [patch.key]: patch.value };
         } else if (patch.type === 'add') {
@@ -71,6 +81,7 @@ function useResourceQuery(initial: ResourceQueryState = {}) {
           next = { ...next, [patch.key]: map };
         }
       }
+      if (!hasPage) next = { ...next, page: 1 };
 
       return next;
     });

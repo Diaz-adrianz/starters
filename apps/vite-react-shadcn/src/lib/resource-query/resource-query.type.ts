@@ -16,8 +16,8 @@ export interface ResourceQueryState {
   in?: ConditionMap;
   nin?: ConditionMap;
   order?: ConditionMap;
-  limit?: number;
-  page?: number;
+  limit: number;
+  page: number;
   trash?: boolean;
 }
 

@@ -40,8 +40,8 @@ export const buildParams = (state: ResourceQueryState) => {
   if (in_) result.in = in_;
   if (nin) result.nin = nin;
   if (order) result.order = order;
-  if (state.limit) result.limit = state.limit;
-  if (state.page) result.page = state.page;
+  result.limit = state.limit;
+  result.page = state.page;
   if (state.trash !== undefined) result.trash = state.trash;
 
   return result;
