@@ -30,6 +30,10 @@ import {
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
+import {
+  FieldConflictException,
+  ResolveContextException,
+} from './exceptions/resource-query.exception';
 
 export class ResourceQuery {
   public queries: Query[] = [];
@@ -186,7 +190,7 @@ export class ResourceQuery {
 
       if (rest.length === 0) {
         if (subWhere[head] && !(subWhere[head] instanceof FindOperator))
-          throw new Error(`Field conflict: "${fields.join(FIELDS_SEPARATOR)}"`);
+          throw new FieldConflictException(fields);
 
         subWhere[head] =
           value instanceof FindOperator && subWhere[head]
@@ -197,7 +201,7 @@ export class ResourceQuery {
       }
 
       if (subWhere[head] instanceof FindOperator)
-        throw new Error(`Field conflict: "${fields.join(FIELDS_SEPARATOR)}"`);
+        throw new FieldConflictException(fields);
       if (!subWhere[head]) subWhere[head] = {};
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -336,8 +340,7 @@ export class ResourceQuery {
           .split(FIELDS_SEPARATOR)
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
           .reduce<any>((v, key) => v?.[key], context);
-        if (resolved === undefined)
-          throw new Error(`Context path "${path}" could not be resolved`);
+        if (resolved === undefined) throw new ResolveContextException(path);
         return String(resolved);
       },
     );
