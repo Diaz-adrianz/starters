@@ -228,17 +228,21 @@ function SetPasswordForm() {
 
   const check = (values: SetPasswordCheckValues) => {
     setOtp(values.otp);
-    toast.promise(checkApi.mutateAsync(values), {
+    const p = checkApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Verifying your code...',
       success: 'Verification successful.',
     });
+    return p;
   };
 
   const set = (values: SetPasswordValues) => {
-    toast.promise(setApi.mutateAsync(values), {
+    const p = setApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Updating your password...',
       success: 'Your password has been updated.',
     });
+    return p;
   };
 
   const verified = checkApi.isSuccess,

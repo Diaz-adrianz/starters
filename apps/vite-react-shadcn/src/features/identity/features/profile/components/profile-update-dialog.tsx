@@ -69,11 +69,14 @@ function ProfileUpdateDialog({
   });
 
   const update = (values: UpdateProfileValues) => {
-    if (data)
-      toast.promise(updateApi.mutateAsync({ id: data.id, values }), {
+    if (data) {
+      const p = updateApi.mutateAsync({ id: data.id, values });
+      toast.promise(p, {
         loading: 'Editing profile...',
         success: 'Profile edited',
       });
+      return p;
+    }
   };
 
   return (

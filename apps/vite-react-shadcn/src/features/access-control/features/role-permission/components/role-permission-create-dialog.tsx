@@ -75,14 +75,16 @@ function RolePermissionCreateDialog({
         return;
       }
 
-    toast.promise(
-      createApi.mutateAsync({
-        roleId: values.role.id,
-        permissionId: values.permission.id,
-        condition,
-      }),
-      { loading: 'Granting permission...', success: 'Permission granted' }
-    );
+    const p = createApi.mutateAsync({
+      roleId: values.role.id,
+      permissionId: values.permission.id,
+      condition,
+    });
+    toast.promise(p, {
+      loading: 'Granting permission...',
+      success: 'Permission granted',
+    });
+    return p;
   };
 
   return (

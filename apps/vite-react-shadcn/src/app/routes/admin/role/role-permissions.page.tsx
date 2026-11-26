@@ -51,7 +51,7 @@ const RolePermissionsPage = () => {
                   <RolePermissionListSearchFilter />
                 </div>
                 {role.data && (
-                  <Can I={'create'} a={'access-control:role-user'}>
+                  <Can I={'create'} a={'access-control:role-permission'}>
                     <Button
                       onClick={() =>
                         createDialog.show({

@@ -55,10 +55,12 @@ function ProfileCreateDialog({
   });
 
   const create = (values: CreateProfileValues) => {
-    toast.promise(createApi.mutateAsync(values), {
+    const p = createApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Set up profile...',
       success: 'Profile set',
     });
+    return p;
   };
 
   return (

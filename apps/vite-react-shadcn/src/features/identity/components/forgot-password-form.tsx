@@ -35,10 +35,12 @@ function ForgotPasswordForm() {
   });
 
   const forgotPassword = (values: ForgotPasswordValues) => {
-    toast.promise(forgotPasswordApi.mutateAsync(values), {
+    const p = forgotPasswordApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Sending reset code...',
       success: 'Check your email for the reset code',
     });
+    return p;
   };
 
   return (

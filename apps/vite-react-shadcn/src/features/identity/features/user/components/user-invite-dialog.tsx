@@ -49,10 +49,12 @@ function UserInviteDialog({
   });
 
   const invite = (values: InviteUserValues) => {
-    toast.promise(inviteApi.mutateAsync(values), {
+    const p = inviteApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Inviting an account...',
       success: 'Account invited',
     });
+    return p;
   };
 
   return (

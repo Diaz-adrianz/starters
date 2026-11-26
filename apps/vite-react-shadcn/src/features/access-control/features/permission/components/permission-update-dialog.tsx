@@ -53,11 +53,14 @@ function PermissionUpdateDialog({
   });
 
   const update = (values: UpdatePermissionValues) => {
-    if (data)
-      toast.promise(updateApi.mutateAsync({ id: data.id, values }), {
+    if (data) {
+      const p = updateApi.mutateAsync({ id: data.id, values });
+      toast.promise(p, {
         loading: 'Updating permission...',
         success: 'Permission updated',
       });
+      return p;
+    }
   };
 
   return (

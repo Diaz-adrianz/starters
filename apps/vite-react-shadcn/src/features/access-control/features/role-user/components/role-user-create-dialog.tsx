@@ -59,14 +59,16 @@ function RoleUserCreateDialog({
   });
 
   const create = (values: CreateRoleUserValues) => {
-    toast.promise(
-      createApi.mutateAsync({
-        roleId: values.role.id,
-        userId: values.user.id,
-        username: values.user.username,
-      }),
-      { loading: 'Assigning role...', success: 'Role assigned' }
-    );
+    const p = createApi.mutateAsync({
+      roleId: values.role.id,
+      userId: values.user.id,
+      username: values.user.username,
+    });
+    toast.promise(p, {
+      loading: 'Assigning role...',
+      success: 'Role assigned',
+    });
+    return p;
   };
 
   return (

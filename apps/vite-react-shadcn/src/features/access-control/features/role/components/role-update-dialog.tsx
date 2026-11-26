@@ -53,11 +53,14 @@ function RoleUpdateDialog({
   });
 
   const update = (values: UpdateRoleValues) => {
-    if (data)
-      toast.promise(updateApi.mutateAsync({ id: data.id, values }), {
+    if (data) {
+      const p = updateApi.mutateAsync({ id: data.id, values });
+      toast.promise(p, {
         loading: 'Updating role...',
         success: 'Role updated',
       });
+      return p;
+    }
   };
 
   return (

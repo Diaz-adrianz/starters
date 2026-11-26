@@ -43,10 +43,12 @@ function RoleCreateDialog({ open, onOpenChange, hide }: DialogState) {
   });
 
   const create = (values: CreateRoleValues) => {
-    toast.promise(createApi.mutateAsync(values), {
+    const p = createApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Creating role...',
       success: 'Role created',
     });
+    return p;
   };
 
   return (

@@ -258,17 +258,21 @@ function AcceptInviteForm() {
 
   const check = (values: AcceptInviteCheckValues) => {
     setOtp(values.otp);
-    toast.promise(checkApi.mutateAsync(values), {
+    const p = checkApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Verifying OTP...',
       success: 'OTP verified',
     });
+    return p;
   };
 
   const setup = (values: AcceptInviteValues) => {
-    toast.promise(setupApi.mutateAsync(values), {
+    const p = setupApi.mutateAsync(values);
+    toast.promise(p, {
       loading: 'Setting up your account...',
       success: 'Account setted up',
     });
+    return p;
   };
 
   const verified = checkApi.isSuccess,
